@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "logic-view-bright",
+  "project": "logic-view-bright",
+  "builds": [
+    { "src": "optilog.app/app/**", "use": "@vercel/node" }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/optilog.app/app/$1" }
+  ]
+}
