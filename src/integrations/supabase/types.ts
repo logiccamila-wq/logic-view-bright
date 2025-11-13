@@ -14,6 +14,155 @@ export type Database = {
   }
   public: {
     Tables: {
+      cte: {
+        Row: {
+          chave_acesso: string | null
+          created_at: string | null
+          created_by: string | null
+          data_autorizacao: string | null
+          data_emissao: string | null
+          destinatario_cep: string
+          destinatario_cidade: string
+          destinatario_cnpj: string
+          destinatario_endereco: string
+          destinatario_nome: string
+          destinatario_uf: string
+          id: string
+          modal: string
+          numero_cte: string
+          observacoes: string | null
+          peso_bruto: number
+          peso_cubado: number | null
+          placa_carreta: string | null
+          placa_veiculo: string
+          produto_predominante: string
+          protocolo_autorizacao: string | null
+          quantidade_volumes: number
+          remetente_cep: string
+          remetente_cidade: string
+          remetente_cnpj: string
+          remetente_endereco: string
+          remetente_nome: string
+          remetente_uf: string
+          rntrc: string | null
+          serie: string
+          status: string
+          tipo_cte: string
+          tipo_frete: string
+          tipo_servico: string
+          tomador_cnpj: string | null
+          tomador_nome: string | null
+          tomador_tipo: string
+          trip_id: string | null
+          uf_veiculo: string
+          updated_at: string | null
+          valor_frete: number
+          valor_mercadoria: number
+          valor_pedagio: number | null
+          valor_total: number
+        }
+        Insert: {
+          chave_acesso?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_autorizacao?: string | null
+          data_emissao?: string | null
+          destinatario_cep: string
+          destinatario_cidade: string
+          destinatario_cnpj: string
+          destinatario_endereco: string
+          destinatario_nome: string
+          destinatario_uf: string
+          id?: string
+          modal?: string
+          numero_cte: string
+          observacoes?: string | null
+          peso_bruto: number
+          peso_cubado?: number | null
+          placa_carreta?: string | null
+          placa_veiculo: string
+          produto_predominante: string
+          protocolo_autorizacao?: string | null
+          quantidade_volumes: number
+          remetente_cep: string
+          remetente_cidade: string
+          remetente_cnpj: string
+          remetente_endereco: string
+          remetente_nome: string
+          remetente_uf: string
+          rntrc?: string | null
+          serie?: string
+          status?: string
+          tipo_cte: string
+          tipo_frete: string
+          tipo_servico: string
+          tomador_cnpj?: string | null
+          tomador_nome?: string | null
+          tomador_tipo: string
+          trip_id?: string | null
+          uf_veiculo: string
+          updated_at?: string | null
+          valor_frete: number
+          valor_mercadoria: number
+          valor_pedagio?: number | null
+          valor_total: number
+        }
+        Update: {
+          chave_acesso?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_autorizacao?: string | null
+          data_emissao?: string | null
+          destinatario_cep?: string
+          destinatario_cidade?: string
+          destinatario_cnpj?: string
+          destinatario_endereco?: string
+          destinatario_nome?: string
+          destinatario_uf?: string
+          id?: string
+          modal?: string
+          numero_cte?: string
+          observacoes?: string | null
+          peso_bruto?: number
+          peso_cubado?: number | null
+          placa_carreta?: string | null
+          placa_veiculo?: string
+          produto_predominante?: string
+          protocolo_autorizacao?: string | null
+          quantidade_volumes?: number
+          remetente_cep?: string
+          remetente_cidade?: string
+          remetente_cnpj?: string
+          remetente_endereco?: string
+          remetente_nome?: string
+          remetente_uf?: string
+          rntrc?: string | null
+          serie?: string
+          status?: string
+          tipo_cte?: string
+          tipo_frete?: string
+          tipo_servico?: string
+          tomador_cnpj?: string | null
+          tomador_nome?: string | null
+          tomador_tipo?: string
+          trip_id?: string | null
+          uf_veiculo?: string
+          updated_at?: string | null
+          valor_frete?: number
+          valor_mercadoria?: number
+          valor_pedagio?: number | null
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cte_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_checklists: {
         Row: {
           checklist_type: string

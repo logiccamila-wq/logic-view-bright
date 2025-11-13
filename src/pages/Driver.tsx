@@ -36,11 +36,18 @@ const Driver = () => {
   const [macroStatus, setMacroStatus] = useState<Array<{ label: string; time: string; success: boolean }>>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTrip, setActiveTrip] = useState<any>(null);
+  const [activeCTE, setActiveCTE] = useState<any>(null);
 
   useEffect(() => {
     loadActiveTrip();
     loadMacroHistory();
   }, []);
+
+  useEffect(() => {
+    if (activeTrip) {
+      loadActiveCTE();
+    }
+  }, [activeTrip]);
 
   const loadActiveTrip = async () => {
     if (!user) return;
@@ -56,6 +63,21 @@ const Driver = () => {
 
     if (data) {
       setActiveTrip(data);
+    }
+  };
+
+  const loadActiveCTE = async () => {
+    if (!activeTrip) return;
+
+    const { data, error } = await supabase
+      .from('cte')
+      .select('*')
+      .eq('trip_id', activeTrip.id)
+      .in('status', ['emitido', 'autorizado'])
+      .single();
+
+    if (data) {
+      setActiveCTE(data);
     }
   };
 
@@ -237,6 +259,64 @@ const Driver = () => {
             <CardContent className="p-6 text-center text-muted-foreground">
               <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
               <p>Nenhuma viagem ativa no momento</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CT-e Information */}
+        {activeCTE && (
+          <Card className="border-2 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Package className="w-5 h-5" />
+                CT-e Vinculado ao Transporte
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Número CT-e</p>
+                  <p className="font-mono font-semibold">{activeCTE.numero_cte}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <Badge variant="secondary">{activeCTE.status === 'emitido' ? 'Emitido' : 'Autorizado'}</Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Remetente</p>
+                  <p className="font-semibold text-sm">{activeCTE.remetente_nome}</p>
+                  <p className="text-xs text-muted-foreground">{activeCTE.remetente_cidade}/{activeCTE.remetente_uf}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Destinatário</p>
+                  <p className="font-semibold text-sm">{activeCTE.destinatario_nome}</p>
+                  <p className="text-xs text-muted-foreground">{activeCTE.destinatario_cidade}/{activeCTE.destinatario_uf}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Produto</p>
+                  <p className="font-semibold text-sm">{activeCTE.produto_predominante}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Peso Bruto</p>
+                  <p className="font-semibold text-sm">{activeCTE.peso_bruto} kg</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Quantidade Volumes</p>
+                  <p className="font-semibold text-sm">{activeCTE.quantidade_volumes}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Valor Total</p>
+                  <p className="font-semibold text-green-600">
+                    R$ {activeCTE.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                {activeCTE.observacoes && (
+                  <div className="col-span-2">
+                    <p className="text-sm text-muted-foreground">Observações</p>
+                    <p className="text-sm">{activeCTE.observacoes}</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

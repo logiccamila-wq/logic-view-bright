@@ -11,7 +11,8 @@ import {
   Package,
   AlertCircle,
   Plus,
-  Search
+  Search,
+  FileText
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { CTEManagement } from "@/components/tms/CTEManagement";
 
 const TMS = () => {
   const viagensAtivas = [
@@ -78,8 +80,9 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="viagens" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="viagens">Viagens</TabsTrigger>
+            <TabsTrigger value="cte">CT-e</TabsTrigger>
             <TabsTrigger value="cargas">Cargas</TabsTrigger>
             <TabsTrigger value="rotas">Rotas</TabsTrigger>
             <TabsTrigger value="frete">Frete</TabsTrigger>
@@ -151,6 +154,11 @@ const TMS = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* CT-e */}
+          <TabsContent value="cte" className="space-y-4">
+            <CTEManagement />
           </TabsContent>
 
           {/* Cargas */}
