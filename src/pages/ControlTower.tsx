@@ -2,6 +2,7 @@ import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
   DollarSign,
@@ -13,12 +14,20 @@ import {
   Globe,
   User,
   Wrench,
+  Sparkles,
+  Brain,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LineChart, Line, BarChart as RechartsBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import GaelChatbot from "@/components/GaelChatbot";
+import {
+  predictTireFailureRisk,
+  predictNextMaintenance,
+  optimizeFuelCosts,
+  calculateFleetHealthScore,
+} from "@/utils/mlPredictive";
 
 interface DashboardData {
   financeiro: {
@@ -46,6 +55,12 @@ interface DashboardData {
   ia_insights: {
     insights: Array<{ tipo: string; msg: string }>;
     topicos_reuniao: Array<{ topico: string; responsavel: string }>;
+  };
+  ml_preditiva?: {
+    tire_risk: any;
+    next_maintenance: any;
+    fuel_optimization: any;
+    fleet_health: any;
   };
 }
 
@@ -164,6 +179,30 @@ const ControlTower = () => {
         { topico: `Otimização de custos - Custo/KM: R$ ${custoKm.toFixed(2)}`, responsavel: 'Financeiro/CEO' },
       ];
 
+      // ML Preditiva
+      const { data: tpmsData } = await supabase.from('tpms_readings').select('*').order('created_at', { ascending: false }).limit(20);
+      const { data: serviceOrdersData } = await supabase.from('service_orders').select('*');
+      
+      const tireRisk = tpmsData && tpmsData.length > 0 
+        ? predictTireFailureRisk(tpmsData) 
+        : null;
+      
+      const nextMaintenance = serviceOrdersData && serviceOrdersData.length > 0
+        ? predictNextMaintenance(serviceOrdersData, 50000) 
+        : null;
+      
+      const fuelOptimization = refuelings && refuelings.length > 0
+        ? optimizeFuelCosts(refuelings)
+        : null;
+
+      const fleetHealth = calculateFleetHealthScore({
+        tpmsAlerts: tpms?.length || 0,
+        pendingServiceOrders: osPendentes,
+        totalVehicles: motoristasUnicos,
+        avgCostPerKm: custoKm,
+        recentBreakdowns: 0,
+      });
+
       setData({
         financeiro: {
           faturamento_bruto: faturamentoBruto,
@@ -190,6 +229,12 @@ const ControlTower = () => {
         ia_insights: {
           insights,
           topicos_reuniao: topicosReuniao,
+        },
+        ml_preditiva: {
+          tire_risk: tireRisk,
+          next_maintenance: nextMaintenance,
+          fuel_optimization: fuelOptimization,
+          fleet_health: fleetHealth,
         },
       });
     } catch (error) {
@@ -239,7 +284,7 @@ const ControlTower = () => {
         </div>
 
         <Tabs defaultValue="financeiro" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="financeiro">
               <DollarSign className="w-4 h-4 mr-2" />
               Financeiro
@@ -251,6 +296,10 @@ const ControlTower = () => {
             <TabsTrigger value="manutencao">
               <Wrench className="w-4 h-4 mr-2" />
               Manutenção
+            </TabsTrigger>
+            <TabsTrigger value="ml-preditiva">
+              <Brain className="w-4 h-4 mr-2" />
+              ML Preditiva
             </TabsTrigger>
             <TabsTrigger value="insights">
               <TrendingUp className="w-4 h-4 mr-2" />
@@ -488,6 +537,177 @@ const ControlTower = () => {
             </div>
           </TabsContent>
 
+          {/* ML Preditiva */}
+          <TabsContent value="ml-preditiva" className="space-y-6">
+            <p className="text-muted-foreground">
+              Análises preditivas usando Machine Learning para manutenção, custos e otimização
+            </p>
+
+            {/* Fleet Health Score */}
+            {data.ml_preditiva?.fleet_health && (
+              <Card className="border-l-4 border-primary">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="w-5 h-5" />
+                      Score de Saúde da Frota
+                    </CardTitle>
+                    <Badge variant={
+                      data.ml_preditiva.fleet_health.status === 'excellent' ? 'default' :
+                      data.ml_preditiva.fleet_health.status === 'good' ? 'secondary' :
+                      data.ml_preditiva.fleet_health.status === 'fair' ? 'outline' :
+                      'destructive'
+                    }>
+                      {data.ml_preditiva.fleet_health.score}/100
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    {data.ml_preditiva.fleet_health.factors.map((factor: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{factor.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={factor.impact < 0 ? 'text-red-600' : 'text-green-600'}>
+                            {factor.impact > 0 ? '+' : ''}{factor.impact}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{factor.description}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Tire Failure Prediction */}
+              {data.ml_preditiva?.tire_risk && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      Previsão de Falha de Pneus
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Score de Risco</span>
+                      <Badge variant={
+                        data.ml_preditiva.tire_risk.riskScore > 70 ? 'destructive' :
+                        data.ml_preditiva.tire_risk.riskScore > 40 ? 'outline' :
+                        'secondary'
+                      }>
+                        {data.ml_preditiva.tire_risk.riskScore}/100
+                      </Badge>
+                    </div>
+                    
+                    {data.ml_preditiva.tire_risk.predictedFailureDays !== null && (
+                      <div className="p-3 bg-destructive/10 rounded-lg">
+                        <p className="text-sm font-semibold text-destructive">
+                          ⚠️ Falha prevista em {data.ml_preditiva.tire_risk.predictedFailureDays} dias
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Recomendações:</p>
+                      <ul className="space-y-1">
+                        {data.ml_preditiva.tire_risk.recommendations.map((rec: string, idx: number) => (
+                          <li key={idx} className="text-xs text-muted-foreground">• {rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Next Maintenance Prediction */}
+              {data.ml_preditiva?.next_maintenance && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Wrench className="w-5 h-5" />
+                      Próxima Manutenção Prevista
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground">KM Previsto</p>
+                        <p className="text-2xl font-bold">{data.ml_preditiva.next_maintenance.predictedKm.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Dias Estimados</p>
+                        <p className="text-2xl font-bold">{data.ml_preditiva.next_maintenance.predictedDays}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Confiança</span>
+                        <Badge variant="outline">
+                          {(data.ml_preditiva.next_maintenance.confidence * 100).toFixed(0)}%
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Tipo</span>
+                        <span className="font-medium">{data.ml_preditiva.next_maintenance.maintenanceType}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Fuel Cost Optimization */}
+              {data.ml_preditiva?.fuel_optimization && (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <DollarSign className="w-5 h-5" />
+                      Otimização de Combustível
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Custo Médio/KM</p>
+                        <p className="text-2xl font-bold">R$ {data.ml_preditiva.fuel_optimization.avgCostPerKm}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Tendência</p>
+                        <Badge variant={
+                          data.ml_preditiva.fuel_optimization.trend === 'increasing' ? 'destructive' :
+                          data.ml_preditiva.fuel_optimization.trend === 'decreasing' ? 'default' :
+                          'secondary'
+                        }>
+                          {data.ml_preditiva.fuel_optimization.trend === 'increasing' ? '↗️ Subindo' :
+                           data.ml_preditiva.fuel_optimization.trend === 'decreasing' ? '↘️ Caindo' :
+                           '→ Estável'}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Veículos Ineficientes</p>
+                        <p className="text-2xl font-bold text-destructive">
+                          {data.ml_preditiva.fuel_optimization.inefficientVehicles.length}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Recomendações de Otimização:</p>
+                      <ul className="space-y-1">
+                        {data.ml_preditiva.fuel_optimization.recommendations.map((rec: string, idx: number) => (
+                          <li key={idx} className="text-xs text-muted-foreground">• {rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
           {/* IA Insights */}
           <TabsContent value="insights" className="space-y-6">
             <p className="text-muted-foreground">
@@ -537,17 +757,11 @@ const ControlTower = () => {
           </TabsContent>
         </Tabs>
       </div>
-      
-      <GaelChatbot dashboardData={data ? {
-        faturamento_bruto: data.financeiro.faturamento_bruto,
-        custo_km: data.financeiro.custo_km,
-        margem_liquida: data.financeiro.margem_liquida,
-        viagens_ativas: data.operacional.viagens_ativas,
-        viagens_pendentes: data.operacional.viagens_pendentes,
-        ordens_pendentes: data.manutencao.ordens_pendentes,
-        ordens_em_andamento: data.manutencao.ordens_em_andamento,
-        alertas_tpms: data.manutencao.alertas_tpms,
-      } : undefined} />
+      <GaelChatbot dashboardData={{
+        financeiro: data.financeiro,
+        operacional: data.operacional,
+        manutencao: data.manutencao,
+      }} />
     </Layout>
   );
 };

@@ -57,17 +57,24 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        purple: {
-          DEFAULT: "hsl(var(--purple))",
-          foreground: "hsl(var(--purple-foreground))",
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
         },
-        green: {
-          DEFAULT: "hsl(var(--green))",
-          foreground: "hsl(var(--green-foreground))",
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
-        orange: {
-          DEFAULT: "hsl(var(--orange))",
-          foreground: "hsl(var(--orange-foreground))",
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        ejg: {
+          red: "hsl(var(--ejg-red))",
+          "dark-red": "hsl(var(--ejg-dark-red))",
+          "light-grey": "hsl(var(--ejg-light-grey))",
+          "medium-grey": "hsl(var(--ejg-medium-grey))",
+          "dark-grey": "hsl(var(--ejg-dark-grey))",
         },
       },
       borderRadius: {
