@@ -14,6 +14,7 @@ import {
   UserCheck,
   Building2,
   CheckCircle,
+  TowerControl,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -34,6 +35,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
+  { title: "Torre de Controle", url: "/control-tower", icon: TowerControl, module: "control-tower" },
   { title: "Gestão de Frota", url: "/fleet", icon: Truck, module: "fleet" },
   { title: "Hub Mecânico", url: "/mechanic", icon: Wrench, module: "mechanic" },
   { title: "App Motorista", url: "/driver", icon: User, module: "driver" },

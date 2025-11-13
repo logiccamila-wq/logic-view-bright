@@ -15,6 +15,7 @@ import Users from "./pages/Users";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Approvals from "./pages/Approvals";
+import ControlTower from "./pages/ControlTower";
 import WMS from "./pages/WMS";
 import TMS from "./pages/TMS";
 import OMS from "./pages/OMS";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/reports" element={<ProtectedRoute module="reports"><Reports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
             <Route path="/approvals" element={<ProtectedRoute module="approvals"><Approvals /></ProtectedRoute>} />
+            <Route path="/control-tower" element={<ProtectedRoute module="control-tower"><ControlTower /></ProtectedRoute>} />
             <Route path="/wms" element={<ProtectedRoute module="wms"><WMS /></ProtectedRoute>} />
             <Route path="/tms" element={<ProtectedRoute module="tms"><TMS /></ProtectedRoute>} />
             <Route path="/oms" element={<ProtectedRoute module="oms"><OMS /></ProtectedRoute>} />

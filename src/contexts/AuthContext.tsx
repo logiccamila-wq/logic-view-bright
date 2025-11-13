@@ -22,14 +22,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Module permissions mapping
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
   driver: ['dashboard', 'fleet', 'tms', 'driver'],
-  finance: ['dashboard', 'erp', 'reports'],
-  operations: ['dashboard', 'operations', 'tms', 'fleet'],
-  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals'],
+  finance: ['dashboard', 'erp', 'reports', 'control-tower'],
+  operations: ['dashboard', 'operations', 'tms', 'fleet', 'control-tower'],
+  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower'],
   commercial: ['dashboard', 'tms', 'crm'],
   fleet_maintenance: ['dashboard', 'fleet', 'mechanic'],
   maintenance_assistant: ['dashboard', 'mechanic'],
-  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports'],
-  maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports'],
+  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower'],
+  maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports', 'control-tower'],
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
