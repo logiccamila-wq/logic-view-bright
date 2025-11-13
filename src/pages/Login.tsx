@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import optilogLogo from "@/assets/optilog-logo.png";
+import ejgLogo from "@/assets/ejg-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -38,8 +40,10 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-primary/20 mx-auto flex items-center justify-center">
-            <Lock className="w-8 h-8 text-primary" />
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <img src={optilogLogo} alt="OptiLog" className="h-12 w-auto" />
+            <div className="h-12 w-px bg-border" />
+            <img src={ejgLogo} alt="EJG Transportes" className="h-12 w-12" />
           </div>
           <CardTitle className="text-2xl">Entrar</CardTitle>
           <CardDescription className="text-muted-foreground">

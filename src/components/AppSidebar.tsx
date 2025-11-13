@@ -17,6 +17,7 @@ import {
   TowerControl,
   Warehouse,
 } from "lucide-react";
+import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -78,14 +79,12 @@ export function AppSidebar() {
       <SidebarContent className="bg-sidebar border-r border-border">
         {/* Logo */}
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <div>
+          <div className="flex items-center">
             {!collapsed && (
-              <h1 className="text-xl font-bold text-primary">OptiLog</h1>
+              <img src={optilogLogo} alt="OptiLog" className="h-8 w-auto" />
             )}
             {collapsed && (
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <span className="text-primary font-bold">O</span>
-              </div>
+              <img src={optilogLogo} alt="OptiLog" className="h-8 w-8 object-contain" />
             )}
           </div>
           {!collapsed && <NotificationBell />}
