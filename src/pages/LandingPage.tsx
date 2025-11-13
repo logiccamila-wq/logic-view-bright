@@ -15,10 +15,43 @@ import {
   Star
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import optilogLogo from "@/assets/optilog-logo.png";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const fadeInLeft = {
+    hidden: { opacity: 0, x: -30 },
+    visible: { opacity: 1, x: 0 }
+  };
+
+  const fadeInRight = {
+    hidden: { opacity: 0, x: 30 },
+    visible: { opacity: 1, x: 0 }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
   const features = [
     { icon: Zap, title: "51 Módulos Integrados", desc: "Tudo em uma única plataforma" },
@@ -116,40 +149,75 @@ const LandingPage = () => {
       {/* Hero Section */}
       <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto text-center">
-          <Badge className="mb-4" variant="secondary">
-            Primeiro TMS 100% Integrado do Brasil
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            transition={{ duration: 0.5 }}
+          >
+            <Badge className="mb-4" variant="secondary">
+              Primeiro TMS 100% Integrado do Brasil
+            </Badge>
+          </motion.div>
+          
+          <motion.h1 
+            className="text-4xl md:text-6xl font-bold mb-6 text-foreground"
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
             TMS Revolucionário com<br />
             <span className="text-primary">IA, IoT e Blockchain</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          </motion.h1>
+          
+          <motion.p 
+            className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto"
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             Substitua 2-3 sistemas por uma única plataforma. Economize R$ 1,2 milhão/ano 
             e alcance nota 95/100 com 98% de aprovação em editais governamentais.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center mb-12">
-            <Button size="lg" className="gap-2" onClick={() => navigate("/login")}>
+          </motion.p>
+          
+          <motion.div 
+            className="flex flex-wrap gap-4 justify-center mb-12"
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <Button size="lg" className="gap-2 hover-scale" onClick={() => navigate("/login")}>
               Experimente Grátis 30 Dias
               <ChevronRight className="h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="gap-2">
+            <Button size="lg" variant="outline" className="gap-2 hover-scale">
               Ver Demonstração
               <Star className="h-5 w-5" />
             </Button>
-          </div>
+          </motion.div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
             {features.map((feature, idx) => (
-              <Card key={idx} className="border-border/50">
-                <CardContent className="p-4 text-center">
-                  <feature.icon className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
-                  <p className="text-xs text-muted-foreground">{feature.desc}</p>
-                </CardContent>
-              </Card>
+              <motion.div key={idx} variants={scaleIn}>
+                <Card className="border-border/50 hover-scale">
+                  <CardContent className="p-4 text-center">
+                    <feature.icon className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
+                    <p className="text-xs text-muted-foreground">{feature.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -158,7 +226,14 @@ const LandingPage = () => {
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Problems */}
-            <Card className="border-destructive/20 bg-destructive/5">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInLeft}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="border-destructive/20 bg-destructive/5 h-full">
               <CardHeader>
                 <CardTitle className="text-2xl">❌ O Problema</CardTitle>
                 <CardDescription>Desafios que transportadoras enfrentam</CardDescription>
@@ -171,10 +246,18 @@ const LandingPage = () => {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
 
             {/* Solutions */}
-            <Card className="border-success/20 bg-success/5">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInRight}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="border-success/20 bg-success/5 h-full">
               <CardHeader>
                 <CardTitle className="text-2xl">✅ A Solução OptiLog</CardTitle>
                 <CardDescription>Tudo o que você precisa em um lugar</CardDescription>
@@ -187,7 +270,8 @@ const LandingPage = () => {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -195,10 +279,25 @@ const LandingPage = () => {
       {/* Comparison Table */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-4">OptiLog vs Concorrentes</h2>
-          <p className="text-center text-muted-foreground mb-12">Veja por que somos diferentes</p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-center mb-4">OptiLog vs Concorrentes</h2>
+            <p className="text-center text-muted-foreground mb-12">Veja por que somos diferentes</p>
+          </motion.div>
           
-          <div className="overflow-x-auto">
+          <motion.div 
+            className="overflow-x-auto"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b">
@@ -226,21 +325,36 @@ const LandingPage = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Modules Section */}
       <section id="modulos" className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-4">51 Módulos Integrados</h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Tudo o que sua transportadora precisa em uma única plataforma
-          </p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-center mb-4">51 Módulos Integrados</h2>
+            <p className="text-center text-muted-foreground mb-12">
+              Tudo o que sua transportadora precisa em uma única plataforma
+            </p>
+          </motion.div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
             {modules.map((module, idx) => (
-              <Card key={idx} className="hover:border-primary/50 transition-colors">
+              <motion.div key={idx} variants={scaleIn}>
+                <Card className="hover:border-primary/50 transition-colors hover-scale h-full">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
                     <CardTitle className="text-lg">{module.category}</CardTitle>
@@ -257,23 +371,39 @@ const LandingPage = () => {
                     ))}
                   </ul>
                 </CardContent>
-              </Card>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Pricing Section */}
       <section id="precos" className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-7xl">
-          <h2 className="text-3xl font-bold text-center mb-4">Planos e Preços</h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Escolha o plano ideal para o tamanho da sua frota
-          </p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-center mb-4">Planos e Preços</h2>
+            <p className="text-center text-muted-foreground mb-12">
+              Escolha o plano ideal para o tamanho da sua frota
+            </p>
+          </motion.div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
             {plans.map((plan, idx) => (
-              <Card 
+              <motion.div key={idx} variants={scaleIn}>
+                <Card
                 key={idx} 
                 className={plan.popular ? "border-primary shadow-lg relative" : ""}
               >
@@ -307,9 +437,10 @@ const LandingPage = () => {
                     Começar Agora
                   </Button>
                 </CardContent>
-              </Card>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="text-center mt-8">
             <p className="text-sm text-muted-foreground">
@@ -322,9 +453,25 @@ const LandingPage = () => {
       {/* Case Study */}
       <section id="casos" className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Caso de Sucesso</h2>
+          <motion.h2 
+            className="text-3xl font-bold text-center mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.5 }}
+          >
+            Caso de Sucesso
+          </motion.h2>
           
-          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={scaleIn}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
             <CardHeader>
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -361,20 +508,36 @@ const LandingPage = () => {
                 </footer>
               </blockquote>
             </CardContent>
-          </Card>
+            </Card>
+          </motion.div>
         </div>
       </section>
 
       {/* Technologies */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-4">Tecnologias Avançadas</h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Stack moderno para máxima performance e confiabilidade
-          </p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-center mb-4">Tecnologias Avançadas</h2>
+            <p className="text-center text-muted-foreground mb-12">
+              Stack moderno para máxima performance e confiabilidade
+            </p>
+          </motion.div>
           
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card>
+          <motion.div 
+            className="grid md:grid-cols-3 gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={scaleIn}>
+              <Card className="hover-scale h-full">
               <CardHeader>
                 <Brain className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>IA & Machine Learning</CardTitle>
@@ -385,9 +548,11 @@ const LandingPage = () => {
                 <p>• Previsão de manutenção</p>
                 <p>• Detecção de anomalias</p>
               </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
 
-            <Card>
+            <motion.div variants={scaleIn}>
+              <Card className="hover-scale h-full">
               <CardHeader>
                 <Network className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>IoT & Telemetria</CardTitle>
@@ -398,9 +563,11 @@ const LandingPage = () => {
                 <p>• Sensores TPMS</p>
                 <p>• Detecção de fadiga</p>
               </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
 
-            <Card>
+            <motion.div variants={scaleIn}>
+              <Card className="hover-scale h-full">
               <CardHeader>
                 <Shield className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Blockchain & Segurança</CardTitle>
@@ -411,8 +578,9 @@ const LandingPage = () => {
                 <p>• PoD criptografado</p>
                 <p>• Criptografia AES-256</p>
               </CardContent>
-            </Card>
-          </div>
+              </Card>
+            </motion.div>
+          </motion.div>
 
           <div className="mt-12 text-center">
             <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
@@ -431,7 +599,14 @@ const LandingPage = () => {
 
       {/* Final CTA */}
       <section className="py-20 px-4 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10">
-        <div className="container mx-auto max-w-3xl text-center">
+        <motion.div 
+          className="container mx-auto max-w-3xl text-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-4xl font-bold mb-4">
             Pronto para Revolucionar sua Transportadora?
           </h2>
@@ -439,11 +614,11 @@ const LandingPage = () => {
             Junte-se às empresas que estão economizando milhões e dominando o mercado
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="gap-2" onClick={() => navigate("/login")}>
+            <Button size="lg" className="gap-2 hover-scale" onClick={() => navigate("/login")}>
               Começar Teste Grátis 30 Dias
               <ChevronRight className="h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="gap-2">
+            <Button size="lg" variant="outline" className="gap-2 hover-scale">
               Falar com Especialista
               <ArrowRight className="h-5 w-5" />
             </Button>
@@ -451,7 +626,7 @@ const LandingPage = () => {
           <p className="mt-6 text-sm text-muted-foreground">
             ✅ Sem cartão de crédito • ✅ Cancelamento a qualquer momento • ✅ Suporte em português
           </p>
-        </div>
+        </motion.div>
       </section>
 
       {/* Footer */}
