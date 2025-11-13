@@ -1,14 +1,47 @@
+import { useState, useMemo } from 'react';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Check, CheckCheck, Trash2, Info, AlertTriangle, AlertCircle, CheckCircle, Bell } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Check, CheckCheck, Trash2, Info, AlertTriangle, AlertCircle, CheckCircle, Bell, Filter } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function NotificationPanel() {
   const { notifications, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+  
+  const [moduleFilter, setModuleFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Get unique modules from notifications
+  const availableModules = useMemo(() => {
+    const modules = new Set(notifications.map(n => n.module).filter(Boolean));
+    return Array.from(modules);
+  }, [notifications]);
+
+  // Filter notifications based on selected filters
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter(notification => {
+      const moduleMatch = moduleFilter === 'all' || notification.module === moduleFilter;
+      const typeMatch = typeFilter === 'all' || notification.type === typeFilter;
+      const statusMatch = statusFilter === 'all' || 
+        (statusFilter === 'read' && notification.read) ||
+        (statusFilter === 'unread' && !notification.read);
+      
+      return moduleMatch && typeMatch && statusMatch;
+    });
+  }, [notifications, moduleFilter, typeFilter, statusFilter]);
+
+  const hasActiveFilters = moduleFilter !== 'all' || typeFilter !== 'all' || statusFilter !== 'all';
+
+  const clearFilters = () => {
+    setModuleFilter('all');
+    setTypeFilter('all');
+    setStatusFilter('all');
+  };
 
   if (loading) {
     return (
@@ -18,14 +51,7 @@ export function NotificationPanel() {
     );
   }
 
-  if (notifications.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-        <Bell className="h-12 w-12 mb-4 opacity-50" />
-        <p>Nenhuma notificação</p>
-      </div>
-    );
-  }
+  const showEmptyState = notifications.length === 0 || filteredNotifications.length === 0;
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -55,21 +81,106 @@ export function NotificationPanel() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] mt-4">
+      {/* Filters Section */}
+      <div className="space-y-3 mb-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <Filter className="h-4 w-4" />
+          Filtros
+        </div>
+        
+        <div className="grid grid-cols-3 gap-2">
+          <Select value={moduleFilter} onValueChange={setModuleFilter}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Módulo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os módulos</SelectItem>
+              {availableModules.map(module => (
+                <SelectItem key={module} value={module!}>
+                  {module?.toUpperCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              <SelectItem value="info">Info</SelectItem>
+              <SelectItem value="success">Sucesso</SelectItem>
+              <SelectItem value="warning">Aviso</SelectItem>
+              <SelectItem value="error">Erro</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="unread">Não lidas</SelectItem>
+              <SelectItem value="read">Lidas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {hasActiveFilters && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={clearFilters}
+            className="w-full h-8"
+          >
+            Limpar filtros
+          </Button>
+        )}
+      </div>
+
+      {/* Actions Section */}
       <div className="flex gap-2 mb-4">
         <Button 
           variant="outline" 
           size="sm" 
           onClick={markAllAsRead}
           className="flex-1"
+          disabled={filteredNotifications.every(n => n.read)}
         >
           <CheckCheck className="h-4 w-4 mr-2" />
           Marcar todas como lidas
         </Button>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-2">
-          {notifications.map((notification, index) => (
+      {/* Empty State */}
+      {showEmptyState && (
+        <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
+          <Bell className="h-12 w-12 mb-4 opacity-50" />
+          <p className="text-center">
+            {notifications.length === 0 
+              ? 'Nenhuma notificação' 
+              : 'Nenhuma notificação com os filtros selecionados'}
+          </p>
+          {hasActiveFilters && notifications.length > 0 && (
+            <Button 
+              variant="link" 
+              size="sm" 
+              onClick={clearFilters}
+              className="mt-2"
+            >
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Notifications List */}
+      {!showEmptyState && (
+        <ScrollArea className="flex-1">
+          <div className="space-y-2">
+            {filteredNotifications.map((notification, index) => (
             <div key={notification.id}>
               <div
                 className={`p-4 rounded-lg border transition-colors ${
@@ -135,11 +246,12 @@ export function NotificationPanel() {
                 </div>
               </div>
               
-              {index < notifications.length - 1 && <Separator className="my-2" />}
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
+                {index < filteredNotifications.length - 1 && <Separator className="my-2" />}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 }
