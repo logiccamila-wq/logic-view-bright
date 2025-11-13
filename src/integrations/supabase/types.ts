@@ -127,6 +127,53 @@ export type Database = {
         }
         Relationships: []
       }
+      refuelings: {
+        Row: {
+          cost_per_km: number | null
+          created_at: string
+          driver_id: string
+          id: string
+          km: number
+          liters: number
+          timestamp: string
+          total_value: number
+          trip_id: string | null
+          vehicle_plate: string
+        }
+        Insert: {
+          cost_per_km?: number | null
+          created_at?: string
+          driver_id: string
+          id?: string
+          km: number
+          liters: number
+          timestamp?: string
+          total_value: number
+          trip_id?: string | null
+          vehicle_plate: string
+        }
+        Update: {
+          cost_per_km?: number | null
+          created_at?: string
+          driver_id?: string
+          id?: string
+          km?: number
+          liters?: number
+          timestamp?: string
+          total_value?: number
+          trip_id?: string | null
+          vehicle_plate?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refuelings_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_orders: {
         Row: {
           completed_at: string | null
@@ -140,6 +187,7 @@ export type Database = {
           mechanic_notes: string | null
           odometer: number
           parts_used: Json | null
+          photos: Json | null
           priority: string
           status: string
           updated_at: string | null
@@ -158,6 +206,7 @@ export type Database = {
           mechanic_notes?: string | null
           odometer: number
           parts_used?: Json | null
+          photos?: Json | null
           priority: string
           status?: string
           updated_at?: string | null
@@ -176,6 +225,7 @@ export type Database = {
           mechanic_notes?: string | null
           odometer?: number
           parts_used?: Json | null
+          photos?: Json | null
           priority?: string
           status?: string
           updated_at?: string | null
@@ -228,6 +278,101 @@ export type Database = {
           tire_model?: string | null
           tire_position?: string
           tread_depth_mm?: number | null
+          vehicle_plate?: string
+        }
+        Relationships: []
+      }
+      trip_macros: {
+        Row: {
+          created_at: string
+          driver_id: string
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          macro_type: string
+          notes: string | null
+          timestamp: string
+          trip_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          macro_type: string
+          notes?: string | null
+          timestamp?: string
+          trip_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          macro_type?: string
+          notes?: string | null
+          timestamp?: string
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_macros_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          destination: string
+          driver_id: string
+          driver_name: string
+          estimated_arrival: string | null
+          estimated_departure: string | null
+          id: string
+          notes: string | null
+          origin: string
+          status: string
+          updated_at: string
+          vehicle_plate: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          destination: string
+          driver_id: string
+          driver_name: string
+          estimated_arrival?: string | null
+          estimated_departure?: string | null
+          id?: string
+          notes?: string | null
+          origin: string
+          status?: string
+          updated_at?: string
+          vehicle_plate: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          destination?: string
+          driver_id?: string
+          driver_name?: string
+          estimated_arrival?: string | null
+          estimated_departure?: string | null
+          id?: string
+          notes?: string | null
+          origin?: string
+          status?: string
+          updated_at?: string
           vehicle_plate?: string
         }
         Relationships: []
@@ -331,6 +476,8 @@ export type Database = {
         | "comercial"
         | "frota"
         | "auxiliar_manutencao"
+        | "logistics_manager"
+        | "maintenance_manager"
       notification_type: "info" | "success" | "warning" | "error"
     }
     CompositeTypes: {
@@ -474,6 +621,8 @@ export const Constants = {
         "comercial",
         "frota",
         "auxiliar_manutencao",
+        "logistics_manager",
+        "maintenance_manager",
       ],
       notification_type: ["info", "success", "warning", "error"],
     },

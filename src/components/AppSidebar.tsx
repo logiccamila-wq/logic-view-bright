@@ -12,7 +12,8 @@ import {
   ShoppingCart,
   GitBranch,
   UserCheck,
-  Building2
+  Building2,
+  CheckCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -39,6 +40,7 @@ const mainItems = [
 ];
 
 const managementItems = [
+  { title: "Aprovações", url: "/approvals", icon: CheckCircle, module: "approvals" },
   { title: "Usuários", url: "/users", icon: Users, module: "users" },
   { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
   { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },

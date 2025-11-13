@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-type AppRole = 'admin' | 'driver' | 'finance' | 'operations' | 'commercial' | 'fleet_maintenance' | 'maintenance_assistant';
+type AppRole = 'admin' | 'driver' | 'finance' | 'operations' | 'commercial' | 'fleet_maintenance' | 'maintenance_assistant' | 'logistics_manager' | 'maintenance_manager';
 
 interface AuthContextType {
   user: User | null;
@@ -21,13 +21,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Module permissions mapping
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
-  driver: ['dashboard', 'fleet', 'tms'],
+  driver: ['dashboard', 'fleet', 'tms', 'driver'],
   finance: ['dashboard', 'erp', 'reports'],
   operations: ['dashboard', 'operations', 'tms', 'fleet'],
-  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users'],
+  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals'],
   commercial: ['dashboard', 'tms', 'crm'],
   fleet_maintenance: ['dashboard', 'fleet', 'mechanic'],
   maintenance_assistant: ['dashboard', 'mechanic'],
+  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports'],
+  maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports'],
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
