@@ -124,6 +124,13 @@ export type Database = {
         | "commercial"
         | "fleet_maintenance"
         | "maintenance_assistant"
+        | "mecanico"
+        | "motorista"
+        | "financeiro"
+        | "operacoes"
+        | "comercial"
+        | "frota"
+        | "auxiliar_manutencao"
       notification_type: "info" | "success" | "warning" | "error"
     }
     CompositeTypes: {
@@ -260,6 +267,13 @@ export const Constants = {
         "commercial",
         "fleet_maintenance",
         "maintenance_assistant",
+        "mecanico",
+        "motorista",
+        "financeiro",
+        "operacoes",
+        "comercial",
+        "frota",
+        "auxiliar_manutencao",
       ],
       notification_type: ["info", "success", "warning", "error"],
     },
