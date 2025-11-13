@@ -1,122 +1,119 @@
+import { useState } from "react";
+import { Layout } from "@/components/Layout";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, FileText, Calendar, ChevronLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Wrench, Clock, CheckCircle, AlertCircle, Plus } from "lucide-react";
+import { StatCard } from "@/components/StatCard";
 
 const Mechanic = () => {
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("pending");
+
+  const serviceOrders = [
+    {
+      id: "OS-001",
+      vehicle: "ABC-1234",
+      type: "Manutenção Preventiva",
+      status: "pending",
+      priority: "high",
+      date: "2024-11-13",
+    },
+    {
+      id: "OS-002",
+      vehicle: "DEF-5678",
+      type: "Troca de Óleo",
+      status: "in-progress",
+      priority: "medium",
+      date: "2024-11-13",
+    },
+    {
+      id: "OS-003",
+      vehicle: "GHI-9012",
+      type: "Alinhamento",
+      status: "completed",
+      priority: "low",
+      date: "2024-11-12",
+    },
+  ];
+
+  const filteredOrders = serviceOrders.filter((order) => order.status === activeTab);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b border-border bg-card">
-        <div className="p-4 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Voltar
+    <Layout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Hub do Mecânico</h1>
+            <p className="text-muted-foreground">Gerencie ordens de serviço e manutenções</p>
+          </div>
+          <Button className="gap-2">
+            <Plus className="w-4 h-4" />
+            Nova OS
           </Button>
-          <a href="/" className="text-primary hover:underline">
-            HOME
-          </a>
-        </div>
-      </div>
-
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="bg-purple/10 border border-purple/20 rounded-lg p-6 mb-6">
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <Wrench className="w-8 h-8" />
-            HUB Central de Serviços
-          </h1>
         </div>
 
-        <Tabs defaultValue="os" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="os">1. Ordens de Serviço (Mec.)</TabsTrigger>
-            <TabsTrigger value="tires">2. Gestão de Pneus (Borracharia)</TabsTrigger>
-            <TabsTrigger value="fuel">3. Posto Interno (Abastecimento)</TabsTrigger>
-            <TabsTrigger value="clock">4. Controle de Ponto</TabsTrigger>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatCard title="Pendentes" value="8" icon={Clock} />
+          <StatCard title="Em Andamento" value="3" icon={Wrench} />
+          <StatCard title="Concluídas" value="24" icon={CheckCircle} />
+          <StatCard title="Urgentes" value="2" icon={AlertCircle} />
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="pending">Pendentes (8)</TabsTrigger>
+            <TabsTrigger value="in-progress">Em Andamento (3)</TabsTrigger>
+            <TabsTrigger value="completed">Concluídas (24)</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="os" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center mb-4">
-                    <FileText className="w-6 h-6 text-primary-foreground" />
+          <TabsContent value={activeTab} className="space-y-4 mt-4">
+            {filteredOrders.map((order) => (
+              <Card key={order.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold">{order.id}</h3>
+                        <Badge
+                          className={
+                            order.priority === "high"
+                              ? "bg-red-500/20 text-red-600"
+                              : order.priority === "medium"
+                              ? "bg-yellow-500/20 text-yellow-600"
+                              : "bg-green-500/20 text-green-600"
+                          }
+                        >
+                          {order.priority === "high"
+                            ? "Alta"
+                            : order.priority === "medium"
+                            ? "Média"
+                            : "Baixa"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Veículo: {order.vehicle} • {order.type}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{order.date}</p>
+                    </div>
+                    <Button>Ver Detalhes</Button>
                   </div>
-                  <CardTitle>Ordens de Serviço</CardTitle>
-                  <CardDescription>
-                    Abrir/fechar O.S. com fotos e laudos
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">Abrir</Button>
                 </CardContent>
               </Card>
-
+            ))}
+            {filteredOrders.length === 0 && (
               <Card>
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-green flex items-center justify-center mb-4">
-                    <Calendar className="w-6 h-6 text-green-foreground" />
-                  </div>
-                  <CardTitle>Preventiva</CardTitle>
-                  <CardDescription>
-                    Agenda por hodômetro e tempo
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">Abrir</Button>
+                <CardContent className="p-12 text-center">
+                  <p className="text-muted-foreground">Nenhuma ordem de serviço encontrada</p>
                 </CardContent>
               </Card>
-            </div>
-
-            <Card className="bg-muted/50">
-              <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground text-center">
-                  <strong>Dica:</strong> instale como PWA para acesso rápido no Android.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="tires">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gestão de Pneus</CardTitle>
-                <CardDescription>Controle de pneus e borracharia</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Em desenvolvimento...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="fuel">
-            <Card>
-              <CardHeader>
-                <CardTitle>Posto Interno</CardTitle>
-                <CardDescription>Controle de abastecimento</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Em desenvolvimento...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="clock">
-            <Card>
-              <CardHeader>
-                <CardTitle>Controle de Ponto</CardTitle>
-                <CardDescription>Registro de ponto dos colaboradores</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Em desenvolvimento...</p>
-              </CardContent>
-            </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </Layout>
   );
 };
 
