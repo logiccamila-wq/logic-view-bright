@@ -6,10 +6,16 @@ import {
   Users, 
   BarChart3, 
   Settings, 
-  LogOut 
+  LogOut,
+  Package,
+  MapPin,
+  ShoppingCart,
+  GitBranch,
+  UserCheck,
+  Building2
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -19,50 +25,46 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const mainItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Gestão de Frota", url: "/fleet", icon: Truck },
-  { title: "Hub Mecânico", url: "/mechanic", icon: Wrench },
-  { title: "App Motorista", url: "/driver", icon: User },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
+  { title: "Gestão de Frota", url: "/fleet", icon: Truck, module: "fleet" },
+  { title: "Hub Mecânico", url: "/mechanic", icon: Wrench, module: "mechanic" },
+  { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
 ];
 
 const managementItems = [
-  { title: "Usuários", url: "/users", icon: Users },
-  { title: "Relatórios", url: "/reports", icon: BarChart3 },
-  { title: "Configurações", url: "/settings", icon: Settings },
+  { title: "Usuários", url: "/users", icon: Users, module: "users" },
+  { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
+  { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },
 ];
 
 const modulesItems = [
-  { title: "WMS", url: "/wms", icon: LayoutDashboard },
-  { title: "TMS", url: "/tms", icon: Truck },
-  { title: "OMS", url: "/oms", icon: BarChart3 },
-  { title: "SCM", url: "/scm", icon: Wrench },
-  { title: "CRM", url: "/crm", icon: Users },
-  { title: "ERP", url: "/erp", icon: Settings },
+  { title: "WMS", url: "/wms", icon: Package, module: "wms" },
+  { title: "TMS", url: "/tms", icon: MapPin, module: "tms" },
+  { title: "OMS", url: "/oms", icon: ShoppingCart, module: "oms" },
+  { title: "SCM", url: "/scm", icon: GitBranch, module: "scm" },
+  { title: "CRM", url: "/crm", icon: UserCheck, module: "crm" },
+  { title: "ERP", url: "/erp", icon: Building2, module: "erp" },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const navigate = useNavigate();
+  const { canAccessModule, signOut, user } = useAuth();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
   const isActive = (path: string) => currentPath === path;
-  const mainExpanded = mainItems.some((i) => isActive(i.url));
-  const managementExpanded = managementItems.some((i) => isActive(i.url));
-  const modulesExpanded = modulesItems.some((i) => isActive(i.url));
-
-  const handleLogout = () => {
-    toast.success("Logout realizado com sucesso!");
-    navigate("/login");
-  };
+  
+  // Filter items based on permissions
+  const filteredMainItems = mainItems.filter(item => canAccessModule(item.module));
+  const filteredManagementItems = managementItems.filter(item => canAccessModule(item.module));
+  const filteredModulesItems = modulesItems.filter(item => canAccessModule(item.module));
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
@@ -86,7 +88,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
+              {filteredMainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -106,63 +108,72 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Management */}
-        <SidebarGroup className="mt-4">
-          <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
-            Gestão
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {managementItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="hover:bg-muted/50 transition-colors"
-                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {filteredManagementItems.length > 0 && (
+          <SidebarGroup className="mt-4">
+            <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
+              Gestão
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {filteredManagementItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className="hover:bg-muted/50 transition-colors"
+                        activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Módulos Integrados */}
-        <SidebarGroup className="mt-4">
-          <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
-            Módulos
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {modulesItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="hover:bg-muted/50 transition-colors"
-                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {filteredModulesItems.length > 0 && (
+          <SidebarGroup className="mt-4">
+            <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
+              Módulos
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {filteredModulesItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className="hover:bg-muted/50 transition-colors"
+                        activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {/* Logout Button */}
-        <div className="mt-auto p-4 border-t border-border">
+        {/* User info and Logout */}
+        <div className="mt-auto p-4 border-t border-border space-y-2">
+          {user && !collapsed && (
+            <div className="text-xs text-muted-foreground truncate px-2">
+              {user.email}
+            </div>
+          )}
           <Button
             variant="ghost"
             className="w-full justify-start hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleLogout}
+            onClick={signOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
             {!collapsed && <span>Sair</span>}

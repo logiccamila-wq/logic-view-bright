@@ -2,7 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Fleet from "./pages/Fleet";
@@ -27,25 +29,27 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/fleet" element={<Fleet />} />
-          <Route path="/mechanic" element={<Mechanic />} />
-          <Route path="/driver" element={<Driver />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/wms" element={<WMS />} />
-          <Route path="/tms" element={<TMS />} />
-          <Route path="/oms" element={<OMS />} />
-          <Route path="/scm" element={<SCM />} />
-          <Route path="/crm" element={<CRM />} />
-          <Route path="/erp" element={<ERP />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<ProtectedRoute module="dashboard"><Dashboard /></ProtectedRoute>} />
+            <Route path="/fleet" element={<ProtectedRoute module="fleet"><Fleet /></ProtectedRoute>} />
+            <Route path="/mechanic" element={<ProtectedRoute module="mechanic"><Mechanic /></ProtectedRoute>} />
+            <Route path="/driver" element={<ProtectedRoute module="driver"><Driver /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute module="users"><Users /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute module="reports"><Reports /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
+            <Route path="/wms" element={<ProtectedRoute module="wms"><WMS /></ProtectedRoute>} />
+            <Route path="/tms" element={<ProtectedRoute module="tms"><TMS /></ProtectedRoute>} />
+            <Route path="/oms" element={<ProtectedRoute module="oms"><OMS /></ProtectedRoute>} />
+            <Route path="/scm" element={<ProtectedRoute module="scm"><SCM /></ProtectedRoute>} />
+            <Route path="/crm" element={<ProtectedRoute module="crm"><CRM /></ProtectedRoute>} />
+            <Route path="/erp" element={<ProtectedRoute module="erp"><ERP /></ProtectedRoute>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
