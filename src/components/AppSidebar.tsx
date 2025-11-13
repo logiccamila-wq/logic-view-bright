@@ -15,6 +15,7 @@ import {
   Building2,
   CheckCircle,
   TowerControl,
+  Warehouse,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -43,13 +44,14 @@ const mainItems = [
 
 const managementItems = [
   { title: "Aprovações", url: "/approvals", icon: CheckCircle, module: "approvals" },
+  { title: "Estoque", url: "/inventory", icon: Package, module: "inventory" },
   { title: "Usuários", url: "/users", icon: Users, module: "users" },
   { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
   { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },
 ];
 
 const modulesItems = [
-  { title: "WMS", url: "/wms", icon: Package, module: "wms" },
+  { title: "WMS", url: "/wms", icon: Warehouse, module: "wms" },
   { title: "TMS", url: "/tms", icon: MapPin, module: "tms" },
   { title: "OMS", url: "/oms", icon: ShoppingCart, module: "oms" },
   { title: "SCM", url: "/scm", icon: GitBranch, module: "scm" },

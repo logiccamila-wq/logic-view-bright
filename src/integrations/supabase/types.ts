@@ -163,6 +163,80 @@ export type Database = {
           },
         ]
       }
+      inventory_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      inventory_movements: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          item_id: string
+          movement_type: string
+          notes: string | null
+          quantity: number
+          reason: string
+          reference_document: string | null
+          responsible_user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          item_id: string
+          movement_type: string
+          notes?: string | null
+          quantity: number
+          reason: string
+          reference_document?: string | null
+          responsible_user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          item_id?: string
+          movement_type?: string
+          notes?: string | null
+          quantity?: number
+          reason?: string
+          reference_document?: string | null
+          responsible_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_checklists: {
         Row: {
           checklist_type: string
@@ -549,43 +623,55 @@ export type Database = {
       }
       workshop_inventory: {
         Row: {
+          barcode: string | null
           category: string
           created_at: string | null
+          critical_stock: number | null
           id: string
           last_restocked: string | null
           location: string | null
           minimum_stock: number
+          notes: string | null
           part_code: string
           part_name: string
           quantity: number
+          subcategory: string | null
           supplier: string | null
           unit_price: number | null
           updated_at: string | null
         }
         Insert: {
+          barcode?: string | null
           category: string
           created_at?: string | null
+          critical_stock?: number | null
           id?: string
           last_restocked?: string | null
           location?: string | null
           minimum_stock?: number
+          notes?: string | null
           part_code: string
           part_name: string
           quantity?: number
+          subcategory?: string | null
           supplier?: string | null
           unit_price?: number | null
           updated_at?: string | null
         }
         Update: {
+          barcode?: string | null
           category?: string
           created_at?: string | null
+          critical_stock?: number | null
           id?: string
           last_restocked?: string | null
           location?: string | null
           minimum_stock?: number
+          notes?: string | null
           part_code?: string
           part_name?: string
           quantity?: number
+          subcategory?: string | null
           supplier?: string | null
           unit_price?: number | null
           updated_at?: string | null
