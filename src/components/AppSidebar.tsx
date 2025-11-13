@@ -38,6 +38,15 @@ const managementItems = [
   { title: "Configurações", url: "/settings", icon: Settings },
 ];
 
+const modulesItems = [
+  { title: "WMS", url: "/wms", icon: LayoutDashboard },
+  { title: "TMS", url: "/tms", icon: Truck },
+  { title: "OMS", url: "/oms", icon: BarChart3 },
+  { title: "SCM", url: "/scm", icon: Wrench },
+  { title: "CRM", url: "/crm", icon: Users },
+  { title: "ERP", url: "/erp", icon: Settings },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
@@ -48,6 +57,7 @@ export function AppSidebar() {
   const isActive = (path: string) => currentPath === path;
   const mainExpanded = mainItems.some((i) => isActive(i.url));
   const managementExpanded = managementItems.some((i) => isActive(i.url));
+  const modulesExpanded = modulesItems.some((i) => isActive(i.url));
 
   const handleLogout = () => {
     toast.success("Logout realizado com sucesso!");
@@ -103,6 +113,32 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {managementItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      end
+                      className="hover:bg-muted/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Módulos Integrados */}
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
+            Módulos
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {modulesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink

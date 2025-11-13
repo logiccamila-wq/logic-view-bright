@@ -11,6 +11,12 @@ import Driver from "./pages/Driver";
 import Users from "./pages/Users";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import WMS from "./pages/WMS";
+import TMS from "./pages/TMS";
+import OMS from "./pages/OMS";
+import SCM from "./pages/SCM";
+import CRM from "./pages/CRM";
+import ERP from "./pages/ERP";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +37,12 @@ const App = () => (
           <Route path="/users" element={<Users />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/wms" element={<WMS />} />
+          <Route path="/tms" element={<TMS />} />
+          <Route path="/oms" element={<OMS />} />
+          <Route path="/scm" element={<SCM />} />
+          <Route path="/crm" element={<CRM />} />
+          <Route path="/erp" element={<ERP />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
