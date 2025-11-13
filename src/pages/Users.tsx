@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, User } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Users as UsersIcon } from "lucide-react";
+import { UserFormDialog } from "@/components/UserFormDialog";
 
 interface UserData {
   id: string;
@@ -18,6 +19,7 @@ interface UserData {
 
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const mockUsers: UserData[] = [
     { id: "1", nome: "João Silva", email: "joao@optilog.com", role: "motorista", status: "ativo" },
@@ -46,11 +48,19 @@ const Users = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Gestão de Usuários</h1>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setDialogOpen(true)}>
             <Plus className="w-4 h-4" />
             Adicionar Usuário
           </Button>
         </div>
+
+        <UserFormDialog 
+          open={dialogOpen} 
+          onOpenChange={setDialogOpen}
+          onSuccess={() => {
+            // Reload users list here in future
+          }}
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

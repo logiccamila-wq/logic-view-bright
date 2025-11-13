@@ -12,6 +12,7 @@ interface AuthContextType {
   roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<void>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
   canAccessModule: (module: string) => boolean;
@@ -113,6 +114,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Assign role to the new user
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: data.user.id, role });
+
+        if (roleError) throw roleError;
+
+        // Create profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({ 
+            id: data.user.id, 
+            email,
+            full_name: fullName 
+          });
+
+        if (profileError) throw profileError;
+
+        toast.success('Usuário cadastrado com sucesso!');
+      }
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      toast.error(error.message || 'Erro ao cadastrar usuário');
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -151,6 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         roles,
         loading,
         signIn,
+        signUp,
         signOut,
         hasRole,
         canAccessModule,
