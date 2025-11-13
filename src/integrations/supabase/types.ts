@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      maintenance_checklists: {
+        Row: {
+          checklist_type: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          items: Json
+          mechanic_id: string | null
+          photos: Json | null
+          service_order_id: string | null
+          status: string
+          updated_at: string | null
+          vehicle_plate: string
+        }
+        Insert: {
+          checklist_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          items?: Json
+          mechanic_id?: string | null
+          photos?: Json | null
+          service_order_id?: string | null
+          status?: string
+          updated_at?: string | null
+          vehicle_plate: string
+        }
+        Update: {
+          checklist_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          items?: Json
+          mechanic_id?: string | null
+          photos?: Json | null
+          service_order_id?: string | null
+          status?: string
+          updated_at?: string | null
+          vehicle_plate?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_checklists_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -77,6 +127,111 @@ export type Database = {
         }
         Relationships: []
       }
+      service_orders: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          estimated_completion: string | null
+          id: string
+          issue_description: string
+          labor_hours: number | null
+          mechanic_id: string | null
+          mechanic_notes: string | null
+          odometer: number
+          parts_used: Json | null
+          priority: string
+          status: string
+          updated_at: string | null
+          vehicle_model: string
+          vehicle_plate: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          estimated_completion?: string | null
+          id?: string
+          issue_description: string
+          labor_hours?: number | null
+          mechanic_id?: string | null
+          mechanic_notes?: string | null
+          odometer: number
+          parts_used?: Json | null
+          priority: string
+          status?: string
+          updated_at?: string | null
+          vehicle_model: string
+          vehicle_plate: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          estimated_completion?: string | null
+          id?: string
+          issue_description?: string
+          labor_hours?: number | null
+          mechanic_id?: string | null
+          mechanic_notes?: string | null
+          odometer?: number
+          parts_used?: Json | null
+          priority?: string
+          status?: string
+          updated_at?: string | null
+          vehicle_model?: string
+          vehicle_plate?: string
+        }
+        Relationships: []
+      }
+      tpms_readings: {
+        Row: {
+          alert_level: string
+          created_at: string | null
+          id: string
+          last_calibration: string | null
+          notes: string | null
+          pressure_psi: number
+          recorded_by: string | null
+          temperature_celsius: number | null
+          tire_brand: string | null
+          tire_model: string | null
+          tire_position: string
+          tread_depth_mm: number | null
+          vehicle_plate: string
+        }
+        Insert: {
+          alert_level?: string
+          created_at?: string | null
+          id?: string
+          last_calibration?: string | null
+          notes?: string | null
+          pressure_psi: number
+          recorded_by?: string | null
+          temperature_celsius?: number | null
+          tire_brand?: string | null
+          tire_model?: string | null
+          tire_position: string
+          tread_depth_mm?: number | null
+          vehicle_plate: string
+        }
+        Update: {
+          alert_level?: string
+          created_at?: string | null
+          id?: string
+          last_calibration?: string | null
+          notes?: string | null
+          pressure_psi?: number
+          recorded_by?: string | null
+          temperature_celsius?: number | null
+          tire_brand?: string | null
+          tire_model?: string | null
+          tire_position?: string
+          tread_depth_mm?: number | null
+          vehicle_plate?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -95,6 +250,51 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      workshop_inventory: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          last_restocked: string | null
+          location: string | null
+          minimum_stock: number
+          part_code: string
+          part_name: string
+          quantity: number
+          supplier: string | null
+          unit_price: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          last_restocked?: string | null
+          location?: string | null
+          minimum_stock?: number
+          part_code: string
+          part_name: string
+          quantity?: number
+          supplier?: string | null
+          unit_price?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          last_restocked?: string | null
+          location?: string | null
+          minimum_stock?: number
+          part_code?: string
+          part_name?: string
+          quantity?: number
+          supplier?: string | null
+          unit_price?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
