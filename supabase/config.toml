@@ -1,1 +1,4 @@
 project_id = "yssqhlogdqdjmqwuvnkv"
+
+[functions.gael-chat]
+verify_jwt = false

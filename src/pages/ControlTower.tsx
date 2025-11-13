@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LineChart, Line, BarChart as RechartsBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import GaelChatbot from "@/components/GaelChatbot";
 
 interface DashboardData {
   financeiro: {
@@ -536,6 +537,17 @@ const ControlTower = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <GaelChatbot dashboardData={data ? {
+        faturamento_bruto: data.financeiro.faturamento_bruto,
+        custo_km: data.financeiro.custo_km,
+        margem_liquida: data.financeiro.margem_liquida,
+        viagens_ativas: data.operacional.viagens_ativas,
+        viagens_pendentes: data.operacional.viagens_pendentes,
+        ordens_pendentes: data.manutencao.ordens_pendentes,
+        ordens_em_andamento: data.manutencao.ordens_em_andamento,
+        alertas_tpms: data.manutencao.alertas_tpms,
+      } : undefined} />
     </Layout>
   );
 };
