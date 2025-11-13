@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          module: string | null
+          read: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          module?: string | null
+          read?: boolean
+          title: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          module?: string | null
+          read?: boolean
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -88,6 +124,7 @@ export type Database = {
         | "commercial"
         | "fleet_maintenance"
         | "maintenance_assistant"
+      notification_type: "info" | "success" | "warning" | "error"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -224,6 +261,7 @@ export const Constants = {
         "fleet_maintenance",
         "maintenance_assistant",
       ],
+      notification_type: ["info", "success", "warning", "error"],
     },
   },
 } as const

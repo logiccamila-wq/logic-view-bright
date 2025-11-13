@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
@@ -70,15 +71,18 @@ export function AppSidebar() {
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
       <SidebarContent className="bg-sidebar border-r border-border">
         {/* Logo */}
-        <div className="p-4 border-b border-border">
-          {!collapsed && (
-            <h1 className="text-xl font-bold text-primary">OptiLog</h1>
-          )}
-          {collapsed && (
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <span className="text-primary font-bold">O</span>
-            </div>
-          )}
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <div>
+            {!collapsed && (
+              <h1 className="text-xl font-bold text-primary">OptiLog</h1>
+            )}
+            {collapsed && (
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-primary font-bold">O</span>
+              </div>
+            )}
+          </div>
+          {!collapsed && <NotificationBell />}
         </div>
 
         {/* Main Navigation */}
