@@ -1337,6 +1337,90 @@ export type Database = {
         }
         Relationships: []
       }
+      ordem_coleta: {
+        Row: {
+          assinatura_motorista: string | null
+          capacidade_carreta: string | null
+          cliente_cnpj: string
+          cliente_nome: string
+          created_at: string
+          created_by: string | null
+          data_assinatura: string | null
+          data_emissao: string
+          fornecedor_cidade: string | null
+          fornecedor_nome: string
+          fornecedor_uf: string | null
+          id: string
+          motorista_nome: string
+          motorista_telefone: string | null
+          numero_ordem: string
+          pedido_venda: string | null
+          placa_carreta: string | null
+          placa_cavalo: string
+          produto: string
+          status: string
+          transportadora_cidade: string
+          transportadora_cnpj: string
+          transportadora_nome: string
+          transportadora_uf: string
+          updated_at: string
+        }
+        Insert: {
+          assinatura_motorista?: string | null
+          capacidade_carreta?: string | null
+          cliente_cnpj: string
+          cliente_nome: string
+          created_at?: string
+          created_by?: string | null
+          data_assinatura?: string | null
+          data_emissao?: string
+          fornecedor_cidade?: string | null
+          fornecedor_nome: string
+          fornecedor_uf?: string | null
+          id?: string
+          motorista_nome: string
+          motorista_telefone?: string | null
+          numero_ordem: string
+          pedido_venda?: string | null
+          placa_carreta?: string | null
+          placa_cavalo: string
+          produto: string
+          status?: string
+          transportadora_cidade?: string
+          transportadora_cnpj?: string
+          transportadora_nome?: string
+          transportadora_uf?: string
+          updated_at?: string
+        }
+        Update: {
+          assinatura_motorista?: string | null
+          capacidade_carreta?: string | null
+          cliente_cnpj?: string
+          cliente_nome?: string
+          created_at?: string
+          created_by?: string | null
+          data_assinatura?: string | null
+          data_emissao?: string
+          fornecedor_cidade?: string | null
+          fornecedor_nome?: string
+          fornecedor_uf?: string | null
+          id?: string
+          motorista_nome?: string
+          motorista_telefone?: string | null
+          numero_ordem?: string
+          pedido_venda?: string | null
+          placa_carreta?: string | null
+          placa_cavalo?: string
+          produto?: string
+          status?: string
+          transportadora_cidade?: string
+          transportadora_cnpj?: string
+          transportadora_nome?: string
+          transportadora_uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_alerts: {
         Row: {
           alert_type: string
