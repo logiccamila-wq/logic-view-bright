@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import { useCostAlerts } from "@/hooks/useCostAlerts";
 import { NotificationBell } from "@/components/NotificationBell";
+import { EJGChatbot } from "@/components/EJGChatbot";
 import ejgLogo from "@/assets/ejg-logo.png";
 
 interface LayoutProps {
@@ -34,6 +35,7 @@ export function Layout({ children }: LayoutProps) {
             {children}
           </main>
         </div>
+        <EJGChatbot />
       </div>
     </SidebarProvider>
   );
