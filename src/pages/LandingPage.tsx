@@ -663,8 +663,8 @@ const LandingPage = () => {
             <div>
               <h3 className="font-semibold mb-4">Contato</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>comercial@optilog.app</li>
-                <li>suporte@optilog.app</li>
+                <li>comercial@xyzlogicflow.tech</li>
+                <li>(81) 99505-5354</li>
                 <li>Jaboatão dos Guararapes/PE</li>
               </ul>
             </div>
