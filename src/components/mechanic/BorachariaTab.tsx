@@ -89,12 +89,12 @@ export function BorachariaTab() {
   const fetchPneus = async () => {
     try {
       const { data, error } = await supabase
-        .from('pneus')
+        .from('pneus' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPneus(data || []);
+      setPneus((data as any) || []);
     } catch (error) {
       console.error('Erro ao buscar pneus:', error);
       toast.error('Erro ao carregar pneus');
@@ -106,13 +106,13 @@ export function BorachariaTab() {
   const fetchMovimentacoes = async () => {
     try {
       const { data, error } = await supabase
-        .from('movimentacao_pneus')
+        .from('movimentacao_pneus' as any)
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
-      setMovimentacoes(data || []);
+      setMovimentacoes((data as any) || []);
     } catch (error) {
       console.error('Erro ao buscar movimentações:', error);
     }
@@ -146,12 +146,12 @@ export function BorachariaTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('pneus').insert({
+      const { error } = await supabase.from('pneus' as any).insert({
         ...pneuFormData,
         pressao_recomendada: pneuFormData.pressao_recomendada ? parseFloat(pneuFormData.pressao_recomendada) : null,
         valor_compra: pneuFormData.valor_compra ? parseFloat(pneuFormData.valor_compra) : null,
         data_compra: new Date().toISOString(),
-      });
+      } as any);
 
       if (error) throw error;
 
@@ -177,24 +177,24 @@ export function BorachariaTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('movimentacao_pneus').insert({
+      const { error } = await supabase.from('movimentacao_pneus' as any).insert({
         ...movimentacaoFormData,
         km_veiculo: movimentacaoFormData.km_veiculo ? parseInt(movimentacaoFormData.km_veiculo) : null,
         responsavel_id: user?.id,
-      });
+      } as any);
 
       if (error) throw error;
 
       // Atualizar status do pneu
       if (movimentacaoFormData.tipo_movimentacao === 'instalacao') {
         await supabase
-          .from('pneus')
+          .from('pneus' as any)
           .update({
             status: 'em_uso',
             vehicle_plate: movimentacaoFormData.vehicle_plate_destino,
             posicao: movimentacaoFormData.posicao_destino,
             km_instalacao: parseInt(movimentacaoFormData.km_veiculo),
-          })
+          } as any)
           .eq('id', movimentacaoFormData.pneu_id);
       }
 
