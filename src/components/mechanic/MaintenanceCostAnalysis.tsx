@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Calendar, AlertTriangle, Download, Bell } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, AlertTriangle, Download, Bell, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCostAlerts } from '@/hooks/useCostAlerts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CostAlertsConfig } from './CostAlertsConfig';
+import { IntegrationsConfig } from './IntegrationsConfig';
 
 interface CostTrend {
   month: string;
@@ -324,6 +325,10 @@ export const MaintenanceCostAnalysis = () => {
             <Bell className="h-4 w-4 mr-2" />
             Alertas
           </TabsTrigger>
+          <TabsTrigger value="integrations">
+            <Settings className="h-4 w-4 mr-2" />
+            Integrações
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -576,6 +581,10 @@ export const MaintenanceCostAnalysis = () => {
 
         <TabsContent value="alerts" className="space-y-6">
           <CostAlertsConfig />
+        </TabsContent>
+
+        <TabsContent value="integrations" className="space-y-6">
+          <IntegrationsConfig />
         </TabsContent>
       </Tabs>
     </div>
