@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import Fleet from "./pages/Fleet";
 import Mechanic from "./pages/Mechanic";
 import Driver from "./pages/Driver";
+import DriverJourney from "./pages/DriverJourney";
+import JourneyManagement from "./pages/JourneyManagement";
 import Users from "./pages/Users";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/fleet" element={<ProtectedRoute module="fleet"><Fleet /></ProtectedRoute>} />
             <Route path="/mechanic" element={<ProtectedRoute module="mechanic"><Mechanic /></ProtectedRoute>} />
             <Route path="/driver" element={<ProtectedRoute module="driver"><Driver /></ProtectedRoute>} />
+            <Route path="/driver-journey" element={<ProtectedRoute module="driver"><DriverJourney /></ProtectedRoute>} />
+            <Route path="/journey-management" element={<ProtectedRoute module="fleet"><JourneyManagement /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute module="users"><Users /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute module="reports"><Reports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
