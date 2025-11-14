@@ -306,9 +306,35 @@ function parseXML(xmlContent: string): CTEDataFromXML {
   // Transporte (trator e reboque)
   const veicTracao = extractSectionNs(xmlContent, 'veicTracao');
   const veicReboque = extractSectionNs(xmlContent, 'veicReboque');
-  let placaVeiculo = sanitizePlate(extractValueNs(veicTracao, 'placa') || extractValueNs(xmlContent, 'placa'));
+  let placaVeiculo = sanitizePlate(
+    extractValueNs(veicTracao, 'placa') ||
+    extractValueNs(xmlContent, 'placa')
+  );
   let ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR';
   const placaCarreta = sanitizePlate(extractValueNs(veicReboque, 'placa')) || undefined;
+
+  // Fallbacks adicionais: CT-e pode trazer placa dentro de infModal/rodo ou com outras tags
+  const infModal = extractSectionNs(xmlContent, 'infModal');
+  const rodo = extractSectionNs(infModal || xmlContent, 'rodo');
+  if (!placaVeiculo) {
+    placaVeiculo = sanitizePlate(
+      extractValueNs(rodo, 'placa') ||
+      extractValueNs(rodo, 'placaTracao') ||
+      extractValueNs(xmlContent, 'placaVeiculo') ||
+      extractValueNs(xmlContent, 'placa')
+    );
+  }
+
+  // Regex de placa BR (padrão antigo e Mercosul) como último recurso
+  if (!placaVeiculo) {
+    const upper = xmlContent.toUpperCase();
+    const plateMatch = upper.match(/([A-Z]{3}-?[0-9][A-Z][0-9]{2}|[A-Z]{3}-?[0-9]{4})/);
+    if (plateMatch) {
+      placaVeiculo = sanitizePlate(plateMatch[1]);
+    }
+  }
+
+  console.log('DEBUG placa extraída (batch):', { placaVeiculo, placaCarreta, hasTracao: !!veicTracao, hasReboque: !!veicReboque });
 
   // Modal e frete
   const modal = (extractValueNs(xmlContent, 'modal') === '01') ? 'rodoviario' : 'aereo';
