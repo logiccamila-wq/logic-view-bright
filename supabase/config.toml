@@ -11,3 +11,7 @@ verify_jwt = false
 
 [functions.ejg-chatbot]
 verify_jwt = true
+
+[functions.get-neon-metrics]
+verify_jwt = true
+
