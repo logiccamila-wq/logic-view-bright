@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
+import { useCostAlerts } from "@/hooks/useCostAlerts";
+import { NotificationBell } from "@/components/NotificationBell";
 import ejgLogo from "@/assets/ejg-logo.png";
 
 interface LayoutProps {
@@ -9,8 +11,9 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  // Ativar sistema de alertas de manutenção
+  // Ativar sistemas de alertas
   useMaintenanceAlerts();
+  useCostAlerts();
   
   return (
     <SidebarProvider>
@@ -23,6 +26,9 @@ export function Layout({ children }: LayoutProps) {
             <h2 className="text-sm font-medium text-foreground">
               EJG Evolução em Transporte Ltda.
             </h2>
+            <div className="ml-auto">
+              <NotificationBell />
+            </div>
           </header>
           <main className="flex-1 p-6 overflow-auto">
             {children}

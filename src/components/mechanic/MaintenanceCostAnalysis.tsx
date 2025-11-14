@@ -5,8 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Calendar, AlertTriangle, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, AlertTriangle, Download, Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCostAlerts } from '@/hooks/useCostAlerts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CostAlertsConfig } from './CostAlertsConfig';
 
 interface CostTrend {
   month: string;
@@ -41,6 +44,9 @@ export const MaintenanceCostAnalysis = () => {
     savingsPotential: 0
   });
   const [costDistribution, setCostDistribution] = useState<any[]>([]);
+  
+  // Ativa o sistema de alertas
+  useCostAlerts();
 
   useEffect(() => {
     loadCostAnalysis();
@@ -310,6 +316,18 @@ export const MaintenanceCostAnalysis = () => {
       </div>
 
       {/* KPIs */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="vehicles">Por Veículo</TabsTrigger>
+          <TabsTrigger value="alerts">
+            <Bell className="h-4 w-4 mr-2" />
+            Alertas
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+      {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
@@ -518,6 +536,48 @@ export const MaintenanceCostAnalysis = () => {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="vehicles" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Ranking de Custos por Veículo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {vehicleAnalysis.map((vehicle, index) => (
+                  <div key={vehicle.plate} className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold">{vehicle.plate}</span>
+                        <span className="text-sm font-bold">
+                          R$ {vehicle.totalCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-primary" 
+                            style={{ width: `${(vehicle.totalCost / Math.max(...vehicleAnalysis.map(v => v.totalCost))) * 100}%` }}
+                          />
+                        </div>
+                        {getTrendIcon(vehicle.costTrend)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="alerts" className="space-y-6">
+          <CostAlertsConfig />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
