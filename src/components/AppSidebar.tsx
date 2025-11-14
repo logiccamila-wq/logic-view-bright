@@ -18,6 +18,8 @@ import {
   Warehouse,
   Clock,
   ClipboardList,
+  Wallet,
+  Calculator,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -44,7 +46,9 @@ const mainItems = [
   { title: "Hub Mecânico", url: "/mechanic", icon: Wrench, module: "mechanic" },
   { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
   { title: "Jornada Motorista", url: "/driver-journey", icon: Clock, module: "driver" },
+  { title: "Minhas Gratificações", url: "/driver-payroll", icon: Wallet, module: "driver" },
   { title: "Gestão Jornadas", url: "/journey-management", icon: ClipboardList, module: "fleet" },
+  { title: "Folha de Pagamento", url: "/payroll-management", icon: Calculator, module: "fleet" },
 ];
 
 const managementItems = [

@@ -65,7 +65,7 @@ export function WorkSessionPanel() {
       .limit(1)
       .maybeSingle();
 
-    setCurrentSession(session);
+    setCurrentSession(session as WorkSession | null);
 
     if (session) {
       // Buscar evento atual (não finalizado)
@@ -78,7 +78,7 @@ export function WorkSessionPanel() {
         .limit(1)
         .maybeSingle();
 
-      setCurrentEvent(event);
+      setCurrentEvent(event as WorkEvent | null);
     }
   };
 
@@ -117,7 +117,7 @@ export function WorkSessionPanel() {
 
       if (error) throw error;
 
-      setCurrentSession(session);
+      setCurrentSession(session as WorkSession);
       toast.success("Jornada iniciada!");
     } catch (error) {
       console.error("Erro ao iniciar jornada:", error);
@@ -187,7 +187,7 @@ export function WorkSessionPanel() {
 
       if (error) throw error;
 
-      setCurrentEvent(event);
+      setCurrentEvent(event as WorkEvent);
       setObservacoes("");
       toast.success(`${ATIVIDADES.find(a => a.id === tipoAtividade)?.label} iniciada`);
     } catch (error) {
