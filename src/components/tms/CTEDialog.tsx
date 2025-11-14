@@ -130,6 +130,38 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
     }
   };
 
+  const handleImportXML = async () => {
+    if (!fileInputRef.current?.files?.[0]) {
+      toast.error('Selecione um arquivo XML');
+      return;
+    }
+
+    setImporting(true);
+    const file = fileInputRef.current.files[0];
+
+    try {
+      const xmlContent = await file.text();
+      
+      const { data, error } = await supabase.functions.invoke('import-cte-xml', {
+        body: { xml_content: xmlContent }
+      });
+
+      if (error) throw error;
+
+      toast.success('CT-e importado com sucesso do XML! Disponível no app do motorista.');
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (error: any) {
+      console.error('Erro ao importar XML:', error);
+      toast.error(error.message || 'Erro ao importar XML. Verifique se a placa do veículo existe no sistema.');
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.trip_id || !formData.remetente_nome || !formData.destinatario_nome) {
       toast.error('Preencha todos os campos obrigatórios');
@@ -139,10 +171,24 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
     setLoading(true);
 
     try {
+      // Validar se a placa existe na tabela vehicles
+      const { data: vehicleExists } = await supabase
+        .from('vehicles')
+        .select('placa')
+        .eq('placa', formData.placa_veiculo.toUpperCase())
+        .maybeSingle();
+
+      if (!vehicleExists) {
+        toast.error(`Placa ${formData.placa_veiculo} não encontrada. Importe os veículos primeiro.`);
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('cte')
         .insert({
           ...formData,
+          placa_veiculo: formData.placa_veiculo.toUpperCase(),
           peso_bruto: parseFloat(formData.peso_bruto),
           peso_cubado: formData.peso_cubado ? parseFloat(formData.peso_cubado) : null,
           quantidade_volumes: parseInt(formData.quantidade_volumes),
@@ -214,13 +260,53 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
         </DialogHeader>
 
         <Tabs defaultValue="basicos" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="xml">Importar XML</TabsTrigger>
             <TabsTrigger value="basicos">Básicos</TabsTrigger>
             <TabsTrigger value="remetente">Remetente</TabsTrigger>
             <TabsTrigger value="destinatario">Destinatário</TabsTrigger>
             <TabsTrigger value="carga">Carga</TabsTrigger>
             <TabsTrigger value="transporte">Transporte</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="xml" className="space-y-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+              <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Importar CT-e via XML</h3>
+              <p className="text-muted-foreground mb-4">
+                Faça upload do arquivo XML do CT-e para importar automaticamente todos os dados
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xml"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    toast.info('Arquivo selecionado: ' + e.target.files[0].name);
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="mr-2"
+              >
+                Selecionar Arquivo XML
+              </Button>
+              <Button
+                type="button"
+                onClick={handleImportXML}
+                disabled={importing}
+              >
+                {importing ? 'Importando...' : 'Importar CT-e'}
+              </Button>
+              <div className="mt-4 text-sm text-muted-foreground">
+                ⚠️ A placa do veículo no XML deve estar cadastrada no sistema
+              </div>
+            </div>
+          </TabsContent>
 
           <TabsContent value="basicos" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

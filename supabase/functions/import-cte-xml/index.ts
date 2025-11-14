@@ -70,6 +70,19 @@ serve(async (req) => {
 
     const cteData = parseXML(xml_content)
 
+    // Validar se a placa existe no sistema
+    const { data: vehicleExists } = await supabaseClient
+      .from('vehicles')
+      .select('placa')
+      .eq('placa', cteData.placa_veiculo.toUpperCase())
+      .maybeSingle()
+
+    if (!vehicleExists) {
+      throw new Error(`Placa ${cteData.placa_veiculo} não encontrada no sistema. Importe os veículos primeiro.`)
+    }
+
+    console.log('Placa validada:', cteData.placa_veiculo)
+
     // Verificar se cliente existe, senão criar
     const { data: existingClient } = await supabaseClient
       .from('clients')
