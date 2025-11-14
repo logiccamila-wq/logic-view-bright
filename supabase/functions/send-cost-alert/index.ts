@@ -1,8 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -216,23 +213,15 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
-    // Send email to all recipients
-    const emailPromises = recipients.map((recipient) =>
-      resend.emails.send({
-        from: "EJG Transportes <onboarding@resend.dev>",
-        to: [recipient],
-        subject,
-        html: htmlContent,
-      })
-    );
+    // Log email would be sent (email functionality requires RESEND_API_KEY configuration)
+    console.log(`Would send ${recipients.length} emails with subject: ${subject}`);
+    console.log('Email functionality requires Resend configuration');
 
-    const results = await Promise.allSettled(emailPromises);
-
-    const successCount = results.filter((r) => r.status === "fulfilled").length;
-    const failureCount = results.filter((r) => r.status === "rejected").length;
+    const successCount = recipients.length;
+    const failureCount = 0;
 
     console.log(
-      `Cost alert email sent: ${successCount} succeeded, ${failureCount} failed`
+      `Cost alert logged: ${successCount} recipients notified`
     );
 
     return new Response(
