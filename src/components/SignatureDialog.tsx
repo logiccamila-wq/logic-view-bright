@@ -43,7 +43,7 @@ export function SignatureDialog({
       const userAgent = navigator.userAgent;
       const ipAddress = ""; // In production, get from server
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("digital_signatures")
         .insert({
           report_id: reportId,

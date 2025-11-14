@@ -32,7 +32,7 @@ export default function DriverPayroll() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("driver_gratification")
         .select("*")
         .eq("driver_id", user.id)
@@ -40,7 +40,7 @@ export default function DriverPayroll() {
         .order("mes", { ascending: false });
 
       if (error) throw error;
-      setGratifications(data as Gratification[] || []);
+      setGratifications(data || []);
     } catch (error) {
       console.error("Erro ao carregar gratificações:", error);
     } finally {

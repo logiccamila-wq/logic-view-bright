@@ -35,7 +35,7 @@ const AccountsPayable = () => {
   const loadContas = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("contas_pagar")
         .select("*")
         .order("data_vencimento", { ascending: true });

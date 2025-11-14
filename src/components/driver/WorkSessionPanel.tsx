@@ -56,7 +56,7 @@ export function WorkSessionPanel() {
   const loadActiveSession = async () => {
     if (!user) return;
 
-    const { data: session } = await supabase
+    const { data: session } = await (supabase as any)
       .from("driver_work_sessions")
       .select("*")
       .eq("driver_id", user.id)
@@ -65,11 +65,11 @@ export function WorkSessionPanel() {
       .limit(1)
       .maybeSingle();
 
-    setCurrentSession(session as WorkSession | null);
+    setCurrentSession(session);
 
     if (session) {
       // Buscar evento atual (não finalizado)
-      const { data: event } = await supabase
+      const { data: event } = await (supabase as any)
         .from("driver_work_events")
         .select("*")
         .eq("session_id", session.id)
@@ -78,7 +78,7 @@ export function WorkSessionPanel() {
         .limit(1)
         .maybeSingle();
 
-      setCurrentEvent(event as WorkEvent | null);
+      setCurrentEvent(event);
     }
   };
 
@@ -103,7 +103,7 @@ export function WorkSessionPanel() {
         return;
       }
 
-      const { data: session, error } = await supabase
+      const { data: session, error } = await (supabase as any)
         .from("driver_work_sessions")
         .insert({
           driver_id: user.id,
@@ -117,7 +117,7 @@ export function WorkSessionPanel() {
 
       if (error) throw error;
 
-      setCurrentSession(session as WorkSession);
+      setCurrentSession(session);
       toast.success("Jornada iniciada!");
     } catch (error) {
       console.error("Erro ao iniciar jornada:", error);
@@ -137,7 +137,7 @@ export function WorkSessionPanel() {
         await finalizarEvento();
       }
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("driver_work_sessions")
         .update({
           status: "concluida",
@@ -173,7 +173,7 @@ export function WorkSessionPanel() {
         await finalizarEvento();
       }
 
-      const { data: event, error } = await supabase
+      const { data: event, error } = await (supabase as any)
         .from("driver_work_events")
         .insert([{
           session_id: currentSession.id,
@@ -187,7 +187,7 @@ export function WorkSessionPanel() {
 
       if (error) throw error;
 
-      setCurrentEvent(event as WorkEvent);
+      setCurrentEvent(event);
       setObservacoes("");
       toast.success(`${ATIVIDADES.find(a => a.id === tipoAtividade)?.label} iniciada`);
     } catch (error) {
@@ -205,7 +205,7 @@ export function WorkSessionPanel() {
     const inicio = new Date(currentEvent.data_hora_inicio);
     const duracaoMinutos = Math.round((agora.getTime() - inicio.getTime()) / (1000 * 60));
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("driver_work_events")
       .update({
         data_hora_fim: agora.toISOString(),
@@ -231,7 +231,7 @@ export function WorkSessionPanel() {
       updateData.total_descanso_minutos = (currentSession?.total_descanso_minutos || 0) + duracaoMinutos;
     }
 
-    await supabase
+    await (supabase as any)
       .from("driver_work_sessions")
       .update(updateData)
       .eq("id", currentSession!.id);

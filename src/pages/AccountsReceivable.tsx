@@ -35,7 +35,7 @@ const AccountsReceivable = () => {
   const loadContas = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("contas_receber")
         .select("*")
         .order("data_vencimento", { ascending: true });

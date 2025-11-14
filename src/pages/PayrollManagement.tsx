@@ -64,7 +64,7 @@ export default function PayrollManagement() {
   const loadPayrolls = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("driver_payroll")
         .select(`
           *,
@@ -107,7 +107,7 @@ export default function PayrollManagement() {
 
   const approvePayroll = async (payrollId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("driver_payroll")
         .update({
           status: "aprovado",
@@ -128,7 +128,7 @@ export default function PayrollManagement() {
 
   const markAsPaid = async (payrollId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("driver_payroll")
         .update({
           status: "pago",

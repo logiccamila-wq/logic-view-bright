@@ -97,14 +97,14 @@ export function EJGChatbot() {
   };
 
   const loadConversations = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("chat_conversations")
       .select("*")
       .eq("user_id", user!.id)
       .order("updated_at", { ascending: false });
 
     if (data) {
-      setConversations(data as Conversation[]);
+      setConversations(data);
       if (data.length > 0 && !selectedConversation) {
         setSelectedConversation(data[0].id);
       }
@@ -114,13 +114,13 @@ export function EJGChatbot() {
   const loadMessages = async () => {
     if (!selectedConversation) return;
 
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("chat_messages")
       .select("*")
       .eq("conversation_id", selectedConversation)
       .order("created_at", { ascending: true });
 
-    if (data) setMessages(data as Message[]);
+    if (data) setMessages(data);
   };
 
   const createConversation = async () => {
@@ -130,7 +130,7 @@ export function EJGChatbot() {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("chat_conversations")
         .insert({
           user_id: user!.id,
@@ -166,7 +166,7 @@ export function EJGChatbot() {
     setLoading(true);
     try {
       // Save user message
-      const { error: saveError } = await supabase
+      const { error: saveError } = await (supabase as any)
         .from("chat_messages")
         .insert({
           conversation_id: selectedConversation,
