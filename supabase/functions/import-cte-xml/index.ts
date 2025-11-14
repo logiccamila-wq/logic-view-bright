@@ -245,29 +245,3 @@ function parseXML(xmlContent: string): CTEDataFromXML {
     data_vencimento: dataVencimento
   }
 }
-  const volumes = 1 // Default, could be extracted from infQ
-
-  // Extract dates and keys
-  const chave = extractValue('chCTe')
-  const dhEmi = extractValue('dhEmi')
-  const numeroCTe = chave.slice(-14) // Last 14 digits typically represent the CT-e number
-
-  return {
-    cte_chave: chave,
-    numero_cte: numeroCTe,
-    data_emissao: new Date(dhEmi).toISOString(),
-    cliente_cnpj: remCNPJ,
-    cliente_nome: remNome,
-    cliente_uf: remUF,
-    destinatario_cnpj: destCNPJ,
-    destinatario_nome: destNome,
-    destinatario_uf: destUF,
-    valor_frete: valorFrete,
-    valor_mercadoria: valorMercadoria,
-    valor_icms: valorICMS,
-    peso_kg: pesoKg,
-    volumes: volumes,
-    origem_uf: remUF,
-    destino_uf: destUF
-  }
-}

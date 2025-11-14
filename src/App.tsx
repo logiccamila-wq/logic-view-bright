@@ -8,6 +8,7 @@ import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import InstallApp from "./pages/InstallApp";
 import Dashboard from "./pages/Dashboard";
 import Fleet from "./pages/Fleet";
 import Mechanic from "./pages/Mechanic";
@@ -48,6 +49,7 @@ const App = () => (
             <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/install" element={<InstallApp />} />
             <Route path="/dashboard" element={<ProtectedRoute module="dashboard"><Dashboard /></ProtectedRoute>} />
             <Route path="/fleet" element={<ProtectedRoute module="fleet"><Fleet /></ProtectedRoute>} />
             <Route path="/mechanic" element={<ProtectedRoute module="mechanic"><Mechanic /></ProtectedRoute>} />

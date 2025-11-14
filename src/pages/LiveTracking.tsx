@@ -202,8 +202,8 @@ const LiveTracking = () => {
     return colors[severidade];
   };
 
-  const openGoogleMaps = (destino: string) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`;
+  const openGoogleMaps = (vehicle: VehicleData) => {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${vehicle.posicao.lat},${vehicle.posicao.lng}&destination=${encodeURIComponent(vehicle.destino)}`;
     window.open(url, '_blank');
     toast.success('Abrindo Google Maps...');
   };
@@ -483,7 +483,7 @@ const LiveTracking = () => {
                 </div>
 
                 <Button 
-                  onClick={() => openGoogleMaps(selectedVehicle.destino)}
+                  onClick={() => openGoogleMaps(selectedVehicle)}
                   className="w-full"
                   variant="outline"
                 >

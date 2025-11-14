@@ -2205,6 +2205,14 @@ export type Database = {
     }
     Functions: {
       calculate_client_financial_analysis: { Args: never; Returns: undefined }
+      create_or_update_director: {
+        Args: {
+          user_email: string
+          user_full_name: string
+          user_password: string
+        }
+        Returns: string
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
