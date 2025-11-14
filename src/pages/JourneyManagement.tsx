@@ -47,7 +47,7 @@ export default function JourneyManagement() {
 
   const loadData = async () => {
     // Carregar violações
-    const { data: violationsData } = await supabase
+    const { data: violationsData } = await (supabase as any)
       .from("driver_violations")
       .select(`
         *,
@@ -60,11 +60,11 @@ export default function JourneyManagement() {
     if (violationsData) setViolations(violationsData);
 
     // Carregar estatísticas gerais
-    const { data: sessionsData } = await supabase
+    const { data: sessionsData } = await (supabase as any)
       .from("driver_work_sessions")
       .select("*");
 
-    const { data: violationsCount } = await supabase
+    const { data: violationsCount } = await (supabase as any)
       .from("driver_violations")
       .select("id", { count: "exact" });
 
@@ -88,7 +88,7 @@ export default function JourneyManagement() {
   };
 
   const marcarComoResolvida = async (violationId: string) => {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("driver_violations")
       .update({ resolvida: true })
       .eq("id", violationId);

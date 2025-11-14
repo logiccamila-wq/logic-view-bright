@@ -71,7 +71,7 @@ const DriversManagement = () => {
 
       if (error) throw error;
 
-      setDrivers(profilesData || []);
+      setDrivers(profilesData as any || []);
     } catch (error) {
       console.error('Erro ao carregar motoristas:', error);
       toast.error('Erro ao carregar motoristas');
@@ -105,7 +105,7 @@ const DriversManagement = () => {
         .limit(10);
 
       if (error) throw error;
-      setTripHistory(data || []);
+      setTripHistory(data as any || []);
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
       toast.error('Erro ao carregar histórico de viagens');

@@ -44,18 +44,18 @@ export default function DriverJourney() {
   }, [user]);
 
   const loadViolations = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("driver_violations")
       .select("*")
       .eq("driver_id", user!.id)
       .order("created_at", { ascending: false })
       .limit(10);
 
-    if (data) setViolations(data as Violation[]);
+    if (data) setViolations(data);
   };
 
   const loadWeeklyReports = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("driver_weekly_reports")
       .select("*")
       .eq("driver_id", user!.id)
