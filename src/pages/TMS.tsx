@@ -11,6 +11,7 @@ import { StatCard } from "@/components/StatCard";
 import { CTEManagement } from "@/components/tms/CTEManagement";
 import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 import { TripManagement } from "@/components/tms/TripManagement";
+import { OrdemColetaManagement } from "@/components/tms/OrdemColetaManagement";
 
 const TMS = () => {
   return (
@@ -52,8 +53,9 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="trips" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="trips">Gestão de Viagens</TabsTrigger>
+            <TabsTrigger value="ordem-coleta">Ordem de Coleta</TabsTrigger>
             <TabsTrigger value="cte">CT-e</TabsTrigger>
             <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
           </TabsList>
@@ -61,6 +63,11 @@ const TMS = () => {
           {/* Gestão de Viagens */}
           <TabsContent value="trips">
             <TripManagement />
+          </TabsContent>
+
+          {/* Ordem de Coleta */}
+          <TabsContent value="ordem-coleta">
+            <OrdemColetaManagement />
           </TabsContent>
 
           {/* CT-e */}
