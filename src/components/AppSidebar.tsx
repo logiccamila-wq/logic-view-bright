@@ -49,6 +49,7 @@ const mainItems = [
   { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
   { title: "Jornada Motorista", url: "/driver-journey", icon: Clock, module: "driver" },
   { title: "Minhas Gratificações", url: "/driver-payroll", icon: Wallet, module: "driver" },
+  { title: "Gestão de Motoristas", url: "/drivers-management", icon: Users, module: "fleet" },
   { title: "Gestão Jornadas", url: "/journey-management", icon: ClipboardList, module: "fleet" },
   { title: "Folha de Pagamento", url: "/payroll-management", icon: Calculator, module: "fleet" },
 ];

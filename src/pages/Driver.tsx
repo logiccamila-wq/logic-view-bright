@@ -16,6 +16,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
+import { MapNavigation } from "@/components/maps/MapNavigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
