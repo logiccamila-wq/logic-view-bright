@@ -132,28 +132,88 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
 
   const handleImportXML = async () => {
     if (!fileInputRef.current?.files?.[0]) {
-      toast.error('Selecione um arquivo XML');
+      toast.error('Selecione um arquivo');
+      return;
+    }
+
+    const file = fileInputRef.current.files[0];
+    const fileName = file.name.toLowerCase();
+    
+    if (!fileName.endsWith('.xml') && !fileName.endsWith('.zip')) {
+      toast.error('Por favor, selecione um arquivo XML ou ZIP');
       return;
     }
 
     setImporting(true);
-    const file = fileInputRef.current.files[0];
 
     try {
-      const xmlContent = await file.text();
-      
-      const { data, error } = await supabase.functions.invoke('import-cte-xml', {
-        body: { xml_content: xmlContent }
-      });
+      if (fileName.endsWith('.zip')) {
+        // Importação em lote de ZIP
+        const JSZip = (await import('jszip')).default;
+        const zip = new JSZip();
+        const zipContent = await zip.loadAsync(file);
+        
+        const xmlFiles: string[] = [];
+        
+        // Extrair todos os XMLs do ZIP
+        for (const [filename, fileData] of Object.entries(zipContent.files)) {
+          if (!fileData.dir && filename.toLowerCase().endsWith('.xml')) {
+            const content = await fileData.async('text');
+            xmlFiles.push(content);
+          }
+        }
 
-      if (error) throw error;
+        if (xmlFiles.length === 0) {
+          toast.error('Nenhum arquivo XML encontrado no ZIP');
+          return;
+        }
 
-      toast.success('CT-e importado com sucesso do XML! Disponível no app do motorista.');
-      onOpenChange(false);
+        toast.info(`Processando ${xmlFiles.length} CT-es...`);
+
+        const { data, error } = await supabase.functions.invoke('import-cte-batch', {
+          body: { xml_files: xmlFiles }
+        });
+
+        if (error) throw error;
+
+        const results = data as {
+          success: string[];
+          errors: Array<{ numero_cte: string; error: string }>;
+          clients_created: number;
+          ctes_created: number;
+        };
+
+        if (results.errors.length > 0) {
+          console.warn('Erros na importação:', results.errors);
+          toast.warning(
+            `${results.ctes_created} CT-es importados com sucesso. ${results.errors.length} falharam.`,
+            { duration: 5000 }
+          );
+        } else {
+          toast.success(
+            `✓ ${results.ctes_created} CT-es importados!\n✓ ${results.clients_created} novos clientes cadastrados\n✓ Contas a receber criadas\n✓ Indicadores atualizados`,
+            { duration: 6000 }
+          );
+        }
+
+      } else {
+        // Importação individual de XML
+        const xmlContent = await file.text();
+        
+        const { data, error } = await supabase.functions.invoke('import-cte-xml', {
+          body: { xml_content: xmlContent }
+        });
+
+        if (error) throw error;
+
+        toast.success('CT-e importado com sucesso!');
+      }
+
       onSuccess?.();
+      onOpenChange(false);
     } catch (error: any) {
-      console.error('Erro ao importar XML:', error);
-      toast.error(error.message || 'Erro ao importar XML. Verifique se a placa do veículo existe no sistema.');
+      console.error('Erro ao importar:', error);
+      toast.error(error.message || 'Erro ao importar CT-e');
     } finally {
       setImporting(false);
       if (fileInputRef.current) {
@@ -272,14 +332,15 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
           <TabsContent value="xml" className="space-y-4">
             <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
               <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Importar CT-e via XML</h3>
-              <p className="text-muted-foreground mb-4">
-                Faça upload do arquivo XML do CT-e para importar automaticamente todos os dados
+              <h3 className="text-lg font-semibold mb-2">Importar CT-e via XML ou ZIP</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Faça upload de um XML individual ou um arquivo ZIP contendo múltiplos XMLs
               </p>
+              
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".xml"
+                accept=".xml,.zip"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
@@ -287,23 +348,48 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
                   }
                 }}
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                className="mr-2"
-              >
-                Selecionar Arquivo XML
-              </Button>
-              <Button
-                type="button"
-                onClick={handleImportXML}
-                disabled={importing}
-              >
-                {importing ? 'Importando...' : 'Importar CT-e'}
-              </Button>
-              <div className="mt-4 text-sm text-muted-foreground">
-                ⚠️ A placa do veículo no XML deve estar cadastrada no sistema
+              
+              <div className="flex gap-2 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Selecionar XML ou ZIP
+                </Button>
+                
+                <Button
+                  type="button"
+                  onClick={handleImportXML}
+                  disabled={importing}
+                >
+                  {importing ? 'Importando...' : 'Importar'}
+                </Button>
+              </div>
+              
+              <div className="mt-6 space-y-2 text-left max-w-md mx-auto">
+                <p className="text-xs text-muted-foreground font-semibold">
+                  ⚠️ Requisito:
+                </p>
+                <p className="text-xs text-muted-foreground ml-4">
+                  • As placas dos veículos nos XMLs devem estar cadastradas no sistema
+                </p>
+                
+                <p className="text-xs text-success font-semibold mt-4">
+                  ✓ O sistema fará automaticamente:
+                </p>
+                <p className="text-xs text-success ml-4">
+                  • Cadastro de clientes (se não existirem)
+                </p>
+                <p className="text-xs text-success ml-4">
+                  • Criação de contas a receber
+                </p>
+                <p className="text-xs text-success ml-4">
+                  • Atualização de indicadores financeiros
+                </p>
+                <p className="text-xs text-success ml-4">
+                  • Cálculo de análises por cliente
+                </p>
               </div>
             </div>
           </TabsContent>
