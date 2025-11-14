@@ -36,7 +36,7 @@ export function useCostAlerts() {
 
     try {
       // Get active alerts
-      const { data: alerts, error: alertsError } = await supabase
+      const { data: alerts, error: alertsError } = await (supabase as any)
         .from('maintenance_cost_alerts')
         .select('*')
         .eq('is_active', true);
@@ -256,7 +256,7 @@ export function useCostAlerts() {
       await Promise.all(promises);
 
       // Update last triggered time
-      await supabase
+      await (supabase as any)
         .from('maintenance_cost_alerts')
         .update({
           last_triggered_at: new Date().toISOString(),
@@ -344,7 +344,7 @@ export function useCostAlerts() {
     try {
       await Promise.all(promises);
 
-      await supabase
+      await (supabase as any)
         .from('maintenance_cost_alerts')
         .update({
           last_triggered_at: new Date().toISOString(),
@@ -419,7 +419,7 @@ export function useCostAlerts() {
     try {
       await Promise.all(promises);
 
-      await supabase
+      await (supabase as any)
         .from('maintenance_cost_alerts')
         .update({
           last_triggered_at: new Date().toISOString(),
