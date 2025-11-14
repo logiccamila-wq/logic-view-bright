@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { 
   Check, 
   TrendingUp, 
@@ -12,15 +15,34 @@ import {
   Award,
   ChevronRight,
   ArrowRight,
-  Star
+  Star,
+  Mail,
+  Phone,
+  Send,
+  Linkedin,
+  Instagram
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import optilogLogo from "@/assets/optilog-logo.png";
+import { toast } from "sonner";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: ""
+  });
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("Mensagem enviada! Entraremos em contato em breve.");
+    setFormData({ name: "", email: "", phone: "", company: "", message: "" });
+  };
   
   // Animation variants
   const fadeInUp = {
@@ -597,6 +619,270 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-4xl">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <Badge className="mb-4">FAQ</Badge>
+            <h2 className="text-4xl font-bold mb-4">Perguntas Frequentes</h2>
+            <p className="text-xl text-muted-foreground">
+              Tire suas dúvidas sobre o OptiLog
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              <AccordionItem value="item-1" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  Quanto tempo leva para implementar o OptiLog?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  A implementação completa leva de 7 a 15 dias úteis, dependendo do tamanho da sua frota. 
+                  Oferecemos onboarding completo com treinamento para toda equipe e migração de dados dos sistemas anteriores.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-2" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  O OptiLog substitui todos os meus sistemas atuais?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Sim! Com 51 módulos integrados, o OptiLog elimina a necessidade de TMS, sistema de frota, 
+                  financeiro, ERP e rastreamento separados. Tudo em uma única plataforma com dados integrados.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-3" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  Como funciona a precificação? Posso mudar de plano?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  A precificação é baseada no número de veículos e módulos utilizados. Você pode fazer upgrade 
+                  ou downgrade a qualquer momento. O plano Enterprise é 100% customizável para suas necessidades específicas.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-4" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  A IA realmente gera economia ou é só marketing?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  A EJG Transporte economizou R$ 1.268M no primeiro ano com análise preditiva de manutenções, 
+                  otimização de rotas e redução de custos. A IA analisa 100% das operações em tempo real e 
+                  sugere decisões baseadas em dados históricos e padrões de mercado.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-5" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  O suporte é realmente 24/7 ou apenas horário comercial?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Nos planos Profissional e Enterprise, o suporte é 24/7/365 com SLA garantido. 
+                  Planos menores têm suporte em horário comercial (8h-18h) com resposta em até 4 horas.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-6" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  Preciso de conhecimento técnico para usar o sistema?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Não! A interface é intuitiva e oferecemos treinamento completo. A IA ajuda nas decisões 
+                  e os portais para motoristas/mecânicos são simples de usar. Equipes sem experiência em TI 
+                  começam a operar em poucos dias.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-7" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  Como funciona a integração com meus sistemas atuais?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Oferecemos API completa e integrações nativas com Notion, Google Workspace, WhatsApp, 
+                  sistemas fiscais (NFe, CT-e) e principais ERPs do mercado. Nossa equipe técnica auxilia 
+                  em todas as integrações necessárias.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-8" className="bg-card border rounded-lg px-6">
+                <AccordionTrigger className="text-left font-semibold">
+                  Meus dados ficam seguros? Há backup?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Sim! Usamos criptografia de ponta a ponta, certificações SASSMAQ e ISO 9001. Backups 
+                  automáticos são feitos a cada 6 horas com redundância em múltiplos datacenters. 
+                  Garantimos 99.9% de uptime no SLA.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Contact Form Section */}
+      <section id="contato" className="py-20 px-4 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInLeft}
+              transition={{ duration: 0.6 }}
+            >
+              <Badge className="mb-4">Contato</Badge>
+              <h2 className="text-4xl font-bold mb-4">
+                Fale com Nossos Especialistas
+              </h2>
+              <p className="text-xl text-muted-foreground mb-8">
+                Agende uma demonstração gratuita e veja como o OptiLog pode transformar sua operação
+              </p>
+
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                    <Mail className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Email</h3>
+                    <a href="mailto:comercial@xyzlogicflow.tech" className="text-muted-foreground hover:text-primary">
+                      comercial@xyzlogicflow.tech
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                    <Phone className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Telefone/WhatsApp</h3>
+                    <a href="tel:+5581995055354" className="text-muted-foreground hover:text-primary">
+                      (81) 99505-5354
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                    <Linkedin className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">LinkedIn</h3>
+                    <a 
+                      href="https://www.linkedin.com/company/xyzlogicflow-aidrivensolutions/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      XYZ Logic Flow AI Driven Solutions
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                    <Instagram className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Instagram</h3>
+                    <a 
+                      href="https://www.instagram.com/camila.larest/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      @camila.larest
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInRight}
+              transition={{ duration: 0.6 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Envie sua Mensagem</CardTitle>
+                  <CardDescription>
+                    Responderemos em até 24 horas úteis
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Input
+                        placeholder="Nome completo"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        type="email"
+                        placeholder="Email corporativo"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        type="tel"
+                        placeholder="Telefone/WhatsApp"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        placeholder="Nome da empresa"
+                        value={formData.company}
+                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Textarea
+                        placeholder="Conte-nos sobre sua operação e necessidades"
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        rows={4}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full gap-2">
+                      Enviar Mensagem
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-20 px-4 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10">
         <motion.div 
@@ -663,10 +949,38 @@ const LandingPage = () => {
             <div>
               <h3 className="font-semibold mb-4">Contato</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>comercial@xyzlogicflow.tech</li>
-                <li>(81) 99505-5354</li>
+                <li>
+                  <a href="mailto:comercial@xyzlogicflow.tech" className="hover:text-primary flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    comercial@xyzlogicflow.tech
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+5581995055354" className="hover:text-primary flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    (81) 99505-5354
+                  </a>
+                </li>
                 <li>Jaboatão dos Guararapes/PE</li>
               </ul>
+              <div className="flex gap-4 mt-4">
+                <a 
+                  href="https://www.linkedin.com/company/xyzlogicflow-aidrivensolutions/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+                <a 
+                  href="https://www.instagram.com/camila.larest/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+              </div>
             </div>
           </div>
           
