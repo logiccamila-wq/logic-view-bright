@@ -15,6 +15,7 @@ import {
   Star
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
+import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -85,11 +86,12 @@ const CRM = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="clientes" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="clientes">Clientes</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="atendimentos">Atendimentos</TabsTrigger>
             <TabsTrigger value="campanhas">Campanhas</TabsTrigger>
+            <TabsTrigger value="receita">Receita</TabsTrigger>
             <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
           </TabsList>
 
@@ -314,6 +316,11 @@ const CRM = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Receita */}
+          <TabsContent value="receita" className="space-y-4">
+            <RevenueAnalysis />
           </TabsContent>
 
           {/* Campanhas */}

@@ -13,6 +13,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
+import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 import {
   Table,
   TableBody,
@@ -77,11 +78,12 @@ const ERP = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="financeiro" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
             <TabsTrigger value="contabilidade">Contabilidade</TabsTrigger>
             <TabsTrigger value="rh">Recursos Humanos</TabsTrigger>
             <TabsTrigger value="patrimonio">Patrimônio</TabsTrigger>
+            <TabsTrigger value="receita">Receita</TabsTrigger>
             <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
           </TabsList>
 
@@ -330,6 +332,11 @@ const ERP = () => {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Receita */}
+          <TabsContent value="receita" className="space-y-4">
+            <RevenueAnalysis />
           </TabsContent>
 
           {/* Patrimônio */}

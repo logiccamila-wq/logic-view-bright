@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CTEManagement } from "@/components/tms/CTEManagement";
+import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 
 const TMS = () => {
   const viagensAtivas = [
@@ -80,13 +81,14 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="viagens" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="viagens">Viagens</TabsTrigger>
             <TabsTrigger value="cte">CT-e</TabsTrigger>
             <TabsTrigger value="cargas">Cargas</TabsTrigger>
             <TabsTrigger value="rotas">Rotas</TabsTrigger>
             <TabsTrigger value="frete">Frete</TabsTrigger>
             <TabsTrigger value="rastreamento">Rastreamento</TabsTrigger>
+            <TabsTrigger value="receita">Receita</TabsTrigger>
           </TabsList>
 
           {/* Viagens */}
@@ -305,6 +307,11 @@ const TMS = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Receita */}
+          <TabsContent value="receita" className="space-y-4">
+            <RevenueAnalysis />
           </TabsContent>
         </Tabs>
       </div>
