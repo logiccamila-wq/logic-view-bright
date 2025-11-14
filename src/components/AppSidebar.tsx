@@ -16,6 +16,8 @@ import {
   CheckCircle,
   TowerControl,
   Warehouse,
+  Clock,
+  ClipboardList,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -41,6 +43,8 @@ const mainItems = [
   { title: "Gestão de Frota", url: "/fleet", icon: Truck, module: "fleet" },
   { title: "Hub Mecânico", url: "/mechanic", icon: Wrench, module: "mechanic" },
   { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
+  { title: "Jornada Motorista", url: "/driver-journey", icon: Clock, module: "driver" },
+  { title: "Gestão Jornadas", url: "/journey-management", icon: ClipboardList, module: "fleet" },
 ];
 
 const managementItems = [
