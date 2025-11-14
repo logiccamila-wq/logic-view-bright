@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Truck } from "lucide-react";
+import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Vehicle {
   id: string;
@@ -19,6 +23,64 @@ interface Vehicle {
 
 const Fleet = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [maintenanceStats, setMaintenanceStats] = useState({
+    overdue: 0,
+    urgent: 0,
+    scheduled: 0,
+    ok: 0
+  });
+
+  const { hasRole } = useAuth();
+  const { notifications } = useNotifications();
+  const { checkMaintenanceSchedules } = useMaintenanceAlerts();
+
+  // Verificar se o usuário tem acesso ao módulo de alertas
+  const canViewAlerts = hasRole('admin') || 
+                       hasRole('logistics_manager') || 
+                       hasRole('maintenance_manager') ||
+                       hasRole('fleet_maintenance');
+
+  // Carregar estatísticas de manutenção
+  useEffect(() => {
+    const loadMaintenanceStats = async () => {
+      if (!canViewAlerts) return;
+
+      try {
+        const { data: serviceOrders } = await supabase
+          .from('service_orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!serviceOrders) return;
+
+        const vehicleMap = new Map<string, any[]>();
+        serviceOrders.forEach((order) => {
+          const existing = vehicleMap.get(order.vehicle_plate) || [];
+          vehicleMap.set(order.vehicle_plate, [...existing, order]);
+        });
+
+        let overdue = 0, urgent = 0, scheduled = 0, ok = 0;
+
+        for (const [, orders] of vehicleMap.entries()) {
+          const currentOdometer = Math.max(...orders.map(o => o.odometer));
+          const avgInterval = 10000; // Intervalo médio simplificado
+          const predictedKm = currentOdometer + avgInterval;
+          const kmUntil = predictedKm - currentOdometer;
+
+          if (kmUntil < 0) overdue++;
+          else if (kmUntil < 1000) urgent++;
+          else if (kmUntil < 3000) scheduled++;
+          else ok++;
+        }
+
+        setMaintenanceStats({ overdue, urgent, scheduled, ok });
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+      }
+    };
+
+    loadMaintenanceStats();
+  }, [canViewAlerts]);
 
   const mockVehicles: Vehicle[] = [
     { id: "1", placa: "ABC-1234", modelo: "Mercedes-Benz Atego", status: "ativo", motorista: "João Silva", km: 85000 },
@@ -41,16 +103,116 @@ const Fleet = () => {
     return variants[status];
   };
 
+  // Filtrar notificações de frota
+  const fleetNotifications = notifications.filter(n => n.module === 'fleet' && !n.read);
+
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Gestão de Frota</h1>
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            Adicionar Veículo
-          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Gestão de Frota</h1>
+            {canViewAlerts && fleetNotifications.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {fleetNotifications.length} alerta(s) de manutenção não lido(s)
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {canViewAlerts && (
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => checkMaintenanceSchedules()}
+              >
+                <Bell className="w-4 h-4" />
+                Verificar Alertas
+              </Button>
+            )}
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              Adicionar Veículo
+            </Button>
+          </div>
         </div>
+
+        {/* Alertas de Manutenção - Apenas para usuários autorizados */}
+        {canViewAlerts && (
+          <Card className="border-l-4 border-l-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wrench className="w-5 h-5" />
+                Status de Manutenção Preventiva
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10">
+                  <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                    <AlertCircle className="w-5 h-5 text-destructive" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{maintenanceStats.overdue}</p>
+                    <p className="text-sm text-muted-foreground">Atrasadas</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-yellow-500/10">
+                  <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{maintenanceStats.urgent}</p>
+                    <p className="text-sm text-muted-foreground">Urgentes</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{maintenanceStats.scheduled}</p>
+                    <p className="text-sm text-muted-foreground">Agendadas</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10">
+                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{maintenanceStats.ok}</p>
+                    <p className="text-sm text-muted-foreground">Em Dia</p>
+                  </div>
+                </div>
+              </div>
+              
+              {fleetNotifications.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-sm font-medium mb-2">Alertas Recentes:</p>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {fleetNotifications.slice(0, 5).map((notif) => (
+                      <div 
+                        key={notif.id} 
+                        className={`p-3 rounded-lg text-sm ${
+                          notif.type === 'error' 
+                            ? 'bg-destructive/10 text-destructive' 
+                            : notif.type === 'warning'
+                            ? 'bg-yellow-500/10 text-yellow-600'
+                            : 'bg-blue-500/10 text-blue-600'
+                        }`}
+                      >
+                        <p className="font-medium">{notif.title}</p>
+                        <p className="text-xs opacity-80 mt-1">{notif.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

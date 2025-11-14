@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import ejgLogo from "@/assets/ejg-logo.png";
 
 interface LayoutProps {
@@ -8,6 +9,9 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
+  // Ativar sistema de alertas de manutenção
+  useMaintenanceAlerts();
+  
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
