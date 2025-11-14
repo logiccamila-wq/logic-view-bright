@@ -35,8 +35,10 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
   const [loading, setLoading] = useState(false);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [carretas, setCarretas] = useState<Vehicle[]>([]);
   const [selectedDriver, setSelectedDriver] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [selectedCarreta, setSelectedCarreta] = useState("");
   const [estimatedDeparture, setEstimatedDeparture] = useState("");
   const [estimatedArrival, setEstimatedArrival] = useState("");
   const [notes, setNotes] = useState("");
@@ -85,18 +87,34 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
 
     setDrivers(availableDrivers);
 
-    // Buscar veículos
-    const { data: vehiclesData } = await supabase
+    // Buscar cavalos mecânicos
+    const { data: cavalosData } = await supabase
       .from('vehicles')
       .select('placa, modelo')
+      .eq('tipo', 'cavalo')
       .eq('status', 'ativo')
       .order('placa');
 
-    setVehicles((vehiclesData || []).map(v => ({
+    setVehicles((cavalosData || []).map(v => ({
       plate: v.placa,
       brand: '',
       model: v.modelo || '',
-      available: true // Pode verificar se está em uso
+      available: true
+    })));
+
+    // Buscar carretas
+    const { data: carretasData } = await supabase
+      .from('vehicles')
+      .select('placa, modelo')
+      .eq('tipo', 'carreta')
+      .eq('status', 'ativo')
+      .order('placa');
+
+    setCarretas((carretasData || []).map(v => ({
+      plate: v.placa,
+      brand: '',
+      model: v.modelo || '',
+      available: true
     })));
   };
 
@@ -284,6 +302,32 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
                     </SelectItem>
                   ))
                 )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Seleção de Carreta */}
+          <div className="space-y-2">
+            <Label htmlFor="carreta" className="flex items-center gap-2">
+              <Truck className="h-4 w-4" />
+              Carreta (Opcional)
+            </Label>
+            <Select value={selectedCarreta} onValueChange={setSelectedCarreta}>
+              <SelectTrigger id="carreta">
+                <SelectValue placeholder="Selecione uma carreta (se aplicável)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nenhuma</SelectItem>
+                {carretas.map((carreta) => (
+                  <SelectItem key={carreta.plate} value={carreta.plate}>
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-mono">{carreta.plate}</span>
+                      <span className="text-muted-foreground ml-2">
+                        {carreta.model}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
