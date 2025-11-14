@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useNeonMetrics } from "@/hooks/useNeonMetrics";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -83,6 +87,32 @@ const monthlyHistory = [
 
 export default function CostMonitoring() {
   const [selectedClients, setSelectedClients] = useState(10);
+  const [neonProjectId, setNeonProjectId] = useState<string>("");
+  const [useRealData, setUseRealData] = useState(false);
+  
+  // Buscar métricas reais do Neon
+  const { metrics: neonMetrics, loading: neonLoading, error: neonError, refetch } = useNeonMetrics(
+    neonProjectId,
+    useRealData
+  );
+
+  // Usar dados reais se disponíveis, senão usar mockados
+  const currentUsage = neonMetrics ? {
+    computeHours: parseFloat(neonMetrics.computeHours),
+    storageGB: parseFloat(neonMetrics.storageGB),
+    historyGB: 0,
+    networkGB: parseFloat(neonMetrics.dataTransferGB),
+    branches: neonMetrics.branches,
+    cost: parseFloat(neonMetrics.totalEstimatedCost),
+    period: new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  } : currentNeonUsage;
+
+  const handleConnectNeon = () => {
+    if (neonProjectId.trim()) {
+      setUseRealData(true);
+      refetch();
+    }
+  };
 
   const currentProjection = projectionsData.find(p => p.clients === selectedClients);
   const migrationThreshold = projectionsData.find(p => p.recommended === "supabase" && p.clients <= selectedClients);
@@ -98,6 +128,89 @@ export default function CostMonitoring() {
           Acompanhe gastos de infraestrutura e projeções para crescimento
         </p>
       </div>
+
+      {/* Conexão com Neon */}
+      {!useRealData && (
+        <Card className="border-blue-500 bg-blue-50 dark:bg-blue-950">
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-4">
+              <div>
+                <h3 className="font-semibold text-lg text-blue-900 dark:text-blue-100 mb-2">
+                  Conectar ao Neon Database
+                </h3>
+                <p className="text-blue-800 dark:text-blue-200 text-sm mb-4">
+                  Digite o ID do seu projeto Neon para ver métricas de uso em tempo real
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <Label htmlFor="neon-project-id" className="text-sm">Project ID</Label>
+                  <Input
+                    id="neon-project-id"
+                    placeholder="ex: autumn-frost-12345"
+                    value={neonProjectId}
+                    onChange={(e) => setNeonProjectId(e.target.value)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Encontre no dashboard Neon em Settings → General
+                  </p>
+                </div>
+                <div className="flex items-end">
+                  <Button onClick={handleConnectNeon} disabled={!neonProjectId.trim()}>
+                    Conectar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {useRealData && neonMetrics && (
+        <Card className="border-green-500 bg-green-50 dark:bg-green-950">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <CheckCircle2 className="h-6 w-6 text-green-600 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg text-green-900 dark:text-green-100 mb-2">
+                  Conectado ao Neon: {neonMetrics.projectName}
+                </h3>
+                <p className="text-green-800 dark:text-green-200 text-sm mb-2">
+                  Região: {neonMetrics.region} • {neonMetrics.branches} branches ativos
+                </p>
+                <p className="text-xs text-green-700 dark:text-green-300">
+                  Última atualização: {new Date(neonMetrics.lastUpdated).toLocaleString('pt-BR')}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={refetch} disabled={neonLoading}>
+                {neonLoading ? "Atualizando..." : "Atualizar"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setUseRealData(false)}>
+                Desconectar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {neonError && (
+        <Card className="border-red-500 bg-red-50 dark:bg-red-950">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <AlertTriangle className="h-6 w-6 text-red-600 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg text-red-900 dark:text-red-100 mb-2">
+                  Erro ao conectar com Neon
+                </h3>
+                <p className="text-red-800 dark:text-red-200 text-sm">
+                  {neonError}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Alerta de Recomendação */}
       {shouldMigrate ? (
@@ -149,11 +262,17 @@ export default function CostMonitoring() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Custo Atual (Nov)</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Custo Atual {useRealData ? '(Tempo Real)' : '(Simulado)'}
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${currentNeonUsage.cost.toFixed(2)}</div>
+            {neonLoading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <div className="text-2xl font-bold">${currentUsage.cost.toFixed(2)}</div>
+            )}
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-green-600" />
               +4.6% vs mês anterior
@@ -167,10 +286,16 @@ export default function CostMonitoring() {
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentNeonUsage.computeHours}h</div>
-            <p className="text-xs text-muted-foreground">
-              ${(currentNeonUsage.computeHours * neonPricing.computePerHour).toFixed(2)} este mês
-            </p>
+            {neonLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{currentUsage.computeHours.toFixed(2)}h</div>
+                <p className="text-xs text-muted-foreground">
+                  ${(currentUsage.computeHours * neonPricing.computePerHour).toFixed(2)} este mês
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -180,10 +305,16 @@ export default function CostMonitoring() {
             <HardDrive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentNeonUsage.storageGB} GB</div>
-            <p className="text-xs text-muted-foreground">
-              ${(currentNeonUsage.storageGB * neonPricing.storagePerGB).toFixed(2)} este mês
-            </p>
+            {neonLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{currentUsage.storageGB.toFixed(2)} GB</div>
+                <p className="text-xs text-muted-foreground">
+                  ${(currentUsage.storageGB * neonPricing.storagePerGB).toFixed(2)} este mês
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -193,10 +324,16 @@ export default function CostMonitoring() {
             <Network className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentNeonUsage.branches}</div>
-            <p className="text-xs text-muted-foreground">
-              ${(2583 * neonPricing.branchHours).toFixed(2)} em branches
-            </p>
+            {neonLoading ? (
+              <Skeleton className="h-8 w-12" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{currentUsage.branches}</div>
+                <p className="text-xs text-muted-foreground">
+                  {useRealData ? 'Branches ativos' : `$${(2583 * neonPricing.branchHours).toFixed(2)} em branches`}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
