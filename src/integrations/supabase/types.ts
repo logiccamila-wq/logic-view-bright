@@ -345,7 +345,7 @@ export type Database = {
           {
             foreignKeyName: "contas_receber_cte_id_fkey"
             columns: ["cte_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "cte"
             referencedColumns: ["id"]
           },

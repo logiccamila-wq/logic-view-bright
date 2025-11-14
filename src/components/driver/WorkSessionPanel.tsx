@@ -13,13 +13,16 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
+  Truck,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { VehicleChangeDialog } from "./VehicleChangeDialog";
 
 interface WorkSession {
   id: string;
   status: string;
   data_inicio: string;
+  vehicle_plate: string;
   total_direcao_minutos: number;
   total_trabalho_minutos: number;
   total_espera_minutos: number;
@@ -48,6 +51,7 @@ export function WorkSessionPanel() {
   const [currentEvent, setCurrentEvent] = useState<WorkEvent | null>(null);
   const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [vehicleChangeDialogOpen, setVehicleChangeDialogOpen] = useState(false);
 
   useEffect(() => {
     loadActiveSession();
@@ -363,17 +367,38 @@ export function WorkSessionPanel() {
           )}
 
           {/* Finalizar Jornada */}
-          <Button
-            onClick={finalizarJornada}
-            disabled={loading}
-            variant="destructive"
-            className="w-full"
-            size="lg"
-          >
-            <Square className="mr-2 h-5 w-5" />
-            Finalizar Jornada
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={finalizarJornada}
+              disabled={loading}
+              variant="destructive"
+              className="flex-1"
+              size="lg"
+            >
+              <Square className="mr-2 h-5 w-5" />
+              Finalizar Jornada
+            </Button>
+            <Button
+              onClick={() => setVehicleChangeDialogOpen(true)}
+              disabled={loading}
+              variant="outline"
+              size="lg"
+            >
+              <Truck className="mr-2 h-5 w-5" />
+              Trocar Veículo
+            </Button>
+          </div>
         </div>
+      )}
+      
+      {currentSession && (
+        <VehicleChangeDialog
+          open={vehicleChangeDialogOpen}
+          onOpenChange={setVehicleChangeDialogOpen}
+          currentSessionId={currentSession.id}
+          currentVehicle={currentSession.vehicle_plate}
+          onVehicleChanged={loadActiveSession}
+        />
       )}
     </Card>
   );
