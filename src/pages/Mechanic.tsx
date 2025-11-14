@@ -4,7 +4,9 @@ import { ServiceOrdersTab } from '@/components/mechanic/ServiceOrdersTab';
 import { TPMSTab } from '@/components/mechanic/TPMSTab';
 import { WorkshopTab } from '@/components/mechanic/WorkshopTab';
 import { MaintenanceChecklistTab } from '@/components/mechanic/MaintenanceChecklistTab';
-import { Wrench, Gauge, Package, ClipboardCheck } from 'lucide-react';
+import { LavaJatoTab } from '@/components/mechanic/LavaJatoTab';
+import { BorachariaTab } from '@/components/mechanic/BorachariaTab';
+import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle } from 'lucide-react';
 
 const Mechanic = () => {
   return (
@@ -18,11 +20,19 @@ const Mechanic = () => {
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Wrench className="h-4 w-4" />
               <span className="hidden sm:inline">Ordens de Serviço</span>
               <span className="sm:hidden">OS</span>
+            </TabsTrigger>
+            <TabsTrigger value="lavajato" className="flex items-center gap-2">
+              <Droplet className="h-4 w-4" />
+              <span className="hidden sm:inline">Lava-Jato</span>
+            </TabsTrigger>
+            <TabsTrigger value="borracharia" className="flex items-center gap-2">
+              <Circle className="h-4 w-4" />
+              <span className="hidden sm:inline">Borracharia</span>
             </TabsTrigger>
             <TabsTrigger value="tpms" className="flex items-center gap-2">
               <Gauge className="h-4 w-4" />
@@ -40,6 +50,14 @@ const Mechanic = () => {
 
           <TabsContent value="orders" className="space-y-6">
             <ServiceOrdersTab />
+          </TabsContent>
+
+          <TabsContent value="lavajato" className="space-y-6">
+            <LavaJatoTab />
+          </TabsContent>
+
+          <TabsContent value="borracharia" className="space-y-6">
+            <BorachariaTab />
           </TabsContent>
 
           <TabsContent value="tpms" className="space-y-6">
