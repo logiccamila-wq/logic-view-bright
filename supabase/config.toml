@@ -5,3 +5,9 @@ verify_jwt = true
 
 [functions.seed-users]
 verify_jwt = true
+
+[functions.seed-drivers]
+verify_jwt = false
+
+[functions.ejg-chatbot]
+verify_jwt = true
