@@ -60,12 +60,12 @@ export function LavaJatoTab() {
   const fetchLavagens = async () => {
     try {
       const { data, error } = await supabase
-        .from('lavagens')
+        .from('lavagens' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLavagens(data || []);
+      setLavagens((data as any) || []);
     } catch (error) {
       console.error('Erro ao buscar lavagens:', error);
       toast.error('Erro ao carregar lavagens');
@@ -93,12 +93,12 @@ export function LavaJatoTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('lavagens').insert({
+      const { error } = await supabase.from('lavagens' as any).insert({
         ...formData,
         km: parseInt(formData.km),
         valor: formData.valor ? parseFloat(formData.valor) : null,
         responsavel_id: user?.id,
-      });
+      } as any);
 
       if (error) throw error;
 
@@ -131,8 +131,8 @@ export function LavaJatoTab() {
       }
 
       const { error } = await supabase
-        .from('lavagens')
-        .update(updateData)
+        .from('lavagens' as any)
+        .update(updateData as any)
         .eq('id', lavagemId);
 
       if (error) throw error;
