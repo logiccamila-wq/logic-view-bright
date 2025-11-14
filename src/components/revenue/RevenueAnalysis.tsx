@@ -33,6 +33,7 @@ import {
 } from "recharts";
 import { RevenueAlertsConfig } from "./RevenueAlertsConfig";
 import { RevenueForecast } from "./RevenueForecast";
+import { PredictiveAlertsConfig } from "./PredictiveAlertsConfig";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -295,11 +296,12 @@ export function RevenueAnalysis() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="clients">Clientes</TabsTrigger>
           <TabsTrigger value="routes">Rotas</TabsTrigger>
           <TabsTrigger value="forecast">Previsão ML</TabsTrigger>
+          <TabsTrigger value="predictive">Alertas ML</TabsTrigger>
           <TabsTrigger value="alerts">Alertas</TabsTrigger>
         </TabsList>
 
@@ -421,6 +423,10 @@ export function RevenueAnalysis() {
 
         <TabsContent value="forecast" className="space-y-4">
           <RevenueForecast />
+        </TabsContent>
+
+        <TabsContent value="predictive" className="space-y-4">
+          <PredictiveAlertsConfig />
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-4">
