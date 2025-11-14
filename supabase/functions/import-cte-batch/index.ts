@@ -82,17 +82,29 @@ serve(async (req) => {
       try {
         const cteData = parseXML(xml_content)
         
-        // Validar se a placa existe no sistema
-        const { data: vehicleExists } = await supabaseClient
-          .from('vehicles')
-          .select('placa')
-          .eq('placa', cteData.placa_veiculo.toUpperCase())
-          .maybeSingle()
+        // Validar se a placa existe no sistema (tenta variações)
+        const originalPlate = (cteData.placa_veiculo || '').toUpperCase();
+        const sanitizedPlate = originalPlate.replace(/[^A-Z0-9]/g, '');
+        const hyphenatedPlate = sanitizedPlate.length > 3 ? `${sanitizedPlate.slice(0,3)}-${sanitizedPlate.slice(3)}` : sanitizedPlate;
+
+        let vehicleExists = null as any;
+        if (originalPlate) {
+          const r1 = await supabaseClient.from('vehicles').select('placa').eq('placa', originalPlate).maybeSingle();
+          vehicleExists = r1.data || null;
+        }
+        if (!vehicleExists && sanitizedPlate) {
+          const r2 = await supabaseClient.from('vehicles').select('placa').eq('placa', sanitizedPlate).maybeSingle();
+          vehicleExists = r2.data || null;
+        }
+        if (!vehicleExists && hyphenatedPlate) {
+          const r3 = await supabaseClient.from('vehicles').select('placa').eq('placa', hyphenatedPlate).maybeSingle();
+          vehicleExists = r3.data || null;
+        }
 
         if (!vehicleExists) {
           results.errors.push({
             numero_cte: cteData.numero_cte,
-            error: `Placa ${cteData.placa_veiculo} não encontrada no sistema`
+            error: `Placa ${cteData.placa_veiculo || '(vazia)'} não encontrada no sistema`
           })
           continue
         }
@@ -223,90 +235,94 @@ serve(async (req) => {
 })
 
 function parseXML(xmlContent: string): CTEDataFromXML {
-  const extractValue = (xml: string, tag: string): string => {
-    const regex = new RegExp(`<${tag}>([^<]*)</${tag}>`, 'i');
+  // Helpers robustos para XML com namespaces (ex.: <cte:placa>)
+  const extractValueNs = (xml: string, tag: string): string => {
+    const regex = new RegExp(`<(?:[\\w]+:)?${tag}>([^<]*)<\\/(?:[\\w]+:)?${tag}>`, 'i');
     const match = xml.match(regex);
     return match ? match[1].trim() : '';
   };
-
+  const extractSectionNs = (xml: string, tag: string): string => {
+    const regex = new RegExp(`<(?:[\\w]+:)?${tag}[^>]*>([\\s\\S]*?)<\\/(?:[\\w]+:)?${tag}>`, 'i');
+    const match = xml.match(regex);
+    return match ? match[1] : '';
+  };
   const extractNumeric = (xml: string, tag: string): number => {
-    const value = extractValue(xml, tag);
+    const value = extractValueNs(xml, tag);
     return value ? parseFloat(value.replace(',', '.')) : 0;
   };
+  const sanitizePlate = (p: string) => p ? p.toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
 
-  // Extrair chave de acesso
-  const chaveAcesso = extractValue(xmlContent, 'chCTe');
-  
-  // Dados de identificação
-  const numeroCte = extractValue(xmlContent, 'nCT');
-  const dataEmissao = extractValue(xmlContent, 'dhEmi');
-  
+  // Identificação
+  const chaveAcesso = extractValueNs(xmlContent, 'chCTe');
+  const numeroCte = extractValueNs(xmlContent, 'nCT') || extractValueNs(xmlContent, 'nCte') || '0';
+  const dataEmissao = extractValueNs(xmlContent, 'dhEmi') || extractValueNs(xmlContent, 'dEmi') || new Date().toISOString();
+
   // Remetente
+  const remSection = extractSectionNs(xmlContent, 'rem');
   const remetente = {
-    nome: extractValue(xmlContent, 'xNome'),
-    cnpj: extractValue(xmlContent.split('</rem>')[0], 'CNPJ'),
-    endereco: extractValue(xmlContent, 'xLgr'),
-    cidade: extractValue(xmlContent.split('</rem>')[0], 'xMun'),
-    uf: extractValue(xmlContent.split('</rem>')[0], 'UF'),
-    cep: extractValue(xmlContent.split('</rem>')[0], 'CEP')
+    nome: extractValueNs(remSection || xmlContent, 'xNome'),
+    cnpj: extractValueNs(remSection || xmlContent, 'CNPJ'),
+    endereco: extractValueNs(remSection || xmlContent, 'xLgr'),
+    cidade: extractValueNs(remSection || xmlContent, 'xMun'),
+    uf: extractValueNs(remSection || xmlContent, 'UF'),
+    cep: extractValueNs(remSection || xmlContent, 'CEP'),
   };
 
   // Destinatário
-  const destinatarioSection = xmlContent.split('<dest>')[1]?.split('</dest>')[0] || '';
+  const destSection = extractSectionNs(xmlContent, 'dest');
   const destinatario = {
-    nome: extractValue(destinatarioSection, 'xNome'),
-    cnpj: extractValue(destinatarioSection, 'CNPJ') || extractValue(destinatarioSection, 'CPF'),
-    endereco: extractValue(destinatarioSection, 'xLgr'),
-    cidade: extractValue(destinatarioSection, 'xMun'),
-    uf: extractValue(destinatarioSection, 'UF'),
-    cep: extractValue(destinatarioSection, 'CEP')
+    nome: extractValueNs(destSection, 'xNome'),
+    cnpj: extractValueNs(destSection, 'CNPJ') || extractValueNs(destSection, 'CPF'),
+    endereco: extractValueNs(destSection, 'xLgr'),
+    cidade: extractValueNs(destSection, 'xMun'),
+    uf: extractValueNs(destSection, 'UF'),
+    cep: extractValueNs(destSection, 'CEP'),
   };
 
   // Tomador
-  const indicadorTomador = extractValue(xmlContent, 'toma3')?.charAt(0) || 
-                          extractValue(xmlContent, 'toma4')?.charAt(0) || '0';
-  
-  let tomador = { tipo: '', nome: '', cnpj: '' };
-  
-  if (indicadorTomador === '0') {
-    tomador = { tipo: 'remetente', nome: remetente.nome, cnpj: remetente.cnpj };
-  } else if (indicadorTomador === '1') {
-    tomador = { tipo: 'destinatario', nome: destinatario.nome, cnpj: destinatario.cnpj };
-  } else {
-    const tomadorSection = xmlContent.split('<toma4>')[1]?.split('</toma4>')[0] || '';
+  const indicadorTomador = (extractValueNs(xmlContent, 'toma3') || extractValueNs(xmlContent, 'toma4') || '0').charAt(0);
+  let tomador = { tipo: 'remetente', nome: remetente.nome, cnpj: remetente.cnpj };
+  if (indicadorTomador === '1') tomador = { tipo: 'destinatario', nome: destinatario.nome, cnpj: destinatario.cnpj };
+  if (indicadorTomador !== '0' && indicadorTomador !== '1') {
+    const toma4 = extractSectionNs(xmlContent, 'toma4');
     tomador = {
       tipo: 'outros',
-      nome: extractValue(tomadorSection, 'xNome'),
-      cnpj: extractValue(tomadorSection, 'CNPJ')
+      nome: extractValueNs(toma4, 'xNome') || remetente.nome,
+      cnpj: extractValueNs(toma4, 'CNPJ') || remetente.cnpj,
     };
   }
 
   // Carga
-  const produtoPredominante = extractValue(xmlContent, 'xOutCat') || extractValue(xmlContent, 'proPred') || 'Diversos';
-  const pesoBruto = extractNumeric(xmlContent, 'qCarga');
-  const volumes = parseInt(extractValue(xmlContent, 'qCarga')) || 1;
+  const produtoPredominante = extractValueNs(xmlContent, 'xOutCat') || extractValueNs(xmlContent, 'proPred') || 'Diversos';
+  const pesoBruto = extractNumeric(xmlContent, 'qCarga') || extractNumeric(xmlContent, 'pesoBruto');
+  const volumes = parseInt(extractValueNs(xmlContent, 'qVol') || extractValueNs(xmlContent, 'qCarga') || '1');
 
   // Valores
   const valorMercadoria = extractNumeric(xmlContent, 'vMerc');
   const valorFrete = extractNumeric(xmlContent, 'vTPrest');
   const valorPedagio = extractNumeric(xmlContent, 'vPed');
-  const valorTotal = extractNumeric(xmlContent, 'vRec');
+  const valorTotal = extractNumeric(xmlContent, 'vRec') || valorFrete;
 
-  // Transporte
-  const placaVeiculo = extractValue(xmlContent, 'placa') || '';
-  const ufVeiculo = extractValue(xmlContent.split('<veicTracao>')[1]?.split('</veicTracao>')[0] || '', 'UF') || 'PR';
-  
-  // Placa carreta (reboque)
-  const placaCarreta = extractValue(xmlContent.split('<veicReboque>')[1]?.split('</veicReboque>')[0] || '', 'placa');
+  // Transporte (trator e reboque)
+  const veicTracao = extractSectionNs(xmlContent, 'veicTracao');
+  const veicReboque = extractSectionNs(xmlContent, 'veicReboque');
+  let placaVeiculo = sanitizePlate(extractValueNs(veicTracao, 'placa') || extractValueNs(xmlContent, 'placa'));
+  let ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR';
+  const placaCarreta = sanitizePlate(extractValueNs(veicReboque, 'placa')) || undefined;
 
-  // Modal e tipo de frete
-  const modal = extractValue(xmlContent, 'modal') === '01' ? 'rodoviario' : 'aereo';
-  const tipoFrete = extractValue(xmlContent, 'tpServ') === '0' ? 'cif' : 'fof';
+  // Modal e frete
+  const modal = (extractValueNs(xmlContent, 'modal') === '01') ? 'rodoviario' : 'aereo';
+  const tipoFrete = (extractValueNs(xmlContent, 'tpServ') === '0') ? 'cif' : 'fob';
 
-  // Data de vencimento (30 dias após emissão por padrão)
+  // Vencimento padrão 30 dias
   const dataEmissaoDate = new Date(dataEmissao);
   dataEmissaoDate.setDate(dataEmissaoDate.getDate() + 30);
   const dataVencimento = dataEmissaoDate.toISOString();
+
+  if (!placaVeiculo && placaCarreta) {
+    // fallback: usar placa da carreta se o XML não trouxe tração
+    placaVeiculo = placaCarreta;
+  }
 
   return {
     numero_cte: numeroCte,
@@ -330,14 +346,14 @@ function parseXML(xmlContent: string): CTEDataFromXML {
     tomador_cnpj: tomador.cnpj,
     produto_predominante: produtoPredominante,
     peso_bruto: pesoBruto,
-    peso_cubado: pesoBruto * 1.1,
+    peso_cubado: pesoBruto ? pesoBruto * 1.1 : 0,
     quantidade_volumes: volumes,
     valor_mercadoria: valorMercadoria,
     valor_frete: valorFrete,
     valor_pedagio: valorPedagio,
     valor_total: valorTotal,
     placa_veiculo: placaVeiculo,
-    placa_carreta: placaCarreta || undefined,
+    placa_carreta: placaCarreta,
     uf_veiculo: ufVeiculo,
     tipo_frete: tipoFrete,
     modal: modal
