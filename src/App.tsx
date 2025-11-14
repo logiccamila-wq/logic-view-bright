@@ -14,6 +14,7 @@ import Mechanic from "./pages/Mechanic";
 import Driver from "./pages/Driver";
 import DriverJourney from "./pages/DriverJourney";
 import JourneyManagement from "./pages/JourneyManagement";
+import DriversManagement from "./pages/DriversManagement";
 import DriverPayroll from "./pages/DriverPayroll";
 import PayrollManagement from "./pages/PayrollManagement";
 import Users from "./pages/Users";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/driver" element={<ProtectedRoute module="driver"><Driver /></ProtectedRoute>} />
             <Route path="/driver-journey" element={<ProtectedRoute module="driver"><DriverJourney /></ProtectedRoute>} />
             <Route path="/journey-management" element={<ProtectedRoute module="fleet"><JourneyManagement /></ProtectedRoute>} />
+            <Route path="/drivers-management" element={<ProtectedRoute module="fleet"><DriversManagement /></ProtectedRoute>} />
             <Route path="/driver-payroll" element={<ProtectedRoute module="driver"><DriverPayroll /></ProtectedRoute>} />
             <Route path="/payroll-management" element={<ProtectedRoute module="fleet"><PayrollManagement /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute module="users"><Users /></ProtectedRoute>} />
