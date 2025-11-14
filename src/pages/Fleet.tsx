@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench, TrendingUp, BarChart3 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Truck } from "lucide-react";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { supabase } from "@/integrations/supabase/client";
+import { MaintenanceCostAnalysis } from "@/components/mechanic/MaintenanceCostAnalysis";
 
 interface Vehicle {
   id: string;
@@ -109,32 +111,32 @@ const Fleet = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Gestão de Frota</h1>
-            {canViewAlerts && fleetNotifications.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {fleetNotifications.length} alerta(s) de manutenção não lido(s)
-              </p>
-            )}
+            <h1 className="text-3xl font-bold mb-2">Gestão de Frota</h1>
+            <p className="text-muted-foreground">
+              Gerencie todos os veículos da frota e acompanhe manutenções e custos
+            </p>
           </div>
-          <div className="flex gap-2">
-            {canViewAlerts && (
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => checkMaintenanceSchedules()}
-              >
-                <Bell className="w-4 h-4" />
-                Verificar Alertas
-              </Button>
-            )}
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Adicionar Veículo
-            </Button>
-          </div>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Adicionar Veículo
+          </Button>
         </div>
+
+        <Tabs defaultValue="vehicles" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="vehicles" className="flex items-center gap-2">
+              <Truck className="h-4 w-4" />
+              Veículos
+            </TabsTrigger>
+            <TabsTrigger value="cost-analysis" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Análise de Custos
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="vehicles" className="space-y-6">
 
         {/* Alertas de Manutenção - Apenas para usuários autorizados */}
         {canViewAlerts && (
