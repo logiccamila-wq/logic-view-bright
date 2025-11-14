@@ -21,6 +21,10 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { MapNavigation } from "@/components/maps/MapNavigation";
+import { DriverJourneyStatus } from "@/components/driver/DriverJourneyStatus";
+import { DriverEarnings } from "@/components/driver/DriverEarnings";
+import { DriverVehicleStatus } from "@/components/driver/DriverVehicleStatus";
+import { DriverAlerts } from "@/components/driver/DriverAlerts";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -321,6 +325,41 @@ const Driver = () => {
                     <p className="text-sm">{activeCTE.observacoes}</p>
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Informações da Jornada e Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <DriverJourneyStatus />
+          <DriverEarnings />
+        </div>
+
+        {/* Status do Veículo e Alertas */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <DriverVehicleStatus />
+          <DriverAlerts />
+        </div>
+
+        {/* Botão para Mapa com Roteirização */}
+        {activeTrip && (
+          <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-blue-500/20 rounded-lg">
+                    <Navigation className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Navegação GPS</h3>
+                    <p className="text-sm text-muted-foreground">Abrir rota no mapa</p>
+                  </div>
+                </div>
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  <MapPin className="mr-2 w-5 h-5" />
+                  Abrir Mapa
+                </Button>
               </div>
             </CardContent>
           </Card>
