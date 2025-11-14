@@ -180,6 +180,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
           success: string[];
           errors: Array<{ numero_cte: string; error: string }>;
           clients_created: number;
+          vehicles_created: number;
           ctes_created: number;
         };
 
@@ -190,8 +191,19 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
             { duration: 5000 }
           );
         } else {
+          const messages = [
+            `✓ ${results.ctes_created} CT-es importados`,
+            `✓ ${results.clients_created} novos clientes cadastrados`,
+          ];
+          
+          if (results.vehicles_created > 0) {
+            messages.push(`✓ ${results.vehicles_created} veículos auto-cadastrados`);
+          }
+          
+          messages.push('✓ Contas a receber criadas', '✓ Indicadores atualizados');
+          
           toast.success(
-            `✓ ${results.ctes_created} CT-es importados!\n✓ ${results.clients_created} novos clientes cadastrados\n✓ Contas a receber criadas\n✓ Indicadores atualizados`,
+            messages.join('\n'),
             { duration: 6000 }
           );
         }
