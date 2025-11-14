@@ -69,19 +69,34 @@ serve(async (req) => {
     console.log('Processando XML de CT-e...')
 
     const cteData = parseXML(xml_content)
+    
+    console.log('CT-e parseado:', { numero: cteData.numero_cte, placa: cteData.placa_veiculo })
 
-    // Validar se a placa existe no sistema
-    const { data: vehicleExists } = await supabaseClient
-      .from('vehicles')
-      .select('placa')
-      .eq('placa', cteData.placa_veiculo.toUpperCase())
-      .maybeSingle()
+    // Validar se a placa existe no sistema (tenta variações)
+    const originalPlate = (cteData.placa_veiculo || '').toUpperCase()
+    const sanitizedPlate = originalPlate.replace(/[^A-Z0-9]/g, '')
+    const hyphenatedPlate = sanitizedPlate.length > 3 ? `${sanitizedPlate.slice(0,3)}-${sanitizedPlate.slice(3)}` : sanitizedPlate
 
-    if (!vehicleExists) {
-      throw new Error(`Placa ${cteData.placa_veiculo} não encontrada no sistema. Importe os veículos primeiro.`)
+    let vehicleExists = null as any
+    if (originalPlate) {
+      const r1 = await supabaseClient.from('vehicles').select('placa').eq('placa', originalPlate).maybeSingle()
+      vehicleExists = r1.data || null
+    }
+    if (!vehicleExists && sanitizedPlate) {
+      const r2 = await supabaseClient.from('vehicles').select('placa').eq('placa', sanitizedPlate).maybeSingle()
+      vehicleExists = r2.data || null
+    }
+    if (!vehicleExists && hyphenatedPlate) {
+      const r3 = await supabaseClient.from('vehicles').select('placa').eq('placa', hyphenatedPlate).maybeSingle()
+      vehicleExists = r3.data || null
     }
 
-    console.log('Placa validada:', cteData.placa_veiculo)
+    if (!vehicleExists) {
+      console.error('Placa não encontrada. Tentativas:', { originalPlate, sanitizedPlate, hyphenatedPlate })
+      throw new Error(`Placa ${cteData.placa_veiculo || '(vazia)'} não encontrada no sistema. Importe os veículos primeiro.`)
+    }
+
+    console.log('Placa validada:', vehicleExists.placa)
 
     // Verificar se cliente existe, senão criar
     const { data: existingClient } = await supabaseClient
@@ -174,78 +189,122 @@ serve(async (req) => {
 })
 
 function parseXML(xmlContent: string): CTEDataFromXML {
-  const extractValue = (tag: string, regex?: RegExp): string => {
-    const pattern = regex || new RegExp(`<${tag}>(.*?)</${tag}>`, 's')
-    const match = xmlContent.match(pattern)
+  // Parser robusto que trata namespaces como cte:placa, cte:nCT, etc.
+  const extractValueNs = (xml: string, tag: string): string => {
+    const regex = new RegExp(`<(?:[\\w]+:)?${tag}>([^<]*)<\\/(?:[\\w]+:)?${tag}>`, 'i')
+    const match = xml.match(regex)
     return match ? match[1].trim() : ''
   }
-
-  const extractNumeric = (tag: string, regex?: RegExp): number => {
-    const value = extractValue(tag, regex)
+  
+  const extractSectionNs = (xml: string, tag: string): string => {
+    const regex = new RegExp(`<(?:[\\w]+:)?${tag}[^>]*>([\\s\\S]*?)<\\/(?:[\\w]+:)?${tag}>`, 'i')
+    const match = xml.match(regex)
+    return match ? match[1] : ''
+  }
+  
+  const extractNumeric = (xml: string, tag: string): number => {
+    const value = extractValueNs(xml, tag)
     return value ? parseFloat(value.replace(',', '.')) : 0
   }
+  
+  const sanitizePlate = (p: string) => p ? p.toUpperCase().replace(/[^A-Z0-9]/g, '') : ''
 
-  const chaveAcesso = extractValue('chCTe') || extractValue('Id').replace('CTe', '')
-  const numeroCte = extractValue('nCT')
-  const dataEmissao = extractValue('dhEmi')
+  console.log('Parseando XML... (primeiros 500 chars):', xmlContent.substring(0, 500))
 
-  const remCNPJ = xmlContent.match(/<rem>.*?<CNPJ>(.*?)<\/CNPJ>/s)?.[1] || ''
-  const remNome = xmlContent.match(/<rem>.*?<xNome>(.*?)<\/xNome>/s)?.[1] || ''
-  const remEndereco = xmlContent.match(/<rem>.*?<xLgr>(.*?)<\/xLgr>/s)?.[1] || ''
-  const remCidade = xmlContent.match(/<rem>.*?<xMun>(.*?)<\/xMun>/s)?.[1] || ''
-  const remUF = xmlContent.match(/<enderReme>.*?<UF>(.*?)<\/UF>/s)?.[1] || ''
-  const remCEP = xmlContent.match(/<enderReme>.*?<CEP>(.*?)<\/CEP>/s)?.[1] || ''
+  // Identificação
+  const chaveAcesso = extractValueNs(xmlContent, 'chCTe')
+  const numeroCte = extractValueNs(xmlContent, 'nCT') || extractValueNs(xmlContent, 'nCte') || '0'
+  const dataEmissao = extractValueNs(xmlContent, 'dhEmi') || extractValueNs(xmlContent, 'dEmi') || new Date().toISOString()
 
-  const destCNPJ = xmlContent.match(/<dest>.*?<CNPJ>(.*?)<\/CNPJ>/s)?.[1] || ''
-  const destNome = xmlContent.match(/<dest>.*?<xNome>(.*?)<\/xNome>/s)?.[1] || ''
-  const destEndereco = xmlContent.match(/<dest>.*?<xLgr>(.*?)<\/xLgr>/s)?.[1] || ''
-  const destCidade = xmlContent.match(/<dest>.*?<xMun>(.*?)<\/xMun>/s)?.[1] || ''
-  const destUF = xmlContent.match(/<enderDest>.*?<UF>(.*?)<\/UF>/s)?.[1] || ''
-  const destCEP = xmlContent.match(/<enderDest>.*?<CEP>(.*?)<\/CEP>/s)?.[1] || ''
-
-  const tomadorTipo = extractValue('toma4') || '0'
-  const tomadorCNPJ = xmlContent.match(/<toma4>.*?<CNPJ>(.*?)<\/CNPJ>/s)?.[1] || remCNPJ
-  const tomadorNome = xmlContent.match(/<toma4>.*?<xNome>(.*?)<\/xNome>/s)?.[1] || remNome
-
-  const produto = extractValue('proPred') || 'Diversos'
-  const pesoBruto = extractNumeric('qCarga')
-  const volumes = parseInt(extractValue('qCarga')) || 1
-  const valorMercadoria = extractNumeric('vCarga')
-  const valorFrete = extractNumeric('vTPrest')
-  const valorTotal = extractNumeric('vRec')
-
-  const placaVeiculo = extractValue('placa')
-  const ufVeiculo = extractValue('UF', /<veicTracao>.*?<UF>(.*?)<\/UF>/s)
-  const tipoFrete = extractValue('tpServ') === '1' ? 'fob' : 'cif'
-  const modal = 'rodoviario'
-
-  let dataVencimento = ''
-  if (dataEmissao) {
-    const emissaoDate = new Date(dataEmissao)
-    emissaoDate.setDate(emissaoDate.getDate() + 30)
-    dataVencimento = emissaoDate.toISOString()
+  // Remetente
+  const remSection = extractSectionNs(xmlContent, 'rem')
+  const remetente = {
+    nome: extractValueNs(remSection || xmlContent, 'xNome'),
+    cnpj: extractValueNs(remSection || xmlContent, 'CNPJ'),
+    endereco: extractValueNs(remSection || xmlContent, 'xLgr'),
+    cidade: extractValueNs(remSection || xmlContent, 'xMun'),
+    uf: extractValueNs(remSection || xmlContent, 'UF'),
+    cep: extractValueNs(remSection || xmlContent, 'CEP'),
   }
+
+  // Destinatário
+  const destSection = extractSectionNs(xmlContent, 'dest')
+  const destinatario = {
+    nome: extractValueNs(destSection, 'xNome'),
+    cnpj: extractValueNs(destSection, 'CNPJ') || extractValueNs(destSection, 'CPF'),
+    endereco: extractValueNs(destSection, 'xLgr'),
+    cidade: extractValueNs(destSection, 'xMun'),
+    uf: extractValueNs(destSection, 'UF'),
+    cep: extractValueNs(destSection, 'CEP'),
+  }
+
+  // Tomador
+  const indicadorTomador = (extractValueNs(xmlContent, 'toma3') || extractValueNs(xmlContent, 'toma4') || '0').charAt(0)
+  let tomador = { tipo: 'remetente', nome: remetente.nome, cnpj: remetente.cnpj }
+  if (indicadorTomador === '1') tomador = { tipo: 'destinatario', nome: destinatario.nome, cnpj: destinatario.cnpj }
+  if (indicadorTomador !== '0' && indicadorTomador !== '1') {
+    const toma4 = extractSectionNs(xmlContent, 'toma4')
+    tomador = {
+      tipo: 'outros',
+      nome: extractValueNs(toma4, 'xNome') || remetente.nome,
+      cnpj: extractValueNs(toma4, 'CNPJ') || remetente.cnpj,
+    }
+  }
+
+  // Carga
+  const produtoPredominante = extractValueNs(xmlContent, 'xOutCat') || extractValueNs(xmlContent, 'proPred') || 'Diversos'
+  const pesoBruto = extractNumeric(xmlContent, 'qCarga') || extractNumeric(xmlContent, 'pesoBruto')
+  const volumes = parseInt(extractValueNs(xmlContent, 'qVol') || extractValueNs(xmlContent, 'qCarga') || '1')
+
+  // Valores
+  const valorMercadoria = extractNumeric(xmlContent, 'vMerc') || extractNumeric(xmlContent, 'vCarga')
+  const valorFrete = extractNumeric(xmlContent, 'vTPrest')
+  const valorTotal = extractNumeric(xmlContent, 'vRec') || valorFrete
+
+  // Transporte (trator e reboque) - CRÍTICO para extrair placa
+  const veicTracao = extractSectionNs(xmlContent, 'veicTracao')
+  const veicReboque = extractSectionNs(xmlContent, 'veicReboque')
+  
+  let placaVeiculo = sanitizePlate(extractValueNs(veicTracao, 'placa') || extractValueNs(xmlContent, 'placa'))
+  let ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR'
+  const placaCarreta = sanitizePlate(extractValueNs(veicReboque, 'placa'))
+
+  console.log('Placas extraídas:', { placaVeiculo, placaCarreta, veicTracao: !!veicTracao, veicReboque: !!veicReboque })
+
+  // Se não tem placa do cavalo mas tem da carreta, usa a carreta
+  if (!placaVeiculo && placaCarreta) {
+    placaVeiculo = placaCarreta
+  }
+
+  // Modal e frete
+  const modal = (extractValueNs(xmlContent, 'modal') === '01') ? 'rodoviario' : 'aereo'
+  const tipoFrete = (extractValueNs(xmlContent, 'tpServ') === '0') ? 'cif' : 'fob'
+
+  // Vencimento padrão 30 dias
+  const dataEmissaoDate = new Date(dataEmissao)
+  dataEmissaoDate.setDate(dataEmissaoDate.getDate() + 30)
+  const dataVencimento = dataEmissaoDate.toISOString()
 
   return {
     numero_cte: numeroCte,
     chave_acesso: chaveAcesso,
     data_emissao: dataEmissao,
-    remetente_nome: remNome,
-    remetente_cnpj: remCNPJ,
-    remetente_endereco: remEndereco,
-    remetente_cidade: remCidade,
-    remetente_uf: remUF,
-    remetente_cep: remCEP,
-    destinatario_nome: destNome,
-    destinatario_cnpj: destCNPJ,
-    destinatario_endereco: destEndereco,
-    destinatario_cidade: destCidade,
-    destinatario_uf: destUF,
-    destinatario_cep: destCEP,
-    tomador_tipo: tomadorTipo,
-    tomador_nome: tomadorNome,
-    tomador_cnpj: tomadorCNPJ,
-    produto_predominante: produto,
+    remetente_nome: remetente.nome,
+    remetente_cnpj: remetente.cnpj,
+    remetente_endereco: remetente.endereco,
+    remetente_cidade: remetente.cidade,
+    remetente_uf: remetente.uf,
+    remetente_cep: remetente.cep,
+    destinatario_nome: destinatario.nome,
+    destinatario_cnpj: destinatario.cnpj,
+    destinatario_endereco: destinatario.endereco,
+    destinatario_cidade: destinatario.cidade,
+    destinatario_uf: destinatario.uf,
+    destinatario_cep: destinatario.cep,
+    tomador_tipo: tomador.tipo,
+    tomador_nome: tomador.nome,
+    tomador_cnpj: tomador.cnpj,
+    produto_predominante: produtoPredominante,
     peso_bruto: pesoBruto,
     quantidade_volumes: volumes,
     valor_mercadoria: valorMercadoria,
