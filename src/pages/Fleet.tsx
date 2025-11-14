@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench, TrendingUp, BarChart3 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench, TrendingUp, BarChart3, Upload } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Truck } from "lucide-react";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MaintenanceCostAnalysis } from "@/components/mechanic/MaintenanceCostAnalysis";
+import { useNavigate } from "react-router-dom";
 
 interface Vehicle {
   id: string;
@@ -24,6 +25,7 @@ interface Vehicle {
 }
 
 const Fleet = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [maintenanceStats, setMaintenanceStats] = useState({
     overdue: 0,
@@ -118,10 +120,20 @@ const Fleet = () => {
               Gerencie todos os veículos da frota e acompanhe manutenções e custos
             </p>
           </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Adicionar Veículo
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => navigate('/import-vehicles')}
+            >
+              <Upload className="h-4 w-4" />
+              Importar CRLV
+            </Button>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Adicionar Veículo
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="vehicles" className="space-y-6">

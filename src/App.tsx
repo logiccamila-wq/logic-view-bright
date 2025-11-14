@@ -34,6 +34,7 @@ import ERP from "./pages/ERP";
 import AccountsPayable from "./pages/AccountsPayable";
 import AccountsReceivable from "./pages/AccountsReceivable";
 import CostMonitoring from "./pages/CostMonitoring";
+import ImportVehicles from "./pages/ImportVehicles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/accounts-payable" element={<ProtectedRoute module="finance"><AccountsPayable /></ProtectedRoute>} />
             <Route path="/accounts-receivable" element={<ProtectedRoute module="finance"><AccountsReceivable /></ProtectedRoute>} />
             <Route path="/cost-monitoring" element={<ProtectedRoute module="finance"><CostMonitoring /></ProtectedRoute>} />
+            <Route path="/import-vehicles" element={<ProtectedRoute module="fleet"><ImportVehicles /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
