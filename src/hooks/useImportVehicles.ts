@@ -15,29 +15,46 @@ export const useImportVehicles = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedVehicles, setExtractedVehicles] = useState<VehicleData[]>([]);
 
-  const extractDataFromText = (text: string): Partial<VehicleData> | null => {
-    // Regex patterns para extrair dados do CRLV
-    const placaRegex = /(?:placa|plate)[\s:]*([A-Z]{3}[-\s]?\d{1}[A-Z0-9]{1}\d{2})/i;
-    const renavamRegex = /(?:renavam)[\s:]*(\d{9,11})/i;
-    const modeloRegex = /(?:marca\/modelo|modelo)[\s:]*([A-ZÀ-Ú0-9\s\/\-]+?)(?=\n|ano|placa|renavam)/i;
-    const anoRegex = /(?:ano\s*(?:fabricação|modelo|fab\.\/mod\.))[\s:]*(\d{4})/i;
-    const chassiRegex = /(?:chassi)[\s:]*([A-Z0-9]{17})/i;
-
-    const placaMatch = text.match(placaRegex);
-    const renavamMatch = text.match(renavamRegex);
-    const modeloMatch = text.match(modeloRegex);
-    const anoMatch = text.match(anoRegex);
-    const chassiMatch = text.match(chassiRegex);
-
-    if (!placaMatch) return null;
-
-    return {
-      placa: placaMatch[1].replace(/[-\s]/g, '').toUpperCase(),
-      renavam: renavamMatch?.[1] || '',
-      modelo: modeloMatch?.[1]?.trim() || '',
-      ano: anoMatch ? parseInt(anoMatch[1]) : 0,
-      chassi: chassiMatch?.[1] || '',
-    };
+  const extractVehiclesFromReport = (text: string): VehicleData[] => {
+    const vehicles: VehicleData[] = [];
+    
+    // Split by vehicle sections - cada veículo começa com "Placa:"
+    const sections = text.split(/\n(?=Placa:)/);
+    
+    for (const section of sections) {
+      if (!section.trim()) continue;
+      
+      // Extrair placa - formato: Placa: ABC-0000 ou Placa:\nABC-0000
+      const placaMatch = section.match(/Placa:\s*\n?\s*([A-Z]{3}[-\s]?\d{1}[A-Z0-9]{1}\d{2})/i);
+      if (!placaMatch) continue;
+      
+      // Extrair renavam - formato: Renavan: 00145643751
+      const renavamMatch = section.match(/Renavan:\s*(\d{8,11})/i);
+      
+      // Extrair marca - formato: Marca: SCANIA
+      const marcaMatch = section.match(/Marca:\s*([A-ZÀ-Ú0-9\s\/\-]+?)(?=\n|UF:|Cor:)/i);
+      
+      // Extrair ano - formato: Ano/Modelo: 2014
+      const anoMatch = section.match(/Ano\/Modelo:\s*(\d{4})/i);
+      
+      // Extrair chassis - formato: No. Chassis: 9BSR6X200E3844179
+      const chassiMatch = section.match(/No\.\s*Chassis:\s*([A-Z0-9]{17})/i);
+      
+      const placa = placaMatch[1].replace(/[-\s]/g, '').toUpperCase();
+      
+      // Ignorar placas de teste
+      if (placa.includes('0000') || placa === 'ABC0000') continue;
+      
+      vehicles.push({
+        placa,
+        renavam: renavamMatch?.[1] || '',
+        modelo: marcaMatch?.[1]?.trim() || 'Não informado',
+        ano: anoMatch ? parseInt(anoMatch[1]) : new Date().getFullYear(),
+        chassi: chassiMatch?.[1] || '',
+      });
+    }
+    
+    return vehicles;
   };
 
   const processZipFile = async (file: File) => {
@@ -49,21 +66,13 @@ export const useImportVehicles = () => {
       for (const [filename, zipEntry] of Object.entries(zip.files)) {
         if (zipEntry.dir) continue;
         
-        // Processar apenas arquivos .txt por enquanto
+        // Processar arquivos .txt (relatórios de frota)
         if (!filename.toLowerCase().endsWith('.txt')) continue;
 
         const content = await zipEntry.async('text');
-        const vehicleData = extractDataFromText(content);
-
-        if (vehicleData && vehicleData.placa) {
-          vehicles.push({
-            placa: vehicleData.placa,
-            renavam: vehicleData.renavam || '',
-            modelo: vehicleData.modelo || '',
-            ano: vehicleData.ano || 0,
-            chassi: vehicleData.chassi || '',
-          });
-        }
+        const extractedVehicles = extractVehiclesFromReport(content);
+        
+        vehicles.push(...extractedVehicles);
       }
 
       if (vehicles.length === 0) {
