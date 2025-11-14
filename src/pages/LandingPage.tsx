@@ -208,17 +208,22 @@ const LandingPage = () => {
             className="flex flex-wrap gap-4 justify-center mb-12"
             initial="hidden"
             animate="visible"
-            variants={fadeInUp}
+            variants={staggerContainer}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Button size="lg" className="gap-2 hover-scale" onClick={() => navigate("/login")}>
-              Experimente Grátis 30 Dias
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-            <Button size="lg" variant="outline" className="gap-2 hover-scale">
-              Ver Demonstração
-              <Star className="h-5 w-5" />
-            </Button>
+            <motion.div variants={scaleIn}>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg" asChild>
+                <a href="/login">Começar Agora</a>
+              </Button>
+            </motion.div>
+            <motion.div variants={scaleIn}>
+              <Button size="lg" variant="outline" className="border-2" asChild>
+                <a href="/install">
+                  <Smartphone className="mr-2 h-5 w-5" />
+                  Instalar App
+                </a>
+              </Button>
+            </motion.div>
           </motion.div>
 
           {/* Features Grid */}
