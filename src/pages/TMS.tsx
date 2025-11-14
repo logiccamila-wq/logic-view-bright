@@ -10,6 +10,7 @@ import {
 import { StatCard } from "@/components/StatCard";
 import { CTEManagement } from "@/components/tms/CTEManagement";
 import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
+import { TripManagement } from "@/components/tms/TripManagement";
 
 const TMS = () => {
   return (
@@ -50,11 +51,17 @@ const TMS = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="cte" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="trips" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="trips">Gestão de Viagens</TabsTrigger>
             <TabsTrigger value="cte">CT-e</TabsTrigger>
             <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
           </TabsList>
+
+          {/* Gestão de Viagens */}
+          <TabsContent value="trips">
+            <TripManagement />
+          </TabsContent>
 
           {/* CT-e */}
           <TabsContent value="cte">
