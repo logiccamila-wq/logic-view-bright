@@ -282,10 +282,10 @@ const Fleet = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon">
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -293,6 +293,12 @@ const Fleet = () => {
             </Card>
           ))}
         </div>
+          </TabsContent>
+
+          <TabsContent value="cost-analysis" className="space-y-6">
+            <MaintenanceCostAnalysis />
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

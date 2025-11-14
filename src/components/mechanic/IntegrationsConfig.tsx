@@ -54,14 +54,14 @@ export function IntegrationsConfig() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('integration_settings')
         .select('*')
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      data?.forEach((integration) => {
+      data?.forEach((integration: any) => {
         const config = {
           id: integration.id,
           integration_type: integration.integration_type,
@@ -93,7 +93,7 @@ export function IntegrationsConfig() {
         config: config.config,
       };
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('integration_settings')
         .upsert(data, {
           onConflict: 'user_id,integration_type',
