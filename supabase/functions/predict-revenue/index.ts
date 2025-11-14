@@ -44,18 +44,20 @@ serve(async (req) => {
 
     console.log(`Gerando previsão para os próximos ${months_ahead} meses...`)
 
-    // Buscar dados históricos dos últimos 24 meses
+    // Buscar dados históricos dos últimos 24 meses da tabela cte
     const startDate = new Date()
     startDate.setMonth(startDate.getMonth() - 24)
 
     const { data: revenues, error: revenueError } = await supabaseClient
-      .from('revenue_records')
-      .select('*')
+      .from('cte')
+      .select('data_emissao, valor_total, valor_frete, peso_bruto, status')
       .gte('data_emissao', startDate.toISOString())
-      .eq('status', 'ativo')
+      .in('status', ['autorizado', 'emitido'])
       .order('data_emissao', { ascending: true })
 
     if (revenueError) throw revenueError
+
+    console.log(`Encontrados ${revenues?.length || 0} CT-es no período`)
 
     // Processar dados históricos por mês
     const monthlyData: Map<string, RevenueData> = new Map()
@@ -73,10 +75,10 @@ serve(async (req) => {
         peso_total: 0
       }
       
-      existing.receita += parseFloat(rev.valor_frete || 0)
-      existing.custos += parseFloat(rev.valor_frete || 0) * 0.7 // Estimativa de custo
+      existing.receita += parseFloat(rev.valor_total || 0)
+      existing.custos += parseFloat(rev.valor_total || 0) * 0.7 // Estimativa de custo
       existing.total_ctes += 1
-      existing.peso_total += parseFloat(rev.peso_kg || 0)
+      existing.peso_total += parseFloat(rev.peso_bruto || 0)
       
       monthlyData.set(key, existing)
     })
