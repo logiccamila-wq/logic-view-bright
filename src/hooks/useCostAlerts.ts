@@ -15,6 +15,11 @@ interface CostAlert {
   vehicle_plate?: string;
   email_enabled: boolean;
   email_recipients: string[];
+  whatsapp_enabled: boolean;
+  whatsapp_numbers: string[];
+  n8n_enabled: boolean;
+  n8n_webhook_url?: string;
+  notification_channels: string[];
   last_triggered_at?: string;
 }
 
@@ -192,9 +197,12 @@ export function useCostAlerts() {
       if (hoursSinceLastTrigger < 24) return; // Don't spam alerts
     }
 
+    const promises = [];
+
+    // Send email alert
     if (alert.email_enabled && alert.email_recipients.length > 0) {
-      try {
-        await supabase.functions.invoke('send-cost-alert', {
+      promises.push(
+        supabase.functions.invoke('send-cost-alert', {
           body: {
             alertType: alert.alert_type,
             vehiclePlate: alert.vehicle_plate,
@@ -203,24 +211,70 @@ export function useCostAlerts() {
             period: `Últimos ${periodDays} dias`,
             recipients: alert.email_recipients,
           },
-        });
+        }).catch((error) => console.error('Email alert error:', error))
+      );
+    }
 
-        // Update last triggered time
-        await supabase
-          .from('maintenance_cost_alerts')
-          .update({
-            last_triggered_at: new Date().toISOString(),
-            trigger_count: (alert as any).trigger_count + 1,
-          })
-          .eq('id', alert.id);
+    // Send WhatsApp alert
+    if (alert.whatsapp_enabled && alert.whatsapp_numbers.length > 0) {
+      promises.push(
+        supabase.functions.invoke('send-whatsapp-alert', {
+          body: {
+            alertType: alert.alert_type,
+            vehiclePlate: alert.vehicle_plate,
+            currentValue,
+            threshold: alert.cost_threshold,
+            period: `Últimos ${periodDays} dias`,
+            phoneNumbers: alert.whatsapp_numbers,
+          },
+        }).catch((error) => console.error('WhatsApp alert error:', error))
+      );
+    }
 
-        toast({
-          title: '📧 Alerta Enviado',
-          description: `Alerta "${alert.alert_name}" foi disparado`,
-        });
-      } catch (error) {
-        console.error('Error sending alert:', error);
-      }
+    // Trigger n8n workflow
+    if (alert.n8n_enabled && alert.n8n_webhook_url) {
+      promises.push(
+        supabase.functions.invoke('trigger-n8n-workflow', {
+          body: {
+            webhookUrl: alert.n8n_webhook_url,
+            alertData: {
+              alertType: alert.alert_type,
+              alertName: alert.alert_name,
+              vehiclePlate: alert.vehicle_plate,
+              currentValue,
+              threshold: alert.cost_threshold,
+              period: `Últimos ${periodDays} dias`,
+              timestamp: new Date().toISOString(),
+            },
+          },
+        }).catch((error) => console.error('n8n workflow error:', error))
+      );
+    }
+
+    // Execute all alerts in parallel
+    try {
+      await Promise.all(promises);
+
+      // Update last triggered time
+      await supabase
+        .from('maintenance_cost_alerts')
+        .update({
+          last_triggered_at: new Date().toISOString(),
+          trigger_count: (alert as any).trigger_count + 1,
+        })
+        .eq('id', alert.id);
+
+      const channels = [];
+      if (alert.email_enabled) channels.push('E-mail');
+      if (alert.whatsapp_enabled) channels.push('WhatsApp');
+      if (alert.n8n_enabled) channels.push('n8n');
+
+      toast({
+        title: '📧 Alertas Enviados',
+        description: `Alerta "${alert.alert_name}" enviado via ${channels.join(', ')}`,
+      });
+    } catch (error) {
+      console.error('Error sending alerts:', error);
     }
   };
 
@@ -236,9 +290,11 @@ export function useCostAlerts() {
       if (hoursSinceLastTrigger < 24) return;
     }
 
+    const promises = [];
+
     if (alert.email_enabled && alert.email_recipients.length > 0) {
-      try {
-        await supabase.functions.invoke('send-cost-alert', {
+      promises.push(
+        supabase.functions.invoke('send-cost-alert', {
           body: {
             alertType: 'trend_increase',
             vehiclePlate: alert.vehicle_plate,
@@ -247,23 +303,61 @@ export function useCostAlerts() {
             period: `Últimos ${periodMonths} meses`,
             recipients: alert.email_recipients,
           },
-        });
+        }).catch((error) => console.error('Email alert error:', error))
+      );
+    }
 
-        await supabase
-          .from('maintenance_cost_alerts')
-          .update({
-            last_triggered_at: new Date().toISOString(),
-            trigger_count: (alert as any).trigger_count + 1,
-          })
-          .eq('id', alert.id);
+    if (alert.whatsapp_enabled && alert.whatsapp_numbers.length > 0) {
+      promises.push(
+        supabase.functions.invoke('send-whatsapp-alert', {
+          body: {
+            alertType: 'trend_increase',
+            vehiclePlate: alert.vehicle_plate,
+            currentValue,
+            trendPercentage,
+            period: `Últimos ${periodMonths} meses`,
+            phoneNumbers: alert.whatsapp_numbers,
+          },
+        }).catch((error) => console.error('WhatsApp alert error:', error))
+      );
+    }
 
-        toast({
-          title: '📈 Alerta de Tendência',
-          description: `Tendência crítica detectada: +${trendPercentage.toFixed(1)}%`,
-        });
-      } catch (error) {
-        console.error('Error sending trend alert:', error);
-      }
+    if (alert.n8n_enabled && alert.n8n_webhook_url) {
+      promises.push(
+        supabase.functions.invoke('trigger-n8n-workflow', {
+          body: {
+            webhookUrl: alert.n8n_webhook_url,
+            alertData: {
+              alertType: 'trend_increase',
+              alertName: alert.alert_name,
+              vehiclePlate: alert.vehicle_plate,
+              currentValue,
+              trendPercentage,
+              period: `Últimos ${periodMonths} meses`,
+              timestamp: new Date().toISOString(),
+            },
+          },
+        }).catch((error) => console.error('n8n workflow error:', error))
+      );
+    }
+
+    try {
+      await Promise.all(promises);
+
+      await supabase
+        .from('maintenance_cost_alerts')
+        .update({
+          last_triggered_at: new Date().toISOString(),
+          trigger_count: (alert as any).trigger_count + 1,
+        })
+        .eq('id', alert.id);
+
+      toast({
+        title: '📈 Alerta de Tendência',
+        description: `Tendência crítica detectada: +${trendPercentage.toFixed(1)}%`,
+      });
+    } catch (error) {
+      console.error('Error sending trend alert:', error);
     }
   };
 
@@ -274,9 +368,11 @@ export function useCostAlerts() {
       if (hoursSinceLastTrigger < 24) return;
     }
 
+    const promises = [];
+
     if (alert.email_enabled && alert.email_recipients.length > 0) {
-      try {
-        await supabase.functions.invoke('send-cost-alert', {
+      promises.push(
+        supabase.functions.invoke('send-cost-alert', {
           body: {
             alertType: 'vehicle_specific',
             vehiclePlate: alert.vehicle_plate,
@@ -284,23 +380,59 @@ export function useCostAlerts() {
             period: `Últimos ${periodDays} dias`,
             recipients: alert.email_recipients,
           },
-        });
+        }).catch((error) => console.error('Email alert error:', error))
+      );
+    }
 
-        await supabase
-          .from('maintenance_cost_alerts')
-          .update({
-            last_triggered_at: new Date().toISOString(),
-            trigger_count: (alert as any).trigger_count + 1,
-          })
-          .eq('id', alert.id);
+    if (alert.whatsapp_enabled && alert.whatsapp_numbers.length > 0) {
+      promises.push(
+        supabase.functions.invoke('send-whatsapp-alert', {
+          body: {
+            alertType: 'vehicle_specific',
+            vehiclePlate: alert.vehicle_plate,
+            currentValue,
+            period: `Últimos ${periodDays} dias`,
+            phoneNumbers: alert.whatsapp_numbers,
+          },
+        }).catch((error) => console.error('WhatsApp alert error:', error))
+      );
+    }
 
-        toast({
-          title: '🚗 Alerta de Veículo',
-          description: `Veículo ${alert.vehicle_plate} com custos elevados`,
-        });
-      } catch (error) {
-        console.error('Error sending vehicle alert:', error);
-      }
+    if (alert.n8n_enabled && alert.n8n_webhook_url) {
+      promises.push(
+        supabase.functions.invoke('trigger-n8n-workflow', {
+          body: {
+            webhookUrl: alert.n8n_webhook_url,
+            alertData: {
+              alertType: 'vehicle_specific',
+              alertName: alert.alert_name,
+              vehiclePlate: alert.vehicle_plate,
+              currentValue,
+              period: `Últimos ${periodDays} dias`,
+              timestamp: new Date().toISOString(),
+            },
+          },
+        }).catch((error) => console.error('n8n workflow error:', error))
+      );
+    }
+
+    try {
+      await Promise.all(promises);
+
+      await supabase
+        .from('maintenance_cost_alerts')
+        .update({
+          last_triggered_at: new Date().toISOString(),
+          trigger_count: (alert as any).trigger_count + 1,
+        })
+        .eq('id', alert.id);
+
+      toast({
+        title: '🚗 Alerta de Veículo',
+        description: `Veículo ${alert.vehicle_plate} com custos elevados`,
+      });
+    } catch (error) {
+      console.error('Error sending vehicle alert:', error);
     }
   };
 

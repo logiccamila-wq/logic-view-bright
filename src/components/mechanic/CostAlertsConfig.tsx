@@ -47,6 +47,10 @@ export function CostAlertsConfig() {
     vehicle_plate: '',
     email_recipients: '',
     email_enabled: true,
+    whatsapp_numbers: '',
+    whatsapp_enabled: false,
+    n8n_webhook_url: '',
+    n8n_enabled: false,
   });
 
   useEffect(() => {
@@ -101,12 +105,26 @@ export function CostAlertsConfig() {
         .map((e) => e.trim())
         .filter((e) => e.length > 0);
 
+      const whatsappList = formData.whatsapp_numbers
+        .split(',')
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0);
+
       const alertData = {
         user_id: user.id,
         alert_name: formData.alert_name,
         alert_type: formData.alert_type,
         email_enabled: formData.email_enabled,
         email_recipients: emailList,
+        whatsapp_enabled: formData.whatsapp_enabled,
+        whatsapp_numbers: whatsappList,
+        n8n_enabled: formData.n8n_enabled,
+        n8n_webhook_url: formData.n8n_webhook_url || null,
+        notification_channels: [
+          formData.email_enabled && 'email',
+          formData.whatsapp_enabled && 'whatsapp',
+          formData.n8n_enabled && 'n8n',
+        ].filter(Boolean),
         cost_threshold: formData.alert_type === 'cost_threshold' ? parseFloat(formData.cost_threshold) : null,
         period_days: ['cost_threshold', 'vehicle_specific'].includes(formData.alert_type) ? parseInt(formData.period_days) : null,
         trend_percentage: formData.alert_type === 'trend_increase' ? parseFloat(formData.trend_percentage) : null,
@@ -149,6 +167,10 @@ export function CostAlertsConfig() {
       vehicle_plate: '',
       email_recipients: '',
       email_enabled: true,
+      whatsapp_numbers: '',
+      whatsapp_enabled: false,
+      n8n_webhook_url: '',
+      n8n_enabled: false,
     });
   };
 
@@ -370,7 +392,6 @@ export function CostAlertsConfig() {
                   value={formData.email_recipients}
                   onChange={(e) => setFormData({ ...formData, email_recipients: e.target.value })}
                   placeholder="email1@exemplo.com, email2@exemplo.com"
-                  required
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Separe múltiplos e-mails com vírgula
@@ -384,6 +405,60 @@ export function CostAlertsConfig() {
                   onCheckedChange={(checked) => setFormData({ ...formData, email_enabled: checked })}
                 />
                 <Label htmlFor="email_enabled">Ativar envio de e-mails</Label>
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Integração WhatsApp</h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="whatsapp_numbers">Números WhatsApp (com DDI)</Label>
+                    <Input
+                      id="whatsapp_numbers"
+                      type="text"
+                      value={formData.whatsapp_numbers}
+                      onChange={(e) => setFormData({ ...formData, whatsapp_numbers: e.target.value })}
+                      placeholder="5511999999999, 5511888888888"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Separe múltiplos números com vírgula (Ex: 5511999999999)
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="whatsapp_enabled"
+                      checked={formData.whatsapp_enabled}
+                      onCheckedChange={(checked) => setFormData({ ...formData, whatsapp_enabled: checked })}
+                    />
+                    <Label htmlFor="whatsapp_enabled">Ativar alertas via WhatsApp</Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Integração n8n</h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="n8n_webhook_url">Webhook URL do n8n</Label>
+                    <Input
+                      id="n8n_webhook_url"
+                      type="url"
+                      value={formData.n8n_webhook_url}
+                      onChange={(e) => setFormData({ ...formData, n8n_webhook_url: e.target.value })}
+                      placeholder="https://seu-n8n.com/webhook/xxxxx"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Configure um workflow no n8n com trigger Webhook
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="n8n_enabled"
+                      checked={formData.n8n_enabled}
+                      onCheckedChange={(checked) => setFormData({ ...formData, n8n_enabled: checked })}
+                    />
+                    <Label htmlFor="n8n_enabled">Ativar integração com n8n</Label>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-2">
