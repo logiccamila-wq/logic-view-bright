@@ -28,6 +28,8 @@ import OMS from "./pages/OMS";
 import SCM from "./pages/SCM";
 import CRM from "./pages/CRM";
 import ERP from "./pages/ERP";
+import AccountsPayable from "./pages/AccountsPayable";
+import AccountsReceivable from "./pages/AccountsReceivable";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const App = () => (
             <Route path="/scm" element={<ProtectedRoute module="scm"><SCM /></ProtectedRoute>} />
             <Route path="/crm" element={<ProtectedRoute module="crm"><CRM /></ProtectedRoute>} />
             <Route path="/erp" element={<ProtectedRoute module="erp"><ERP /></ProtectedRoute>} />
+            <Route path="/accounts-payable" element={<ProtectedRoute module="finance"><AccountsPayable /></ProtectedRoute>} />
+            <Route path="/accounts-receivable" element={<ProtectedRoute module="finance"><AccountsReceivable /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

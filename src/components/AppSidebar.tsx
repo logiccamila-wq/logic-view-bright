@@ -20,6 +20,8 @@ import {
   ClipboardList,
   Wallet,
   Calculator,
+  ArrowDownCircle,
+  ArrowUpCircle,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -54,6 +56,8 @@ const mainItems = [
 const managementItems = [
   { title: "Aprovações", url: "/approvals", icon: CheckCircle, module: "approvals" },
   { title: "Estoque", url: "/inventory", icon: Package, module: "inventory" },
+  { title: "Contas a Pagar", url: "/accounts-payable", icon: ArrowDownCircle, module: "finance" },
+  { title: "Contas a Receber", url: "/accounts-receivable", icon: ArrowUpCircle, module: "finance" },
   { title: "Usuários", url: "/users", icon: Users, module: "users" },
   { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
   { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },

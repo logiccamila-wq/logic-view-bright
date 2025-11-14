@@ -23,13 +23,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Module permissions mapping
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
   driver: ['dashboard', 'fleet', 'tms', 'driver'],
-  finance: ['dashboard', 'erp', 'reports', 'control-tower'],
+  finance: ['dashboard', 'erp', 'reports', 'control-tower', 'finance'],
   operations: ['dashboard', 'operations', 'tms', 'fleet', 'control-tower'],
-  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory'],
+  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance'],
   commercial: ['dashboard', 'tms', 'crm'],
   fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory'],
   maintenance_assistant: ['dashboard', 'mechanic', 'inventory'],
-  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower'],
+  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower', 'finance'],
   maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports', 'control-tower', 'inventory'],
 };
 
