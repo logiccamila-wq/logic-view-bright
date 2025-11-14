@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Upload } from 'lucide-react';
 
 interface CTEDialogProps {
   open: boolean;
@@ -20,7 +21,9 @@ interface CTEDialogProps {
 export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [trips, setTrips] = useState<any[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     numero_cte: '',
