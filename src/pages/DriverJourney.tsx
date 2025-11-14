@@ -51,7 +51,7 @@ export default function DriverJourney() {
       .order("created_at", { ascending: false })
       .limit(10);
 
-    if (data) setViolations(data);
+    if (data) setViolations(data as Violation[]);
   };
 
   const loadWeeklyReports = async () => {
