@@ -23,32 +23,21 @@ export function LiveMap({ vehicles, selectedVehicle, onVehicleClick }: LiveMapPr
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
-  const [apiKey, setApiKey] = useState<string>('');
-  const { getApiKey } = useTomTom();
 
   useEffect(() => {
-    const fetchApiKey = async () => {
-      const key = await getApiKey();
-      if (key) {
-        setApiKey(key);
-      }
-    };
-    fetchApiKey();
-  }, []);
-
-  useEffect(() => {
-    if (!mapContainerRef.current || !apiKey) return;
+    if (!mapContainerRef.current) return;
 
     // Inicializar mapa
     if (!mapRef.current) {
       mapRef.current = L.map(mapContainerRef.current).setView([-23.5505, -46.6333], 6);
 
-      // Adicionar tiles do TomTom
+      // Usar OpenStreetMap como tile layer (funciona sem API key)
+      // Quando a API key estiver disponível, os mapas do app do motorista usarão TomTom
       L.tileLayer(
-        `https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${apiKey}`,
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
-          attribution: '&copy; <a href="https://www.tomtom.com">TomTom</a>',
-          maxZoom: 18
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19
         }
       ).addTo(mapRef.current);
     }
@@ -119,7 +108,7 @@ export function LiveMap({ vehicles, selectedVehicle, onVehicleClick }: LiveMapPr
         markersRef.current = {};
       }
     };
-  }, [vehicles, apiKey]);
+  }, [vehicles]);
 
   // Destacar veículo selecionado
   useEffect(() => {
@@ -128,14 +117,6 @@ export function LiveMap({ vehicles, selectedVehicle, onVehicleClick }: LiveMapPr
       mapRef.current.setView(marker.getLatLng(), 15);
     }
   }, [selectedVehicle]);
-
-  if (!apiKey) {
-    return (
-      <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando mapa...</p>
-      </div>
-    );
-  }
 
   return (
     <div 
