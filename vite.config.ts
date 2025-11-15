@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
         globIgnores: ["**/chatbot-avatar*.png", "**/assets/**/*.{jpg,png}"],
-        maximumFileSizeToCacheInBytes: 3000000, // 3MB
+        maximumFileSizeToCacheInBytes: 5000000, // 5MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
