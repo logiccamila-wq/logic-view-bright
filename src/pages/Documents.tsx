@@ -5,12 +5,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { FileText, AlertTriangle, Shield, Clock, Car, CreditCard, FileCheck, Plus, Search, Edit, Trash2 } from "lucide-react";
+import { FileText, AlertTriangle, Shield, Clock, Car, CreditCard, FileCheck, Plus, Search, Edit, Trash2, Upload } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DocumentDialog } from "@/components/documents/DocumentDialog";
+import { importDocuments } from "@/utils/importDocuments";
 
 const Documents = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,6 +19,7 @@ const Documents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [selectedType, setSelectedType] = useState<string>("");
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     loadDocuments();
@@ -45,6 +47,21 @@ const Documents = () => {
     setSelectedDocument(null);
     setSelectedType(type);
     setDialogOpen(true);
+  };
+
+  const handleImport = async () => {
+    if (!confirm('Deseja importar todos os documentos da planilha?')) return;
+    
+    setImporting(true);
+    try {
+      const result = await importDocuments();
+      toast.success(`Importados ${result.imported} veículos de ${result.total}. Erros: ${result.errors}`);
+      loadDocuments();
+    } catch (error: any) {
+      toast.error('Erro ao importar: ' + error.message);
+    } finally {
+      setImporting(false);
+    }
   };
 
   const filterDocuments = (type: string) => {
@@ -79,9 +96,15 @@ const Documents = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Gestão de Documentos</h1>
-          <p className="text-muted-foreground mt-2">Controle de documentos por placa</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Gestão de Documentos</h1>
+            <p className="text-muted-foreground mt-2">Controle de documentos por placa</p>
+          </div>
+          <Button onClick={handleImport} disabled={importing}>
+            <Upload className="w-4 h-4 mr-2" />
+            {importing ? 'Importando...' : 'Importar Planilha'}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -91,31 +114,43 @@ const Documents = () => {
           <StatCard title="CRLVs Pagos" value={kpis.paidCRLVs} icon={Car} trend={{ value: `Ano ${new Date().getFullYear()}`, positive: true }} />
         </div>
 
-        <Tabs defaultValue="chemical" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="chemical">Químicos</TabsTrigger>
+        <Tabs defaultValue="crlv" className="w-full">
+          <TabsList className="grid w-full grid-cols-10 lg:grid-cols-13">
+            <TabsTrigger value="crlv">CRLV</TabsTrigger>
             <TabsTrigger value="civ">CIV</TabsTrigger>
             <TabsTrigger value="cipp">CIPP</TabsTrigger>
             <TabsTrigger value="tachograph">Tacógrafo</TabsTrigger>
-            <TabsTrigger value="fine">Multas</TabsTrigger>
+            <TabsTrigger value="fire_extinguisher">Extintores</TabsTrigger>
+            <TabsTrigger value="ibama_ctf">IBAMA CTF</TabsTrigger>
+            <TabsTrigger value="ibama_aatipp">IBAMA AATIPP</TabsTrigger>
+            <TabsTrigger value="antt">ANTT</TabsTrigger>
+            <TabsTrigger value="opacity_test">Opacidade</TabsTrigger>
+            <TabsTrigger value="noise_test">Ruído</TabsTrigger>
+            <TabsTrigger value="chemical">Químicos</TabsTrigger>
             <TabsTrigger value="cnh">CNH</TabsTrigger>
-            <TabsTrigger value="crlv">CRLV</TabsTrigger>
+            <TabsTrigger value="fine">Multas</TabsTrigger>
           </TabsList>
 
-          {['chemical', 'civ', 'cipp', 'tachograph', 'fine', 'cnh', 'crlv'].map(type => (
+          {['crlv', 'civ', 'cipp', 'tachograph', 'fire_extinguisher', 'ibama_ctf', 'ibama_aatipp', 'antt', 'opacity_test', 'noise_test', 'chemical', 'cnh', 'fine'].map(type => (
             <TabsContent key={type} value={type}>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Shield className="w-5 h-5" />
-                      {type === 'chemical' && 'Produtos Químicos'}
+                      {type === 'crlv' && 'CRLV'}
                       {type === 'civ' && 'CIV'}
                       {type === 'cipp' && 'CIPP'}
                       {type === 'tachograph' && 'Tacógrafos'}
-                      {type === 'fine' && 'Multas'}
+                      {type === 'fire_extinguisher' && 'Extintores'}
+                      {type === 'ibama_ctf' && 'IBAMA CTF'}
+                      {type === 'ibama_aatipp' && 'IBAMA AATIPP'}
+                      {type === 'antt' && 'ANTT'}
+                      {type === 'opacity_test' && 'Teste de Opacidade (Fumaça)'}
+                      {type === 'noise_test' && 'Teste de Ruído (Barulho)'}
+                      {type === 'chemical' && 'Produtos Químicos'}
                       {type === 'cnh' && 'CNH'}
-                      {type === 'crlv' && 'CRLV'}
+                      {type === 'fine' && 'Multas'}
                     </div>
                     <Button size="sm" onClick={() => handleNewDocument(type)}>
                       <Plus className="w-4 h-4 mr-2" />
