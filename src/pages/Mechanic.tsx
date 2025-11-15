@@ -7,7 +7,8 @@ import { MaintenanceChecklistTab } from '@/components/mechanic/MaintenanceCheckl
 import { LavaJatoTab } from '@/components/mechanic/LavaJatoTab';
 import { BorachariaTab } from '@/components/mechanic/BorachariaTab';
 import { MaintenanceScheduler } from '@/components/mechanic/MaintenanceScheduler';
-import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar } from 'lucide-react';
+import { PartsRequestTab } from '@/components/mechanic/PartsRequestTab';
+import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, PackagePlus } from 'lucide-react';
 
 const Mechanic = () => {
   return (
@@ -21,7 +22,7 @@ const Mechanic = () => {
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Wrench className="h-4 w-4" />
               <span className="hidden sm:inline">Ordens de Serviço</span>
@@ -51,6 +52,10 @@ const Mechanic = () => {
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Agendamento</span>
             </TabsTrigger>
+            <TabsTrigger value="parts" className="flex items-center gap-2">
+              <PackagePlus className="h-4 w-4" />
+              <span className="hidden sm:inline">Pedido Peças</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders" className="space-y-6">
@@ -79,6 +84,10 @@ const Mechanic = () => {
 
           <TabsContent value="scheduler" className="space-y-6">
             <MaintenanceScheduler />
+          </TabsContent>
+
+          <TabsContent value="parts" className="space-y-6">
+            <PartsRequestTab />
           </TabsContent>
         </Tabs>
       </div>
