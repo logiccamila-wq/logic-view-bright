@@ -1245,6 +1245,173 @@ export type Database = {
         }
         Relationships: []
       }
+      mdfe: {
+        Row: {
+          chave_acesso: string | null
+          condutores: Json | null
+          created_at: string | null
+          created_by: string | null
+          ctes_vinculados: Json | null
+          data_autorizacao: string | null
+          data_emissao: string | null
+          data_encerramento: string | null
+          emitente_cep: string | null
+          emitente_cidade: string | null
+          emitente_cnpj: string
+          emitente_endereco: string | null
+          emitente_ie: string | null
+          emitente_nome_fantasia: string | null
+          emitente_razao_social: string
+          emitente_uf: string
+          id: string
+          informacoes_complementares: string | null
+          modal: string
+          municipio_encerramento: string | null
+          numero_mdfe: string
+          observacoes: string | null
+          peso_total_kg: number
+          protocolo_autorizacao: string | null
+          quantidade_ctes: number
+          quantidade_nfes: number | null
+          serie: string
+          status: string
+          tipo_emitente: string
+          tipo_transportador: string | null
+          trip_id: string | null
+          uf_encerramento: string | null
+          uf_fim: string
+          uf_inicio: string
+          ufs_percurso: string[] | null
+          updated_at: string | null
+          vale_pedagio_cnpj_fornecedor: string | null
+          vale_pedagio_cnpj_pagador: string | null
+          vale_pedagio_numero_compra: string | null
+          vale_pedagio_valor: number | null
+          valor_total_carga: number
+          veiculo_tracao_capacidade_kg: number | null
+          veiculo_tracao_capacidade_m3: number | null
+          veiculo_tracao_placa: string
+          veiculo_tracao_rntrc: string | null
+          veiculo_tracao_tara: number | null
+          veiculo_tracao_tipo_carroceria: string | null
+          veiculo_tracao_tipo_rodado: string | null
+          veiculo_tracao_uf: string
+          veiculos_reboque: Json | null
+        }
+        Insert: {
+          chave_acesso?: string | null
+          condutores?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          ctes_vinculados?: Json | null
+          data_autorizacao?: string | null
+          data_emissao?: string | null
+          data_encerramento?: string | null
+          emitente_cep?: string | null
+          emitente_cidade?: string | null
+          emitente_cnpj: string
+          emitente_endereco?: string | null
+          emitente_ie?: string | null
+          emitente_nome_fantasia?: string | null
+          emitente_razao_social: string
+          emitente_uf: string
+          id?: string
+          informacoes_complementares?: string | null
+          modal?: string
+          municipio_encerramento?: string | null
+          numero_mdfe: string
+          observacoes?: string | null
+          peso_total_kg?: number
+          protocolo_autorizacao?: string | null
+          quantidade_ctes?: number
+          quantidade_nfes?: number | null
+          serie?: string
+          status?: string
+          tipo_emitente?: string
+          tipo_transportador?: string | null
+          trip_id?: string | null
+          uf_encerramento?: string | null
+          uf_fim: string
+          uf_inicio: string
+          ufs_percurso?: string[] | null
+          updated_at?: string | null
+          vale_pedagio_cnpj_fornecedor?: string | null
+          vale_pedagio_cnpj_pagador?: string | null
+          vale_pedagio_numero_compra?: string | null
+          vale_pedagio_valor?: number | null
+          valor_total_carga?: number
+          veiculo_tracao_capacidade_kg?: number | null
+          veiculo_tracao_capacidade_m3?: number | null
+          veiculo_tracao_placa: string
+          veiculo_tracao_rntrc?: string | null
+          veiculo_tracao_tara?: number | null
+          veiculo_tracao_tipo_carroceria?: string | null
+          veiculo_tracao_tipo_rodado?: string | null
+          veiculo_tracao_uf: string
+          veiculos_reboque?: Json | null
+        }
+        Update: {
+          chave_acesso?: string | null
+          condutores?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          ctes_vinculados?: Json | null
+          data_autorizacao?: string | null
+          data_emissao?: string | null
+          data_encerramento?: string | null
+          emitente_cep?: string | null
+          emitente_cidade?: string | null
+          emitente_cnpj?: string
+          emitente_endereco?: string | null
+          emitente_ie?: string | null
+          emitente_nome_fantasia?: string | null
+          emitente_razao_social?: string
+          emitente_uf?: string
+          id?: string
+          informacoes_complementares?: string | null
+          modal?: string
+          municipio_encerramento?: string | null
+          numero_mdfe?: string
+          observacoes?: string | null
+          peso_total_kg?: number
+          protocolo_autorizacao?: string | null
+          quantidade_ctes?: number
+          quantidade_nfes?: number | null
+          serie?: string
+          status?: string
+          tipo_emitente?: string
+          tipo_transportador?: string | null
+          trip_id?: string | null
+          uf_encerramento?: string | null
+          uf_fim?: string
+          uf_inicio?: string
+          ufs_percurso?: string[] | null
+          updated_at?: string | null
+          vale_pedagio_cnpj_fornecedor?: string | null
+          vale_pedagio_cnpj_pagador?: string | null
+          vale_pedagio_numero_compra?: string | null
+          vale_pedagio_valor?: number | null
+          valor_total_carga?: number
+          veiculo_tracao_capacidade_kg?: number | null
+          veiculo_tracao_capacidade_m3?: number | null
+          veiculo_tracao_placa?: string
+          veiculo_tracao_rntrc?: string | null
+          veiculo_tracao_tara?: number | null
+          veiculo_tracao_tipo_carroceria?: string | null
+          veiculo_tracao_tipo_rodado?: string | null
+          veiculo_tracao_uf?: string
+          veiculos_reboque?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mdfe_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimentacao_pneus: {
         Row: {
           created_at: string
