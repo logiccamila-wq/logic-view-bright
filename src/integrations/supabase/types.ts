@@ -2364,6 +2364,81 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_documents: {
+        Row: {
+          cnh_category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          document_category: string | null
+          document_number: string | null
+          document_type: string
+          driver_cpf: string | null
+          driver_name: string | null
+          expiry_date: string | null
+          file_url: string | null
+          id: string
+          issue_date: string | null
+          last_check: string | null
+          next_check: string | null
+          notes: string | null
+          paid: boolean | null
+          status: string
+          updated_at: string
+          value: number | null
+          vehicle_plate: string
+          year: number | null
+        }
+        Insert: {
+          cnh_category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_category?: string | null
+          document_number?: string | null
+          document_type: string
+          driver_cpf?: string | null
+          driver_name?: string | null
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          issue_date?: string | null
+          last_check?: string | null
+          next_check?: string | null
+          notes?: string | null
+          paid?: boolean | null
+          status?: string
+          updated_at?: string
+          value?: number | null
+          vehicle_plate: string
+          year?: number | null
+        }
+        Update: {
+          cnh_category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_category?: string | null
+          document_number?: string | null
+          document_type?: string
+          driver_cpf?: string | null
+          driver_name?: string | null
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          issue_date?: string | null
+          last_check?: string | null
+          next_check?: string | null
+          notes?: string | null
+          paid?: boolean | null
+          status?: string
+          updated_at?: string
+          value?: number | null
+          vehicle_plate?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
       vehicle_tracking: {
         Row: {
           created_at: string | null
