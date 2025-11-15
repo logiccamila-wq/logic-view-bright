@@ -1,4 +1,4 @@
-import { 
+import {
   LayoutDashboard, 
   Truck, 
   Wrench, 
@@ -23,6 +23,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   DollarSign,
+  FileText,
+  Code2,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -61,6 +63,7 @@ const managementItems = [
   { title: "Contas a Pagar", url: "/accounts-payable", icon: ArrowDownCircle, module: "finance" },
   { title: "Contas a Receber", url: "/accounts-receivable", icon: ArrowUpCircle, module: "finance" },
   { title: "Monitoramento de Custos", url: "/cost-monitoring", icon: DollarSign, module: "finance" },
+  { title: "Documentos", url: "/documents", icon: FileText, module: "documents" },
   { title: "Usuários", url: "/users", icon: Users, module: "users" },
   { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
   { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },
@@ -73,6 +76,7 @@ const modulesItems = [
   { title: "SCM", url: "/scm", icon: GitBranch, module: "scm" },
   { title: "CRM", url: "/crm", icon: UserCheck, module: "crm" },
   { title: "ERP", url: "/erp", icon: Building2, module: "erp" },
+  { title: "Developer", url: "/developer", icon: Code2, module: "developer" },
 ];
 
 export function AppSidebar() {

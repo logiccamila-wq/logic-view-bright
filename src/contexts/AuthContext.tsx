@@ -23,14 +23,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Module permissions mapping
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
   driver: ['dashboard', 'fleet', 'tms', 'driver'],
-  finance: ['dashboard', 'erp', 'reports', 'control-tower', 'finance'],
-  operations: ['dashboard', 'operations', 'tms', 'fleet', 'control-tower'],
-  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance'],
+  finance: ['dashboard', 'erp', 'reports', 'control-tower', 'finance', 'documents'],
+  operations: ['dashboard', 'operations', 'tms', 'fleet', 'control-tower', 'documents'],
+  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance', 'documents', 'developer'],
   commercial: ['dashboard', 'tms', 'crm'],
-  fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory'],
+  fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory', 'documents'],
   maintenance_assistant: ['dashboard', 'mechanic', 'inventory'],
-  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower', 'finance'],
-  maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports', 'control-tower', 'inventory'],
+  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower', 'finance', 'documents'],
+  maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports', 'control-tower', 'inventory', 'documents'],
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
