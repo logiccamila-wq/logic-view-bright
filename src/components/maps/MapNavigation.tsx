@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Navigation, MapPin, ExternalLink, Route, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useOpenRouteService } from "@/hooks/useOpenRouteService";
+import { DriverMap } from "./DriverMap";
 import { useEffect, useState } from "react";
 
 interface MapNavigationProps {
