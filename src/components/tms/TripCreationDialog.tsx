@@ -317,7 +317,7 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
                 <SelectValue placeholder="Selecione uma carreta (se aplicável)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma</SelectItem>
+                <SelectItem value="none">Nenhuma</SelectItem>
                 {carretas.map((carreta) => (
                   <SelectItem key={carreta.plate} value={carreta.plate}>
                     <div className="flex items-center justify-between w-full">
