@@ -2,7 +2,6 @@ import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Truck, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
-import { MapboxTracker } from "@/components/maps/MapboxTracker";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -70,10 +69,14 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Mapa de Rastreamento */}
+        {/* Mapa de Rastreamento - Temporariamente Desabilitado */}
         <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <MapboxTracker vehicles={vehicles} />
+          <CardContent className="p-6 text-center">
+            <Truck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold">Rastreamento Temporariamente Desabilitado</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Sistema em testes. Acesse o módulo de Rastreamento para ver veículos.
+            </p>
           </CardContent>
         </Card>
       </div>
