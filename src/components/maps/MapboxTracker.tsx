@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Vehicle {
   id: string;
@@ -23,9 +20,8 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<Map<string, mapboxgl.Marker>>(new Map());
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [tokenInput, setTokenInput] = useState<string>('');
   const [mapReady, setMapReady] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const initializeMap = (token: string) => {
     if (!mapContainer.current || !token) return;
@@ -55,35 +51,30 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
     }
   };
 
-  const handleTokenSubmit = () => {
-    if (!tokenInput.trim()) {
-      toast.error('Por favor, insira um token Mapbox');
-      return;
-    }
-    setMapboxToken(tokenInput);
-    localStorage.setItem('mapbox_token', tokenInput);
-    initializeMap(tokenInput);
-  };
-
-  const handleClearToken = () => {
-    localStorage.removeItem('mapbox_token');
-    setMapboxToken('');
-    setTokenInput('');
-    setMapReady(false);
-    if (map.current) {
-      map.current.remove();
-      map.current = null;
-    }
-    toast.info('Token removido. Configure novamente.');
-  };
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    if (savedToken) {
-      setMapboxToken(savedToken);
-      setTokenInput(savedToken);
-      initializeMap(savedToken);
-    }
+    const fetchMapboxToken = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-secret', {
+          body: { name: 'MAPBOX_PUBLIC_TOKEN' }
+        });
+
+        if (error) throw error;
+        
+        if (data?.MAPBOX_PUBLIC_TOKEN) {
+          initializeMap(data.MAPBOX_PUBLIC_TOKEN);
+        } else {
+          toast.error('Token do Mapbox não configurado');
+        }
+      } catch (error) {
+        console.error('Erro ao buscar token do Mapbox:', error);
+        toast.error('Erro ao carregar configuração do mapa');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMapboxToken();
 
     return () => {
       if (map.current) {
@@ -153,59 +144,26 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
     return colors[statusColor] || colors.gray;
   };
 
-  if (!mapboxToken) {
-    return (
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Configure o Mapbox</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Para usar o rastreamento em tempo real, você precisa de um token Mapbox (gratuito).
-            </p>
-            <ol className="text-sm text-muted-foreground space-y-2 mb-4 list-decimal list-inside">
-              <li>Acesse <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a></li>
-              <li>Crie uma conta gratuita</li>
-              <li>Copie seu <strong>Public Token</strong></li>
-              <li>Cole abaixo e clique em Ativar Mapa</li>
-            </ol>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="mapbox-token">Mapbox Public Token</Label>
-            <div className="flex gap-2">
-              <Input
-                id="mapbox-token"
-                type="text"
-                placeholder="pk.eyJ1Ijo..."
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                className="font-mono text-sm"
-              />
-              <Button onClick={handleTokenSubmit}>
-                Ativar Mapa
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <div className="relative w-full h-full min-h-[600px]">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg shadow-lg" />
-      {!mapReady && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-          <p className="text-muted-foreground">Carregando mapa...</p>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
+          <p className="text-muted-foreground">Carregando configuração...</p>
         </div>
       )}
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={handleClearToken}
-        className="absolute top-4 right-4 z-10"
-      >
-        Reconfigurar Token
-      </Button>
+      {!loading && !mapReady && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
+          <p className="text-muted-foreground">Inicializando mapa...</p>
+        </div>
+      )}
+      {mapReady && (
+        <div className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-lg shadow-lg">
+          <p className="text-xs text-muted-foreground">
+            {vehicles.length} veículo{vehicles.length !== 1 ? 's' : ''} rastreado{vehicles.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
