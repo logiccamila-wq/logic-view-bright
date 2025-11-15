@@ -83,87 +83,34 @@ serve(async (req) => {
       try {
         const cteData = parseXML(xml_content)
         
-        // Auto-cadastrar veículo se não existir (com validação de placa BR)
-        let finalPlate = (cteData.placa_veiculo || '').toUpperCase();
+        // Usar 'SEM-PLACA' como padrão - placa será preenchida no manifesto
+        let finalPlate = (cteData.placa_veiculo || '').toUpperCase().trim();
         
-        // Validar formato de placa brasileira (ABC1234 ou ABC1D23)
-        const isValidBrazilianPlate = /^[A-Z]{3}[0-9]{4}$|^[A-Z]{3}[0-9][A-Z][0-9]{2}$/.test(finalPlate);
-        
-        if (finalPlate && isValidBrazilianPlate) {
-          // Verificar se veículo existe
-          const { data: vehicleExists } = await supabaseClient
-            .from('vehicles')
-            .select('placa')
-            .eq('placa', finalPlate)
-            .maybeSingle();
-
-          if (!vehicleExists) {
-            // Auto-cadastrar veículo
-            console.log(`Auto-cadastrando veículo: ${finalPlate}`);
-            const { error: vehicleError } = await supabaseClient
-              .from('vehicles')
-              .insert({
-                placa: finalPlate,
-                tipo: 'caminhao',
-                status: 'ativo',
-                modelo: 'Importado via CT-e',
-                ano: new Date().getFullYear()
-              });
-
-            if (vehicleError) {
-              console.error('Erro ao auto-cadastrar veículo:', vehicleError);
-              results.errors.push({
-                numero_cte: cteData.numero_cte,
-                error: `Erro ao auto-cadastrar placa ${finalPlate}: ${vehicleError.message}`
-              });
-              continue;
-            }
-            results.vehicles_created++;
-          }
-        } else if (!isValidBrazilianPlate && finalPlate) {
-          console.warn(`Placa inválida detectada: ${finalPlate} - CT-e ${cteData.numero_cte}`);
-          // Define placa padrão para permitir importação
+        // Se não houver placa ou for inválida, usar SEM-PLACA
+        if (!finalPlate || finalPlate.length < 7) {
           finalPlate = 'SEM-PLACA';
-          
-          // Cria veículo genérico se não existir
-          const { data: genericVehicle } = await supabaseClient
-            .from('vehicles')
-            .select('placa')
-            .eq('placa', 'SEM-PLACA')
-            .maybeSingle();
-            
-          if (!genericVehicle) {
-            await supabaseClient
-              .from('vehicles')
-              .insert({
-                placa: 'SEM-PLACA',
-                tipo: 'caminhao',
-                status: 'ativo',
-                modelo: 'Veículo não identificado',
-                ano: new Date().getFullYear()
-              });
-            results.vehicles_created++;
-          }
         }
+        
+        // Garantir que o veículo existe (seja a placa extraída ou SEM-PLACA)
+        const { data: vehicleExists } = await supabaseClient
+          .from('vehicles')
+          .select('placa')
+          .eq('placa', finalPlate)
+          .maybeSingle();
 
-        // Se não foi possível extrair placa, usar 'SEM-PLACA' como padrão
-        if (!finalPlate) {
-          finalPlate = 'SEM-PLACA';
-          const { data: genericVehicle2 } = await supabaseClient
+        if (!vehicleExists) {
+          console.log(`Auto-cadastrando veículo: ${finalPlate}`);
+          const { error: vehicleError } = await supabaseClient
             .from('vehicles')
-            .select('placa')
-            .eq('placa', 'SEM-PLACA')
-            .maybeSingle();
-          if (!genericVehicle2) {
-            await supabaseClient
-              .from('vehicles')
-              .insert({
-                placa: 'SEM-PLACA',
-                tipo: 'caminhao',
-                status: 'ativo',
-                modelo: 'Veículo não identificado',
-                ano: new Date().getFullYear()
-              });
+            .insert({
+              placa: finalPlate,
+              tipo: 'caminhao',
+              status: 'ativo',
+              modelo: finalPlate === 'SEM-PLACA' ? 'A definir no manifesto' : 'Importado via CT-e',
+              ano: new Date().getFullYear()
+            });
+
+          if (!vehicleError) {
             results.vehicles_created++;
           }
         }
