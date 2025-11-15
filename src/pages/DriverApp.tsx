@@ -11,7 +11,12 @@ import {
   Truck,
   DollarSign,
   CheckCircle,
-  Loader2
+  Loader2,
+  Fuel,
+  Receipt,
+  ClipboardCheck,
+  Bell,
+  MessageSquare
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +25,11 @@ import { StatCard } from "@/components/StatCard";
 import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 import { DriverJourneyStatus } from "@/components/driver/DriverJourneyStatus";
 import { DriverEarnings } from "@/components/driver/DriverEarnings";
+import { FuelExpenseDialog } from "@/components/driver/FuelExpenseDialog";
+import { TripExpenseDialog } from "@/components/driver/TripExpenseDialog";
+import { DriverChecklist } from "@/components/driver/DriverChecklist";
+import { TripAlerts } from "@/components/driver/TripAlerts";
+import GaelChatbot from "@/components/GaelChatbot";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -180,18 +190,30 @@ export default function DriverApp() {
 
         {/* Tabs Mobile-optimized */}
         <Tabs defaultValue="jornada" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-auto">
-            <TabsTrigger value="jornada" className="text-xs md:text-sm py-2">
-              <Clock className="w-4 h-4 mr-1 md:mr-2" />
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto gap-1">
+            <TabsTrigger value="jornada" className="text-xs py-2">
+              <Clock className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Jornada</span>
             </TabsTrigger>
-            <TabsTrigger value="gratificacao" className="text-xs md:text-sm py-2">
-              <Wallet className="w-4 h-4 mr-1 md:mr-2" />
+            <TabsTrigger value="gratificacao" className="text-xs py-2">
+              <Wallet className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Gratificação</span>
             </TabsTrigger>
-            <TabsTrigger value="diarias" className="text-xs md:text-sm py-2">
-              <Calendar className="w-4 h-4 mr-1 md:mr-2" />
+            <TabsTrigger value="diarias" className="text-xs py-2">
+              <Calendar className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Diárias</span>
+            </TabsTrigger>
+            <TabsTrigger value="despesas" className="text-xs py-2">
+              <Receipt className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Despesas</span>
+            </TabsTrigger>
+            <TabsTrigger value="checklist" className="text-xs py-2">
+              <ClipboardCheck className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Checklist</span>
+            </TabsTrigger>
+            <TabsTrigger value="viagens" className="text-xs py-2">
+              <Bell className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Viagens</span>
             </TabsTrigger>
           </TabsList>
 
@@ -300,7 +322,30 @@ export default function DriverApp() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Aba Despesas */}
+          <TabsContent value="despesas" className="space-y-4 mt-4">
+            <div className="grid gap-4">
+              <FuelExpenseDialog />
+              <TripExpenseDialog />
+            </div>
+          </TabsContent>
+
+          {/* Aba Checklist */}
+          <TabsContent value="checklist" className="space-y-4 mt-4">
+            <DriverChecklist />
+          </TabsContent>
+
+          {/* Aba Viagens */}
+          <TabsContent value="viagens" className="space-y-4 mt-4">
+            <TripAlerts />
+          </TabsContent>
         </Tabs>
+
+        {/* Chatbot flutuante */}
+        <div className="fixed bottom-4 right-4 z-50">
+          <GaelChatbot />
+        </div>
       </div>
     </Layout>
   );
