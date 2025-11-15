@@ -26,6 +26,8 @@ import { MovementDialog } from "@/components/inventory/MovementDialog";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { MovementsTable } from "@/components/inventory/MovementsTable";
 import { StatCard } from "@/components/StatCard";
+import { BarcodeScanner } from "@/components/inventory/BarcodeScanner";
+import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 
 interface InventoryItem {
   id: string;
@@ -154,6 +156,19 @@ const Inventory = () => {
     setMovementDialogOpen(true);
   };
 
+  const handleBarcodeScan = async (barcode: string) => {
+    const item = inventory.find(
+      (i) => i.barcode === barcode || i.part_code === barcode
+    );
+    if (item) {
+      toast.success(`Item encontrado: ${item.part_name}`);
+      setSelectedItem(item);
+      setMovementDialogOpen(true);
+    } else {
+      toast.error("Item não encontrado");
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -175,7 +190,7 @@ const Inventory = () => {
           <div>
             <h1 className="text-3xl font-bold">Gestão de Estoque</h1>
             <p className="text-muted-foreground">
-              Controle de peças, produtos de lavajato e movimentações
+              Controle com IOT: scanner de código de barras e impressora de etiquetas
             </p>
           </div>
           <div className="flex gap-2">
@@ -189,6 +204,12 @@ const Inventory = () => {
             </Button>
           </div>
         </div>
+
+        {/* Painel de Ponto */}
+        <WorkSessionPanel />
+
+        {/* Scanner de Código de Barras */}
+        <BarcodeScanner onScan={handleBarcodeScan} />
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

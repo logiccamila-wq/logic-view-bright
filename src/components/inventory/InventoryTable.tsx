@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Edit, ArrowUpDown, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { BarcodePrinter } from "./BarcodePrinter";
 
 interface InventoryItem {
   id: string;
@@ -109,6 +110,11 @@ export function InventoryTable({ inventory, onEdit, onAddMovement, onRefresh }: 
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    <BarcodePrinter
+                      partCode={item.part_code}
+                      partName={item.part_name}
+                      supplier={item.supplier || undefined}
+                    />
                     <Button
                       size="sm"
                       variant="ghost"
