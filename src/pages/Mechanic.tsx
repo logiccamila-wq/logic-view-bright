@@ -9,7 +9,7 @@ import { BorachariaTab } from '@/components/mechanic/BorachariaTab';
 import { MaintenanceScheduler } from '@/components/mechanic/MaintenanceScheduler';
 import { PartsRequestTab } from '@/components/mechanic/PartsRequestTab';
 import { MapTestPanel } from '@/components/maps/MapTestPanel';
-import { WorkSessionPanel } from '@/components/driver/WorkSessionPanel';
+import { MechanicClockIn } from '@/components/mechanic/MechanicClockIn';
 import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, PackagePlus, TestTube } from 'lucide-react';
 
 const Mechanic = () => {
@@ -23,8 +23,8 @@ const Mechanic = () => {
           </p>
         </div>
 
-        {/* Painel de Ponto */}
-        <WorkSessionPanel />
+        {/* Controle de Ponto */}
+        <MechanicClockIn />
 
         <Tabs defaultValue="orders" className="space-y-6">
           <TabsList className="grid w-full grid-cols-9 lg:w-auto">
