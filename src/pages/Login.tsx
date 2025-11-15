@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import optilogLogo from "@/assets/optilog-logo.png";
-import ejgLogo from "@/assets/ejg-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,10 +28,27 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação obrigatória
+    if (!email.trim()) {
+      toast.error('Por favor, informe o email');
+      return;
+    }
+    
+    if (!password) {
+      toast.error('Por favor, informe a senha');
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error('A senha deve ter no mínimo 6 caracteres');
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      await signIn(email, password);
+      await signIn(email.trim(), password);
     } catch (error) {
       // Error is handled in signIn function
     } finally {
@@ -64,10 +80,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <img src={optilogLogo} alt="OptiLog" className="h-12 w-auto" />
-            <div className="h-12 w-px bg-border" />
-            <img src={ejgLogo} alt="EJG Transportes" className="h-12 w-12" />
+          <div className="flex items-center justify-center mb-4">
+            <img src={optilogLogo} alt="LogicFlow AI" className="h-16 w-auto" />
           </div>
           <CardTitle className="text-2xl">
             {resetMode ? "Redefinir Senha" : "Entrar"}
@@ -75,7 +89,7 @@ const Login = () => {
           <CardDescription className="text-muted-foreground">
             {resetMode 
               ? "Digite seu email para receber instruções" 
-              : "Acesse sua conta EJG Evolução em Transporte Ltda."
+              : "Acesse sua conta LogicFlow AI"
             }
           </CardDescription>
         </CardHeader>
@@ -120,6 +134,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={6}
                     disabled={loading}
                   />
                 </div>
