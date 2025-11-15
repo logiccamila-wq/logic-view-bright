@@ -21,13 +21,17 @@ const USERS_TO_SEED: UserData[] = [
   // Administrativo (admin completo)
   { email: 'administrati@ejgtransporte.com.br', password: 'adm123456', role: 'admin', full_name: 'Edjane - Administrativo' },
   
+  // Gestores de Manutenção
+  { email: 'valdeinio@ejgtransporte.com.br', password: 'gerente123', role: 'maintenance_manager', full_name: 'Valdeinio - Gerente de Manutenção' },
+  
   // Gestores
   { email: 'comercial@ejgtransporte.com.br', password: 'comercial123', role: 'commercial', full_name: 'Comercial' },
+  { email: 'mecanico@ejgtransporte.com.br', password: 'mecanico123', role: 'fleet_maintenance', full_name: 'Mecânico' },
   { email: 'frota@ejgtransporte.com.br', password: 'frota123', role: 'fleet_maintenance', full_name: 'Mecânico - Frota/Manutenção' },
   { email: 'miguellareste37@gmail.com', password: 'auxiliar123', role: 'maintenance_assistant', full_name: 'Miguel - Auxiliar Mecânico' },
   
   // Admins e testes
-  { email: 'logiccamila@gmail.com', password: 'Multi12345678', role: 'admin', full_name: 'Camila - Admin' },
+  { email: 'logiccamila@gmail.com', password: 'Multi12345678', role: 'admin', full_name: 'Camila - Desenvolvedora' },
   { email: 'camila.eteste@gmail.com', password: 'Multi@#$%362748', role: 'admin', full_name: 'Camila Teste' },
   { email: 'camila.etseral@gmail.com', password: 'Multi@#$%362748', role: 'admin', full_name: 'Camila Etseral' },
   { email: 'teste@teste.com', password: 'teste123', role: 'admin', full_name: 'Usuário Teste' },
