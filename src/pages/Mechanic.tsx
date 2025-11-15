@@ -8,7 +8,8 @@ import { LavaJatoTab } from '@/components/mechanic/LavaJatoTab';
 import { BorachariaTab } from '@/components/mechanic/BorachariaTab';
 import { MaintenanceScheduler } from '@/components/mechanic/MaintenanceScheduler';
 import { PartsRequestTab } from '@/components/mechanic/PartsRequestTab';
-import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, PackagePlus } from 'lucide-react';
+import { MapTestPanel } from '@/components/maps/MapTestPanel';
+import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, PackagePlus, TestTube } from 'lucide-react';
 
 const Mechanic = () => {
   return (
@@ -22,7 +23,7 @@ const Mechanic = () => {
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-9 lg:w-auto">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Wrench className="h-4 w-4" />
               <span className="hidden sm:inline">Ordens de Serviço</span>
@@ -56,6 +57,10 @@ const Mechanic = () => {
               <PackagePlus className="h-4 w-4" />
               <span className="hidden sm:inline">Pedido Peças</span>
             </TabsTrigger>
+            <TabsTrigger value="test" className="flex items-center gap-2">
+              <TestTube className="h-4 w-4" />
+              <span className="hidden sm:inline">Teste APIs</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders" className="space-y-6">
@@ -88,6 +93,10 @@ const Mechanic = () => {
 
           <TabsContent value="parts" className="space-y-6">
             <PartsRequestTab />
+          </TabsContent>
+
+          <TabsContent value="test" className="space-y-6">
+            <MapTestPanel />
           </TabsContent>
         </Tabs>
       </div>

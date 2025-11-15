@@ -78,14 +78,40 @@ const CRM = () => {
     setAnalysisClient(client);
   };
 
+  const handleImportFromCTE = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('import-clients-from-cte');
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        alert(`✅ ${data.message}\nImportados: ${data.imported}\nTotal no sistema: ${data.total}`);
+        refetch();
+      }
+    } catch (error: any) {
+      console.error('Erro ao importar clientes:', error);
+      alert('❌ Erro ao importar clientes dos CTEs');
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">CRM - Gestão de Clientes</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestão Inteligente de Relacionamento com Clientes
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">CRM - Gestão de Clientes</h1>
+            <p className="text-muted-foreground mt-2">
+              Gestão Inteligente de Relacionamento com Clientes
+            </p>
+          </div>
+          <Button
+            onClick={handleImportFromCTE}
+            variant="outline"
+            className="gap-2"
+          >
+            <FileText className="w-4 h-4" />
+            Importar de CTEs
+          </Button>
         </div>
 
         {/* KPIs */}
