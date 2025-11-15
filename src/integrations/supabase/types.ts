@@ -14,6 +14,190 @@ export type Database = {
   }
   public: {
     Tables: {
+      bank_accounts: {
+        Row: {
+          agencia: string
+          banco_codigo: string
+          banco_nome: string
+          cnpj_titular: string | null
+          conta: string
+          created_at: string | null
+          id: string
+          nome_conta: string
+          saldo_atual: number | null
+          saldo_inicial: number | null
+          status: string | null
+          tipo_conta: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agencia: string
+          banco_codigo: string
+          banco_nome: string
+          cnpj_titular?: string | null
+          conta: string
+          created_at?: string | null
+          id?: string
+          nome_conta: string
+          saldo_atual?: number | null
+          saldo_inicial?: number | null
+          status?: string | null
+          tipo_conta?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agencia?: string
+          banco_codigo?: string
+          banco_nome?: string
+          cnpj_titular?: string | null
+          conta?: string
+          created_at?: string | null
+          id?: string
+          nome_conta?: string
+          saldo_atual?: number | null
+          saldo_inicial?: number | null
+          status?: string | null
+          tipo_conta?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      bank_imports: {
+        Row: {
+          arquivo_nome: string
+          bank_account_id: string | null
+          created_at: string | null
+          erro_detalhes: string | null
+          formato: string
+          id: string
+          imported_by: string | null
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          status: string | null
+          total_conciliadas: number | null
+          total_transacoes: number | null
+        }
+        Insert: {
+          arquivo_nome: string
+          bank_account_id?: string | null
+          created_at?: string | null
+          erro_detalhes?: string | null
+          formato: string
+          id?: string
+          imported_by?: string | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          status?: string | null
+          total_conciliadas?: number | null
+          total_transacoes?: number | null
+        }
+        Update: {
+          arquivo_nome?: string
+          bank_account_id?: string | null
+          created_at?: string | null
+          erro_detalhes?: string | null
+          formato?: string
+          id?: string
+          imported_by?: string | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          status?: string | null
+          total_conciliadas?: number | null
+          total_transacoes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_imports_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_imports_imported_by_fkey"
+            columns: ["imported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_transactions: {
+        Row: {
+          bank_account_id: string | null
+          categoria: string | null
+          conciliado: boolean | null
+          conta_pagar_id: string | null
+          conta_receber_id: string | null
+          created_at: string | null
+          data_transacao: string
+          descricao: string
+          documento: string | null
+          id: string
+          importacao_id: string | null
+          observacoes: string | null
+          saldo_apos_transacao: number | null
+          tipo_transacao: string
+          valor: number
+        }
+        Insert: {
+          bank_account_id?: string | null
+          categoria?: string | null
+          conciliado?: boolean | null
+          conta_pagar_id?: string | null
+          conta_receber_id?: string | null
+          created_at?: string | null
+          data_transacao: string
+          descricao: string
+          documento?: string | null
+          id?: string
+          importacao_id?: string | null
+          observacoes?: string | null
+          saldo_apos_transacao?: number | null
+          tipo_transacao: string
+          valor: number
+        }
+        Update: {
+          bank_account_id?: string | null
+          categoria?: string | null
+          conciliado?: boolean | null
+          conta_pagar_id?: string | null
+          conta_receber_id?: string | null
+          created_at?: string | null
+          data_transacao?: string
+          descricao?: string
+          documento?: string | null
+          id?: string
+          importacao_id?: string | null
+          observacoes?: string | null
+          saldo_apos_transacao?: number | null
+          tipo_transacao?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transactions_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_conta_pagar_id_fkey"
+            columns: ["conta_pagar_id"]
+            isOneToOne: false
+            referencedRelation: "contas_pagar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_conta_receber_id_fkey"
+            columns: ["conta_receber_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           assigned_to: string | null
@@ -1588,6 +1772,121 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_distributions: {
+        Row: {
+          created_at: string | null
+          data_pagamento: string | null
+          id: string
+          impostos_retidos: number | null
+          observacoes: string | null
+          partner_id: string | null
+          periodo_ano: number
+          periodo_mes: number
+          status: string | null
+          tipo_distribuicao: string
+          updated_at: string | null
+          valor_bruto: number
+          valor_liquido: number
+        }
+        Insert: {
+          created_at?: string | null
+          data_pagamento?: string | null
+          id?: string
+          impostos_retidos?: number | null
+          observacoes?: string | null
+          partner_id?: string | null
+          periodo_ano: number
+          periodo_mes: number
+          status?: string | null
+          tipo_distribuicao: string
+          updated_at?: string | null
+          valor_bruto: number
+          valor_liquido: number
+        }
+        Update: {
+          created_at?: string | null
+          data_pagamento?: string | null
+          id?: string
+          impostos_retidos?: number | null
+          observacoes?: string | null
+          partner_id?: string | null
+          periodo_ano?: number
+          periodo_mes?: number
+          status?: string | null
+          tipo_distribuicao?: string
+          updated_at?: string | null
+          valor_bruto?: number
+          valor_liquido?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_distributions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          cnpj_cpf: string
+          created_at: string | null
+          data_entrada: string
+          data_saida: string | null
+          id: string
+          observacoes: string | null
+          participacao_percentual: number
+          prolabore_mensal: number | null
+          razao_social: string | null
+          status: string | null
+          tipo_participacao: string | null
+          updated_at: string | null
+          user_id: string | null
+          valor_capital_social: number | null
+        }
+        Insert: {
+          cnpj_cpf: string
+          created_at?: string | null
+          data_entrada: string
+          data_saida?: string | null
+          id?: string
+          observacoes?: string | null
+          participacao_percentual: number
+          prolabore_mensal?: number | null
+          razao_social?: string | null
+          status?: string | null
+          tipo_participacao?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor_capital_social?: number | null
+        }
+        Update: {
+          cnpj_cpf?: string
+          created_at?: string | null
+          data_entrada?: string
+          data_saida?: string | null
+          id?: string
+          observacoes?: string | null
+          participacao_percentual?: number
+          prolabore_mensal?: number | null
+          razao_social?: string | null
+          status?: string | null
+          tipo_participacao?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor_capital_social?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partners_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parts_requests: {
         Row: {
           approved_at: string | null
@@ -1889,7 +2188,7 @@ export type Database = {
           id: string
           rg: string | null
           telefone: string | null
-          tipo_vinculo: string | null
+          tipo_vinculo: Database["public"]["Enums"]["tipo_vinculo_enum"] | null
           updated_at: string
         }
         Insert: {
@@ -1903,7 +2202,7 @@ export type Database = {
           id: string
           rg?: string | null
           telefone?: string | null
-          tipo_vinculo?: string | null
+          tipo_vinculo?: Database["public"]["Enums"]["tipo_vinculo_enum"] | null
           updated_at?: string
         }
         Update: {
@@ -1917,7 +2216,7 @@ export type Database = {
           id?: string
           rg?: string | null
           telefone?: string | null
-          tipo_vinculo?: string | null
+          tipo_vinculo?: Database["public"]["Enums"]["tipo_vinculo_enum"] | null
           updated_at?: string
         }
         Relationships: []
@@ -2754,6 +3053,13 @@ export type Database = {
         | "trabalho"
         | "intervalo"
       notification_type: "info" | "success" | "warning" | "error"
+      tipo_vinculo_enum:
+        | "CLT"
+        | "PJ"
+        | "SOCIO"
+        | "CONSULTOR"
+        | "ESTAGIARIO"
+        | "TERCEIRIZADO"
       violation_type:
         | "direcao_continua_excedida"
         | "jornada_diaria_excedida"
@@ -2929,6 +3235,14 @@ export const Constants = {
         "intervalo",
       ],
       notification_type: ["info", "success", "warning", "error"],
+      tipo_vinculo_enum: [
+        "CLT",
+        "PJ",
+        "SOCIO",
+        "CONSULTOR",
+        "ESTAGIARIO",
+        "TERCEIRIZADO",
+      ],
       violation_type: [
         "direcao_continua_excedida",
         "jornada_diaria_excedida",
