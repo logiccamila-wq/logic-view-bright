@@ -1596,6 +1596,39 @@ export type Database = {
           },
         ]
       }
+      mechanic_clock_in: {
+        Row: {
+          created_at: string | null
+          distance: number
+          id: string
+          latitude: number
+          longitude: number
+          mechanic_id: string
+          timestamp: string
+          within_area: boolean
+        }
+        Insert: {
+          created_at?: string | null
+          distance: number
+          id?: string
+          latitude: number
+          longitude: number
+          mechanic_id: string
+          timestamp?: string
+          within_area?: boolean
+        }
+        Update: {
+          created_at?: string | null
+          distance?: number
+          id?: string
+          latitude?: number
+          longitude?: number
+          mechanic_id?: string
+          timestamp?: string
+          within_area?: boolean
+        }
+        Relationships: []
+      }
       movimentacao_pneus: {
         Row: {
           created_at: string
