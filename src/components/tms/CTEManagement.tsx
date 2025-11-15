@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Search, FileText, Eye } from 'lucide-react';
+import { Plus, Search, FileText, Eye, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CTEDialog } from './CTEDialog';
+import { ImportCTEDialog } from './ImportCTEDialog';
 import { format } from 'date-fns';
 
 interface CTE {
@@ -25,6 +26,7 @@ export function CTEManagement() {
   const [ctes, setCTEs] = useState<CTE[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -87,6 +89,10 @@ export function CTEManagement() {
                   onChange={e => setSearchTerm(e.target.value)}
                 />
               </div>
+              <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+                <Download className="mr-2 h-4 w-4" />
+                Importar da BrasilNFe
+              </Button>
               <Button onClick={() => setDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Novo CT-e
@@ -146,6 +152,12 @@ export function CTEManagement() {
       <CTEDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        onSuccess={loadCTEs}
+      />
+
+      <ImportCTEDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
         onSuccess={loadCTEs}
       />
     </>
