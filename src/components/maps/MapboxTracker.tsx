@@ -60,11 +60,24 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
         });
 
         if (error) throw error;
-        
-        if (data?.MAPBOX_PUBLIC_TOKEN) {
-          initializeMap(data.MAPBOX_PUBLIC_TOKEN);
+        let token = data?.MAPBOX_PUBLIC_TOKEN as string | undefined;
+
+        // Sanitizar casos onde o segredo foi salvo como JSON: { "token": "pk_..." }
+        if (token && token.trim().startsWith('{')) {
+          try {
+            const parsed = JSON.parse(token);
+            if (parsed && typeof parsed === 'object' && parsed.token) {
+              token = String(parsed.token);
+            }
+          } catch (_) {
+            // ignore JSON parse errors
+          }
+        }
+
+        if (token && /^pk\./.test(token)) {
+          initializeMap(token);
         } else {
-          toast.error('Token do Mapbox não configurado');
+          toast.error('Token do Mapbox inválido. Ele deve iniciar com "pk."');
         }
       } catch (error) {
         console.error('Erro ao buscar token do Mapbox:', error);
