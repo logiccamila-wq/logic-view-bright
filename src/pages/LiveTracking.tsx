@@ -4,204 +4,75 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Clock, 
   MapPin, 
-  AlertTriangle, 
   Truck, 
   CheckCircle,
   Search,
   Tv,
-  TrendingUp,
-  Fuel,
-  Package,
-  Scale,
-  DollarSign,
-  Navigation,
-  RefreshCw
+  RefreshCw,
+  Clock,
+  AlertTriangle
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { useVehicleTracking } from "@/hooks/useVehicleTracking";
 import { LiveMap } from "@/components/maps/LiveMap";
-import { MapNavigation } from "@/components/maps/MapNavigation";
-
-interface VehicleData {
-  id: string;
-  placa: string;
-  motorista: string;
-  status: 'Em Viagem' | 'Parado (Pausa)' | 'Em Atraso' | 'Na Garagem';
-  statusColor: 'green' | 'yellow' | 'red' | 'gray';
-  velocidade: number;
-  origem: string;
-  destino: string;
-  progresso: number;
-  posicao: { lat: number; lng: number };
-  
-  // Dados Operacionais
-  peso: number; // kg
-  cubagem: number; // m³
-  valorFrete: number;
-  distanciaTotal: number; // km
-  distanciaPercorrida: number; // km
-  
-  // Dados Preditivos ML
-  custoKmPreditivo: number;
-  riscoJornada: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
-  previsaoChegada: string;
-  consumoCombustivelPrevisto: number; // litros
-  custoTotalPrevisto: number;
-  
-  // Alertas
-  alertaPreditivo?: {
-    tipo: string;
-    mensagem: string;
-    acao: string;
-    severidade: 'info' | 'warning' | 'critical';
-  } | null;
-  
-  macros: Array<{ time: string; event: string }>;
-}
-
-const mockVehicles: VehicleData[] = [
-  {
-    id: '1',
-    placa: 'RST-1A23',
-    motorista: 'Carlos Pereira',
-    status: 'Em Viagem',
-    statusColor: 'green',
-    velocidade: 82,
-    origem: 'CDD Jaboatão dos Guararapes, PE',
-    destino: 'Cliente A - Recife, PE',
-    progresso: 75,
-    posicao: { lat: -8.1137, lng: -34.9005 },
-    peso: 8500,
-    cubagem: 42.5,
-    valorFrete: 1850.00,
-    distanciaTotal: 450,
-    distanciaPercorrida: 337,
-    custoKmPreditivo: 6.85,
-    riscoJornada: 'C',
-    previsaoChegada: '14:30',
-    consumoCombustivelPrevisto: 135,
-    custoTotalPrevisto: 3082.50,
-    alertaPreditivo: {
-      tipo: 'Atraso Operacional',
-      mensagem: 'Risco de 80% de atraso de 30min no Cliente A (histórico de descarga lento).',
-      acao: 'Notificar cliente sobre possível espera.',
-      severidade: 'warning'
-    },
-    macros: [
-      { time: '09:15', event: 'Início do Descarrego' },
-      { time: '08:02', event: 'Chegada ao Cliente' },
-      { time: '06:30', event: 'Início da Viagem' }
-    ]
-  },
-  {
-    id: '2',
-    placa: 'QWE-4B56',
-    motorista: 'Ana Julia Lima',
-    status: 'Parado (Pausa)',
-    statusColor: 'yellow',
-    velocidade: 0,
-    origem: 'CDD Jaboatão dos Guararapes, PE',
-    destino: 'Cliente B - Caruaru, PE',
-    progresso: 42,
-    posicao: { lat: -8.2833, lng: -35.9758 },
-    peso: 12300,
-    cubagem: 65.0,
-    valorFrete: 2450.00,
-    distanciaTotal: 580,
-    distanciaPercorrida: 244,
-    custoKmPreditivo: 7.10,
-    riscoJornada: 'B',
-    previsaoChegada: '16:15',
-    consumoCombustivelPrevisto: 174,
-    custoTotalPrevisto: 4118.00,
-    alertaPreditivo: null,
-    macros: [
-      { time: '12:05', event: 'Início de Pausa (Almoço)' },
-      { time: '08:15', event: 'Início da Viagem' }
-    ]
-  },
-  {
-    id: '3',
-    placa: 'XYZ-7C89',
-    motorista: 'Marcos Andrade',
-    status: 'Em Atraso',
-    statusColor: 'red',
-    velocidade: 65,
-    origem: 'CDD Jaboatão dos Guararapes, PE',
-    destino: 'Cliente C - João Pessoa, PB',
-    progresso: 30,
-    posicao: { lat: -7.1195, lng: -34.8450 },
-    peso: 15800,
-    cubagem: 78.5,
-    valorFrete: 3200.00,
-    distanciaTotal: 720,
-    distanciaPercorrida: 216,
-    custoKmPreditivo: 8.20,
-    riscoJornada: 'D',
-    previsaoChegada: '19:45',
-    consumoCombustivelPrevisto: 216,
-    custoTotalPrevisto: 5904.00,
-    alertaPreditivo: {
-      tipo: 'Risco (Sindicato/Fadiga)',
-      mensagem: 'Motorista se aproxima de 10h de jornada. Padrão de frenagem aumentou 15%. Risco de incidente.',
-      acao: 'Instruir parada obrigatória no Posto X (a 20km).',
-      severidade: 'critical'
-    },
-    macros: [
-      { time: '10:30', event: 'Parada Inesperada (Trânsito)' },
-      { time: '09:00', event: 'Início da Viagem' }
-    ]
-  }
-];
-
-// Helper functions
-const getStatusColor = (status: string): 'green' | 'yellow' | 'red' | 'gray' => {
-  switch (status) {
-    case 'em_transito': return 'green';
-    case 'parado': return 'yellow';
-    case 'atraso': return 'red';
-    default: return 'gray';
-  }
-};
-
-const getStatusDotClass = (color: 'green' | 'yellow' | 'red' | 'gray') => {
-  const colors = {
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-500',
-    red: 'bg-red-500',
-    gray: 'bg-gray-500'
-  };
-  return colors[color];
-};
 
 const LiveTracking = () => {
   const { vehicles: trackedVehicles, loading } = useVehicleTracking();
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isTvMode, setIsTvMode] = useState(false);
 
-  const filteredVehicles = trackedVehicles.filter(v =>
-    v.vehicle_plate.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar veículos baseado no termo de busca
+  const filteredVehicles = trackedVehicles.filter(
+    v => 
+      v.vehicle_plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.driver_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const selectedVehicle = trackedVehicles.find(v => v.id === selectedVehicleId);
+
+  // KPIs calculados
   const traveling = trackedVehicles.filter(v => v.status === 'em_transito').length;
   const paused = trackedVehicles.filter(v => v.status === 'parado').length;
-  const delayed = trackedVehicles.filter(v => v.status === 'atraso').length;
-  const completed = 0; // Will be calculated from completed trips
-
-  const selectedVehicle = selectedVehicleId 
-    ? trackedVehicles.find(v => v.id === selectedVehicleId)
-    : null;
+  const delayed = trackedVehicles.filter(v => v.status === 'atrasado').length;
+  const completed = trackedVehicles.filter(v => v.status === 'finalizado').length;
 
   useEffect(() => {
-    if (filteredVehicles.length > 0 && !selectedVehicleId) {
-      setSelectedVehicleId(filteredVehicles[0].id);
+    if (trackedVehicles.length > 0 && !selectedVehicleId) {
+      setSelectedVehicleId(trackedVehicles[0].id);
     }
-  }, [filteredVehicles, selectedVehicleId]);
+  }, [trackedVehicles, selectedVehicleId]);
+
+  const getStatusColor = (status: string): 'green' | 'yellow' | 'red' | 'gray' => {
+    switch (status) {
+      case 'em_transito': return 'green';
+      case 'parado': return 'yellow';
+      case 'atrasado': return 'red';
+      default: return 'gray';
+    }
+  };
+
+  const getStatusDotClass = (color: 'green' | 'yellow' | 'red' | 'gray') => {
+    const colors = {
+      green: 'bg-green-500',
+      yellow: 'bg-yellow-500',
+      red: 'bg-red-500',
+      gray: 'bg-gray-500',
+    };
+    return colors[color];
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      'em_transito': 'Em Viagem',
+      'parado': 'Parado (Pausa)',
+      'atrasado': 'Em Atraso',
+      'finalizado': 'Finalizado',
+      'garagem': 'Na Garagem'
+    };
+    return labels[status] || status;
+  };
 
   if (loading) {
     return (
@@ -258,7 +129,7 @@ const LiveTracking = () => {
                     </div>
                     <p className="text-sm text-muted-foreground">Motorista: {vehicle.driver_id}</p>
                     <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{vehicle.status}</span>
+                      <span className="text-muted-foreground">{getStatusLabel(vehicle.status)}</span>
                       <span className="font-medium">{vehicle.speed} km/h</span>
                     </div>
                   </div>
@@ -327,26 +198,31 @@ const LiveTracking = () => {
           </div>
 
           {/* Mapa */}
-          <div className="flex-1 relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border overflow-hidden">
+          <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex-1 overflow-hidden">
             <Button
-              onClick={() => setIsTvMode(!isTvMode)}
+              variant={isTvMode ? "default" : "secondary"}
+              size="sm"
               className="absolute top-4 right-4 z-10"
-              variant="outline"
+              onClick={() => setIsTvMode(!isTvMode)}
             >
-              <Tv className="mr-2 h-4 w-4" />
-              {isTvMode ? 'Modo Dashboard' : 'Modo TV'}
+              <Tv className="h-4 w-4 mr-2" />
+              {isTvMode ? 'Sair do Modo TV' : 'Modo TV'}
             </Button>
 
-            {/* Placeholder para Mapa - Será substituído por Google Maps ou Mapbox */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="h-32 w-32 text-gray-300 mx-auto mb-4" />
-                <p className="text-xl text-gray-500">Mapa Interativo</p>
-                <p className="text-sm text-gray-400 mt-2">Integração com Google Maps ou Mapbox</p>
-              </div>
-            </div>
-
-            {/* Vehicle markers will be shown on the LiveMap component */}
+            {/* LiveMap Component */}
+            <LiveMap 
+              vehicles={trackedVehicles.map(v => ({
+                id: v.id,
+                vehicle_plate: v.vehicle_plate,
+                latitude: v.latitude,
+                longitude: v.longitude,
+                speed: v.speed,
+                heading: v.heading,
+                status: v.status
+              }))} 
+              selectedVehicle={selectedVehicleId}
+              onVehicleClick={setSelectedVehicleId}
+            />
           </div>
         </main>
 
@@ -363,7 +239,7 @@ const LiveTracking = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-muted-foreground">Status</label>
-                  <p className="text-lg font-medium">{selectedVehicle.status}</p>
+                  <p className="text-lg font-medium">{getStatusLabel(selectedVehicle.status)}</p>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-muted-foreground">Velocidade</label>
