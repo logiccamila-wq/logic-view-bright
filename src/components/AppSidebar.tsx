@@ -25,6 +25,7 @@ import {
   DollarSign,
   FileText,
   Code2,
+  Sparkles,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -76,6 +77,7 @@ const modulesItems = [
   { title: "SCM", url: "/scm", icon: GitBranch, module: "scm" },
   { title: "CRM", url: "/crm", icon: UserCheck, module: "crm" },
   { title: "ERP", url: "/erp", icon: Building2, module: "erp" },
+  { title: "Innovation Lab", url: "/innovation", icon: Sparkles, module: "innovation" },
   { title: "Developer", url: "/developer", icon: Code2, module: "developer" },
 ];
 

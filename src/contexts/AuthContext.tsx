@@ -25,7 +25,7 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
   driver: ['dashboard', 'fleet', 'tms', 'driver'],
   finance: ['dashboard', 'erp', 'reports', 'control-tower', 'finance', 'documents'],
   operations: ['dashboard', 'operations', 'tms', 'fleet', 'control-tower', 'documents'],
-  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance', 'documents', 'developer'],
+  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance', 'documents', 'developer', 'innovation'],
   commercial: ['dashboard', 'tms', 'crm'],
   fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory', 'documents'],
   maintenance_assistant: ['dashboard', 'mechanic', 'inventory'],
