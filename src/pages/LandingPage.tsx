@@ -24,10 +24,13 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import optilogLogo from "@/assets/optilog-logo.png";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { canAccessModule } = useAuth();
 
   const metrics = [
     { value: "98%", label: "Redução de Custos", icon: DollarSign },
@@ -237,7 +240,7 @@ const LandingPage = () => {
             >
               <Card 
                 className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:border-blue-500/40 transition-all duration-300 cursor-pointer hover:scale-105"
-                onClick={() => navigate('/driver')}
+                onClick={() => canAccessModule('driver') ? navigate('/driver') : toast.error('Sem permissão para acessar o App Motorista')}
               >
                 <CardContent className="p-8">
                   <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
@@ -258,7 +261,7 @@ const LandingPage = () => {
                     ))}
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
+                  <Button onClick={() => canAccessModule('driver') ? navigate('/driver') : toast.error('Sem permissão para acessar o App Motorista')} className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
                     Acessar App
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
