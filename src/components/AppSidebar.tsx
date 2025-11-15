@@ -92,19 +92,19 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   
-  // Se for motorista, mostrar apenas App Motorista
-  const isDriver = hasRole('driver');
+  // Se for APENAS motorista (sem outras roles), mostrar apenas App Motorista
+  const isOnlyDriver = hasRole('driver') && !hasRole('admin') && !hasRole('logistics_manager') && !hasRole('operations') && !hasRole('finance') && !hasRole('commercial') && !hasRole('fleet_maintenance') && !hasRole('maintenance_assistant') && !hasRole('maintenance_manager');
   
   const driverItems = [
     { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
   ];
   
   // Filter items based on permissions
-  const filteredMainItems = isDriver 
+  const filteredMainItems = isOnlyDriver 
     ? driverItems.filter(item => canAccessModule(item.module))
     : mainItems.filter(item => canAccessModule(item.module));
-  const filteredManagementItems = isDriver ? [] : managementItems.filter(item => canAccessModule(item.module));
-  const filteredModulesItems = isDriver ? [] : modulesItems.filter(item => canAccessModule(item.module));
+  const filteredManagementItems = isOnlyDriver ? [] : managementItems.filter(item => canAccessModule(item.module));
+  const filteredModulesItems = isOnlyDriver ? [] : modulesItems.filter(item => canAccessModule(item.module));
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
