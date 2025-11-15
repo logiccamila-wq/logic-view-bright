@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useTomTom } from '@/hooks/useTomTom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -19,14 +19,13 @@ export function RouteMap({ points, routeGeometry }: RouteMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [apiKey, setApiKey] = useState<string>('');
+  const { getApiKey } = useTomTom();
 
   useEffect(() => {
     const fetchApiKey = async () => {
-      const { data } = await supabase.functions.invoke('get-secret', {
-        body: { name: 'OPENROUTESERVICE_API_KEY' }
-      });
-      if (data?.OPENROUTESERVICE_API_KEY) {
-        setApiKey(data.OPENROUTESERVICE_API_KEY);
+      const key = await getApiKey();
+      if (key) {
+        setApiKey(key);
       }
     };
     fetchApiKey();
@@ -39,11 +38,11 @@ export function RouteMap({ points, routeGeometry }: RouteMapProps) {
     if (!mapRef.current) {
       mapRef.current = L.map(mapContainerRef.current).setView([-23.5505, -46.6333], 13);
 
-      // Adicionar tiles do OpenRouteService
+      // Adicionar tiles do TomTom
       L.tileLayer(
-        `https://api.openrouteservice.org/mapsurfer/{z}/{x}/{y}.png?api_key=${apiKey}`,
+        `https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${apiKey}`,
         {
-          attribution: '&copy; <a href="https://openrouteservice.org">OpenRouteService</a>',
+          attribution: '&copy; <a href="https://www.tomtom.com">TomTom</a>',
           maxZoom: 18
         }
       ).addTo(mapRef.current);
