@@ -360,6 +360,108 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
           </>
         );
       
+      case 'fire_extinguisher':
+        return (
+          <>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label>Extintor Cabine - Validade</Label>
+                <Input
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Observações (Extintores 1 e 2)</Label>
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Ex: EXT 01: 30/05/2025, EXT 02: NA"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'ibama_ctf':
+      case 'ibama_aatipp':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Validade *</Label>
+                <Input
+                  required
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Número/Certificado</Label>
+                <Input
+                  value={formData.document_number}
+                  onChange={(e) => setFormData({ ...formData, document_number: e.target.value })}
+                  placeholder="Número do certificado IBAMA"
+                />
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'antt':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Número ANTT *</Label>
+                <Input
+                  required
+                  value={formData.document_number}
+                  onChange={(e) => setFormData({ ...formData, document_number: e.target.value })}
+                  placeholder="Ex: 054309677"
+                />
+              </div>
+              <div>
+                <Label>Data de Validade</Label>
+                <Input
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'opacity_test':
+      case 'noise_test':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Data do Teste</Label>
+                <Input
+                  type="date"
+                  value={formData.issue_date}
+                  onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Validade *</Label>
+                <Input
+                  required
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+            </div>
+          </>
+        );
+      
       default:
         return null;
     }
@@ -410,6 +512,12 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
                   <SelectItem value="civ">CIV</SelectItem>
                   <SelectItem value="cipp">CIPP</SelectItem>
                   <SelectItem value="tachograph">Tacógrafo</SelectItem>
+                  <SelectItem value="fire_extinguisher">Extintor</SelectItem>
+                  <SelectItem value="ibama_ctf">IBAMA CTF</SelectItem>
+                  <SelectItem value="ibama_aatipp">IBAMA AATIPP</SelectItem>
+                  <SelectItem value="antt">ANTT</SelectItem>
+                  <SelectItem value="opacity_test">Teste Opacidade</SelectItem>
+                  <SelectItem value="noise_test">Teste Ruído</SelectItem>
                   <SelectItem value="fine">Multa</SelectItem>
                   <SelectItem value="cnh">CNH</SelectItem>
                   <SelectItem value="crlv">CRLV</SelectItem>
