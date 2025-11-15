@@ -187,8 +187,8 @@ serve(async (req) => {
           .insert([{
             numero_cte: cteData.numero_cte,
             serie: '1',
-            tipo_cte: '0',
-            tipo_servico: '0',
+            tipo_cte: 'Normal',
+            tipo_servico: 'Normal',
             chave_acesso: cteData.chave_acesso,
             data_emissao: cteData.data_emissao,
             data_vencimento: cteData.data_vencimento,
@@ -362,12 +362,19 @@ function parseXML(xmlContent: string): CTEDataFromXML {
     );
   }
 
-  // Regex de placa BR (padrão antigo e Mercosul) como último recurso
+  // Regex de placa BR com word boundaries para evitar pegar números de CT-e
   if (!placaVeiculo) {
     const upper = xmlContent.toUpperCase();
-    const plateMatch = upper.match(/([A-Z]{3}-?[0-9][A-Z][0-9]{2}|[A-Z]{3}-?[0-9]{4})/);
-    if (plateMatch) {
-      placaVeiculo = sanitizePlate(plateMatch[1]);
+    // Buscar dentro de tags específicas de placa para evitar falsos positivos
+    const veicTracaoMatch = upper.match(/<(?:\w+:)?VEICTRACAO[^>]*>[\s\S]*?<(?:\w+:)?PLACA>([^<]+)<\/(?:\w+:)?PLACA>[\s\S]*?<\/(?:\w+:)?VEICTRACAO>/i);
+    if (veicTracaoMatch) {
+      placaVeiculo = sanitizePlate(veicTracaoMatch[1]);
+    } else {
+      // Fallback: buscar qualquer tag placa, mas validar formato rigorosamente
+      const anyPlateMatch = upper.match(/<(?:\w+:)?PLACA>([A-Z]{3}[0-9]{4}|[A-Z]{3}[0-9][A-Z][0-9]{2})<\/(?:\w+:)?PLACA>/i);
+      if (anyPlateMatch) {
+        placaVeiculo = sanitizePlate(anyPlateMatch[1]);
+      }
     }
   }
 
