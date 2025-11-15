@@ -2366,16 +2366,19 @@ export type Database = {
       }
       vehicle_documents: {
         Row: {
+          antt_expiry_date: string | null
+          antt_number: string | null
           cnh_category: string | null
           created_at: string
           created_by: string | null
           description: string | null
           document_category: string | null
           document_number: string | null
-          document_type: string
+          document_type: Database["public"]["Enums"]["document_type"]
           driver_cpf: string | null
           driver_name: string | null
           expiry_date: string | null
+          extinguisher_data: Json | null
           file_url: string | null
           id: string
           issue_date: string | null
@@ -2390,16 +2393,19 @@ export type Database = {
           year: number | null
         }
         Insert: {
+          antt_expiry_date?: string | null
+          antt_number?: string | null
           cnh_category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           document_category?: string | null
           document_number?: string | null
-          document_type: string
+          document_type: Database["public"]["Enums"]["document_type"]
           driver_cpf?: string | null
           driver_name?: string | null
           expiry_date?: string | null
+          extinguisher_data?: Json | null
           file_url?: string | null
           id?: string
           issue_date?: string | null
@@ -2414,16 +2420,19 @@ export type Database = {
           year?: number | null
         }
         Update: {
+          antt_expiry_date?: string | null
+          antt_number?: string | null
           cnh_category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           document_category?: string | null
           document_number?: string | null
-          document_type?: string
+          document_type?: Database["public"]["Enums"]["document_type"]
           driver_cpf?: string | null
           driver_name?: string | null
           expiry_date?: string | null
+          extinguisher_data?: Json | null
           file_url?: string | null
           id?: string
           issue_date?: string | null
@@ -2671,6 +2680,16 @@ export type Database = {
     }
     Functions: {
       calculate_client_financial_analysis: { Args: never; Returns: undefined }
+      check_expiring_documents: {
+        Args: never
+        Returns: {
+          days_until_expiry: number
+          document_type: string
+          expiry_date: string
+          status: string
+          vehicle_plate: string
+        }[]
+      }
       create_or_update_director: {
         Args: {
           user_email: string
@@ -2678,6 +2697,10 @@ export type Database = {
           user_password: string
         }
         Returns: string
+      }
+      generate_document_expiry_notifications: {
+        Args: never
+        Returns: undefined
       }
       get_user_roles: {
         Args: { _user_id: string }
@@ -2709,6 +2732,20 @@ export type Database = {
         | "auxiliar_manutencao"
         | "logistics_manager"
         | "maintenance_manager"
+      document_type:
+        | "chemical"
+        | "civ"
+        | "cipp"
+        | "tachograph"
+        | "fine"
+        | "cnh"
+        | "crlv"
+        | "fire_extinguisher"
+        | "ibama_ctf"
+        | "ibama_aatipp"
+        | "antt"
+        | "opacity_test"
+        | "noise_test"
       driver_activity_type:
         | "direcao"
         | "descanso"
@@ -2867,6 +2904,21 @@ export const Constants = {
         "auxiliar_manutencao",
         "logistics_manager",
         "maintenance_manager",
+      ],
+      document_type: [
+        "chemical",
+        "civ",
+        "cipp",
+        "tachograph",
+        "fine",
+        "cnh",
+        "crlv",
+        "fire_extinguisher",
+        "ibama_ctf",
+        "ibama_aatipp",
+        "antt",
+        "opacity_test",
+        "noise_test",
       ],
       driver_activity_type: [
         "direcao",
