@@ -104,8 +104,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
+        // Buscar roles do usuário para redirecionar corretamente
+        const { data: userRoles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id);
+        
+        const hasDriverRole = userRoles?.some(r => r.role === 'driver');
+        const hasOnlyDriverRole = userRoles?.length === 1 && hasDriverRole;
+        
         toast.success('Login realizado com sucesso!');
-        navigate('/dashboard');
+        
+        // Redirecionar motorista para app específico
+        if (hasOnlyDriverRole) {
+          navigate('/driver');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error: any) {
       console.error('Login error:', error);
