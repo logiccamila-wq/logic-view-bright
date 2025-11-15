@@ -158,9 +158,29 @@ const mockVehicles: VehicleData[] = [
   }
 ];
 
+// Helper functions
+const getStatusColor = (status: string): 'green' | 'yellow' | 'red' | 'gray' => {
+  switch (status) {
+    case 'em_transito': return 'green';
+    case 'parado': return 'yellow';
+    case 'atraso': return 'red';
+    default: return 'gray';
+  }
+};
+
+const getStatusDotClass = (color: 'green' | 'yellow' | 'red' | 'gray') => {
+  const colors = {
+    green: 'bg-green-500',
+    yellow: 'bg-yellow-500',
+    red: 'bg-red-500',
+    gray: 'bg-gray-500'
+  };
+  return colors[color];
+};
+
 const LiveTracking = () => {
   const { vehicles: trackedVehicles, loading } = useVehicleTracking();
-  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isTvMode, setIsTvMode] = useState(false);
 
@@ -171,16 +191,17 @@ const LiveTracking = () => {
   const traveling = trackedVehicles.filter(v => v.status === 'em_transito').length;
   const paused = trackedVehicles.filter(v => v.status === 'parado').length;
   const delayed = trackedVehicles.filter(v => v.status === 'atraso').length;
+  const completed = 0; // Will be calculated from completed trips
 
-  const selectedVehicleData = selectedVehicle 
-    ? trackedVehicles.find(v => v.id === selectedVehicle)
+  const selectedVehicle = selectedVehicleId 
+    ? trackedVehicles.find(v => v.id === selectedVehicleId)
     : null;
 
   useEffect(() => {
-    if (filteredVehicles.length > 0 && !selectedVehicle) {
-      setSelectedVehicle(filteredVehicles[0].id);
+    if (filteredVehicles.length > 0 && !selectedVehicleId) {
+      setSelectedVehicleId(filteredVehicles[0].id);
     }
-  }, [filteredVehicles]);
+  }, [filteredVehicles, selectedVehicleId]);
 
   if (loading) {
     return (
@@ -203,7 +224,7 @@ const LiveTracking = () => {
           <aside className="w-80 bg-card shadow-lg flex flex-col rounded-lg border">
             <div className="p-4 border-b flex items-center justify-between">
               <h2 className="text-xl font-bold">Frota Ativa</h2>
-              <Badge variant="secondary">{vehicles.length}</Badge>
+              <Badge variant="secondary">{trackedVehicles.length}</Badge>
             </div>
 
             <div className="p-4 border-b">
@@ -219,30 +240,30 @@ const LiveTracking = () => {
             </div>
 
             <nav className="flex-1 overflow-y-auto">
-              {filteredVehicles.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className={`p-4 border-b cursor-pointer transition-colors ${
-                    selectedVehicle?.id === vehicle.id ? 'bg-accent' : 'hover:bg-accent/50'
-                  }`}
-                  onClick={() => setSelectedVehicle(vehicle)}
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="font-bold text-sm">{vehicle.placa}</p>
-                    <div className="flex items-center gap-2">
-                      <Badge className={`text-xs ${getRiscoColor(vehicle.riscoJornada)} border`}>
-                        {vehicle.riscoJornada}
-                      </Badge>
-                      <span className={`w-2 h-2 rounded-full ${getStatusDotClass(vehicle.statusColor)}`} />
+              {filteredVehicles.map((vehicle) => {
+                const statusColor = getStatusColor(vehicle.status);
+                return (
+                  <div
+                    key={vehicle.id}
+                    className={`p-4 border-b cursor-pointer transition-colors ${
+                      selectedVehicleId === vehicle.id ? 'bg-accent' : 'hover:bg-accent/50'
+                    }`}
+                    onClick={() => setSelectedVehicleId(vehicle.id)}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-bold text-sm">{vehicle.vehicle_plate}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${getStatusDotClass(statusColor)}`} />
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Motorista: {vehicle.driver_id}</p>
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">{vehicle.status}</span>
+                      <span className="font-medium">{vehicle.speed} km/h</span>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{vehicle.motorista}</p>
-                  <div className="mt-2 flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{vehicle.status}</span>
-                    <span className="font-medium">{vehicle.velocidade} km/h</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </nav>
 
             <div className="p-4 border-t text-xs text-muted-foreground">
@@ -325,25 +346,7 @@ const LiveTracking = () => {
               </div>
             </div>
 
-            {/* Marcadores de Veículos */}
-            {filteredVehicles
-              .filter(v => v.status !== 'Na Garagem')
-              .map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className={`absolute p-2 rounded-full shadow-lg cursor-pointer transition-transform ${getStatusDotClass(vehicle.statusColor)} ${
-                    selectedVehicle?.id === vehicle.id ? 'scale-125 z-20' : 'scale-100 z-10'
-                  }`}
-                  style={{ 
-                    top: `${35 + Math.random() * 30}%`, 
-                    left: `${30 + Math.random() * 40}%` 
-                  }}
-                  onClick={() => setSelectedVehicle(vehicle)}
-                  title={`${vehicle.placa} - ${vehicle.motorista}`}
-                >
-                  <Truck className="text-white h-5 w-5" style={{ transform: 'rotate(270deg)' }} />
-                </div>
-              ))}
+            {/* Vehicle markers will be shown on the LiveMap component */}
           </div>
         </main>
 
@@ -351,25 +354,11 @@ const LiveTracking = () => {
         {!isTvMode && selectedVehicle && (
           <aside className="w-96 bg-card shadow-lg flex flex-col rounded-lg border">
             <div className="p-4 border-b">
-              <h3 className="text-xl font-bold">{selectedVehicle.placa}</h3>
-              <p className="text-sm text-muted-foreground">{selectedVehicle.motorista}</p>
+              <h3 className="text-xl font-bold">{selectedVehicle.vehicle_plate}</h3>
+              <p className="text-sm text-muted-foreground">Motorista: {selectedVehicle.driver_id}</p>
             </div>
 
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
-              {/* Alerta Preditivo */}
-              {selectedVehicle.alertaPreditivo && (
-                <div className={`p-3 border-l-4 rounded-r-lg ${getAlertColor(selectedVehicle.alertaPreditivo.severidade)}`}>
-                  <div className="flex items-center mb-2">
-                    <AlertTriangle className="h-5 w-5 mr-2" />
-                    <h4 className="font-bold text-sm">{selectedVehicle.alertaPreditivo.tipo}</h4>
-                  </div>
-                  <p className="text-sm mb-2">{selectedVehicle.alertaPreditivo.mensagem}</p>
-                  <p className="text-sm font-semibold">
-                    Ação: <span className="font-normal">{selectedVehicle.alertaPreditivo.acao}</span>
-                  </p>
-                </div>
-              )}
-
               {/* Status e Velocidade */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -378,126 +367,47 @@ const LiveTracking = () => {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-muted-foreground">Velocidade</label>
-                  <p className="text-lg font-medium">{selectedVehicle.velocidade} km/h</p>
+                  <p className="text-lg font-medium">{selectedVehicle.speed} km/h</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground">Direção</label>
+                  <p className="text-lg font-medium">{selectedVehicle.heading}°</p>
                 </div>
               </div>
 
-              {/* Dados Operacionais */}
+              {/* Localização */}
               <Card className="bg-muted/30">
                 <CardContent className="p-3 space-y-2">
-                  <h4 className="font-semibold text-sm mb-2">Dados da Carga</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <h4 className="font-semibold text-sm mb-2">Localização</h4>
+                  <div className="text-sm space-y-1">
                     <div className="flex items-center gap-2">
-                      <Scale className="h-4 w-4 text-muted-foreground" />
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Peso</p>
-                        <p className="font-medium">{selectedVehicle.peso.toLocaleString('pt-BR')} kg</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">Cubagem</p>
-                        <p className="font-medium">{selectedVehicle.cubagem} m³</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">Valor Frete</p>
-                        <p className="font-medium">R$ {selectedVehicle.valorFrete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        <p className="text-xs text-muted-foreground">Latitude</p>
+                        <p className="font-medium">{selectedVehicle.latitude.toFixed(6)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Distância</p>
-                        <p className="font-medium">{selectedVehicle.distanciaPercorrida}/{selectedVehicle.distanciaTotal} km</p>
+                        <p className="text-xs text-muted-foreground">Longitude</p>
+                        <p className="font-medium">{selectedVehicle.longitude.toFixed(6)}</p>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Dados Preditivos ML */}
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="p-3 space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm">Análise Preditiva (ML)</h4>
-                    <Badge className={getRiscoColor(selectedVehicle.riscoJornada)}>
-                      Risco: {selectedVehicle.riscoJornada}
-                    </Badge>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Custo/km</p>
-                      <p className="text-lg font-bold text-blue-700">R$ {selectedVehicle.custoKmPreditivo.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Previsão Chegada</p>
-                      <p className="text-lg font-bold text-blue-700">{selectedVehicle.previsaoChegada}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Consumo Previsto</p>
-                      <p className="font-medium">{selectedVehicle.consumoCombustivelPrevisto}L</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Custo Total</p>
-                      <p className="font-medium">R$ {selectedVehicle.custoTotalPrevisto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <hr />
-
-              {/* Origem e Destino */}
-              <div className="space-y-3">
+              {selectedVehicle.trip_id && (
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground">Origem</label>
-                  <p className="text-sm">{selectedVehicle.origem}</p>
+                  <label className="text-xs font-semibold text-muted-foreground">Viagem</label>
+                  <p className="text-sm font-mono">{selectedVehicle.trip_id}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground">Destino</label>
-                  <p className="text-sm">{selectedVehicle.destino}</p>
-                </div>
+              )}
 
-                <Button 
-                  onClick={() => openGoogleMaps(selectedVehicle)}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <Navigation className="mr-2 h-4 w-4" />
-                  Abrir no Google Maps
-                </Button>
-              </div>
-
-              {/* Progresso */}
               <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1 block">
-                  Progresso da Viagem
-                </label>
-                <div className="w-full bg-secondary rounded-full h-2.5">
-                  <div 
-                    className="bg-primary h-2.5 rounded-full transition-all" 
-                    style={{ width: `${selectedVehicle.progresso}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{selectedVehicle.progresso}%</p>
-              </div>
-            </div>
-
-            {/* Macros */}
-            <div className="p-4 border-t bg-muted/30">
-              <h4 className="text-sm font-semibold mb-3">Últimas Macros</h4>
-              <div className="space-y-2">
-                {selectedVehicle.macros.map((macro, index) => (
-                  <div key={index} className="flex justify-between items-center p-2 rounded-md bg-background">
-                    <span className="text-sm">{macro.event}</span>
-                    <span className="text-xs text-muted-foreground">{macro.time}</span>
-                  </div>
-                ))}
+                <label className="text-xs font-semibold text-muted-foreground">Última atualização</label>
+                <p className="text-sm">{new Date(selectedVehicle.timestamp).toLocaleString('pt-BR')}</p>
               </div>
             </div>
           </aside>
