@@ -59,6 +59,7 @@ const App = () => (
             <Route path="/fleet" element={<ProtectedRoute module="fleet"><Fleet /></ProtectedRoute>} />
             <Route path="/mechanic" element={<ProtectedRoute module="mechanic"><Mechanic /></ProtectedRoute>} />
           <Route path="/driver" element={<ProtectedRoute module="driver"><DriverApp /></ProtectedRoute>} />
+          <Route path="/driver-app" element={<ProtectedRoute module="driver"><DriverApp /></ProtectedRoute>} />
           <Route path="/driver-old" element={<ProtectedRoute module="driver"><Driver /></ProtectedRoute>} />
             <Route path="/driver-journey" element={<ProtectedRoute module="driver"><DriverJourney /></ProtectedRoute>} />
             <Route path="/journey-management" element={<ProtectedRoute module="fleet"><JourneyManagement /></ProtectedRoute>} />
