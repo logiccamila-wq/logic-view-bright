@@ -27,6 +27,7 @@ import Approvals from "./pages/Approvals";
 import ControlTower from "./pages/ControlTower";
 import Documents from "./pages/Documents";
 import Developer from "./pages/Developer";
+import InnovationLab from "./pages/InnovationLab";
 import Inventory from "./pages/Inventory";
 import WMS from "./pages/WMS";
 import TMS from "./pages/TMS";
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="/cost-monitoring" element={<ProtectedRoute module="finance"><CostMonitoring /></ProtectedRoute>} />
             <Route path="/documents" element={<ProtectedRoute module="documents"><Documents /></ProtectedRoute>} />
             <Route path="/developer" element={<ProtectedRoute module="developer"><Developer /></ProtectedRoute>} />
+            <Route path="/innovation" element={<ProtectedRoute module="innovation"><InnovationLab /></ProtectedRoute>} />
             <Route path="/import-vehicles" element={<ProtectedRoute module="fleet"><ImportVehicles /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
