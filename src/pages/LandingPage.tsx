@@ -20,6 +20,7 @@ import {
   Clock,
   Award,
   Star,
+  Wrench,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -203,6 +204,105 @@ const LandingPage = () => {
               })}
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Quick Access Portals */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-center mb-12"
+          >
+            <Badge className="mb-4" variant="outline">
+              <Zap className="w-3 h-3 mr-1" />
+              Acesso Rápido
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Portais Especializados
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Acesse diretamente os módulos específicos para sua função
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Card App Motorista */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card 
+                className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:border-blue-500/40 transition-all duration-300 cursor-pointer hover:scale-105"
+                onClick={() => navigate('/driver')}
+              >
+                <CardContent className="p-8">
+                  <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                    <Truck className="w-8 h-8 text-white" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold mb-3">App Motorista</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Gerencie viagens, check-lists e ganhos em tempo real
+                  </p>
+                  
+                  <div className="space-y-2 mb-6">
+                    {['Check-in/Check-out', 'Rotas Otimizadas', 'Controle Financeiro', 'Alertas Inteligentes'].map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="w-4 h-4 text-blue-500" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
+                    Acessar App
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Card Hub Mecânico */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card 
+                className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 hover:border-purple-500/40 transition-all duration-300 cursor-pointer hover:scale-105"
+                onClick={() => navigate('/mechanic')}
+              >
+                <CardContent className="p-8">
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                    <Wrench className="w-8 h-8 text-white" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold mb-3">Hub Mecânico</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Controle ordens de serviço, manutenções e TPMS
+                  </p>
+                  
+                  <div className="space-y-2 mb-6">
+                    {['Ordens de Serviço', 'Manutenção Preventiva', 'Controle de Pneus', 'Análise de Custos'].map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="w-4 h-4 text-purple-500" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                    Acessar Hub
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
       </section>
 
