@@ -381,10 +381,10 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
               
               <div className="mt-6 space-y-2 text-left max-w-md mx-auto">
                 <p className="text-xs text-muted-foreground font-semibold">
-                  ⚠️ Requisito:
+                  ⚠️ Importação sem placa:
                 </p>
                 <p className="text-xs text-muted-foreground ml-4">
-                  • As placas dos veículos nos XMLs devem estar cadastradas no sistema
+                  • Se o XML não trouxer placa válida, será usado 'SEM-PLACA' e você define a placa no Manifesto depois
                 </p>
                 
                 <p className="text-xs text-success font-semibold mt-4">
@@ -395,6 +395,9 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
                 </p>
                 <p className="text-xs text-success ml-4">
                   • Criação de contas a receber
+                </p>
+                <p className="text-xs text-success ml-4">
+                  • Criação automática do veículo "SEM-PLACA" quando necessário
                 </p>
                 <p className="text-xs text-success ml-4">
                   • Atualização de indicadores financeiros
