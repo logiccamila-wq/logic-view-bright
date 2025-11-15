@@ -14,20 +14,7 @@ interface UserData {
 }
 
 const USERS_TO_SEED: UserData[] = [
-  // Motoristas
-  { email: 'motorista.jailson@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Jailson - Motorista' },
-  { email: 'motorista.rivanio@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Rivanio - Motorista' },
-  { email: 'motorista.enio@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Enio - Motorista' },
-  { email: 'motorista.ednaldo@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Ednaldo - Motorista' },
-  { email: 'motorista.nilton@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Nilton - Motorista' },
-  { email: 'motorista.marcio@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Márcio - Motorista' },
-  { email: 'motorista.joseantonio@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'José Antonio - Motorista' },
-  { email: 'motorista.ruan@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Ruan - Motorista' },
-  { email: 'motorista.geisiel@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Geisiel - Motorista' },
-  { email: 'motorista.danilo@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Danilo - Motorista' },
-  { email: 'motorista.messias@ejgtransporte.com.br', password: 'motorista123', role: 'driver', full_name: 'Messias - Motorista' },
-  
-  // Diretores e Gestores
+  // Gestores
   { email: 'jailson.barros@ejgtransporte.com.br', password: 'financeiro123', role: 'finance', full_name: 'Jailson Barros - Financeiro' },
   { email: 'enio.gomes@ejgtransportecom.br', password: 'operacional123', role: 'operations', full_name: 'Enio Gomes - Operações' },
   { email: 'administrati@ejgtransporte.com.br', password: 'adm123456', role: 'admin', full_name: 'Gerente Geral' },
@@ -35,7 +22,7 @@ const USERS_TO_SEED: UserData[] = [
   { email: 'frota@ejgtransporte.com.br', password: 'frota123', role: 'fleet_maintenance', full_name: 'Frota/Manutenção' },
   { email: 'miguellareste37@gmail.com', password: 'auxiliar123', role: 'maintenance_assistant', full_name: 'Miguel - Auxiliar' },
   
-  // Admins
+  // Admins e testes
   { email: 'logiccamila@gmail.com', password: 'Multi12345678', role: 'admin', full_name: 'Camila - Admin' },
   { email: 'camila.eteste@gmail.com', password: 'Multi@#$%362748', role: 'admin', full_name: 'Camila Teste' },
   { email: 'camila.etseral@gmail.com', password: 'Multi@#$%362748', role: 'admin', full_name: 'Camila Etseral' },
