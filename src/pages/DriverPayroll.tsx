@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Banknote, TrendingUp, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
+import { Layout } from "@/components/Layout";
 
 interface Gratification {
   id: string;
@@ -75,10 +77,16 @@ export default function DriverPayroll() {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Minhas Gratificações</h1>
-      </div>
+    <Layout>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Folha de Pagamento & Ponto</h1>
+        </div>
+
+        {/* Painel de Ponto */}
+        <WorkSessionPanel />
+        
+        <h2 className="text-2xl font-semibold mt-8">Minhas Gratificações</h2>
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -208,6 +216,7 @@ export default function DriverPayroll() {
           </p>
         </div>
       </Card>
-    </div>
+      </div>
+    </Layout>
   );
 }
