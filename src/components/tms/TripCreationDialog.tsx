@@ -171,8 +171,23 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
           tipo_motorista: 'carga'
         });
 
+      // Criar notificação para o motorista
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: selectedDriver,
+          title: '🚚 Nova Viagem Atribuída!',
+          message: `Viagem: ${cte.remetente_cidade}/${cte.remetente_uf} → ${cte.destinatario_cidade}/${cte.destinatario_uf}\n` +
+                   `Veículo: ${selectedVehicle}${selectedCarreta && selectedCarreta !== 'none' ? ` + Carreta ${selectedCarreta}` : ''}\n` +
+                   `Partida: ${new Date(estimatedDeparture).toLocaleString('pt-BR')}\n` +
+                   `CT-e: ${cte.numero_cte} - ${cte.produto_predominante}`,
+          type: 'info',
+          module: 'tms',
+          read: false
+        });
+
       toast.success('Viagem criada com sucesso!', {
-        description: 'O motorista já pode visualizar a viagem no app.'
+        description: 'O motorista recebeu uma notificação com os detalhes da viagem.'
       });
 
       onTripCreated();
