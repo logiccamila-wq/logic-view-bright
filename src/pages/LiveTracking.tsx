@@ -16,11 +16,15 @@ import {
   Package,
   Scale,
   DollarSign,
-  Navigation
+  Navigation,
+  RefreshCw
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useVehicleTracking } from "@/hooks/useVehicleTracking";
+import { LiveMap } from "@/components/maps/LiveMap";
+import { MapNavigation } from "@/components/maps/MapNavigation";
 
 interface VehicleData {
   id: string;
@@ -155,64 +159,41 @@ const mockVehicles: VehicleData[] = [
 ];
 
 const LiveTracking = () => {
-  const [vehicles, setVehicles] = useState<VehicleData[]>(mockVehicles);
-  const [selectedVehicle, setSelectedVehicle] = useState<VehicleData | null>(null);
+  const { vehicles: trackedVehicles, loading } = useVehicleTracking();
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isTvMode, setIsTvMode] = useState(false);
 
-  const filteredVehicles = vehicles.filter(v =>
-    v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.motorista.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = trackedVehicles.filter(v =>
+    v.vehicle_plate.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const traveling = vehicles.filter(v => v.status === 'Em Viagem').length;
-  const paused = vehicles.filter(v => v.status === 'Parado (Pausa)').length;
-  const delayed = vehicles.filter(v => v.status === 'Em Atraso').length;
-  const completed = 42;
+  const traveling = trackedVehicles.filter(v => v.status === 'em_transito').length;
+  const paused = trackedVehicles.filter(v => v.status === 'parado').length;
+  const delayed = trackedVehicles.filter(v => v.status === 'atraso').length;
 
-  const getStatusDotClass = (color: string) => {
-    const colors = {
-      green: 'bg-green-500',
-      yellow: 'bg-yellow-500',
-      red: 'bg-red-500',
-      gray: 'bg-gray-400'
-    };
-    return colors[color as keyof typeof colors] || 'bg-gray-400';
-  };
-
-  const getRiscoColor = (risco: string) => {
-    const riskMap: Record<string, string> = {
-      'A+': 'bg-green-100 text-green-800 border-green-300',
-      'A': 'bg-green-100 text-green-800 border-green-300',
-      'B': 'bg-blue-100 text-blue-800 border-blue-300',
-      'C': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      'D': 'bg-orange-100 text-orange-800 border-orange-300',
-      'F': 'bg-red-100 text-red-800 border-red-300'
-    };
-    return riskMap[risco] || 'bg-gray-100 text-gray-800 border-gray-300';
-  };
-
-  const getAlertColor = (severidade?: 'info' | 'warning' | 'critical') => {
-    if (!severidade) return '';
-    const colors = {
-      info: 'border-blue-500 bg-blue-50',
-      warning: 'border-yellow-500 bg-yellow-50',
-      critical: 'border-red-500 bg-red-50'
-    };
-    return colors[severidade];
-  };
-
-  const openGoogleMaps = (vehicle: VehicleData) => {
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${vehicle.posicao.lat},${vehicle.posicao.lng}&destination=${encodeURIComponent(vehicle.destino)}`;
-    window.open(url, '_blank');
-    toast.success('Abrindo Google Maps...');
-  };
+  const selectedVehicleData = selectedVehicle 
+    ? trackedVehicles.find(v => v.id === selectedVehicle)
+    : null;
 
   useEffect(() => {
     if (filteredVehicles.length > 0 && !selectedVehicle) {
-      setSelectedVehicle(filteredVehicles[0]);
+      setSelectedVehicle(filteredVehicles[0].id);
     }
-  }, []);
+  }, [filteredVehicles]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+          <div className="flex flex-col items-center gap-4">
+            <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Carregando rastreamento...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

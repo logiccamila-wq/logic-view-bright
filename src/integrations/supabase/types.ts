@@ -2316,6 +2316,56 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_tracking: {
+        Row: {
+          created_at: string | null
+          driver_id: string | null
+          heading: number | null
+          id: string
+          latitude: number
+          longitude: number
+          speed: number | null
+          status: string | null
+          timestamp: string | null
+          trip_id: string | null
+          vehicle_plate: string
+        }
+        Insert: {
+          created_at?: string | null
+          driver_id?: string | null
+          heading?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          speed?: number | null
+          status?: string | null
+          timestamp?: string | null
+          trip_id?: string | null
+          vehicle_plate: string
+        }
+        Update: {
+          created_at?: string | null
+          driver_id?: string | null
+          heading?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          speed?: number | null
+          status?: string | null
+          timestamp?: string | null
+          trip_id?: string | null
+          vehicle_plate?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_tracking_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           ano: number | null
