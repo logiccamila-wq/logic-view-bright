@@ -146,6 +146,28 @@ serve(async (req) => {
           }
         }
 
+        // Se não foi possível extrair placa, usar 'SEM-PLACA' como padrão
+        if (!finalPlate) {
+          finalPlate = 'SEM-PLACA';
+          const { data: genericVehicle2 } = await supabaseClient
+            .from('vehicles')
+            .select('placa')
+            .eq('placa', 'SEM-PLACA')
+            .maybeSingle();
+          if (!genericVehicle2) {
+            await supabaseClient
+              .from('vehicles')
+              .insert({
+                placa: 'SEM-PLACA',
+                tipo: 'caminhao',
+                status: 'ativo',
+                modelo: 'Veículo não identificado',
+                ano: new Date().getFullYear()
+              });
+            results.vehicles_created++;
+          }
+        }
+
         // Verificar se cliente existe, senão criar
         const { data: existingClient } = await supabaseClient
           .from('clients')
@@ -187,8 +209,8 @@ serve(async (req) => {
           .insert([{
             numero_cte: cteData.numero_cte,
             serie: '1',
-            tipo_cte: 'Normal',
-            tipo_servico: 'Normal',
+            tipo_cte: 'normal',
+            tipo_servico: 'normal',
             chave_acesso: cteData.chave_acesso,
             data_emissao: cteData.data_emissao,
             data_vencimento: cteData.data_vencimento,
