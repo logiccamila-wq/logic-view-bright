@@ -43,7 +43,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 
 const mainItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
   { title: "Torre de Controle", url: "/control-tower", icon: TowerControl, module: "control-tower" },
   { title: "Rastreamento ao Vivo", url: "/live-tracking", icon: MapPin, module: "fleet" },
   { title: "Gestão de Frota", url: "/fleet", icon: Truck, module: "fleet" },
@@ -85,11 +84,10 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   
-  // Se for motorista, mostrar apenas Dashboard e App Motorista
+  // Se for motorista, mostrar apenas App Motorista
   const isDriver = hasRole('driver');
   
   const driverItems = [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
     { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
   ];
   
