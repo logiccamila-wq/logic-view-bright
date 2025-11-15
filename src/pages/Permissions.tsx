@@ -9,11 +9,11 @@ type AppRole = 'admin' | 'driver' | 'finance' | 'operations' | 'commercial' | 'f
 
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
   driver: ['dashboard', 'fleet', 'tms', 'driver'],
-  finance: ['dashboard', 'erp', 'reports', 'control-tower', 'finance', 'documents'],
-  operations: ['dashboard', 'operations', 'tms', 'fleet', 'control-tower', 'documents'],
+  finance: ['dashboard', 'erp', 'reports', 'approvals', 'control-tower', 'finance', 'documents'],
+  operations: ['dashboard', 'operations', 'tms', 'fleet', 'approvals', 'control-tower', 'documents'],
   admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance', 'documents', 'developer', 'innovation'],
   commercial: ['dashboard', 'tms', 'crm'],
-  fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory', 'documents'],
+  fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory', 'documents', 'approvals'],
   maintenance_assistant: ['dashboard', 'mechanic', 'inventory'],
   logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower', 'finance', 'documents'],
   maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports', 'control-tower', 'inventory', 'documents'],
