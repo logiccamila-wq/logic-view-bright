@@ -65,6 +65,18 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
     initializeMap(tokenInput);
   };
 
+  const handleClearToken = () => {
+    localStorage.removeItem('mapbox_token');
+    setMapboxToken('');
+    setTokenInput('');
+    setMapReady(false);
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+    }
+    toast.info('Token removido. Configure novamente.');
+  };
+
   useEffect(() => {
     const savedToken = localStorage.getItem('mapbox_token');
     if (savedToken) {
@@ -186,6 +198,14 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
           <p className="text-muted-foreground">Carregando mapa...</p>
         </div>
       )}
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={handleClearToken}
+        className="absolute top-4 right-4 z-10"
+      >
+        Reconfigurar Token
+      </Button>
     </div>
   );
 }
