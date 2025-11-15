@@ -16,7 +16,8 @@ import {
   Receipt,
   ClipboardCheck,
   Bell,
-  MessageSquare
+  MessageSquare,
+  TrendingUp
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +30,9 @@ import { FuelExpenseDialog } from "@/components/driver/FuelExpenseDialog";
 import { TripExpenseDialog } from "@/components/driver/TripExpenseDialog";
 import { DriverChecklist } from "@/components/driver/DriverChecklist";
 import { TripAlerts } from "@/components/driver/TripAlerts";
+import { DriverPerformance } from "@/components/driver/DriverPerformance";
+import { DriverPayrollHistory } from "@/components/driver/DriverPayrollHistory";
+import { DriverRouteFinancial } from "@/components/driver/DriverRouteFinancial";
 import GaelChatbot from "@/components/GaelChatbot";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -190,7 +194,7 @@ export default function DriverApp() {
 
         {/* Tabs Mobile-optimized */}
         <Tabs defaultValue="jornada" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 h-auto gap-1">
             <TabsTrigger value="jornada" className="text-xs py-2">
               <Clock className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Jornada</span>
@@ -199,12 +203,24 @@ export default function DriverApp() {
               <Wallet className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Gratificação</span>
             </TabsTrigger>
+            <TabsTrigger value="desempenho" className="text-xs py-2">
+              <Clock className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Desempenho</span>
+            </TabsTrigger>
+            <TabsTrigger value="historico" className="text-xs py-2">
+              <Receipt className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Histórico</span>
+            </TabsTrigger>
+            <TabsTrigger value="rotas" className="text-xs py-2">
+              <MapPin className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Rotas</span>
+            </TabsTrigger>
             <TabsTrigger value="diarias" className="text-xs py-2">
               <Calendar className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Diárias</span>
             </TabsTrigger>
             <TabsTrigger value="despesas" className="text-xs py-2">
-              <Receipt className="w-4 h-4 mr-1" />
+              <Fuel className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Despesas</span>
             </TabsTrigger>
             <TabsTrigger value="checklist" className="text-xs py-2">
@@ -226,6 +242,21 @@ export default function DriverApp() {
           {/* Aba Gratificação */}
           <TabsContent value="gratificacao" className="space-y-4 mt-4">
             <DriverEarnings />
+          </TabsContent>
+
+          {/* Aba Desempenho */}
+          <TabsContent value="desempenho" className="space-y-4 mt-4">
+            <DriverPerformance />
+          </TabsContent>
+
+          {/* Aba Histórico */}
+          <TabsContent value="historico" className="space-y-4 mt-4">
+            <DriverPayrollHistory />
+          </TabsContent>
+
+          {/* Aba Rotas */}
+          <TabsContent value="rotas" className="space-y-4 mt-4">
+            <DriverRouteFinancial />
           </TabsContent>
 
           {/* Aba Diárias */}
