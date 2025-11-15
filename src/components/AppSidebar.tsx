@@ -79,16 +79,26 @@ const modulesItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { canAccessModule, signOut, user } = useAuth();
+  const { canAccessModule, signOut, user, hasRole } = useAuth();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
   const isActive = (path: string) => currentPath === path;
   
+  // Se for motorista, mostrar apenas Dashboard e App Motorista
+  const isDriver = hasRole('driver');
+  
+  const driverItems = [
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
+    { title: "App Motorista", url: "/driver", icon: User, module: "driver" },
+  ];
+  
   // Filter items based on permissions
-  const filteredMainItems = mainItems.filter(item => canAccessModule(item.module));
-  const filteredManagementItems = managementItems.filter(item => canAccessModule(item.module));
-  const filteredModulesItems = modulesItems.filter(item => canAccessModule(item.module));
+  const filteredMainItems = isDriver 
+    ? driverItems.filter(item => canAccessModule(item.module))
+    : mainItems.filter(item => canAccessModule(item.module));
+  const filteredManagementItems = isDriver ? [] : managementItems.filter(item => canAccessModule(item.module));
+  const filteredModulesItems = isDriver ? [] : modulesItems.filter(item => canAccessModule(item.module));
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
