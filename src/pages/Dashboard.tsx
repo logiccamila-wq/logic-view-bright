@@ -1,11 +1,17 @@
 import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Truck, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Truck, AlertCircle, CheckCircle, Clock, ArrowRight, Wrench } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { canAccessModule } = useAuth();
 
   // Buscar veículos ativos
   const { data: vehicles = [] } = useQuery({
@@ -67,6 +73,61 @@ const Dashboard = () => {
             value="1.2k" 
             icon={Clock}
           />
+        </div>
+
+        {/* Acesso Rápido aos Principais Módulos */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Card App Motorista */}
+          <Card 
+            className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:border-blue-500/40 transition-all duration-300 cursor-pointer group"
+            onClick={() => canAccessModule('driver') ? navigate('/driver') : toast.error('Sem permissão para acessar o App Motorista')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-12 h-12 rounded-lg flex items-center justify-center">
+                  <Truck className="w-6 h-6 text-white" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              <h3 className="text-xl font-bold mb-2">App Motorista</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Gerencie viagens, check-lists e ganhos em tempo real
+              </p>
+              
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400">Check-in/out</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400">Rotas</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400">Financeiro</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card Hub Mecânico */}
+          <Card 
+            className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 hover:border-purple-500/40 transition-all duration-300 cursor-pointer group"
+            onClick={() => canAccessModule('mechanic') ? navigate('/mechanic') : toast.error('Sem permissão para acessar o Hub Mecânico')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-gradient-to-br from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center">
+                  <Wrench className="w-6 h-6 text-white" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-purple-500 group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              <h3 className="text-xl font-bold mb-2">Hub Mecânico</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Controle ordens de serviço, manutenções e TPMS
+              </p>
+              
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400">O.S.</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400">Manutenção</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400">Pneus</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Mapa de Rastreamento - Temporariamente Desabilitado */}
