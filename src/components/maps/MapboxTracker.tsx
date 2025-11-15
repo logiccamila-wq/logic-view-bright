@@ -90,11 +90,16 @@ export function MapboxTracker({ vehicles }: MapboxTrackerProps) {
     fetchMapboxToken();
 
     return () => {
-      if (map.current) {
-        map.current.remove();
+      if (map.current && mapReady) {
+        try {
+          map.current.remove();
+          map.current = null;
+        } catch (error) {
+          console.error('Erro ao remover mapa:', error);
+        }
       }
     };
-  }, []);
+  }, [mapReady]);
 
   useEffect(() => {
     if (!map.current || !mapReady) return;
