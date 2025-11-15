@@ -1588,6 +1588,54 @@ export type Database = {
         }
         Relationships: []
       }
+      parts_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          mechanic_id: string
+          mechanic_name: string
+          notes: string | null
+          parts_list: Json
+          service_order_id: string | null
+          status: string
+          updated_at: string
+          urgency: string
+          vehicle_plate: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          mechanic_id: string
+          mechanic_name: string
+          notes?: string | null
+          parts_list?: Json
+          service_order_id?: string | null
+          status?: string
+          updated_at?: string
+          urgency?: string
+          vehicle_plate?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          mechanic_id?: string
+          mechanic_name?: string
+          notes?: string | null
+          parts_list?: Json
+          service_order_id?: string | null
+          status?: string
+          updated_at?: string
+          urgency?: string
+          vehicle_plate?: string | null
+        }
+        Relationships: []
+      }
       payment_alerts: {
         Row: {
           alert_type: string
@@ -2399,6 +2447,48 @@ export type Database = {
           status?: string | null
           tipo?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      workshop_area: {
+        Row: {
+          address: string | null
+          area_m2: number | null
+          boundary_coords: Json | null
+          center_lat: number
+          center_lon: number
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          radius_meters: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          area_m2?: number | null
+          boundary_coords?: Json | null
+          center_lat: number
+          center_lon: number
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          radius_meters?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          area_m2?: number | null
+          boundary_coords?: Json | null
+          center_lat?: number
+          center_lon?: number
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          radius_meters?: number
+          updated_at?: string
         }
         Relationships: []
       }
