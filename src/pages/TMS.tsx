@@ -12,6 +12,7 @@ import { CTEManagement } from "@/components/tms/CTEManagement";
 import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 import { TripManagement } from "@/components/tms/TripManagement";
 import { OrdemColetaManagement } from "@/components/tms/OrdemColetaManagement";
+import { RouteOptimizer } from "@/components/tms/RouteOptimizer";
 
 const TMS = () => {
   return (
@@ -53,8 +54,9 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="trips" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="trips">Gestão de Viagens</TabsTrigger>
+            <TabsTrigger value="rotas">Planejamento de Rotas</TabsTrigger>
             <TabsTrigger value="ordem-coleta">Ordem de Coleta</TabsTrigger>
             <TabsTrigger value="cte">CT-e</TabsTrigger>
             <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
@@ -63,6 +65,11 @@ const TMS = () => {
           {/* Gestão de Viagens */}
           <TabsContent value="trips">
             <TripManagement />
+          </TabsContent>
+
+          {/* Planejamento de Rotas */}
+          <TabsContent value="rotas">
+            <RouteOptimizer />
           </TabsContent>
 
           {/* Ordem de Coleta */}
