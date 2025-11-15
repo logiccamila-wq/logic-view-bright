@@ -26,6 +26,7 @@ import {
   FileText,
   Code2,
   Sparkles,
+  Shield,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -66,6 +67,7 @@ const managementItems = [
   { title: "Monitoramento de Custos", url: "/cost-monitoring", icon: DollarSign, module: "finance" },
   { title: "Documentos", url: "/documents", icon: FileText, module: "documents" },
   { title: "Usuários", url: "/users", icon: Users, module: "users" },
+  { title: "Permissões", url: "/permissions", icon: Shield, module: "settings" },
   { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
   { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },
 ];

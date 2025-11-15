@@ -40,6 +40,7 @@ import AccountsPayable from "./pages/AccountsPayable";
 import AccountsReceivable from "./pages/AccountsReceivable";
 import CostMonitoring from "./pages/CostMonitoring";
 import ImportVehicles from "./pages/ImportVehicles";
+import Permissions from "./pages/Permissions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -88,6 +89,7 @@ const App = () => (
             <Route path="/developer" element={<ProtectedRoute module="developer"><Developer /></ProtectedRoute>} />
             <Route path="/innovation" element={<ProtectedRoute module="innovation"><InnovationLab /></ProtectedRoute>} />
             <Route path="/import-vehicles" element={<ProtectedRoute module="fleet"><ImportVehicles /></ProtectedRoute>} />
+            <Route path="/permissions" element={<ProtectedRoute module="settings"><Permissions /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
