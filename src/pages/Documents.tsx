@@ -54,10 +54,22 @@ const Documents = () => {
     
     setImporting(true);
     try {
+      console.log('Iniciando importação de documentos...');
       const result = await importDocuments();
-      toast.success(`Importados ${result.imported} veículos de ${result.total}. Erros: ${result.errors}`);
-      loadDocuments();
+      
+      if (result.errors > 0) {
+        console.error('Erros durante importação:', result.errorDetails);
+        toast.error(
+          `Importados ${result.imported} de ${result.total} veículos. ${result.errors} erros. Verifique o console para detalhes.`,
+          { duration: 5000 }
+        );
+      } else {
+        toast.success(`✅ Importados todos os ${result.imported} veículos com sucesso!`);
+      }
+      
+      await loadDocuments();
     } catch (error: any) {
+      console.error('Erro crítico na importação:', error);
       toast.error('Erro ao importar: ' + error.message);
     } finally {
       setImporting(false);

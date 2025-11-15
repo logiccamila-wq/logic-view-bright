@@ -245,8 +245,11 @@ export async function importDocuments() {
     throw new Error('Usuário não autenticado');
   }
 
+  console.log('Iniciando importação para usuário:', user.email);
+  
   let imported = 0;
   let errors = 0;
+  const errorDetails: string[] = [];
 
   for (const vehicle of vehiclesData) {
     try {
@@ -374,22 +377,35 @@ export async function importDocuments() {
 
       // Inserir documentos
       if (documents.length > 0) {
-        const { error } = await supabase
+        console.log(`Importando ${documents.length} documentos para veículo ${vehicle.plate}`);
+        console.log('Documentos:', documents);
+        
+        const { data, error } = await supabase
           .from('vehicle_documents')
-          .insert(documents);
+          .insert(documents)
+          .select();
 
         if (error) {
-          console.error(`Erro ao importar documentos do veículo ${vehicle.plate}:`, error);
+          console.error(`❌ Erro ao importar documentos do veículo ${vehicle.plate}:`, error);
+          errorDetails.push(`${vehicle.plate}: ${error.message}`);
           errors++;
         } else {
+          console.log(`✅ Importados ${documents.length} documentos do veículo ${vehicle.plate}`);
+          console.log('Dados inseridos:', data);
           imported++;
         }
       }
-    } catch (error) {
-      console.error(`Erro ao processar veículo ${vehicle.plate}:`, error);
+    } catch (error: any) {
+      console.error(`❌ Erro ao processar veículo ${vehicle.plate}:`, error);
+      errorDetails.push(`${vehicle.plate}: ${error.message}`);
       errors++;
     }
   }
 
-  return { imported, errors, total: vehiclesData.length };
+  console.log('Importação concluída:', { imported, errors, total: vehiclesData.length });
+  if (errorDetails.length > 0) {
+    console.error('Detalhes dos erros:', errorDetails);
+  }
+
+  return { imported, errors, total: vehiclesData.length, errorDetails };
 }
