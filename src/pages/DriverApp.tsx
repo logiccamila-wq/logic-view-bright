@@ -33,6 +33,7 @@ import { TripAlerts } from "@/components/driver/TripAlerts";
 import { DriverPerformance } from "@/components/driver/DriverPerformance";
 import { DriverPayrollHistory } from "@/components/driver/DriverPayrollHistory";
 import { DriverRouteFinancial } from "@/components/driver/DriverRouteFinancial";
+import { DeliveryRouting } from "@/components/driver/DeliveryRouting";
 import GaelChatbot from "@/components/GaelChatbot";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -256,7 +257,18 @@ export default function DriverApp() {
 
           {/* Aba Rotas */}
           <TabsContent value="rotas" className="space-y-4 mt-4">
-            <DriverRouteFinancial />
+            <Tabs defaultValue="planejamento" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="planejamento">Planejar Rota</TabsTrigger>
+                <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
+              </TabsList>
+              <TabsContent value="planejamento" className="mt-4">
+                <DeliveryRouting />
+              </TabsContent>
+              <TabsContent value="financeiro" className="mt-4">
+                <DriverRouteFinancial />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           {/* Aba Diárias */}
