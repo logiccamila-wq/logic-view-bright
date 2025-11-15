@@ -1,5 +1,8 @@
 project_id = "yssqhlogdqdjmqwuvnkv"
 
+[functions.get-secret]
+verify_jwt = false
+
 [functions.gael-chat]
 verify_jwt = true
 
