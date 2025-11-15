@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useOpenRouteService } from '@/hooks/useOpenRouteService';
+import { useTomTom } from '@/hooks/useTomTom';
 import { RouteMap } from './RouteMap';
 import { MapPin, Plus, Trash2, Navigation, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,7 +16,7 @@ interface RoutePoint {
 }
 
 export function RouteOptimizer() {
-  const { calculateRoute, loading } = useOpenRouteService();
+  const { calculateRoute, loading } = useTomTom();
   const [origin, setOrigin] = useState({ lat: '', lng: '', label: 'Início' });
   const [client, setClient] = useState({ lat: '', lng: '', label: 'Cliente' });
   const [deliveries, setDeliveries] = useState<Array<{ lat: string; lng: string; label: string }>>([
@@ -90,7 +90,7 @@ export function RouteOptimizer() {
         const result = await calculateRoute(
           { lat: points[i].lat, lng: points[i].lng },
           { lat: points[i + 1].lat, lng: points[i + 1].lng },
-          'driving-hgv'
+          'truck'
         );
 
         if (result) {
