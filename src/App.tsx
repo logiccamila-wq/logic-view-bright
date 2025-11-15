@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Fleet from "./pages/Fleet";
 import Mechanic from "./pages/Mechanic";
 import Driver from "./pages/Driver";
+import DriverApp from "./pages/DriverApp";
 import DriverJourney from "./pages/DriverJourney";
 import JourneyManagement from "./pages/JourneyManagement";
 import DriversManagement from "./pages/DriversManagement";
@@ -54,7 +55,8 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute module="dashboard"><Dashboard /></ProtectedRoute>} />
             <Route path="/fleet" element={<ProtectedRoute module="fleet"><Fleet /></ProtectedRoute>} />
             <Route path="/mechanic" element={<ProtectedRoute module="mechanic"><Mechanic /></ProtectedRoute>} />
-            <Route path="/driver" element={<ProtectedRoute module="driver"><Driver /></ProtectedRoute>} />
+          <Route path="/driver" element={<ProtectedRoute module="driver"><DriverApp /></ProtectedRoute>} />
+          <Route path="/driver-old" element={<ProtectedRoute module="driver"><Driver /></ProtectedRoute>} />
             <Route path="/driver-journey" element={<ProtectedRoute module="driver"><DriverJourney /></ProtectedRoute>} />
             <Route path="/journey-management" element={<ProtectedRoute module="fleet"><JourneyManagement /></ProtectedRoute>} />
             <Route path="/drivers-management" element={<ProtectedRoute module="fleet"><DriversManagement /></ProtectedRoute>} />
