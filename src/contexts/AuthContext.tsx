@@ -63,31 +63,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
 
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchUserRoles(session.user.id);
-        } else {
-          setRoles([]);
-          setLoading(false);
-        }
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-      
+
       setSession(session);
       setUser(session?.user ?? null);
-      
+
+      // Handle explicit sign-out quickly
+      if (event === 'SIGNED_OUT') {
+        setRoles([]);
+        setLoading(false);
+        return;
+      }
+
       if (session?.user) {
-        await fetchUserRoles(session.user.id);
+        // Defer role fetching to avoid auth deadlocks
+        setLoading(true);
+        setTimeout(() => {
+          fetchUserRoles(session.user!.id);
+        }, 0);
+      } else {
+        setRoles([]);
+        setLoading(false);
+      }
+    });
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        setLoading(true);
+        setTimeout(() => {
+          fetchUserRoles(session.user!.id);
+        }, 0);
       } else {
         setLoading(false);
       }
@@ -98,7 +110,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
-
   const signIn = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -142,7 +153,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             full_name: fullName,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
@@ -179,14 +191,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      setRoles([]);
-      toast.success('Logout realizado com sucesso!');
-      navigate('/login');
+      if (error) {
+        console.warn('Sign out warning:', error);
+      }
     } catch (error: any) {
       console.error('Logout error:', error);
       toast.error(error.message || 'Erro ao fazer logout');
+    } finally {
+      // Garantir limpeza local mesmo se a API retornar 403/session_not_found
+      setUser(null);
+      setSession(null);
+      setRoles([]);
+      toast.success('Logout realizado com sucesso!');
+      navigate('/login');
     }
   };
 
