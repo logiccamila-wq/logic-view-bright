@@ -14,13 +14,17 @@ interface UserData {
 }
 
 const USERS_TO_SEED: UserData[] = [
+  // Diretores (acesso completo como logistics_manager)
+  { email: 'jailson.barros@ejgtransporte.com.br', password: 'financeiro123', role: 'logistics_manager', full_name: 'Jailson Barros - Diretor Financeiro' },
+  { email: 'enio.gomes@ejgtransportecom.br', password: 'operacional123', role: 'logistics_manager', full_name: 'Enio Gomes - Diretor Operacional' },
+  
+  // Administrativo (admin completo)
+  { email: 'administrati@ejgtransporte.com.br', password: 'adm123456', role: 'admin', full_name: 'Edjane - Administrativo' },
+  
   // Gestores
-  { email: 'jailson.barros@ejgtransporte.com.br', password: 'financeiro123', role: 'finance', full_name: 'Jailson Barros - Financeiro' },
-  { email: 'enio.gomes@ejgtransportecom.br', password: 'operacional123', role: 'operations', full_name: 'Enio Gomes - Operações' },
-  { email: 'administrati@ejgtransporte.com.br', password: 'adm123456', role: 'admin', full_name: 'Gerente Geral' },
   { email: 'comercial@ejgtransporte.com.br', password: 'comercial123', role: 'commercial', full_name: 'Comercial' },
-  { email: 'frota@ejgtransporte.com.br', password: 'frota123', role: 'fleet_maintenance', full_name: 'Frota/Manutenção' },
-  { email: 'miguellareste37@gmail.com', password: 'auxiliar123', role: 'maintenance_assistant', full_name: 'Miguel - Auxiliar' },
+  { email: 'frota@ejgtransporte.com.br', password: 'frota123', role: 'fleet_maintenance', full_name: 'Mecânico - Frota/Manutenção' },
+  { email: 'miguellareste37@gmail.com', password: 'auxiliar123', role: 'maintenance_assistant', full_name: 'Miguel - Auxiliar Mecânico' },
   
   // Admins e testes
   { email: 'logiccamila@gmail.com', password: 'Multi12345678', role: 'admin', full_name: 'Camila - Admin' },
