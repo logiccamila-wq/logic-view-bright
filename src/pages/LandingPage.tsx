@@ -277,7 +277,7 @@ const LandingPage = () => {
             >
               <Card 
                 className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 hover:border-purple-500/40 transition-all duration-300 cursor-pointer hover:scale-105"
-                onClick={() => navigate('/mechanic')}
+                onClick={() => canAccessModule('mechanic') ? navigate('/mechanic') : toast.error('Sem permissão para acessar o Hub Mecânico')}
               >
                 <CardContent className="p-8">
                   <div className="bg-gradient-to-br from-purple-500 to-pink-500 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
