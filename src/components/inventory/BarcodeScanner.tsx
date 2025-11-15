@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Scan, Search } from "lucide-react";
 import { toast } from "sonner";
-// @ts-ignore
-import BarcodeReader from "react-barcode-reader";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
@@ -14,17 +12,53 @@ interface BarcodeScannerProps {
 export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const [manualCode, setManualCode] = useState("");
   const [scanning, setScanning] = useState(true);
+  const [buffer, setBuffer] = useState("");
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
-  const handleScan = (data: string) => {
-    if (data) {
-      toast.success(`Código escaneado: ${data}`);
-      onScan(data);
-    }
-  };
+  // Listener para scanner de código de barras físico
+  useEffect(() => {
+    if (!scanning) return;
 
-  const handleError = (err: any) => {
-    console.error("Erro no scanner:", err);
-  };
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Ignora se estiver digitando em um input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Enter indica fim da leitura do scanner
+      if (e.key === "Enter" && buffer.length > 0) {
+        toast.success(`Código escaneado: ${buffer}`);
+        onScan(buffer);
+        setBuffer("");
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        return;
+      }
+
+      // Acumula caracteres (scanners digitam muito rápido)
+      if (e.key.length === 1) {
+        const newBuffer = buffer + e.key;
+        setBuffer(newBuffer);
+
+        // Reset buffer após 100ms de inatividade
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+          setBuffer("");
+        }, 100);
+      }
+    };
+
+    window.addEventListener("keypress", handleKeyPress);
+    return () => {
+      window.removeEventListener("keypress", handleKeyPress);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [scanning, buffer, onScan]);
 
   const handleManualSearch = () => {
     if (manualCode.trim()) {
@@ -60,7 +94,11 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
               <p className="text-sm text-muted-foreground">
                 Aproxime o leitor de código de barras...
               </p>
-              <BarcodeReader onScan={handleScan} onError={handleError} />
+              {buffer && (
+                <p className="text-xs text-primary mt-2">
+                  Lendo: {buffer}
+                </p>
+              )}
             </div>
           )}
         </div>
