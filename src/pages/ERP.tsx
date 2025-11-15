@@ -6,10 +6,12 @@ import {
   DollarSign, 
   Users, 
   TrendingUp,
-  Loader2
+  Loader2,
+  Wallet
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
+import { PayrollSection } from "@/components/erp/PayrollSection";
 import {
   Table,
   TableBody,
@@ -109,10 +111,14 @@ const ERP = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="financeiro" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
             <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
             <TabsTrigger value="contas">Contas a Receber/Pagar</TabsTrigger>
+            <TabsTrigger value="folha">
+              <Wallet className="w-4 h-4 mr-2" />
+              Folha de Pagamento
+            </TabsTrigger>
           </TabsList>
 
           {/* Financeiro */}
@@ -308,6 +314,11 @@ const ERP = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Folha de Pagamento */}
+          <TabsContent value="folha">
+            <PayrollSection />
           </TabsContent>
         </Tabs>
       </div>
