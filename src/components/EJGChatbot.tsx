@@ -29,6 +29,7 @@ interface Message {
   sender_id: string;
   created_at: string;
   message_type: string;
+  sender_name?: string;
 }
 
 interface Conversation {
@@ -120,7 +121,23 @@ export function EJGChatbot() {
       .eq("conversation_id", selectedConversation)
       .order("created_at", { ascending: true });
 
-    if (data) setMessages(data);
+    if (data) {
+      // Buscar nomes dos remetentes
+      const senderIds = [...new Set(data.map((m: Message) => m.sender_id))];
+      const { data: profiles } = await (supabase as any)
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", senderIds);
+
+      const profilesMap = new Map(profiles?.map((p: any) => [p.id, p.full_name]) || []);
+      
+      const messagesWithNames = data.map((msg: Message) => ({
+        ...msg,
+        sender_name: profilesMap.get(msg.sender_id) || 'Usuário',
+      }));
+
+      setMessages(messagesWithNames);
+    }
   };
 
   const createConversation = async () => {
@@ -149,6 +166,28 @@ export function EJGChatbot() {
           ? `Chamado ${data.ticket_number} aberto com sucesso!`
           : "Conversa iniciada!"
       );
+
+      // Enviar notificação se for ticket de suporte
+      if (conversationType === "support" && data.ticket_number) {
+        const { data: profileData } = await (supabase as any)
+          .from("profiles")
+          .select("full_name, email")
+          .eq("id", user!.id)
+          .single();
+
+        supabase.functions.invoke("notify-support-ticket", {
+          body: {
+            ticket_number: data.ticket_number,
+            subject: subject,
+            user_name: profileData?.full_name || user!.email,
+            user_email: user!.email,
+            priority: priority,
+            type: conversationType,
+          },
+        }).then(({ error }) => {
+          if (error) console.error("Erro ao enviar notificações:", error);
+        });
+      }
 
       setConversations([data as Conversation, ...conversations]);
       setSelectedConversation(data.id);
@@ -284,6 +323,11 @@ export function EJGChatbot() {
                                 : "bg-muted"
                             }`}
                           >
+                            {msg.sender_id !== user?.id && (
+                              <p className="text-xs font-semibold mb-1 opacity-80">
+                                {msg.sender_name || 'EJG Assistant'}
+                              </p>
+                            )}
                             <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                             <span className="text-xs opacity-70">
                               {new Date(msg.created_at).toLocaleTimeString("pt-BR", {
