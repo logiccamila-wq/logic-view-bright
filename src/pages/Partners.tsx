@@ -24,6 +24,7 @@ export default function Partners() {
           *,
           profiles(full_name, email)
         `)
+        .eq("status", "ativo")
         .order("participacao_percentual", { ascending: false });
       
       if (error) throw error;

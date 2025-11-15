@@ -27,7 +27,6 @@ import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { MovementsTable } from "@/components/inventory/MovementsTable";
 import { StatCard } from "@/components/StatCard";
 import { BarcodeScanner } from "@/components/inventory/BarcodeScanner";
-import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 
 interface InventoryItem {
   id: string;
@@ -204,9 +203,6 @@ const Inventory = () => {
             </Button>
           </div>
         </div>
-
-        {/* Painel de Ponto */}
-        <WorkSessionPanel />
 
         {/* Scanner de Código de Barras */}
         <BarcodeScanner onScan={handleBarcodeScan} />
