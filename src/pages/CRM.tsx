@@ -96,18 +96,18 @@ const CRM = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">CRM - Gestão de Clientes</h1>
-            <p className="text-muted-foreground mt-2">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">CRM - Gestão de Clientes</h1>
+            <p className="text-base text-muted-foreground">
               Gestão Inteligente de Relacionamento com Clientes
             </p>
           </div>
           <Button
             onClick={handleImportFromCTE}
             variant="outline"
-            className="gap-2"
+            className="gap-2 shadow-sm"
           >
             <FileText className="w-4 h-4" />
             Importar de CTEs
@@ -115,7 +115,7 @@ const CRM = () => {
         </div>
 
         {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total de Clientes"
             value={stats?.totalClients || 0}

@@ -100,9 +100,9 @@ const Fleet = () => {
 
   const getStatusBadge = (status: Vehicle["status"]) => {
     const variants = {
-      ativo: { label: "Ativo", className: "bg-green-500/20 text-green-600 hover:bg-green-500/30" },
-      manutencao: { label: "Manutenção", className: "bg-yellow-500/20 text-yellow-600 hover:bg-yellow-500/30" },
-      inativo: { label: "Inativo", className: "bg-red-500/20 text-red-600 hover:bg-red-500/30" },
+      ativo: { label: "Ativo", className: "bg-success/15 text-success border border-success/20" },
+      manutencao: { label: "Manutenção", className: "bg-warning/15 text-warning border border-warning/20" },
+      inativo: { label: "Inativo", className: "bg-destructive/15 text-destructive border border-destructive/20" },
     };
     return variants[status];
   };
@@ -112,18 +112,18 @@ const Fleet = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Gestão de Frota</h1>
-            <p className="text-muted-foreground">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">Gestão de Frota</h1>
+            <p className="text-base text-muted-foreground">
               Gerencie todos os veículos da frota e acompanhe manutenções e custos
             </p>
           </div>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
-              className="gap-2"
+              className="gap-2 shadow-sm"
               onClick={() => navigate('/import-vehicles')}
             >
               <Upload className="h-4 w-4" />
