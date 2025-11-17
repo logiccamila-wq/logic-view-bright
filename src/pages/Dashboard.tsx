@@ -41,16 +41,16 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard OptiLog</h1>
-          <p className="text-muted-foreground mt-2">
+      <div className="space-y-8">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">Dashboard OptiLog</h1>
+          <p className="text-base text-muted-foreground">
             Bem-vindo ao sistema de gestão EJG Evolução em Transporte
           </p>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
             title="Veículos Ativos" 
             value="24" 
@@ -79,52 +79,52 @@ const Dashboard = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Card App Motorista */}
           <Card 
-            className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:border-blue-500/40 transition-all duration-300 cursor-pointer group"
+            className="border border-info/20 bg-gradient-to-br from-info/5 to-info/10 hover:border-info/40 hover:shadow-lg transition-all duration-300 cursor-pointer group"
             onClick={() => canAccessModule('driver') ? navigate('/driver') : toast.error('Sem permissão para acessar o App Motorista')}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-12 h-12 rounded-lg flex items-center justify-center">
-                  <Truck className="w-6 h-6 text-white" />
+                <div className="bg-info w-12 h-12 rounded-xl flex items-center justify-center shadow-md">
+                  <Truck className="w-6 h-6 text-info-foreground" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 text-info group-hover:translate-x-1 transition-transform" />
               </div>
               
-              <h3 className="text-xl font-bold mb-2">App Motorista</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground">App Motorista</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Gerencie viagens, check-lists e ganhos em tempo real
               </p>
               
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400">Check-in/out</span>
-                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400">Rotas</span>
-                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400">Financeiro</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-info/15 text-info border border-info/20">Check-in/out</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-info/15 text-info border border-info/20">Rotas</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-info/15 text-info border border-info/20">Financeiro</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Card Hub Mecânico */}
           <Card 
-            className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 hover:border-purple-500/40 transition-all duration-300 cursor-pointer group"
+            className="border border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10 hover:border-accent/40 hover:shadow-lg transition-all duration-300 cursor-pointer group"
             onClick={() => canAccessModule('mechanic') ? navigate('/mechanic') : toast.error('Sem permissão para acessar o Hub Mecânico')}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="bg-gradient-to-br from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center">
-                  <Wrench className="w-6 h-6 text-white" />
+                <div className="bg-accent w-12 h-12 rounded-xl flex items-center justify-center shadow-md">
+                  <Wrench className="w-6 h-6 text-accent-foreground" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-purple-500 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-1 transition-transform" />
               </div>
               
-              <h3 className="text-xl font-bold mb-2">Hub Mecânico</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground">Hub Mecânico</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Controle ordens de serviço, manutenções e TPMS
               </p>
               
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400">O.S.</span>
-                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400">Manutenção</span>
-                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400">Pneus</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-accent/15 text-accent border border-accent/20">O.S.</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-accent/15 text-accent border border-accent/20">Manutenção</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-accent/15 text-accent border border-accent/20">Pneus</span>
               </div>
             </CardContent>
           </Card>
