@@ -27,6 +27,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import optilogLogo from "@/assets/optilog-logo.png";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -575,6 +576,8 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      <PWAInstallPrompt />
     </div>
   );
 };
