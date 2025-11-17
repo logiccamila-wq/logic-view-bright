@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { CTEManagement } from "@/components/tms/CTEManagement";
+import MDFEManagement from "@/components/tms/MDFEManagement";
 import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 import { TripManagement } from "@/components/tms/TripManagement";
 import { OrdemColetaManagement } from "@/components/tms/OrdemColetaManagement";
@@ -54,11 +55,12 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="trips" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="trips">Gestão de Viagens</TabsTrigger>
             <TabsTrigger value="rotas">Planejamento de Rotas</TabsTrigger>
             <TabsTrigger value="ordem-coleta">Ordem de Coleta</TabsTrigger>
             <TabsTrigger value="cte">CT-e</TabsTrigger>
+            <TabsTrigger value="mdfe">MDF-e</TabsTrigger>
             <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
           </TabsList>
 
@@ -80,6 +82,11 @@ const TMS = () => {
           {/* CT-e */}
           <TabsContent value="cte">
             <CTEManagement />
+          </TabsContent>
+
+          {/* MDF-e */}
+          <TabsContent value="mdfe">
+            <MDFEManagement />
           </TabsContent>
 
           {/* Receita */}
