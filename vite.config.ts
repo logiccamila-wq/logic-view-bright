@@ -21,11 +21,13 @@ export default defineConfig(({ mode }) => ({
         short_name: "OptiLog",
         description: "Plataforma completa de gestão para transportadoras",
         theme_color: "#1a1a1a",
-        background_color: "#ffffff",
+        background_color: "#1a1a1a",
         display: "standalone",
         scope: "/",
-        start_url: "/",
-        orientation: "portrait",
+        start_url: "/?source=pwa",
+        orientation: "portrait-primary",
+        categories: ["logistics", "business", "productivity"],
+        prefer_related_applications: false,
         icons: [
           {
             src: "/pwa-192x192.png",
