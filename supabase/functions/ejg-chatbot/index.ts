@@ -1,5 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const requestSchema = z.object({
+  messages: z.array(z.object({
+    role: z.enum(['system', 'user', 'assistant']),
+    content: z.string().max(10000)
+  })).max(50),
+  conversationId: z.string().uuid(),
+  userId: z.string().uuid()
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,7 +27,9 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { messages, conversationId, userId } = await req.json();
+    const body = await req.json();
+    const validated = requestSchema.parse(body);
+    const { messages, conversationId, userId } = validated;
     
     console.log(`Processing chat request for conversation ${conversationId}`);
 

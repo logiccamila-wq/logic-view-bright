@@ -1,4 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const requestSchema = z.object({
+  messages: z.array(z.object({
+    role: z.enum(['system', 'user', 'assistant']),
+    content: z.string().max(10000)
+  })).max(50),
+  dashboardData: z.object({
+    financeiro: z.any().optional(),
+    operacional: z.any().optional(),
+    manutencao: z.any().optional()
+  }).optional()
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,7 +22,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, dashboardData } = await req.json();
+    const body = await req.json();
+    const validated = requestSchema.parse(body);
+    const { messages, dashboardData } = validated;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -99,6 +114,14 @@ IMPORTANTE:
     });
   } catch (e) {
     console.error("Gael chat error:", e);
+    
+    if (e instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", details: e.errors }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
