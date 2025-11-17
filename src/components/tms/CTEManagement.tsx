@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CTEDialog } from './CTEDialog';
 import { ImportCTEDialog } from './ImportCTEDialog';
+import EmitirCTEDialog from './EmitirCTEDialog';
 import { format } from 'date-fns';
 
 interface CTE {
@@ -27,6 +28,7 @@ export function CTEManagement() {
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [emitirDialogOpen, setEmitirDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -93,9 +95,9 @@ export function CTEManagement() {
                 <Download className="mr-2 h-4 w-4" />
                 Importar da BrasilNFe
               </Button>
-              <Button onClick={() => setDialogOpen(true)}>
+              <Button onClick={() => setEmitirDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Novo CT-e
+                Emitir CT-e
               </Button>
             </div>
           </div>
@@ -158,6 +160,12 @@ export function CTEManagement() {
       <ImportCTEDialog
         open={importDialogOpen}
         onOpenChange={setImportDialogOpen}
+        onSuccess={loadCTEs}
+      />
+
+      <EmitirCTEDialog
+        open={emitirDialogOpen}
+        onOpenChange={setEmitirDialogOpen}
         onSuccess={loadCTEs}
       />
     </>
