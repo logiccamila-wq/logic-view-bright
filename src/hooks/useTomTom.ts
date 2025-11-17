@@ -30,25 +30,8 @@ export function useTomTom() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getApiKey = async (): Promise<string | null> => {
-    try {
-      const { data, error: secretError } = await supabase.functions.invoke('get-secret', {
-        body: { name: 'TOMTOM_API_KEY' }
-      });
-
-      if (secretError || !data?.TOMTOM_API_KEY) {
-        throw new Error('Chave da API TomTom não configurada');
-      }
-
-      return data.TOMTOM_API_KEY;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao obter chave da API');
-      return null;
-    }
-  };
-
   /**
-   * Calcula rota entre dois pontos usando TomTom Routing API
+   * Calcula rota entre dois pontos usando proxy autenticado
    */
   const calculateRoute = async (
     start: Coordinates,
@@ -59,35 +42,23 @@ export function useTomTom() {
     setError(null);
 
     try {
-      const apiKey = await getApiKey();
-      if (!apiKey) return null;
+      // Use OpenRouteService via authenticated proxy
+      const profile = vehicleType === 'truck' ? 'driving-hgv' : 'driving-car';
+      const { data, error: invokeError } = await supabase.functions.invoke('calculate-route', {
+        body: { 
+          start: { lat: start.lat, lng: start.lng }, 
+          end: { lat: end.lat, lng: end.lng }, 
+          profile 
+        }
+      });
 
-      const locations = `${start.lat},${start.lng}:${end.lat},${end.lng}`;
-      const url = `https://api.tomtom.com/routing/1/calculateRoute/${locations}/json?key=${apiKey}&vehicleEngineType=combustion${vehicleType === 'truck' ? '&vehicleCommercial=true' : ''}`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error('Erro ao calcular rota');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Erro ao calcular rota');
       }
 
-      const data = await response.json();
-      const route = data.routes[0];
-
-      // Converter pontos da rota para formato [lng, lat]
-      const coordinates = route.legs[0].points.map((point: any) => [
-        point.longitude,
-        point.latitude
-      ]);
-
-      return {
-        distance: route.summary.lengthInMeters,
-        duration: route.summary.travelTimeInSeconds,
-        geometry: {
-          coordinates
-        }
-      };
+      return data;
     } catch (err) {
+      console.error('Erro ao calcular rota:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       return null;
     } finally {
@@ -96,33 +67,29 @@ export function useTomTom() {
   };
 
   /**
-   * Converte endereço em coordenadas usando TomTom Geocoding API
+   * Converte endereço em coordenadas usando proxy autenticado
    */
   const geocode = async (address: string): Promise<GeocodingResult | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const apiKey = await getApiKey();
-      if (!apiKey) return null;
+      const { data, error: invokeError } = await supabase.functions.invoke('geocode-address', {
+        body: { address }
+      });
 
-      const encodedAddress = encodeURIComponent(address);
-      const url = `https://api.tomtom.com/search/2/geocode/${encodedAddress}.json?key=${apiKey}&limit=1&countrySet=BR`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error('Erro ao buscar endereço');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Erro ao buscar endereço');
       }
 
-      const data = await response.json();
-      
-      if (data.results.length === 0) {
-        throw new Error('Endereço não encontrado');
+      if (!data) {
+        setError('Endereço não encontrado');
+        return null;
       }
 
-      return data.results[0];
+      return data;
     } catch (err) {
+      console.error('Erro ao buscar endereço:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       return null;
     } finally {
@@ -131,32 +98,29 @@ export function useTomTom() {
   };
 
   /**
-   * Busca endereço reverso (coordenadas -> endereço)
+   * Busca endereço reverso (coordenadas -> endereço) usando proxy autenticado
    */
   const reverseGeocode = async (lat: number, lng: number): Promise<GeocodingResult | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const apiKey = await getApiKey();
-      if (!apiKey) return null;
+      const { data, error: invokeError } = await supabase.functions.invoke('geocode-address', {
+        body: { lat, lng }
+      });
 
-      const url = `https://api.tomtom.com/search/2/reverseGeocode/${lat},${lng}.json?key=${apiKey}`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error('Erro ao buscar endereço');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Erro ao buscar localização');
       }
 
-      const data = await response.json();
-      
-      if (data.addresses.length === 0) {
-        throw new Error('Endereço não encontrado');
+      if (!data) {
+        setError('Localização não encontrada');
+        return null;
       }
 
-      return data.addresses[0];
+      return data;
     } catch (err) {
+      console.error('Erro ao buscar localização:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       return null;
     } finally {
@@ -165,10 +129,12 @@ export function useTomTom() {
   };
 
   /**
-   * Retorna URL para tile do mapa (Raster Map Tiles)
+   * Gera URL para tiles de mapa
+   * Nota: Agora usa OpenStreetMap por padrão (público, sem necessidade de API key)
    */
-  const getTileUrl = (apiKey: string, style: 'basic' | 'hybrid' | 'labels' = 'basic') => {
-    return `https://api.tomtom.com/map/1/tile/${style}/main/{z}/{x}/{y}.png?key=${apiKey}`;
+  const getTileUrl = (style: 'basic' | 'hybrid' | 'labels' = 'basic'): string => {
+    // Use OpenStreetMap tiles (public, no API key needed)
+    return `https://tile.openstreetmap.org/{z}/{x}/{y}.png`;
   };
 
   return {
@@ -176,7 +142,6 @@ export function useTomTom() {
     geocode,
     reverseGeocode,
     getTileUrl,
-    getApiKey,
     loading,
     error
   };

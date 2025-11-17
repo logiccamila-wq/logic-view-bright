@@ -3023,12 +3023,8 @@ export type Database = {
         }[]
       }
       create_or_update_director: {
-        Args: {
-          user_email: string
-          user_full_name: string
-          user_password: string
-        }
-        Returns: string
+        Args: { p_email: string; p_full_name: string; p_password: string }
+        Returns: Json
       }
       generate_document_expiry_notifications: {
         Args: never

@@ -18,34 +18,20 @@ interface RouteMapProps {
 export function RouteMap({ points, routeGeometry }: RouteMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [apiKey, setApiKey] = useState<string>('');
-  const { getApiKey } = useTomTom();
+  const { getTileUrl } = useTomTom();
 
   useEffect(() => {
-    const fetchApiKey = async () => {
-      const key = await getApiKey();
-      if (key) {
-        setApiKey(key);
-      }
-    };
-    fetchApiKey();
-  }, []);
-
-  useEffect(() => {
-    if (!mapContainerRef.current || !apiKey) return;
+    if (!mapContainerRef.current) return;
 
     // Inicializar mapa se não existir
     if (!mapRef.current) {
       mapRef.current = L.map(mapContainerRef.current).setView([-23.5505, -46.6333], 13);
 
-      // Adicionar tiles do TomTom
-      L.tileLayer(
-        `https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${apiKey}`,
-        {
-          attribution: '&copy; <a href="https://www.tomtom.com">TomTom</a>',
-          maxZoom: 18
-        }
-      ).addTo(mapRef.current);
+      // Adicionar tiles do OpenStreetMap
+      L.tileLayer(getTileUrl(), {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+      }).addTo(mapRef.current);
     }
 
     // Limpar marcadores e rotas anteriores
@@ -104,15 +90,7 @@ export function RouteMap({ points, routeGeometry }: RouteMapProps) {
         mapRef.current = null;
       }
     };
-  }, [points, routeGeometry, apiKey]);
-
-  if (!apiKey) {
-    return (
-      <div className="w-full h-[600px] bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando mapa...</p>
-      </div>
-    );
-  }
+  }, [points, routeGeometry]);
 
   return (
     <div 
