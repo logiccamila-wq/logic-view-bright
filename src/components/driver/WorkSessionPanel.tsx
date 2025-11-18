@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { VehicleChangeDialog } from "./VehicleChangeDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface WorkSession {
   id: string;
@@ -86,12 +87,26 @@ export function WorkSessionPanel() {
     }
   };
 
-  const iniciarJornada = async () => {
+  const [showVehicleSelect, setShowVehicleSelect] = useState(false);
+  const [availableVehicles, setAvailableVehicles] = useState<any[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<string>("");
+
+  const loadAvailableVehicles = async () => {
+    const { data } = await supabase
+      .from("vehicles")
+      .select("placa, modelo, ano")
+      .eq("tipo", "cavalo_mecanico")
+      .eq("status", "disponivel")
+      .order("placa");
+    
+    setAvailableVehicles(data || []);
+  };
+
+  const iniciarJornadaComViagem = async () => {
     if (!user) return;
 
     setLoading(true);
     try {
-      // Buscar viagem ativa do motorista
       const { data: trip } = await supabase
         .from("trips")
         .select("id, vehicle_plate")
@@ -101,36 +116,18 @@ export function WorkSessionPanel() {
         .limit(1)
         .maybeSingle();
 
-      // Se não houver viagem, buscar primeiro veículo disponível
-      let vehiclePlate = trip?.vehicle_plate;
-      let tripId = trip?.id || null;
-
-      if (!vehiclePlate) {
-        const { data: vehicles } = await supabase
-          .from("vehicles")
-          .select("placa")
-          .eq("tipo", "cavalo_mecanico")
-          .eq("status", "disponivel")
-          .order("placa")
-          .limit(1)
-          .maybeSingle();
-
-        if (vehicles) {
-          vehiclePlate = vehicles.placa;
-          toast.info("Jornada iniciada sem viagem vinculada (manobra/oficina)");
-        } else {
-          toast.error("Nenhum veículo disponível");
-          setLoading(false);
-          return;
-        }
+      if (!trip) {
+        toast.error("Nenhuma viagem ativa encontrada");
+        setLoading(false);
+        return;
       }
 
       const { data: session, error } = await (supabase as any)
         .from("driver_work_sessions")
         .insert({
           driver_id: user.id,
-          vehicle_plate: vehiclePlate,
-          trip_id: tripId,
+          vehicle_plate: trip.vehicle_plate,
+          trip_id: trip.id,
           data_inicio: new Date().toISOString(),
           status: "em_andamento",
         })
@@ -140,13 +137,52 @@ export function WorkSessionPanel() {
       if (error) throw error;
 
       setCurrentSession(session);
-      toast.success("Jornada iniciada!");
+      toast.success("Jornada iniciada com viagem vinculada!");
     } catch (error) {
       console.error("Erro ao iniciar jornada:", error);
       toast.error("Erro ao iniciar jornada");
     } finally {
       setLoading(false);
     }
+  };
+
+  const iniciarJornadaSemViagem = async () => {
+    if (!user || !selectedVehicle) {
+      toast.error("Selecione um veículo");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data: session, error } = await (supabase as any)
+        .from("driver_work_sessions")
+        .insert({
+          driver_id: user.id,
+          vehicle_plate: selectedVehicle,
+          trip_id: null,
+          data_inicio: new Date().toISOString(),
+          status: "em_andamento",
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setCurrentSession(session);
+      setShowVehicleSelect(false);
+      setSelectedVehicle("");
+      toast.success("Jornada iniciada sem viagem (manobra/oficina)!");
+    } catch (error) {
+      console.error("Erro ao iniciar jornada:", error);
+      toast.error("Erro ao iniciar jornada");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleIniciarJornadaClick = async () => {
+    await loadAvailableVehicles();
+    setShowVehicleSelect(true);
   };
 
   const finalizarJornada = async () => {
@@ -272,14 +308,63 @@ export function WorkSessionPanel() {
       <h2 className="text-2xl font-bold mb-6">Jornada Motorista</h2>
 
       {!currentSession ? (
-        <div className="text-center py-8">
+        <div className="text-center py-8 space-y-4">
           <p className="text-muted-foreground mb-4">
             Nenhuma jornada em andamento
           </p>
-          <Button onClick={iniciarJornada} disabled={loading} size="lg">
-            <Play className="mr-2 h-5 w-5" />
-            Iniciar Jornada
-          </Button>
+          
+          {!showVehicleSelect ? (
+            <div className="flex gap-3 justify-center">
+              <Button onClick={iniciarJornadaComViagem} disabled={loading} size="lg">
+                <Play className="mr-2 h-5 w-5" />
+                Com Viagem Ativa
+              </Button>
+              <Button onClick={handleIniciarJornadaClick} disabled={loading} size="lg" variant="outline">
+                <Truck className="mr-2 h-5 w-5" />
+                Sem Viagem (Manobra/Oficina)
+              </Button>
+            </div>
+          ) : (
+            <div className="max-w-md mx-auto space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Selecione o Veículo</label>
+                <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Escolha um cavalo mecânico" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableVehicles.map((v) => (
+                      <SelectItem key={v.placa} value={v.placa}>
+                        {v.placa} - {v.modelo} ({v.ano})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={iniciarJornadaSemViagem} 
+                  disabled={loading || !selectedVehicle} 
+                  size="lg"
+                  className="flex-1"
+                >
+                  <Play className="mr-2 h-5 w-5" />
+                  Confirmar
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setShowVehicleSelect(false);
+                    setSelectedVehicle("");
+                  }} 
+                  disabled={loading}
+                  variant="outline"
+                  size="lg"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
