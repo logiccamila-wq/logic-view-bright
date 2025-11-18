@@ -101,18 +101,36 @@ export function WorkSessionPanel() {
         .limit(1)
         .maybeSingle();
 
-      if (!trip) {
-        toast.error("Nenhuma viagem ativa encontrada");
-        setLoading(false);
-        return;
+      // Se não houver viagem, buscar primeiro veículo disponível
+      let vehiclePlate = trip?.vehicle_plate;
+      let tripId = trip?.id || null;
+
+      if (!vehiclePlate) {
+        const { data: vehicles } = await supabase
+          .from("vehicles")
+          .select("placa")
+          .eq("tipo", "cavalo_mecanico")
+          .eq("status", "disponivel")
+          .order("placa")
+          .limit(1)
+          .maybeSingle();
+
+        if (vehicles) {
+          vehiclePlate = vehicles.placa;
+          toast.info("Jornada iniciada sem viagem vinculada (manobra/oficina)");
+        } else {
+          toast.error("Nenhum veículo disponível");
+          setLoading(false);
+          return;
+        }
       }
 
       const { data: session, error } = await (supabase as any)
         .from("driver_work_sessions")
         .insert({
           driver_id: user.id,
-          vehicle_plate: trip.vehicle_plate,
-          trip_id: trip.id,
+          vehicle_plate: vehiclePlate,
+          trip_id: tripId,
           data_inicio: new Date().toISOString(),
           status: "em_andamento",
         })
@@ -251,7 +269,7 @@ export function WorkSessionPanel() {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Controle de Jornada (Lei 13.103/2015)</h2>
+      <h2 className="text-2xl font-bold mb-6">Jornada Motorista</h2>
 
       {!currentSession ? (
         <div className="text-center py-8">

@@ -14,6 +14,7 @@ import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
 import { TripManagement } from "@/components/tms/TripManagement";
 import { OrdemColetaManagement } from "@/components/tms/OrdemColetaManagement";
 import { RouteOptimizer } from "@/components/tms/RouteOptimizer";
+import { VehicleList } from "@/components/tms/VehicleList";
 
 const TMS = () => {
   return (
@@ -55,10 +56,11 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="trips" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="trips">Gestão de Viagens</TabsTrigger>
             <TabsTrigger value="rotas">Planejamento de Rotas</TabsTrigger>
             <TabsTrigger value="ordem-coleta">Ordem de Coleta</TabsTrigger>
+            <TabsTrigger value="veiculos">Cavalos</TabsTrigger>
             <TabsTrigger value="cte">CT-e</TabsTrigger>
             <TabsTrigger value="mdfe">MDF-e</TabsTrigger>
             <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
@@ -77,6 +79,21 @@ const TMS = () => {
           {/* Ordem de Coleta */}
           <TabsContent value="ordem-coleta">
             <OrdemColetaManagement />
+          </TabsContent>
+
+          {/* Veículos */}
+          <TabsContent value="veiculos">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5" />
+                  Lista de Cavalos Mecânicos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <VehicleList />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* CT-e */}
