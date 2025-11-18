@@ -1,10 +1,19 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-type AppRole = 'admin' | 'driver' | 'finance' | 'operations' | 'commercial' | 'fleet_maintenance' | 'maintenance_assistant' | 'logistics_manager' | 'maintenance_manager';
+type AppRole =
+  | "admin"
+  | "driver"
+  | "finance"
+  | "operations"
+  | "commercial"
+  | "fleet_maintenance"
+  | "maintenance_assistant"
+  | "logistics_manager"
+  | "maintenance_manager";
 
 interface AuthContextType {
   user: User | null;
@@ -20,17 +29,57 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Module permissions mapping
+// Permissões por módulo
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
-  driver: ['dashboard', 'fleet', 'tms', 'driver'],
-  finance: ['dashboard', 'erp', 'reports', 'approvals', 'control-tower', 'finance', 'documents'],
-  operations: ['dashboard', 'operations', 'tms', 'fleet', 'approvals', 'control-tower', 'documents'],
-  admin: ['dashboard', 'wms', 'tms', 'oms', 'scm', 'crm', 'erp', 'fleet', 'mechanic', 'driver', 'reports', 'settings', 'users', 'approvals', 'control-tower', 'inventory', 'finance', 'documents', 'developer', 'innovation'],
-  commercial: ['dashboard', 'tms', 'crm'],
-  fleet_maintenance: ['dashboard', 'fleet', 'mechanic', 'inventory', 'documents', 'approvals'],
-  maintenance_assistant: ['dashboard', 'mechanic', 'inventory'],
-  logistics_manager: ['dashboard', 'tms', 'fleet', 'driver', 'approvals', 'reports', 'control-tower', 'finance', 'documents'],
-  maintenance_manager: ['dashboard', 'fleet', 'mechanic', 'approvals', 'reports', 'control-tower', 'inventory', 'documents'],
+  driver: ["dashboard", "fleet", "tms", "driver"],
+  finance: ["dashboard", "erp", "reports", "approvals", "control-tower", "finance", "documents"],
+  operations: ["dashboard", "operations", "tms", "fleet", "approvals", "control-tower", "documents"],
+  admin: [
+    "dashboard",
+    "wms",
+    "tms",
+    "oms",
+    "scm",
+    "crm",
+    "erp",
+    "fleet",
+    "mechanic",
+    "driver",
+    "reports",
+    "settings",
+    "users",
+    "approvals",
+    "control-tower",
+    "inventory",
+    "finance",
+    "documents",
+    "developer",
+    "innovation",
+  ],
+  commercial: ["dashboard", "tms", "crm"],
+  fleet_maintenance: ["dashboard", "fleet", "mechanic", "inventory", "documents", "approvals"],
+  maintenance_assistant: ["dashboard", "mechanic", "inventory"],
+  logistics_manager: [
+    "dashboard",
+    "tms",
+    "fleet",
+    "driver",
+    "approvals",
+    "reports",
+    "control-tower",
+    "finance",
+    "documents",
+  ],
+  maintenance_manager: [
+    "dashboard",
+    "fleet",
+    "mechanic",
+    "approvals",
+    "reports",
+    "control-tower",
+    "inventory",
+    "documents",
+  ],
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -40,55 +89,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch user roles
+  // Buscar roles do usuário
   const fetchUserRoles = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId);
+      const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
 
       if (error) throw error;
-      
+
       setRoles(data?.map((r) => r.role as AppRole) || []);
     } catch (error) {
-      console.error('Error fetching roles:', error);
+      console.error("Error fetching roles:", error);
       setRoles([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Listener de auth
   useEffect(() => {
     let mounted = true;
 
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
 
       setSession(session);
       setUser(session?.user ?? null);
 
-      // Handle explicit sign-out quickly
-      if (event === 'SIGNED_OUT') {
+      if (event === "SIGNED_OUT") {
         setRoles([]);
         setLoading(false);
         return;
       }
 
       if (session?.user) {
-        // Defer role fetching to avoid auth deadlocks
         setLoading(true);
-        setTimeout(() => {
-          fetchUserRoles(session.user!.id);
-        }, 0);
+        setTimeout(() => fetchUserRoles(session.user!.id), 0);
       } else {
         setRoles([]);
         setLoading(false);
       }
-    });
+    }).data;
 
-    // Check for existing session
+    // Verificar sessão existente
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
 
@@ -97,9 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         setLoading(true);
-        setTimeout(() => {
-          fetchUserRoles(session.user!.id);
-        }, 0);
+        setTimeout(() => fetchUserRoles(session.user!.id), 0);
       } else {
         setLoading(false);
       }
@@ -107,9 +147,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription.subscription.unsubscribe();
     };
   }, []);
+
+  // Login
   const signIn = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -120,107 +162,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
-        // Aguardar roles serem carregadas
-        const { data: userRoles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.user.id);
-        
-        const hasDriverRole = userRoles?.some(r => r.role === 'driver');
-        const hasOnlyDriverRole = userRoles?.length === 1 && hasDriverRole;
-        
-        toast.success('Login realizado com sucesso!');
-        
-        // Redirecionar motorista para app específico
+        const { data: userRoles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
+
+        const hasDriverRole = userRoles?.some((r) => r.role === "driver");
+        const hasOnlyDriverRole = userRoles?.length === 1 && hasDriverRole === true;
+
+        toast.success("Login realizado com sucesso!");
+
         if (hasOnlyDriverRole) {
-          navigate('/driver');
+          navigate("/driver");
         } else {
-          navigate('/dashboard');
+          navigate("/dashboard");
         }
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error(error.message || 'Erro ao fazer login');
+      console.error("Login error:", error);
+      toast.error(error.message || "Erro ao fazer login");
       throw error;
     }
   };
 
+  // Cadastro
   const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            full_name: fullName,
-          },
-          emailRedirectTo: `${window.location.origin}/`
-        }
+          data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/`,
+        },
       });
 
       if (error) throw error;
 
       if (data.user) {
-        // Assign role to the new user
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: data.user.id, role });
+        await supabase.from("user_roles").insert({
+          user_id: data.user.id,
+          role,
+        });
 
-        if (roleError) throw roleError;
+        await supabase.from("profiles").insert({
+          id: data.user.id,
+          email,
+          full_name: fullName,
+        });
 
-        // Create profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({ 
-            id: data.user.id, 
-            email,
-            full_name: fullName 
-          });
-
-        if (profileError) throw profileError;
-
-        toast.success('Usuário cadastrado com sucesso!');
+        toast.success("Usuário cadastrado com sucesso!");
       }
     } catch (error: any) {
-      console.error('Sign up error:', error);
-      toast.error(error.message || 'Erro ao cadastrar usuário');
+      console.error("Sign up error:", error);
+      toast.error(error.message || "Erro ao cadastrar usuário");
       throw error;
     }
   };
 
+  // Logout
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.warn('Sign out warning:', error);
-      }
+      await supabase.auth.signOut();
     } catch (error: any) {
-      console.error('Logout error:', error);
-      toast.error(error.message || 'Erro ao fazer logout');
+      console.error("Logout error:", error);
+      toast.error(error.message || "Erro ao fazer logout");
     } finally {
-      // Garantir limpeza local mesmo se a API retornar 403/session_not_found
       setUser(null);
       setSession(null);
       setRoles([]);
-      toast.success('Logout realizado com sucesso!');
-      navigate('/login');
+      toast.success("Logout realizado com sucesso!");
+      navigate("/login");
     }
   };
 
-  const hasRole = (role: AppRole): boolean => {
-    return roles.includes(role) || roles.includes('admin');
+  const hasRole = (role: AppRole) => {
+    return roles.includes(role) || roles.includes("admin");
   };
 
-  const canAccessModule = (module: string): boolean => {
-    if (roles.includes('admin')) return true;
-    
-    for (const role of roles) {
-      if (MODULE_PERMISSIONS[role]?.includes(module)) {
-        return true;
-      }
-    }
-    
-    return false;
+  const canAccessModule = (module: string) => {
+    if (roles.includes("admin")) return true;
+
+    return roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
   };
 
   return (
@@ -244,8 +264,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
