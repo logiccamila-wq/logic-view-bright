@@ -1,3 +1,5 @@
+import { VehicleSelect } from "@/components/VehicleSelect";
+import { useState } from "react";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -49,15 +51,15 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
 
   const loadCTes = async () => {
     const { data, error } = await supabase
-      .from('cte')
-      .select('id, numero_cte, chave_acesso, remetente_cidade, destinatario_cidade, valor_total, peso_bruto')
-      .eq('status', 'autorizado')
-      .is('trip_id', null)
-      .order('created_at', { ascending: false })
+      .from("cte")
+      .select("id, numero_cte, chave_acesso, remetente_cidade, destinatario_cidade, valor_total, peso_bruto")
+      .eq("status", "autorizado")
+      .is("trip_id", null)
+      .order("created_at", { ascending: false })
       .limit(50);
 
     if (error) {
-      console.error('Erro ao carregar CT-es:', error);
+      console.error("Erro ao carregar CT-es:", error);
       return;
     }
 
@@ -78,27 +80,30 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
     setLoading(true);
 
     try {
-      const selectedCtesData = ctes.filter(cte => selectedCtes.includes(cte.id));
+      const selectedCtesData = ctes.filter((cte) => selectedCtes.includes(cte.id));
       const pesoTotal = selectedCtesData.reduce((sum, cte) => sum + cte.peso_bruto, 0);
       const valorTotal = selectedCtesData.reduce((sum, cte) => sum + cte.valor_total, 0);
 
-      const { data, error } = await supabase.functions.invoke('emitir-mdfe', {
+      const { data, error } = await supabase.functions.invoke("emitir-mdfe", {
         body: {
           ...formData,
           quantidade_ctes: selectedCtes.length,
           peso_bruto: pesoTotal,
           valor_carga: valorTotal,
-          ctes: selectedCtesData.map(cte => ({
+          ctes: selectedCtesData.map((cte) => ({
             chave: cte.chave_acesso,
           })),
-          ufs_percurso: formData.ufs_percurso.split(',').map(uf => uf.trim().toUpperCase()).filter(uf => uf),
+          ufs_percurso: formData.ufs_percurso
+            .split(",")
+            .map((uf) => uf.trim().toUpperCase())
+            .filter((uf) => uf),
           condutores: [
             {
               cpf: formData.cpf_motorista,
               nome: formData.nome_motorista,
             },
           ],
-        }
+        },
       });
 
       if (error) throw error;
@@ -114,7 +119,7 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
         throw new Error(data.error || "Erro ao emitir MDF-e");
       }
     } catch (error: any) {
-      console.error('Erro:', error);
+      console.error("Erro:", error);
       toast({
         title: "Erro ao emitir MDF-e",
         description: error.message,
@@ -126,11 +131,7 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
   };
 
   const toggleCte = (cteId: string) => {
-    setSelectedCtes(prev =>
-      prev.includes(cteId)
-        ? prev.filter(id => id !== cteId)
-        : [...prev, cteId]
-    );
+    setSelectedCtes((prev) => (prev.includes(cteId) ? prev.filter((id) => id !== cteId) : [...prev, cteId]));
   };
 
   return (
@@ -259,14 +260,12 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
               ) : (
                 ctes.map((cte) => (
                   <div key={cte.id} className="flex items-center space-x-2 p-2 hover:bg-accent rounded">
-                    <Checkbox
-                      checked={selectedCtes.includes(cte.id)}
-                      onCheckedChange={() => toggleCte(cte.id)}
-                    />
+                    <Checkbox checked={selectedCtes.includes(cte.id)} onCheckedChange={() => toggleCte(cte.id)} />
                     <div className="flex-1 text-sm">
                       <div className="font-medium">CT-e {cte.numero_cte}</div>
                       <div className="text-muted-foreground">
-                        {cte.remetente_cidade} → {cte.destinatario_cidade} | {cte.peso_bruto}kg | R$ {cte.valor_total.toFixed(2)}
+                        {cte.remetente_cidade} → {cte.destinatario_cidade} | {cte.peso_bruto}kg | R${" "}
+                        {cte.valor_total.toFixed(2)}
                       </div>
                     </div>
                   </div>
