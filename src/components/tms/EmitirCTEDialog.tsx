@@ -1,6 +1,5 @@
 import { VehicleSelect } from "@/components/VehicleSelect";
 import { useState } from "react";
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -376,11 +375,9 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Placa</Label>
-                <Input
-                  required
+                <VehicleSelect
                   value={formData.placa_veiculo}
-                  onChange={(e) => setFormData({ ...formData, placa_veiculo: e.target.value.toUpperCase() })}
-                  placeholder="ABC1234"
+                  onChange={(e) => setFormData({ ...formData, placa_veiculo: e.target.value })}
                 />
               </div>
               <div>
