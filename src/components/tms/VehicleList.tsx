@@ -2,23 +2,25 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 export function VehicleList() {
-  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadVehicles() {
+      setLoading(true);
+
       const { data, error } = await supabase
         .from("vehicles")
-        .select("*") // SEM FILTRO
+        .select("*") // ← FIX AQUI — removeu o filtro errado
         .order("placa", { ascending: true });
 
       if (error) {
-        setError(error.message);
-      } else {
-        setVehicles(data || []);
+        console.error("Erro ao carregar veículos:", error);
+        setLoading(false);
+        return;
       }
 
+      setVehicles(data || []);
       setLoading(false);
     }
 
@@ -29,39 +31,30 @@ export function VehicleList() {
     return <p>Carregando veículos...</p>;
   }
 
-  if (error) {
-    return <p>Erro ao carregar: {error}</p>;
-  }
-
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Veículos</h2>
+    <div style={{ padding: "16px" }}>
+      <h2 style={{ fontSize: "20px", marginBottom: "12px" }}>Lista de Veículos</h2>
 
-      {vehicles.length === 0 ? (
-        <p>Nenhum veículo encontrado.</p>
-      ) : (
-        <ul className="space-y-2">
-          {vehicles.map((v) => (
-            <li key={v.id} className="border p-3 rounded">
-              <div>
-                <strong>Placa:</strong> {v.placa}
-              </div>
-              <div>
-                <strong>Tipo:</strong> {v.tipo}
-              </div>
-              <div>
-                <strong>Modelo:</strong> {v.modelo}
-              </div>
-              <div>
-                <strong>Ano:</strong> {v.ano}
-              </div>
-              <div>
-                <strong>Status:</strong> {v.status}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      {vehicles.length === 0 && <p>Nenhum veículo encontrado.</p>}
+
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {vehicles.map((v) => (
+          <li
+            key={v.id}
+            style={{
+              padding: "12px",
+              marginBottom: "10px",
+              background: "#f5f5f5",
+              borderRadius: "6px",
+            }}
+          >
+            <strong>Placa:</strong> {v.placa} <br />
+            <strong>Tipo:</strong> {v.tipo} <br />
+            <strong>Modelo:</strong> {v.modelo} <br />
+            <strong>Proprietário:</strong> {v.proprietario || "—"}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
