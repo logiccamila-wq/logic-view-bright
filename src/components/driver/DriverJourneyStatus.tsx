@@ -78,6 +78,14 @@ export const DriverJourneyStatus = () => {
       <CardContent className="space-y-4">
         {activeSession ? (
           <>
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Veículo Atual</p>
+                <p className="text-xl font-bold">{activeSession.vehicle_plate}</p>
+              </div>
+              <Badge variant="default">Em uso</Badge>
+            </div>
+
             {currentEvent && (
               <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
                 {getActivityIcon(currentEvent.tipo_atividade)}

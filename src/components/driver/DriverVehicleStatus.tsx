@@ -1,21 +1,41 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Gauge, Smartphone, Wifi, Battery, MapPin, Navigation } from "lucide-react";
+import { Gauge, Smartphone, Wifi, Battery, MapPin, Navigation, Truck } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const DriverVehicleStatus = () => {
+  const { user } = useAuth();
   const [speed, setSpeed] = useState(0);
   const [deviceConnected, setDeviceConnected] = useState(true);
   const [gpsSignal, setGpsSignal] = useState(100);
+  const [vehiclePlate, setVehiclePlate] = useState<string | null>(null);
 
-  // Simulação de dados em tempo real (substituir por dados reais)
   useEffect(() => {
+    loadVehicleData();
+    
     const interval = setInterval(() => {
       setSpeed(Math.floor(Math.random() * 90) + 30);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
+
+  const loadVehicleData = async () => {
+    if (!user) return;
+
+    const { data: session } = await supabase
+      .from('driver_work_sessions')
+      .select('vehicle_plate')
+      .eq('driver_id', user.id)
+      .eq('status', 'ativa')
+      .single();
+
+    if (session) {
+      setVehiclePlate(session.vehicle_plate);
+    }
+  };
 
   const getSpeedColor = () => {
     if (speed > 80) return "text-red-500";
@@ -32,6 +52,17 @@ export const DriverVehicleStatus = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Placa do Veículo */}
+        {vehiclePlate && (
+          <div className="flex items-center gap-3 p-4 bg-primary/10 rounded-lg border border-primary/20">
+            <Truck className="h-8 w-8 text-primary" />
+            <div>
+              <p className="text-sm text-muted-foreground">Veículo</p>
+              <p className="text-2xl font-bold">{vehiclePlate}</p>
+            </div>
+          </div>
+        )}
+
         {/* Velocidade */}
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
           <div className="flex items-center gap-3">

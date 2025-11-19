@@ -368,14 +368,22 @@ export function WorkSessionPanel() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Status Atual */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Status Atual - Primeira linha: Veículo e Tempo Trabalhado */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Veículo Atual</p>
+              <p className="text-3xl font-bold text-primary">{currentSession.vehicle_plate}</p>
+            </div>
             <div>
               <p className="text-sm text-muted-foreground">Tempo Trabalhado</p>
               <p className="text-2xl font-bold">
                 {formatarTempo(currentSession.total_trabalho_minutos)}
               </p>
             </div>
+          </div>
+
+          {/* Segunda linha: Outros tempos */}
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Tempo Direção</p>
               <p className="text-2xl font-bold">
