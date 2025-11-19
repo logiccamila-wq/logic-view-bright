@@ -1,3 +1,5 @@
+import { VehicleSelect } from "@/components/VehicleSelect";
+import { useState } from "react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -63,14 +65,14 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('emitir-cte', {
+      const { data, error } = await supabase.functions.invoke("emitir-cte", {
         body: {
           ...formData,
           quantidade_volumes: parseInt(formData.quantidade_volumes),
           peso_bruto: parseFloat(formData.peso_bruto),
           valor_carga: parseFloat(formData.valor_carga),
           valor_total: parseFloat(formData.valor_total),
-        }
+        },
       });
 
       if (error) throw error;
@@ -86,7 +88,7 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
         throw new Error(data.error || "Erro ao emitir CT-e");
       }
     } catch (error: any) {
-      console.error('Erro:', error);
+      console.error("Erro:", error);
       toast({
         title: "Erro ao emitir CT-e",
         description: error.message,
@@ -134,7 +136,10 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
             <h3 className="font-semibold">Tomador do Serviço</h3>
             <div>
               <Label>Tipo de Tomador</Label>
-              <Select value={formData.tipo_tomador} onValueChange={(value) => setFormData({ ...formData, tipo_tomador: value })}>
+              <Select
+                value={formData.tipo_tomador}
+                onValueChange={(value) => setFormData({ ...formData, tipo_tomador: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -233,7 +238,9 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
                 <Input
                   required
                   value={formData.remetente_municipio}
-                  onChange={(e) => setFormData({ ...formData, remetente_municipio: e.target.value, municipio_origem: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, remetente_municipio: e.target.value, municipio_origem: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -242,7 +249,13 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
                   required
                   maxLength={2}
                   value={formData.remetente_uf}
-                  onChange={(e) => setFormData({ ...formData, remetente_uf: e.target.value.toUpperCase(), uf_origem: e.target.value.toUpperCase() })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      remetente_uf: e.target.value.toUpperCase(),
+                      uf_origem: e.target.value.toUpperCase(),
+                    })
+                  }
                 />
               </div>
             </div>
@@ -275,7 +288,13 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
                 <Input
                   required
                   value={formData.destinatario_municipio}
-                  onChange={(e) => setFormData({ ...formData, destinatario_municipio: e.target.value, municipio_destino: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      destinatario_municipio: e.target.value,
+                      municipio_destino: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
@@ -284,7 +303,13 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
                   required
                   maxLength={2}
                   value={formData.destinatario_uf}
-                  onChange={(e) => setFormData({ ...formData, destinatario_uf: e.target.value.toUpperCase(), uf_destino: e.target.value.toUpperCase() })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      destinatario_uf: e.target.value.toUpperCase(),
+                      uf_destino: e.target.value.toUpperCase(),
+                    })
+                  }
                 />
               </div>
             </div>
