@@ -6,14 +6,7 @@ import { Plus, FileText, CheckCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import EmitirMDFEDialog from "./EmitirMDFEDialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface MDFE {
   id: string;
@@ -42,13 +35,10 @@ export default function MDFEManagement() {
 
   const loadMdfes = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('mdfe')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await supabase.from("mdfe").select("*").order("created_at", { ascending: false });
 
     if (error) {
-      console.error('Erro ao carregar MDF-es:', error);
+      console.error("Erro ao carregar MDF-es:", error);
       toast({
         title: "Erro ao carregar MDF-es",
         description: error.message,
@@ -63,17 +53,17 @@ export default function MDFEManagement() {
   const handleEncerrar = async (mdfe: MDFE) => {
     if (!confirm(`Confirma o encerramento do MDF-e ${mdfe.numero_mdfe}?`)) return;
 
-    const municipio = prompt('Município de encerramento:');
+    const municipio = prompt("Município de encerramento:");
     if (!municipio) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('encerrar-mdfe', {
+      const { data, error } = await supabase.functions.invoke("encerrar-mdfe", {
         body: {
           mdfe_id: mdfe.id,
           chave_acesso: mdfe.chave_acesso,
           uf_encerramento: mdfe.uf_fim,
           municipio_encerramento: municipio,
-        }
+        },
       });
 
       if (error) throw error;
@@ -94,6 +84,7 @@ export default function MDFEManagement() {
       });
     }
   };
+  <VehicleSelect value={selectedPlaca} onChange={(e) => setSelectedPlaca(e.target.value)} />;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -103,11 +94,7 @@ export default function MDFEManagement() {
       cancelado: "destructive",
     };
 
-    return (
-      <Badge variant={variants[status] || "default"}>
-        {status.toUpperCase()}
-      </Badge>
-    );
+    return <Badge variant={variants[status] || "default"}>{status.toUpperCase()}</Badge>;
   };
 
   return (
@@ -148,7 +135,9 @@ export default function MDFEManagement() {
                   <TableRow key={mdfe.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{mdfe.numero_mdfe}/{mdfe.serie}</div>
+                        <div className="font-medium">
+                          {mdfe.numero_mdfe}/{mdfe.serie}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {new Date(mdfe.data_emissao).toLocaleDateString()}
                         </div>
@@ -164,12 +153,8 @@ export default function MDFEManagement() {
                     <TableCell>R$ {mdfe.valor_total_carga.toFixed(2)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {mdfe.status === 'autorizado' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEncerrar(mdfe)}
-                          >
+                        {mdfe.status === "autorizado" && (
+                          <Button size="sm" variant="outline" onClick={() => handleEncerrar(mdfe)}>
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Encerrar
                           </Button>
@@ -196,11 +181,7 @@ export default function MDFEManagement() {
         </CardContent>
       </Card>
 
-      <EmitirMDFEDialog
-        open={emitirDialogOpen}
-        onOpenChange={setEmitirDialogOpen}
-        onSuccess={loadMdfes}
-      />
+      <EmitirMDFEDialog open={emitirDialogOpen} onOpenChange={setEmitirDialogOpen} onSuccess={loadMdfes} />
     </div>
   );
 }
