@@ -690,10 +690,10 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
               </div>
               <div>
                 <Label>Placa Veículo *</Label>
-                <Input
-                  value={formData.placa_veiculo}
-                  onChange={e => setFormData({ ...formData, placa_veiculo: e.target.value })}
-                  placeholder="ABC-1234"
+            <VehicleSelect
+  value={formData.placa_veiculo}
+  onChange={e => setFormData({ ...formData, placa_veiculo: e.target.value })}
+/>
                 />
               </div>
               <div>
