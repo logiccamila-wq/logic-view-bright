@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { X, Download, Share, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { useEffect, useState } from "react";
+import { X, Download, Share, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
 export function PWAInstallPrompt() {
@@ -16,51 +16,48 @@ export function PWAInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Detecta se já está instalado
-    const standalone = window.matchMedia('(display-mode: standalone)').matches || 
-                      (window.navigator as any).standalone === true;
+    // Verifica se já está instalado
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+
     setIsStandalone(standalone);
 
-    // Detecta iOS
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOS(ios);
-
-    // Detecta Android
+    // Detecta iOS e Android
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const android = /Android/.test(navigator.userAgent);
+
+    setIsIOS(ios);
     setIsAndroid(android);
 
-    // Verifica se já foi dispensado
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    
-    // Mostra prompt apenas se for mobile e não estiver instalado e não foi dispensado
+    // Verifica se o usuário já dispensou antes
+    const dismissed = localStorage.getItem("pwa-install-dismissed");
+
     if ((ios || android) && !standalone && !dismissed) {
-      // Para iOS, mostra imediatamente
       if (ios) {
         setShowPrompt(true);
       }
     }
 
-    // Handler para Android
+    // Handler Android
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowPrompt(true);
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener("beforeinstallprompt", handler);
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
-
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
+    if (outcome === "accepted") {
       setShowPrompt(false);
-      localStorage.setItem('pwa-installed', 'true');
+      localStorage.setItem("pwa-installed", "true");
     }
 
     setDeferredPrompt(null);
@@ -68,12 +65,10 @@ export function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    localStorage.setItem("pwa-install-dismissed", "true");
   };
 
-  if (!showPrompt || isStandalone) {
-    return null;
-  }
+  if (!showPrompt || isStandalone) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-4 pointer-events-none">
@@ -86,17 +81,10 @@ export function PWAInstallPrompt() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Instalar OptiLog</h3>
-                <p className="text-sm text-muted-foreground">
-                  Acesso rápido e offline
-                </p>
+                <p className="text-sm text-muted-foreground">Acesso rápido e offline</p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDismiss}
-              className="h-8 w-8"
-            >
+            <Button variant="ghost" size="icon" onClick={handleDismiss} className="h-8 w-8">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -108,20 +96,20 @@ export function PWAInstallPrompt() {
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-primary">1.</span>
                   <span>
-                    Toque no botão <Share className="inline h-4 w-4 mx-1" /> 
-                    <strong>Compartilhar</strong> na barra inferior
+                    Toque no botão <Share className="inline h-4 w-4 mx-1" /> <strong>Compartilhar</strong>
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-primary">2.</span>
                   <span>
-                    Role para baixo e toque em <Plus className="inline h-4 w-4 mx-1" />
-                    <strong>Adicionar à Tela de Início</strong>
+                    Role e toque em <Plus className="inline h-4 w-4 mx-1" /> <strong>Adicionar à Tela de Início</strong>
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-primary">3.</span>
-                  <span>Toque em <strong>Adicionar</strong> no canto superior direito</span>
+                  <span>
+                    Depois toque em <strong>Adicionar</strong>
+                  </span>
                 </li>
               </ol>
             </div>
@@ -140,11 +128,13 @@ export function PWAInstallPrompt() {
               <ol className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-primary">1.</span>
-                  <span>Toque no menu <strong>⋮</strong> no canto superior</span>
+                  <span>Aperte o menu ⋮</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-primary">2.</span>
-                  <span>Selecione <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong></span>
+                  <span>
+                    Escolha <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>
+                  </span>
                 </li>
               </ol>
             </div>
