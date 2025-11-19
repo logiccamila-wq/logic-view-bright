@@ -36,6 +36,7 @@ interface ServiceOrder {
 export function ServiceOrdersTab() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
+  const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | null>(null);
@@ -65,8 +66,25 @@ export function ServiceOrdersTab() {
     }
   };
 
+  const fetchVehicles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('vehicles')
+        .select('placa, modelo, tipo, status')
+        .eq('status', 'ativo')
+        .order('placa');
+
+      if (error) throw error;
+      setVehicles(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar veículos:', error);
+      toast.error('Erro ao carregar veículos');
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
+    fetchVehicles();
 
     const channel = supabase
       .channel('service_orders_changes')
@@ -177,20 +195,37 @@ export function ServiceOrdersTab() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="vehicle_plate">Placa do Veículo</Label>
-                  <Input
-                    id="vehicle_plate"
-                    value={formData.vehicle_plate}
-                    onChange={(e) => setFormData({ ...formData, vehicle_plate: e.target.value })}
-                    required
-                  />
+                  <Select 
+                    value={formData.vehicle_plate} 
+                    onValueChange={(value) => {
+                      const selectedVehicle = vehicles.find(v => v.placa === value);
+                      setFormData({ 
+                        ...formData, 
+                        vehicle_plate: value,
+                        vehicle_model: selectedVehicle?.modelo || ''
+                      });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a placa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehicles.map((vehicle) => (
+                        <SelectItem key={vehicle.placa} value={vehicle.placa}>
+                          {vehicle.placa} - {vehicle.modelo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="vehicle_model">Modelo</Label>
                   <Input
                     id="vehicle_model"
                     value={formData.vehicle_model}
-                    onChange={(e) => setFormData({ ...formData, vehicle_model: e.target.value })}
-                    required
+                    readOnly
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
               </div>

@@ -91,15 +91,32 @@ export function WorkSessionPanel() {
   const [availableVehicles, setAvailableVehicles] = useState<any[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<string>("");
 
-  const loadAvailableVehicles = async () => {
-    const { data } = await supabase
-      .from("vehicles")
-      .select("placa, modelo, ano")
-      .eq("tipo", "cavalo_mecanico")
-      .eq("status", "disponivel")
-      .order("placa");
-    
-    setAvailableVehicles(data || []);
+  const handleIniciarJornadaClick = async () => {
+    setShowVehicleSelect(true);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("vehicles")
+        .select("placa, modelo, ano, tipo")
+        .in("tipo", ["cavalo_mecanico", "caminhao"])
+        .eq("status", "ativo")
+        .order("placa");
+
+      if (error) {
+        console.error("Erro ao carregar veículos:", error);
+        toast.error("Erro ao carregar veículos");
+        setAvailableVehicles([]);
+      } else {
+        console.log("Veículos carregados:", data);
+        setAvailableVehicles(data || []);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar veículos:", error);
+      toast.error("Erro ao carregar veículos");
+      setAvailableVehicles([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const iniciarJornadaComViagem = async () => {
@@ -178,11 +195,6 @@ export function WorkSessionPanel() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleIniciarJornadaClick = async () => {
-    await loadAvailableVehicles();
-    setShowVehicleSelect(true);
   };
 
   const finalizarJornada = async () => {
@@ -333,11 +345,17 @@ export function WorkSessionPanel() {
                     <SelectValue placeholder="Escolha um cavalo mecânico" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableVehicles.map((v) => (
-                      <SelectItem key={v.placa} value={v.placa}>
-                        {v.placa} - {v.modelo} ({v.ano})
+                    {availableVehicles.length === 0 ? (
+                      <SelectItem value="nenhum" disabled>
+                        Nenhum veículo disponível
                       </SelectItem>
-                    ))}
+                    ) : (
+                      availableVehicles.map((v) => (
+                        <SelectItem key={v.placa} value={v.placa}>
+                          {v.placa} - {v.modelo} {v.ano ? `(${v.ano})` : ''}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
