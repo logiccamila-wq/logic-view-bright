@@ -375,35 +375,22 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Placa</Label>
-                // ... outros imports ...
-import { VehicleSelect } from "@/components/VehicleSelect";
-
-// ...restante do seu componente...
-
-{/* Veículo */}
-<div className="space-y-4">
-  <h3 className="font-semibold">Veículo de Tração</h3>
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <Label>Placa</Label>
-      <VehicleSelect
-        value={formData.placa_cavalo}
-        onChange={e => setFormData({ ...formData, placa_cavalo: e.target.value })}
-      />
-    </div>
-    <div>
-      <Label>UF</Label>
-      <Input
-        required
-        maxLength={2}
-        value={formData.uf_cavalo}
-        onChange={(e) => setFormData({ ...formData, uf_cavalo: e.target.value.toUpperCase() })}
-        placeholder="PE"
-      />
-    </div>
-  </div>
-</div><VehicleSelect
-                
+                <VehicleSelect
+                  value={formData.placa_veiculo}
+                  onChange={(e) => setFormData({ ...formData, placa_veiculo: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>UF</Label>
+                <Input
+                  required
+                  maxLength={2}
+                  value={formData.uf_veiculo}
+                  onChange={(e) => setFormData({ ...formData, uf_veiculo: e.target.value.toUpperCase() })}
+                />
+              </div>
+            </div>
+          </div>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
