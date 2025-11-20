@@ -56,14 +56,14 @@ const TMS = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="trips" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="trips">Gestão de Viagens</TabsTrigger>
-            <TabsTrigger value="rotas">Planejamento de Rotas</TabsTrigger>
-            <TabsTrigger value="ordem-coleta">Ordem de Coleta</TabsTrigger>
-            <TabsTrigger value="veiculos">Cavalos</TabsTrigger>
-            <TabsTrigger value="cte">CT-e</TabsTrigger>
-            <TabsTrigger value="mdfe">MDF-e</TabsTrigger>
-            <TabsTrigger value="receita">Análise de Receita</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-1">
+            <TabsTrigger value="trips" className="text-xs sm:text-sm">Viagens</TabsTrigger>
+            <TabsTrigger value="rotas" className="text-xs sm:text-sm">Rotas</TabsTrigger>
+            <TabsTrigger value="ordem-coleta" className="text-xs sm:text-sm">Ordem Coleta</TabsTrigger>
+            <TabsTrigger value="veiculos" className="text-xs sm:text-sm">Cavalos</TabsTrigger>
+            <TabsTrigger value="cte" className="text-xs sm:text-sm">CT-e</TabsTrigger>
+            <TabsTrigger value="mdfe" className="text-xs sm:text-sm">MDF-e</TabsTrigger>
+            <TabsTrigger value="receita" className="text-xs sm:text-sm">Receita</TabsTrigger>
           </TabsList>
 
           {/* Gestão de Viagens */}

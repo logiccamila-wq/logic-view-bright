@@ -195,7 +195,7 @@ export default function DriverApp() {
 
         {/* Tabs Mobile-optimized */}
         <Tabs defaultValue="jornada" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-9 h-auto gap-1">
             <TabsTrigger value="jornada" className="text-xs py-2">
               <Clock className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Jornada</span>

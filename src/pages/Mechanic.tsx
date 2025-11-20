@@ -30,51 +30,58 @@ const Mechanic = () => {
         <MechanicClockIn />
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 lg:w-auto">
-            <TabsTrigger value="orders" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-9 gap-1">
+            <TabsTrigger value="orders" className="flex items-center gap-2 text-xs sm:text-sm">
               <Wrench className="h-4 w-4" />
               <span className="hidden sm:inline">Ordens de Serviço</span>
               <span className="sm:hidden">OS</span>
             </TabsTrigger>
 
-            <TabsTrigger value="lavajato" className="flex items-center gap-2">
+            <TabsTrigger value="lavajato" className="flex items-center gap-2 text-xs sm:text-sm">
               <Droplet className="h-4 w-4" />
               <span className="hidden sm:inline">Lava-Jato</span>
+              <span className="sm:hidden">Lava</span>
             </TabsTrigger>
 
-            <TabsTrigger value="borracharia" className="flex items-center gap-2">
+            <TabsTrigger value="borracharia" className="flex items-center gap-2 text-xs sm:text-sm">
               <Circle className="h-4 w-4" />
               <span className="hidden sm:inline">Borracharia</span>
+              <span className="sm:hidden">Pneu</span>
             </TabsTrigger>
 
-            <TabsTrigger value="tpms" className="flex items-center gap-2">
+            <TabsTrigger value="tpms" className="flex items-center gap-2 text-xs sm:text-sm">
               <Gauge className="h-4 w-4" />
-              <span className="hidden sm:inline">TPMS</span>
+              <span>TPMS</span>
             </TabsTrigger>
 
-            <TabsTrigger value="workshop" className="flex items-center gap-2">
+            <TabsTrigger value="workshop" className="flex items-center gap-2 text-xs sm:text-sm">
               <Package className="h-4 w-4" />
               <span className="hidden sm:inline">Oficina</span>
+              <span className="sm:hidden">Ofic</span>
             </TabsTrigger>
 
-            <TabsTrigger value="checklist" className="flex items-center gap-2">
+            <TabsTrigger value="checklist" className="flex items-center gap-2 text-xs sm:text-sm">
               <ClipboardCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Checklists</span>
+              <span className="sm:hidden">Check</span>
             </TabsTrigger>
 
-            <TabsTrigger value="scheduler" className="flex items-center gap-2">
+            <TabsTrigger value="scheduler" className="flex items-center gap-2 text-xs sm:text-sm">
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Agendamento</span>
+              <span className="sm:hidden">Agend</span>
             </TabsTrigger>
 
-            <TabsTrigger value="parts" className="flex items-center gap-2">
+            <TabsTrigger value="parts" className="flex items-center gap-2 text-xs sm:text-sm">
               <PackagePlus className="h-4 w-4" />
               <span className="hidden sm:inline">Pedido Peças</span>
+              <span className="sm:hidden">Peças</span>
             </TabsTrigger>
 
-            <TabsTrigger value="test" className="flex items-center gap-2">
+            <TabsTrigger value="test" className="flex items-center gap-2 text-xs sm:text-sm">
               <TestTube className="h-4 w-4" />
               <span className="hidden sm:inline">Teste APIs</span>
+              <span className="sm:hidden">Test</span>
             </TabsTrigger>
           </TabsList>
 
