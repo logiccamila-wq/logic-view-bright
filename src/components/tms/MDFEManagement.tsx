@@ -84,7 +84,6 @@ export default function MDFEManagement() {
       });
     }
   };
-  <VehicleSelect value={selectedPlaca} onChange={(e) => setSelectedPlaca(e.target.value)} />;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
