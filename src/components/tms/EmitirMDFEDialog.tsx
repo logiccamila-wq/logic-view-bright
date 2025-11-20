@@ -206,11 +206,9 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Placa</Label>
-                <Input
-                  required
+                <VehicleSelect
                   value={formData.placa_cavalo}
-                  onChange={(e) => setFormData({ ...formData, placa_cavalo: e.target.value.toUpperCase() })}
-                  placeholder="ABC1234"
+                  onChange={(e) => setFormData({ ...formData, placa_cavalo: e.target.value })}
                 />
               </div>
               <div>
