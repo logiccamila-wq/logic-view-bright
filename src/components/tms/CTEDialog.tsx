@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { VehicleSelect } from '@/components/VehicleSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -694,7 +695,6 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
   value={formData.placa_veiculo}
   onChange={e => setFormData({ ...formData, placa_veiculo: e.target.value })}
 />
-                />
               </div>
               <div>
                 <Label>Placa Carreta</Label>
