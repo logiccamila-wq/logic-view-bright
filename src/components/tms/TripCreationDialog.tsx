@@ -88,12 +88,17 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
     setDrivers(availableDrivers);
 
     // Buscar cavalos mecânicos
-    const { data: cavalosData } = await supabase
+    const { data: cavalosData, error: cavalosError } = await supabase
       .from('vehicles')
       .select('placa, modelo')
       .eq('tipo', 'cavalo')
-      .eq('status', 'ativo')
       .order('placa');
+
+    if (cavalosError) {
+      console.error('Erro ao buscar cavalos:', cavalosError);
+    }
+
+    console.log('Cavalos carregados:', cavalosData);
 
     setVehicles((cavalosData || []).map(v => ({
       plate: v.placa,
@@ -103,12 +108,17 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
     })));
 
     // Buscar carretas
-    const { data: carretasData } = await supabase
+    const { data: carretasData, error: carretasError } = await supabase
       .from('vehicles')
       .select('placa, modelo')
       .eq('tipo', 'carreta')
-      .eq('status', 'ativo')
       .order('placa');
+
+    if (carretasError) {
+      console.error('Erro ao buscar carretas:', carretasError);
+    }
+
+    console.log('Carretas carregadas:', carretasData);
 
     setCarretas((carretasData || []).map(v => ({
       plate: v.placa,
@@ -121,8 +131,13 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedDriver || !selectedVehicle || !estimatedDeparture || !estimatedArrival) {
-      toast.error('Preencha todos os campos obrigatórios');
+    if (!selectedDriver || !estimatedDeparture || !estimatedArrival) {
+      toast.error('Preencha todos os campos obrigatórios (Motorista e Datas)');
+      return;
+    }
+
+    if (vehicles.length > 0 && !selectedVehicle) {
+      toast.error('Selecione um veículo da lista ou cadastre um novo na aba Cavalos');
       return;
     }
 
@@ -140,7 +155,7 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
           destination: `${cte.destinatario_cidade}/${cte.destinatario_uf}`,
           driver_id: selectedDriver,
           driver_name: selectedDriverData?.full_name || 'Motorista',
-          vehicle_plate: selectedVehicle,
+          vehicle_plate: selectedVehicle || cte.placa_veiculo || 'SEM-PLACA',
           status: 'aprovada',
           estimated_departure: estimatedDeparture,
           estimated_arrival: estimatedArrival,
@@ -285,26 +300,31 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
               <Truck className="h-4 w-4" />
               Veículo *
             </Label>
-            <Select value={selectedVehicle} onValueChange={setSelectedVehicle} required>
+            <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
               <SelectTrigger id="vehicle">
-                <SelectValue placeholder="Selecione um veículo" />
+                <SelectValue placeholder={vehicles.length === 0 ? "⚠️ Nenhum cavalo cadastrado" : "Selecione um veículo"} />
               </SelectTrigger>
               <SelectContent>
                 {vehicles.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-muted-foreground">
-                    <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    Nenhum veículo cadastrado
+                  <div className="p-4 text-center text-sm">
+                    <AlertCircle className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+                    <p className="font-semibold mb-1">Nenhum cavalo mecânico cadastrado</p>
+                    <p className="text-muted-foreground text-xs">
+                      Vá em TMS → Cavalos para cadastrar
+                    </p>
                   </div>
                 ) : (
                   vehicles.map((vehicle) => (
                     <SelectItem key={vehicle.plate} value={vehicle.plate}>
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-mono">{vehicle.plate}</span>
-                        <span className="text-muted-foreground ml-2">
-                          {vehicle.brand} {vehicle.model}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-semibold">{vehicle.plate}</span>
+                        {vehicle.model && (
+                          <span className="text-muted-foreground text-xs">
+                            {vehicle.model}
+                          </span>
+                        )}
                         {vehicle.available && (
-                          <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600">
+                          <Badge variant="outline" className="ml-auto bg-green-500/10 text-green-600 text-xs">
                             Disponível
                           </Badge>
                         )}
@@ -314,6 +334,12 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
                 )}
               </SelectContent>
             </Select>
+            {vehicles.length === 0 && (
+              <p className="text-xs text-orange-600 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                Cadastre cavalos mecânicos na aba "Cavalos" do TMS
+              </p>
+            )}
           </div>
 
           {/* Seleção de Carreta */}
