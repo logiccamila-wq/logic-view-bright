@@ -284,11 +284,6 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
             <Label htmlFor="vehicle" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
               Veículo *
-              {cte.placa_veiculo && (
-                <Badge variant="outline" className="ml-2 bg-blue-500/10 text-blue-600">
-                  Sugerido: {cte.placa_veiculo}
-                </Badge>
-              )}
             </Label>
             <Select value={selectedVehicle} onValueChange={setSelectedVehicle} required>
               <SelectTrigger id="vehicle">
