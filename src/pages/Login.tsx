@@ -12,19 +12,31 @@ import optilogLogo from "@/assets/optilog-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user } = useAuth();
+  const { signIn, user, roles, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
-  // Redirect if already logged in
+  // Redirecionar usuário autenticado conforme o papel
   useEffect(() => {
-    if (user) {
+    if (!user || authLoading) return;
+
+    const onlyMechanic = roles.length > 0 && roles.every((r) =>
+      r === "fleet_maintenance" || r === "maintenance_assistant"
+    );
+
+    const onlyDriver = roles.length === 1 && roles[0] === "driver";
+
+    if (onlyMechanic) {
+      navigate("/mechanic");
+    } else if (onlyDriver) {
+      navigate("/driver");
+    } else {
       navigate("/dashboard");
     }
-  }, [user, navigate]);
+  }, [user, roles, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
