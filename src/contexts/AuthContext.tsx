@@ -57,8 +57,8 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
     "innovation",
   ],
   commercial: ["dashboard", "tms", "crm"],
-  fleet_maintenance: ["dashboard", "fleet", "mechanic", "inventory", "documents", "approvals"],
-  maintenance_assistant: ["dashboard", "mechanic", "inventory"],
+  fleet_maintenance: ["fleet", "mechanic", "inventory", "documents", "approvals"],
+  maintenance_assistant: ["mechanic", "inventory"],
   logistics_manager: [
     "dashboard",
     "tms",

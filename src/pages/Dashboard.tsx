@@ -8,10 +8,24 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { canAccessModule } = useAuth();
+  const { canAccessModule, roles, loading } = useAuth();
+
+  // Redirecionar mecânicos que tentam acessar o dashboard
+  useEffect(() => {
+    if (loading) return;
+    
+    const onlyMechanic = roles.length > 0 && roles.every(r => 
+      r === 'fleet_maintenance' || r === 'maintenance_assistant'
+    );
+    
+    if (onlyMechanic) {
+      navigate('/mechanic', { replace: true });
+    }
+  }, [roles, loading, navigate]);
 
 
   // Buscar veículos ativos
