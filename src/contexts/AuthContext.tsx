@@ -167,12 +167,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         const { data: userRoles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
 
-        const hasDriverRole = userRoles?.some((r) => r.role === "driver");
-        const hasOnlyDriverRole = userRoles?.length === 1 && hasDriverRole === true;
+        const roles = userRoles?.map(r => r.role as AppRole) || [];
+        
+        // Mecânicos: apenas fleet_maintenance ou maintenance_assistant
+        const onlyMechanic = roles.every(r => 
+          r === 'fleet_maintenance' || r === 'maintenance_assistant'
+        );
+        
+        // Motorista: apenas driver
+        const onlyDriver = roles.length === 1 && roles[0] === 'driver';
 
         toast.success("Login realizado com sucesso!");
 
-        if (hasOnlyDriverRole) {
+        if (onlyMechanic) {
+          navigate("/mechanic");
+        } else if (onlyDriver) {
           navigate("/driver");
         } else {
           navigate("/dashboard");
