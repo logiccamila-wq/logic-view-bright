@@ -8,30 +8,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { canAccessModule, roles, loading } = useAuth();
+  const { canAccessModule } = useAuth();
 
-  // Auto-redirect baseado em roles
-  useEffect(() => {
-    if (loading || roles.length === 0) return;
-
-    // Se usuário tem apenas roles de mecânico, redirecionar para /mechanic
-    const onlyMechanic = roles.every(r => 
-      r === 'fleet_maintenance' || r === 'maintenance_assistant'
-    );
-    
-    // Se usuário tem apenas role de motorista, redirecionar para /driver
-    const onlyDriver = roles.length === 1 && roles[0] === 'driver';
-    
-    if (onlyMechanic && canAccessModule('mechanic')) {
-      navigate('/mechanic', { replace: true });
-    } else if (onlyDriver && canAccessModule('driver')) {
-      navigate('/driver', { replace: true });
-    }
-  }, [roles, loading, navigate, canAccessModule]);
 
   // Buscar veículos ativos
   const { data: vehicles = [] } = useQuery({
