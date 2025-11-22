@@ -42,6 +42,8 @@ import CostMonitoring from "./pages/CostMonitoring";
 import ImportVehicles from "./pages/ImportVehicles";
 import Permissions from "./pages/Permissions";
 import Partners from "./pages/Partners";
+import Employees from "./pages/Employees";
+import DRE from "./pages/DRE";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -92,6 +94,8 @@ const App = () => (
             <Route path="/import-vehicles" element={<ProtectedRoute module="fleet"><ImportVehicles /></ProtectedRoute>} />
             <Route path="/permissions" element={<ProtectedRoute module="settings"><Permissions /></ProtectedRoute>} />
             <Route path="/partners" element={<ProtectedRoute module="finance"><Partners /></ProtectedRoute>} />
+            <Route path="/employees" element={<ProtectedRoute module="fleet"><Employees /></ProtectedRoute>} />
+            <Route path="/dre" element={<ProtectedRoute module="finance"><DRE /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
