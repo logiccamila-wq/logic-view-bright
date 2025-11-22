@@ -27,6 +27,8 @@ import {
   Code2,
   Sparkles,
   Shield,
+  Briefcase,
+  TrendingUp,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -62,9 +64,11 @@ const mainItems = [
 const managementItems = [
   { title: "Aprovações", url: "/approvals", icon: CheckCircle, module: "approvals" },
   { title: "Estoque", url: "/inventory", icon: Package, module: "inventory" },
+  { title: "Funcionários", url: "/employees", icon: Briefcase, module: "fleet" },
   { title: "Sócios", url: "/partners", icon: Users, module: "finance" },
   { title: "Contas a Pagar", url: "/accounts-payable", icon: ArrowDownCircle, module: "finance" },
   { title: "Contas a Receber", url: "/accounts-receivable", icon: ArrowUpCircle, module: "finance" },
+  { title: "DRE", url: "/dre", icon: TrendingUp, module: "finance" },
   { title: "Monitoramento de Custos", url: "/cost-monitoring", icon: DollarSign, module: "finance" },
   { title: "Documentos", url: "/documents", icon: FileText, module: "documents" },
   { title: "Usuários", url: "/users", icon: Users, module: "users" },

@@ -729,6 +729,48 @@ export type Database = {
         }
         Relationships: []
       }
+      dre_entries: {
+        Row: {
+          categoria: string
+          created_at: string | null
+          data: string
+          descricao: string | null
+          id: string
+          origem_id: string | null
+          origem_tipo: string | null
+          subcategoria: string | null
+          tipo: string
+          updated_at: string | null
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string | null
+          data: string
+          descricao?: string | null
+          id?: string
+          origem_id?: string | null
+          origem_tipo?: string | null
+          subcategoria?: string | null
+          tipo: string
+          updated_at?: string | null
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          origem_id?: string | null
+          origem_tipo?: string | null
+          subcategoria?: string | null
+          tipo?: string
+          updated_at?: string | null
+          valor?: number
+        }
+        Relationships: []
+      }
       driver_compensation_config: {
         Row: {
           created_at: string
@@ -764,6 +806,44 @@ export type Database = {
           valor_hora_normal?: number
         }
         Relationships: []
+      }
+      driver_journeys: {
+        Row: {
+          created_at: string | null
+          driver_id: string
+          entrada: string
+          id: string
+          observacoes: string | null
+          saida: string | null
+          tipo: Database["public"]["Enums"]["tipo_jornada"]
+        }
+        Insert: {
+          created_at?: string | null
+          driver_id: string
+          entrada: string
+          id?: string
+          observacoes?: string | null
+          saida?: string | null
+          tipo: Database["public"]["Enums"]["tipo_jornada"]
+        }
+        Update: {
+          created_at?: string | null
+          driver_id?: string
+          entrada?: string
+          id?: string
+          observacoes?: string | null
+          saida?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_jornada"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_journeys_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       driver_payroll: {
         Row: {
@@ -851,6 +931,56 @@ export type Database = {
           valor_horas_normais?: number
         }
         Relationships: []
+      }
+      driver_trips: {
+        Row: {
+          created_at: string | null
+          data_fim: string | null
+          data_inicio: string
+          destino: string
+          driver_id: string
+          id: string
+          observacoes: string | null
+          origem: string
+          status: Database["public"]["Enums"]["trip_status"] | null
+          updated_at: string | null
+          vehicle_plate: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_fim?: string | null
+          data_inicio: string
+          destino: string
+          driver_id: string
+          id?: string
+          observacoes?: string | null
+          origem: string
+          status?: Database["public"]["Enums"]["trip_status"] | null
+          updated_at?: string | null
+          vehicle_plate?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_fim?: string | null
+          data_inicio?: string
+          destino?: string
+          driver_id?: string
+          id?: string
+          observacoes?: string | null
+          origem?: string
+          status?: Database["public"]["Enums"]["trip_status"] | null
+          updated_at?: string | null
+          vehicle_plate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_trips_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       driver_violations: {
         Row: {
@@ -1085,6 +1215,160 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      drivers: {
+        Row: {
+          aptidao_medica: boolean | null
+          categoria_cnh: string
+          created_at: string | null
+          employee_id: string
+          id: string
+          status_operacional:
+            | Database["public"]["Enums"]["status_operacional"]
+            | null
+          treinamento_mopp: boolean | null
+          updated_at: string | null
+          validade_cnh: string
+        }
+        Insert: {
+          aptidao_medica?: boolean | null
+          categoria_cnh: string
+          created_at?: string | null
+          employee_id: string
+          id?: string
+          status_operacional?:
+            | Database["public"]["Enums"]["status_operacional"]
+            | null
+          treinamento_mopp?: boolean | null
+          updated_at?: string | null
+          validade_cnh: string
+        }
+        Update: {
+          aptidao_medica?: boolean | null
+          categoria_cnh?: string
+          created_at?: string | null
+          employee_id?: string
+          id?: string
+          status_operacional?:
+            | Database["public"]["Enums"]["status_operacional"]
+            | null
+          treinamento_mopp?: boolean | null
+          updated_at?: string | null
+          validade_cnh?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drivers_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: true
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_expenses: {
+        Row: {
+          categoria: string | null
+          comprovante_url: string | null
+          created_at: string | null
+          data: string
+          descricao: string
+          employee_id: string
+          id: string
+          updated_at: string | null
+          valor: number
+        }
+        Insert: {
+          categoria?: string | null
+          comprovante_url?: string | null
+          created_at?: string | null
+          data: string
+          descricao: string
+          employee_id: string
+          id?: string
+          updated_at?: string | null
+          valor: number
+        }
+        Update: {
+          categoria?: string | null
+          comprovante_url?: string | null
+          created_at?: string | null
+          data?: string
+          descricao?: string
+          employee_id?: string
+          id?: string
+          updated_at?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_expenses_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          cargo: string
+          cidade: string | null
+          cpf: string
+          created_at: string | null
+          data_admissao: string
+          data_demissao: string | null
+          documentos: Json | null
+          email: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          rg: string | null
+          salario: number | null
+          telefone: string | null
+          tipo_vinculo: Database["public"]["Enums"]["tipo_vinculo"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cargo: string
+          cidade?: string | null
+          cpf: string
+          created_at?: string | null
+          data_admissao: string
+          data_demissao?: string | null
+          documentos?: Json | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          rg?: string | null
+          salario?: number | null
+          telefone?: string | null
+          tipo_vinculo?: Database["public"]["Enums"]["tipo_vinculo"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cargo?: string
+          cidade?: string | null
+          cpf?: string
+          created_at?: string | null
+          data_admissao?: string
+          data_demissao?: string | null
+          documentos?: Json | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          rg?: string | null
+          salario?: number | null
+          telefone?: string | null
+          tipo_vinculo?: Database["public"]["Enums"]["tipo_vinculo"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       financial_indicators: {
         Row: {
@@ -3082,6 +3366,9 @@ export type Database = {
         | "trabalho"
         | "intervalo"
       notification_type: "info" | "success" | "warning" | "error"
+      status_operacional: "ATIVO" | "FERIAS" | "AFASTADO"
+      tipo_jornada: "DIRIGINDO" | "PAUSA" | "DORMINDO" | "ESPERA"
+      tipo_vinculo: "CLT" | "SOCIO" | "CONSULTOR" | "PRESTADOR"
       tipo_vinculo_enum:
         | "CLT"
         | "PJ"
@@ -3089,6 +3376,7 @@ export type Database = {
         | "CONSULTOR"
         | "ESTAGIARIO"
         | "TERCEIRIZADO"
+      trip_status: "PLANEJADA" | "EM_ANDAMENTO" | "CONCLUIDA" | "CANCELADA"
       violation_type:
         | "direcao_continua_excedida"
         | "jornada_diaria_excedida"
@@ -3264,6 +3552,9 @@ export const Constants = {
         "intervalo",
       ],
       notification_type: ["info", "success", "warning", "error"],
+      status_operacional: ["ATIVO", "FERIAS", "AFASTADO"],
+      tipo_jornada: ["DIRIGINDO", "PAUSA", "DORMINDO", "ESPERA"],
+      tipo_vinculo: ["CLT", "SOCIO", "CONSULTOR", "PRESTADOR"],
       tipo_vinculo_enum: [
         "CLT",
         "PJ",
@@ -3272,6 +3563,7 @@ export const Constants = {
         "ESTAGIARIO",
         "TERCEIRIZADO",
       ],
+      trip_status: ["PLANEJADA", "EM_ANDAMENTO", "CONCLUIDA", "CANCELADA"],
       violation_type: [
         "direcao_continua_excedida",
         "jornada_diaria_excedida",
