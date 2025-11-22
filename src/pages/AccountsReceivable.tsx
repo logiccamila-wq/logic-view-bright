@@ -1,15 +1,26 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, DollarSign, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, Search, DollarSign, AlertCircle, CheckCircle, Edit, Trash2, Loader2 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ContaReceberDialog } from "@/components/financial/ContaReceberDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ContaReceber {
   id: string;
@@ -27,6 +38,11 @@ const AccountsReceivable = () => {
   const [contas, setContas] = useState<ContaReceber[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedConta, setSelectedConta] = useState<ContaReceber | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contaToDelete, setContaToDelete] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     loadContas();
@@ -35,7 +51,7 @@ const AccountsReceivable = () => {
   const loadContas = async () => {
     setLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("contas_receber")
         .select("*")
         .order("data_vencimento", { ascending: true });
@@ -47,6 +63,61 @@ const AccountsReceivable = () => {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenDialog = (conta?: ContaReceber) => {
+    setSelectedConta(conta || null);
+    setDialogOpen(true);
+  };
+
+  const handleMarkAsReceived = async (id: string) => {
+    setActionLoading(id);
+    try {
+      const { error } = await supabase
+        .from("contas_receber")
+        .update({
+          status: "recebido",
+          data_recebimento: new Date().toISOString()
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+      toast.success("Conta marcada como recebida!");
+      loadContas();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Erro ao atualizar conta");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setContaToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!contaToDelete) return;
+    
+    setActionLoading(contaToDelete);
+    try {
+      const { error } = await supabase
+        .from("contas_receber")
+        .delete()
+        .eq("id", contaToDelete);
+
+      if (error) throw error;
+      toast.success("Conta excluída com sucesso!");
+      loadContas();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Erro ao excluir conta");
+    } finally {
+      setActionLoading(null);
+      setDeleteDialogOpen(false);
+      setContaToDelete(null);
     }
   };
 
@@ -93,7 +164,7 @@ const AccountsReceivable = () => {
             <h1 className="text-3xl font-bold">Contas a Receber</h1>
             <p className="text-muted-foreground">Gestão de contas a receber e receitas</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => handleOpenDialog()}>
             <Plus className="w-4 h-4" />
             Nova Conta
           </Button>
@@ -134,64 +205,121 @@ const AccountsReceivable = () => {
         </Card>
 
         {/* Lista de Contas */}
-        <div className="grid gap-4">
-          {filteredContas.map((conta) => (
-            <Card key={conta.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{conta.descricao}</h3>
-                      {getStatusBadge(conta.status, conta.data_vencimento)}
-                      {conta.cte_id && (
-                        <Badge variant="outline">Com CTe</Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Cliente: {conta.cliente}
-                    </p>
-                    <div className="flex gap-4 text-sm text-muted-foreground">
-                      <span>
-                        Vencimento:{" "}
-                        {format(new Date(conta.data_vencimento), "dd/MM/yyyy", {
-                          locale: ptBR,
-                        })}
-                      </span>
-                      {conta.data_recebimento && (
+        {loading ? (
+          <Card>
+            <CardContent className="p-12 flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4">
+            {filteredContas.map((conta) => (
+              <Card key={conta.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold">{conta.descricao}</h3>
+                        {getStatusBadge(conta.status, conta.data_vencimento)}
+                        {conta.cte_id && (
+                          <Badge variant="outline">Com CTe</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Cliente: {conta.cliente}
+                      </p>
+                      <div className="flex gap-4 text-sm text-muted-foreground">
                         <span>
-                          Recebido em:{" "}
-                          {format(new Date(conta.data_recebimento), "dd/MM/yyyy", {
+                          Vencimento:{" "}
+                          {format(new Date(conta.data_vencimento), "dd/MM/yyyy", {
                             locale: ptBR,
                           })}
                         </span>
+                        {conta.data_recebimento && (
+                          <span>
+                            Recebido em:{" "}
+                            {format(new Date(conta.data_recebimento), "dd/MM/yyyy", {
+                              locale: ptBR,
+                            })}
+                          </span>
+                        )}
+                      </div>
+                      {conta.observacoes && (
+                        <p className="text-sm mt-2">{conta.observacoes}</p>
                       )}
                     </div>
-                    {conta.observacoes && (
-                      <p className="text-sm mt-2">{conta.observacoes}</p>
-                    )}
+                    <div className="text-right space-y-2">
+                      <p className="text-2xl font-bold">{formatMoney(conta.valor)}</p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleOpenDialog(conta)}
+                          disabled={actionLoading === conta.id}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteClick(conta.id)}
+                          disabled={actionLoading === conta.id}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                        {conta.status === "pendente" && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleMarkAsReceived(conta.id)}
+                            disabled={actionLoading === conta.id}
+                          >
+                            {actionLoading === conta.id && (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Marcar como Recebido
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">{formatMoney(conta.valor)}</p>
-                    {conta.status === "pendente" && (
-                      <Button size="sm" className="mt-2">
-                        Marcar como Recebido
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
 
-          {filteredContas.length === 0 && (
-            <Card>
-              <CardContent className="p-12 text-center text-muted-foreground">
-                Nenhuma conta a receber encontrada
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            {filteredContas.length === 0 && (
+              <Card>
+                <CardContent className="p-12 text-center text-muted-foreground">
+                  Nenhuma conta a receber encontrada
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
+
+      <ContaReceberDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        conta={selectedConta}
+        onSuccess={loadContas}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
