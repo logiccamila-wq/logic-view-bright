@@ -73,6 +73,7 @@ const App = () => (
             <Route path="/live-tracking" element={<ProtectedRoute module="fleet"><LiveTracking /></ProtectedRoute>} />
             <Route path="/driver-payroll" element={<ProtectedRoute module="driver"><DriverPayroll /></ProtectedRoute>} />
             <Route path="/payroll-management" element={<ProtectedRoute module="fleet"><PayrollManagement /></ProtectedRoute>} />
+            <Route path="/payroll" element={<ProtectedRoute module="fleet"><PayrollManagement /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute module="users"><Users /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute module="reports"><Reports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
