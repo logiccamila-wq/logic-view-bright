@@ -2308,6 +2308,80 @@ export type Database = {
           },
         ]
       }
+      payroll_records: {
+        Row: {
+          adicional_insalubridade: number | null
+          adicional_noturno: number | null
+          adicional_periculosidade: number | null
+          created_at: string | null
+          descontos: number | null
+          employee_id: string
+          fgts: number | null
+          horas_extras: number | null
+          id: string
+          inss: number | null
+          irrf: number | null
+          mes_referencia: string
+          observacoes: string | null
+          outros_adicionais: number | null
+          salario_base: number
+          status: string
+          total_bruto: number | null
+          total_liquido: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          adicional_insalubridade?: number | null
+          adicional_noturno?: number | null
+          adicional_periculosidade?: number | null
+          created_at?: string | null
+          descontos?: number | null
+          employee_id: string
+          fgts?: number | null
+          horas_extras?: number | null
+          id?: string
+          inss?: number | null
+          irrf?: number | null
+          mes_referencia: string
+          observacoes?: string | null
+          outros_adicionais?: number | null
+          salario_base?: number
+          status?: string
+          total_bruto?: number | null
+          total_liquido?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          adicional_insalubridade?: number | null
+          adicional_noturno?: number | null
+          adicional_periculosidade?: number | null
+          created_at?: string | null
+          descontos?: number | null
+          employee_id?: string
+          fgts?: number | null
+          horas_extras?: number | null
+          id?: string
+          inss?: number | null
+          irrf?: number | null
+          mes_referencia?: string
+          observacoes?: string | null
+          outros_adicionais?: number | null
+          salario_base?: number
+          status?: string
+          total_bruto?: number | null
+          total_liquido?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pneus: {
         Row: {
           codigo: string
