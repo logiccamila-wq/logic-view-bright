@@ -198,6 +198,36 @@ export type Database = {
           },
         ]
       }
+      centros_custo: {
+        Row: {
+          codigo: string
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          codigo: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          codigo?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           assigned_to: string | null
@@ -1433,6 +1463,65 @@ export type Database = {
         }
         Relationships: []
       }
+      folha_pagamento: {
+        Row: {
+          beneficios: number | null
+          competencia: string
+          created_at: string | null
+          descontos: number | null
+          exame_periodico: string | null
+          ferias: boolean | null
+          ferias_fim: string | null
+          ferias_inicio: string | null
+          funcionario_id: string | null
+          horas_extras: number | null
+          id: string
+          nova_funcao: string | null
+          promocao: boolean | null
+          salario_base: number | null
+        }
+        Insert: {
+          beneficios?: number | null
+          competencia: string
+          created_at?: string | null
+          descontos?: number | null
+          exame_periodico?: string | null
+          ferias?: boolean | null
+          ferias_fim?: string | null
+          ferias_inicio?: string | null
+          funcionario_id?: string | null
+          horas_extras?: number | null
+          id?: string
+          nova_funcao?: string | null
+          promocao?: boolean | null
+          salario_base?: number | null
+        }
+        Update: {
+          beneficios?: number | null
+          competencia?: string
+          created_at?: string | null
+          descontos?: number | null
+          exame_periodico?: string | null
+          ferias?: boolean | null
+          ferias_fim?: string | null
+          ferias_inicio?: string | null
+          funcionario_id?: string | null
+          horas_extras?: number | null
+          id?: string
+          nova_funcao?: string | null
+          promocao?: boolean | null
+          salario_base?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folha_pagamento_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integration_settings: {
         Row: {
           config: Json
@@ -1533,6 +1622,54 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "workshop_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lancamentos_financeiros: {
+        Row: {
+          centro_custo_id: string | null
+          created_at: string | null
+          data: string
+          descricao: string | null
+          id: string
+          plano_contas_id: string | null
+          tipo: string
+          valor: number
+        }
+        Insert: {
+          centro_custo_id?: string | null
+          created_at?: string | null
+          data: string
+          descricao?: string | null
+          id?: string
+          plano_contas_id?: string | null
+          tipo: string
+          valor: number
+        }
+        Update: {
+          centro_custo_id?: string | null
+          created_at?: string | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          plano_contas_id?: string | null
+          tipo?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lancamentos_financeiros_centro_custo_id_fkey"
+            columns: ["centro_custo_id"]
+            isOneToOne: false
+            referencedRelation: "centros_custo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_financeiros_plano_contas_id_fkey"
+            columns: ["plano_contas_id"]
+            isOneToOne: false
+            referencedRelation: "plano_contas"
             referencedColumns: ["id"]
           },
         ]
@@ -2378,6 +2515,53 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plano_contas: {
+        Row: {
+          centro_custo_id: string | null
+          classe: string | null
+          codigo: string
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          status: string | null
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          centro_custo_id?: string | null
+          classe?: string | null
+          codigo: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          status?: string | null
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          centro_custo_id?: string | null
+          classe?: string | null
+          codigo?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          status?: string | null
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plano_contas_centro_custo_id_fkey"
+            columns: ["centro_custo_id"]
+            isOneToOne: false
+            referencedRelation: "centros_custo"
             referencedColumns: ["id"]
           },
         ]
