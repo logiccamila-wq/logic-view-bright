@@ -29,6 +29,8 @@ import {
   Shield,
   Briefcase,
   TrendingUp,
+  Layers,
+  Receipt,
 } from "lucide-react";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -66,9 +68,12 @@ const managementItems = [
   { title: "Estoque", url: "/inventory", icon: Package, module: "inventory" },
   { title: "Funcionários", url: "/employees", icon: Briefcase, module: "fleet" },
   { title: "Sócios", url: "/partners", icon: Users, module: "finance" },
+  { title: "Centros de Custo", url: "/centros-custo", icon: Layers, module: "finance" },
+  { title: "Plano de Contas", url: "/plano-contas", icon: Receipt, module: "finance" },
+  { title: "Lançamentos", url: "/lancamentos", icon: FileText, module: "finance" },
   { title: "Contas a Pagar", url: "/accounts-payable", icon: ArrowDownCircle, module: "finance" },
   { title: "Contas a Receber", url: "/accounts-receivable", icon: ArrowUpCircle, module: "finance" },
-  { title: "Folha de Pagamento", url: "/payroll", icon: Calculator, module: "fleet" },
+  { title: "Folha de Pagamento", url: "/folha-pagamento", icon: Calculator, module: "fleet" },
   { title: "DRE", url: "/dre", icon: TrendingUp, module: "finance" },
   { title: "Monitoramento de Custos", url: "/cost-monitoring", icon: DollarSign, module: "finance" },
   { title: "Documentos", url: "/documents", icon: FileText, module: "documents" },

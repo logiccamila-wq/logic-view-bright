@@ -44,6 +44,10 @@ import Permissions from "./pages/Permissions";
 import Partners from "./pages/Partners";
 import Employees from "./pages/Employees";
 import DRE from "./pages/DRE";
+import CentrosCusto from "./pages/CentrosCusto";
+import PlanoContas from "./pages/PlanoContas";
+import Lancamentos from "./pages/Lancamentos";
+import FolhaPagamento from "./pages/FolhaPagamento";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -97,6 +101,10 @@ const App = () => (
             <Route path="/partners" element={<ProtectedRoute module="finance"><Partners /></ProtectedRoute>} />
             <Route path="/employees" element={<ProtectedRoute module="fleet"><Employees /></ProtectedRoute>} />
             <Route path="/dre" element={<ProtectedRoute module="finance"><DRE /></ProtectedRoute>} />
+            <Route path="/centros-custo" element={<ProtectedRoute module="finance"><CentrosCusto /></ProtectedRoute>} />
+            <Route path="/plano-contas" element={<ProtectedRoute module="finance"><PlanoContas /></ProtectedRoute>} />
+            <Route path="/lancamentos" element={<ProtectedRoute module="finance"><Lancamentos /></ProtectedRoute>} />
+            <Route path="/folha-pagamento" element={<ProtectedRoute module="fleet"><FolhaPagamento /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
