@@ -7,15 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, ArrowUpCircle, ArrowDownCircle, Truck } from import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, ArrowUpCircle, ArrowDownCircle, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { listLancamentos, createLancamento, updateLancamento, deleteLancamento } from "@/lib/db/lancamentos";
@@ -31,6 +22,7 @@ export default function Lancamentos() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLanc, setEditingLanc] = useState<any | null>(null);
+
   const [filters, setFilters] = useState({
     dataInicio: "",
     dataFim: "",
@@ -39,6 +31,7 @@ export default function Lancamentos() {
     centroCustoId: "todos",
     vehiclePlaca: "todos",
   });
+
   const [formData, setFormData] = useState({
     data: new Date().toISOString().split("T")[0],
     descricao: "",
@@ -51,6 +44,7 @@ export default function Lancamentos() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line
   }, [filters]);
 
   async function loadData() {
@@ -111,7 +105,6 @@ export default function Lancamentos() {
 
   async function handleSubmit() {
     try {
-      // Exige sempre a placa do veículo
       if (!formData.vehicle_placa || formData.vehicle_placa === "nenhum") {
         toast.error("Selecione a placa!");
         return;
@@ -167,7 +160,10 @@ export default function Lancamentos() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Lançamentos Financeiros</h1>
-          <Button onClick={handleNew}><Plus className="mr-2 h-4 w-4" />Novo Lançamento</Button>
+          <Button onClick={handleNew}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Lançamento
+          </Button>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
@@ -198,7 +194,9 @@ export default function Lancamentos() {
               <span className="text-sm font-medium">Saldo</span>
             </CardHeader>
             <CardContent>
-              <p className={`text-2xl font-bold ${saldo >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(saldo)}</p>
+              <p className={`text-2xl font-bold ${saldo >= 0 ? "text-green-600" : "text-red-600"}`}>
+                {formatCurrency(saldo)}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -238,42 +236,57 @@ export default function Lancamentos() {
               </div>
               <div>
                 <Label>Conta</Label>
-                <Select value={filters.planoContasId} onValueChange={(value) => setFilters({ ...filters, planoContasId: value })}>
+                <Select
+                  value={filters.planoContasId}
+                  onValueChange={(value) => setFilters({ ...filters, planoContasId: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todas</SelectItem>
                     {contas.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.codigo} - {c.nome}</SelectItem>
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.codigo} - {c.nome}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Centro de Custo</Label>
-                <Select value={filters.centroCustoId} onValueChange={(value) => setFilters({ ...filters, centroCustoId: value })}>
+                <Select
+                  value={filters.centroCustoId}
+                  onValueChange={(value) => setFilters({ ...filters, centroCustoId: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos</SelectItem>
                     {centros.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.codigo} - {c.nome}</SelectItem>
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.codigo} - {c.nome}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Placa</Label>
-                <Select value={filters.vehiclePlaca} onValueChange={(value) => setFilters({ ...filters, vehiclePlaca: value })}>
+                <Select
+                  value={filters.vehiclePlaca}
+                  onValueChange={(value) => setFilters({ ...filters, vehiclePlaca: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Todas placas" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todas</SelectItem>
                     {vehicles.map((v) => (
-                      <SelectItem key={v.placa} value={v.placa}>{v.placa} - {v.modelo}</SelectItem>
+                      <SelectItem key={v.placa} value={v.placa}>
+                        {v.placa} - {v.modelo}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -309,7 +322,9 @@ export default function Lancamentos() {
                           {lanc.centros_custo && <span>Centro: {lanc.centros_custo.nome}</span>}
                         </div>
                       </div>
-                      <p className={`text-lg font-bold ${lanc.tipo === "entrada" ? "text-green-600" : "text-red-600"}`}>{formatCurrency(lanc.valor)}</p>
+                      <p className={`text-lg font-bold ${lanc.tipo === "entrada" ? "text-green-600" : "text-red-600"}`}>
+                        {formatCurrency(lanc.valor)}
+                      </p>
                     </div>
                     <div className="flex gap-2 ml-4">
                       <Button variant="outline" size="sm" onClick={() => handleEdit(lanc)}>
@@ -336,11 +351,20 @@ export default function Lancamentos() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Data *</Label>
-              <Input type="date" value={formData.data} onChange={e => setFormData({ ...formData, data: e.target.value })} />
+              <Input
+                type="date"
+                value={formData.data}
+                onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+              />
             </div>
             <div>
               <Label>Valor *</Label>
-              <Input type="number" step="0.01" value={formData.valor} onChange={e => setFormData({ ...formData, valor: parseFloat(e.target.value) || 0 })} />
+              <Input
+                type="number"
+                step="0.01"
+                value={formData.valor}
+                onChange={(e) => setFormData({ ...formData, valor: parseFloat(e.target.value) || 0 })}
+              />
             </div>
             <div>
               <Label>Tipo *</Label>
@@ -356,42 +380,57 @@ export default function Lancamentos() {
             </div>
             <div>
               <Label>Placa do Veículo *</Label>
-              <Select value={formData.vehicle_placa} onValueChange={(value) => setFormData({ ...formData, vehicle_placa: value })}>
+              <Select
+                value={formData.vehicle_placa}
+                onValueChange={(value) => setFormData({ ...formData, vehicle_placa: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma placa" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="nenhum">Nenhum</SelectItem>
                   {vehicles.map((v) => (
-                    <SelectItem key={v.placa} value={v.placa}>{v.placa} - {v.modelo}</SelectItem>
+                    <SelectItem key={v.placa} value={v.placa}>
+                      {v.placa} - {v.modelo}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Conta</Label>
-              <Select value={formData.plano_contas_id} onValueChange={(value) => setFormData({ ...formData, plano_contas_id: value })}>
+              <Select
+                value={formData.plano_contas_id}
+                onValueChange={(value) => setFormData({ ...formData, plano_contas_id: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma conta" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="nenhum">Nenhuma</SelectItem>
                   {contas.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.codigo} - {c.nome}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.codigo} - {c.nome}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Centro de Custo</Label>
-              <Select value={formData.centro_custo_id} onValueChange={(value) => setFormData({ ...formData, centro_custo_id: value })}>
+              <Select
+                value={formData.centro_custo_id}
+                onValueChange={(value) => setFormData({ ...formData, centro_custo_id: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um centro de custo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="nenhum">Nenhum</SelectItem>
                   {centros.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.codigo} - {c.nome}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.codigo} - {c.nome}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -400,7 +439,7 @@ export default function Lancamentos() {
               <Label>Descrição *</Label>
               <Textarea
                 value={formData.descricao}
-                onChange={e => setFormData({ ...formData, descricao: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                 placeholder="Descrição do lançamento"
               />
             </div>
