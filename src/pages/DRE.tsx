@@ -55,11 +55,7 @@ const DRE = () => {
       if (lancError) throw lancError;
 
       // Carregar veículos
-      const { data: vehiclesData } = await supabase
-        .from("vehicles")
-        .select("*")
-        .eq("status", "ativo")
-        .order("placa");
+      const { data: vehiclesData } = await supabase.from("vehicles").select("*").eq("status", "ativo").order("placa");
 
       setEntries(dreData || []);
       setLancamentos(lancData || []);
@@ -163,7 +159,7 @@ const DRE = () => {
                   <Label htmlFor="year">Ano</Label>
                   <Select value={selectedYear} onValueChange={setSelectedYear}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecione o ano" />
                     </SelectTrigger>
                     <SelectContent>
                       {[2023, 2024, 2025].map((year) => (
@@ -178,7 +174,7 @@ const DRE = () => {
                   <Label htmlFor="period">Período</Label>
                   <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecione o período" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="mes">Mensal</SelectItem>
@@ -216,9 +212,7 @@ const DRE = () => {
               <TrendingUp className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">
-                {formatCurrency(totalReceitas)}
-              </div>
+              <div className="text-2xl font-bold text-green-500">{formatCurrency(totalReceitas)}</div>
             </CardContent>
           </Card>
 
@@ -228,9 +222,7 @@ const DRE = () => {
               <TrendingDown className="h-4 w-4 text-red-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-500">
-                {formatCurrency(totalDespesas)}
-              </div>
+              <div className="text-2xl font-bold text-red-500">{formatCurrency(totalDespesas)}</div>
             </CardContent>
           </Card>
 
@@ -240,11 +232,7 @@ const DRE = () => {
               <DollarSign className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div
-                className={`text-2xl font-bold ${
-                  lucroLiquido >= 0 ? "text-green-500" : "text-red-500"
-                }`}
-              >
+              <div className={`text-2xl font-bold ${lucroLiquido >= 0 ? "text-green-500" : "text-red-500"}`}>
                 {formatCurrency(lucroLiquido)}
               </div>
             </CardContent>
@@ -256,9 +244,7 @@ const DRE = () => {
               <TrendingUp className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {margemLucro.toFixed(1)}%
-              </div>
+              <div className="text-2xl font-bold">{margemLucro.toFixed(1)}%</div>
             </CardContent>
           </Card>
         </div>
