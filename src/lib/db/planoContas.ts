@@ -14,7 +14,12 @@ export async function listPlanoContas() {
 export async function createPlanoContas(conta: Omit<PlanoContas, "id" | "created_at" | "updated_at">) {
   const { data, error } = await supabase
     .from("plano_contas")
-    .insert([conta])
+    .insert([{
+      ...conta,
+      centro_custo_id: conta.centro_custo_id || null,
+      classe: conta.classe || null,
+      descricao: conta.descricao || null,
+    }])
     .select()
     .single();
 
