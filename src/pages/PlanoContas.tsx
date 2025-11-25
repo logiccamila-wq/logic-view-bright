@@ -18,7 +18,7 @@ export default function PlanoContas() {
   const [centros, setCentros] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterTipo, setFilterTipo] = useState("");
+  const [filterTipo, setFilterTipo] = useState("todos");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingConta, setEditingConta] = useState<any | null>(null);
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ export default function PlanoContas() {
     nome: "",
     tipo: "despesa" as PlanoContasType["tipo"],
     classe: "",
-    centro_custo_id: "",
+    centro_custo_id: "nenhum",
     descricao: "",
     status: "ativo",
   });
@@ -38,10 +38,7 @@ export default function PlanoContas() {
   async function loadData() {
     try {
       setLoading(true);
-      const [contasData, centrosData] = await Promise.all([
-        listPlanoContas(),
-        listCentrosCusto(),
-      ]);
+      const [contasData, centrosData] = await Promise.all([listPlanoContas(), listCentrosCusto()]);
       setContas(contasData);
       setCentros(centrosData);
     } catch (error: any) {
@@ -59,7 +56,7 @@ export default function PlanoContas() {
       nome: conta.nome,
       tipo: conta.tipo,
       classe: conta.classe || "",
-      centro_custo_id: conta.centro_custo_id || "",
+      centro_custo_id: conta.centro_custo_id || "nenhum",
       descricao: conta.descricao || "",
       status: conta.status,
     });
@@ -73,7 +70,7 @@ export default function PlanoContas() {
       nome: "",
       tipo: "despesa",
       classe: "",
-      centro_custo_id: "",
+      centro_custo_id: "nenhum",
       descricao: "",
       status: "ativo",
     });
@@ -84,7 +81,7 @@ export default function PlanoContas() {
     try {
       const dataToSave: any = {
         ...formData,
-        centro_custo_id: formData.centro_custo_id || undefined,
+        centro_custo_id: formData.centro_custo_id === "nenhum" ? undefined : formData.centro_custo_id,
         classe: formData.classe || undefined,
         descricao: formData.descricao || undefined,
       };
@@ -119,7 +116,7 @@ export default function PlanoContas() {
     const matchesSearch =
       c.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.nome.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTipo = !filterTipo || c.tipo === filterTipo;
+    const matchesTipo = filterTipo === "todos" || c.tipo === filterTipo;
     return matchesSearch && matchesTipo;
   });
 
@@ -151,7 +148,7 @@ export default function PlanoContas() {
                   <SelectValue placeholder="Filtrar por tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   <SelectItem value="receita">Receita</SelectItem>
                   <SelectItem value="despesa">Despesa</SelectItem>
                   <SelectItem value="imposto">Imposto</SelectItem>
@@ -168,24 +165,15 @@ export default function PlanoContas() {
             ) : (
               <div className="space-y-2">
                 {filteredContas.map((conta) => (
-                  <div
-                    key={conta.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
+                  <div key={conta.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center gap-4">
                         <p className="font-semibold">{conta.codigo}</p>
                         <p>{conta.nome}</p>
-                        <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
-                          {conta.tipo}
-                        </span>
+                        <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">{conta.tipo}</span>
                       </div>
-                      {conta.descricao && (
-                        <p className="text-sm text-muted-foreground mt-1">{conta.descricao}</p>
-                      )}
-                      {conta.classe && (
-                        <p className="text-xs text-muted-foreground mt-1">Classe: {conta.classe}</p>
-                      )}
+                      {conta.descricao && <p className="text-sm text-muted-foreground mt-1">{conta.descricao}</p>}
+                      {conta.classe && <p className="text-xs text-muted-foreground mt-1">Classe: {conta.classe}</p>}
                       {conta.centros_custo && (
                         <p className="text-xs text-muted-foreground mt-1">
                           Centro: {conta.centros_custo.codigo} - {conta.centros_custo.nome}
@@ -232,12 +220,9 @@ export default function PlanoContas() {
             </div>
             <div>
               <Label>Tipo *</Label>
-              <Select
-                value={formData.tipo}
-                onValueChange={(value: any) => setFormData({ ...formData, tipo: value })}
-              >
+              <Select value={formData.tipo} onValueChange={(value: any) => setFormData({ ...formData, tipo: value })}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="receita">Receita</SelectItem>
@@ -267,7 +252,7 @@ export default function PlanoContas() {
                   <SelectValue placeholder="Selecione um centro de custo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="nenhum">Nenhum</SelectItem>
                   {centros.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.codigo} - {c.nome}
