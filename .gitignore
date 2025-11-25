@@ -23,3 +23,15 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+# Local environment secrets
+.env
+
+# Build output
+dist/
+
+# Archives and packages
+*.zip
+optilog_packages.zip
+
+# Local app artifacts
+optilog.app/
