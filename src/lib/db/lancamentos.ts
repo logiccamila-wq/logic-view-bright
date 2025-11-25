@@ -38,7 +38,11 @@ export async function listLancamentos(filters?: {
 export async function createLancamento(lancamento: Omit<LancamentoFinanceiro, "id" | "created_at">) {
   const { data, error } = await supabase
     .from("lancamentos_financeiros")
-    .insert([lancamento])
+    .insert([{
+      ...lancamento,
+      plano_contas_id: lancamento.plano_contas_id || null,
+      centro_custo_id: lancamento.centro_custo_id || null,
+    }])
     .select()
     .single();
 
