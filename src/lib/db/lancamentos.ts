@@ -42,6 +42,7 @@ export async function createLancamento(lancamento: Omit<LancamentoFinanceiro, "i
       ...lancamento,
       plano_contas_id: lancamento.plano_contas_id || null,
       centro_custo_id: lancamento.centro_custo_id || null,
+      vehicle_placa: lancamento.vehicle_placa || null,
     }])
     .select()
     .single();
