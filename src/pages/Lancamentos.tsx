@@ -1,3 +1,5 @@
+// Correção: todos os SelectItem value="" viram value="todos" ou value="nenhum"
+
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ import { listPlanoContas } from "@/lib/db/planoContas";
 import { listCentrosCusto } from "@/lib/db/centrosCusto";
 import { supabase } from "@/integrations/supabase/client";
 
+// Troquei os valores iniciais dos filtros para "todos" ao invés de ""
 export default function Lancamentos() {
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [contas, setContas] = useState<any[]>([]);
@@ -25,18 +28,18 @@ export default function Lancamentos() {
   const [filters, setFilters] = useState({
     dataInicio: "",
     dataFim: "",
-    tipo: "",
-    planoContasId: "",
-    centroCustoId: "",
+    tipo: "todos",
+    planoContasId: "todas",
+    centroCustoId: "todos",
   });
   const [formData, setFormData] = useState({
     data: new Date().toISOString().split("T")[0],
     descricao: "",
     valor: 0,
     tipo: "saida" as "entrada" | "saida",
-    plano_contas_id: "",
-    centro_custo_id: "",
-    vehicle_placa: "",
+    plano_contas_id: "nenhum",
+    centro_custo_id: "nenhum",
+    vehicle_placa: "nenhum",
   });
 
   useEffect(() => {
@@ -46,8 +49,15 @@ export default function Lancamentos() {
   async function loadData() {
     try {
       setLoading(true);
+      // Adapte aqui se precisar transformar "todos"/"todas"/"nenhum" para ""
+      const lancFiltros = {
+        ...filters,
+        tipo: filters.tipo === "todos" ? "" : filters.tipo,
+        planoContasId: filters.planoContasId === "todas" ? "" : filters.planoContasId,
+        centroCustoId: filters.centroCustoId === "todos" ? "" : filters.centroCustoId,
+      };
       const [lancData, contasData, centrosData, vehiclesData] = await Promise.all([
-        listLancamentos(filters),
+        listLancamentos(lancFiltros),
         listPlanoContas(),
         listCentrosCusto(),
         supabase.from("vehicles").select("*").eq("status", "ativo").order("placa"),
@@ -71,9 +81,9 @@ export default function Lancamentos() {
       descricao: lanc.descricao || "",
       valor: lanc.valor,
       tipo: lanc.tipo,
-      plano_contas_id: lanc.plano_contas_id || "",
-      centro_custo_id: lanc.centro_custo_id || "",
-      vehicle_placa: lanc.vehicle_placa || "",
+      plano_contas_id: lanc.plano_contas_id || "nenhum",
+      centro_custo_id: lanc.centro_custo_id || "nenhum",
+      vehicle_placa: lanc.vehicle_placa || "nenhum",
     });
     setDialogOpen(true);
   }
@@ -85,20 +95,21 @@ export default function Lancamentos() {
       descricao: "",
       valor: 0,
       tipo: "saida",
-      plano_contas_id: "",
-      centro_custo_id: "",
-      vehicle_placa: "",
+      plano_contas_id: "nenhum",
+      centro_custo_id: "nenhum",
+      vehicle_placa: "nenhum",
     });
     setDialogOpen(true);
   }
 
   async function handleSubmit() {
     try {
+      // Converte os valores "nenhum" para null para salvar
       const dataToSave: any = {
         ...formData,
-        plano_contas_id: formData.plano_contas_id || null,
-        centro_custo_id: formData.centro_custo_id || null,
-        vehicle_placa: formData.vehicle_placa || null,
+        plano_contas_id: formData.plano_contas_id === "nenhum" ? null : formData.plano_contas_id,
+        centro_custo_id: formData.centro_custo_id === "nenhum" ? null : formData.centro_custo_id,
+        vehicle_placa: formData.vehicle_placa === "nenhum" ? null : formData.vehicle_placa,
       };
 
       if (editingLanc) {
@@ -138,13 +149,9 @@ export default function Lancamentos() {
     return new Date(date + "T00:00:00").toLocaleDateString("pt-BR");
   };
 
-  const totalEntradas = lancamentos
-    .filter((l) => l.tipo === "entrada")
-    .reduce((sum, l) => sum + Number(l.valor), 0);
+  const totalEntradas = lancamentos.filter((l) => l.tipo === "entrada").reduce((sum, l) => sum + Number(l.valor), 0);
 
-  const totalSaidas = lancamentos
-    .filter((l) => l.tipo === "saida")
-    .reduce((sum, l) => sum + Number(l.valor), 0);
+  const totalSaidas = lancamentos.filter((l) => l.tipo === "saida").reduce((sum, l) => sum + Number(l.valor), 0);
 
   const saldo = totalEntradas - totalSaidas;
 
@@ -220,7 +227,7 @@ export default function Lancamentos() {
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="todos">Todos</SelectItem>
                     <SelectItem value="entrada">Entrada</SelectItem>
                     <SelectItem value="saida">Saída</SelectItem>
                   </SelectContent>
@@ -236,7 +243,7 @@ export default function Lancamentos() {
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas</SelectItem>
+                    <SelectItem value="todas">Todas</SelectItem>
                     {contas.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.codigo} - {c.nome}
@@ -255,7 +262,7 @@ export default function Lancamentos() {
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="todos">Todos</SelectItem>
                     {centros.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.codigo} - {c.nome}
@@ -272,10 +279,7 @@ export default function Lancamentos() {
             ) : (
               <div className="space-y-2">
                 {lancamentos.map((lanc) => (
-                  <div
-                    key={lanc.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
+                  <div key={lanc.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4 flex-1">
                       {lanc.tipo === "entrada" ? (
                         <ArrowUpCircle className="h-5 w-5 text-green-500" />
@@ -298,11 +302,7 @@ export default function Lancamentos() {
                           {lanc.centros_custo && <span>Centro: {lanc.centros_custo.nome}</span>}
                         </div>
                       </div>
-                      <p
-                        className={`text-lg font-bold ${
-                          lanc.tipo === "entrada" ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
+                      <p className={`text-lg font-bold ${lanc.tipo === "entrada" ? "text-green-600" : "text-red-600"}`}>
                         {formatCurrency(lanc.valor)}
                       </p>
                     </div>
@@ -347,12 +347,9 @@ export default function Lancamentos() {
             </div>
             <div>
               <Label>Tipo *</Label>
-              <Select
-                value={formData.tipo}
-                onValueChange={(value: any) => setFormData({ ...formData, tipo: value })}
-              >
+              <Select value={formData.tipo} onValueChange={(value: any) => setFormData({ ...formData, tipo: value })}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="entrada">Entrada</SelectItem>
@@ -370,7 +367,7 @@ export default function Lancamentos() {
                   <SelectValue placeholder="Selecione um veículo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="nenhum">Nenhum</SelectItem>
                   {vehicles.map((v) => (
                     <SelectItem key={v.placa} value={v.placa}>
                       {v.placa} - {v.modelo}
@@ -389,7 +386,7 @@ export default function Lancamentos() {
                   <SelectValue placeholder="Selecione uma conta" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhuma</SelectItem>
+                  <SelectItem value="nenhum">Nenhuma</SelectItem>
                   {contas.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.codigo} - {c.nome}
@@ -408,7 +405,7 @@ export default function Lancamentos() {
                   <SelectValue placeholder="Selecione um centro de custo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="nenhum">Nenhum</SelectItem>
                   {centros.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.codigo} - {c.nome}
