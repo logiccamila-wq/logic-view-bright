@@ -7,16 +7,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowUpCircle, ArrowDownCircle, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { listLancamentos, createLancamento, updateLancamento, deleteLancamento } from "@/lib/db/lancamentos";
 import { listPlanoContas } from "@/lib/db/planoContas";
 import { listCentrosCusto } from "@/lib/db/centrosCusto";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Lancamentos() {
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [contas, setContas] = useState<any[]>([]);
   const [centros, setCentros] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLanc, setEditingLanc] = useState<any | null>(null);
@@ -34,6 +36,7 @@ export default function Lancamentos() {
     tipo: "saida" as "entrada" | "saida",
     plano_contas_id: "",
     centro_custo_id: "",
+    vehicle_placa: "",
   });
 
   useEffect(() => {
@@ -43,14 +46,16 @@ export default function Lancamentos() {
   async function loadData() {
     try {
       setLoading(true);
-      const [lancData, contasData, centrosData] = await Promise.all([
+      const [lancData, contasData, centrosData, vehiclesData] = await Promise.all([
         listLancamentos(filters),
         listPlanoContas(),
         listCentrosCusto(),
+        supabase.from("vehicles").select("*").eq("status", "ativo").order("placa"),
       ]);
       setLancamentos(lancData);
       setContas(contasData);
       setCentros(centrosData);
+      setVehicles(vehiclesData.data || []);
     } catch (error: any) {
       toast.error("Erro ao carregar dados");
       console.error(error);
@@ -68,6 +73,7 @@ export default function Lancamentos() {
       tipo: lanc.tipo,
       plano_contas_id: lanc.plano_contas_id || "",
       centro_custo_id: lanc.centro_custo_id || "",
+      vehicle_placa: lanc.vehicle_placa || "",
     });
     setDialogOpen(true);
   }
@@ -81,16 +87,18 @@ export default function Lancamentos() {
       tipo: "saida",
       plano_contas_id: "",
       centro_custo_id: "",
+      vehicle_placa: "",
     });
     setDialogOpen(true);
   }
 
   async function handleSubmit() {
     try {
-      const dataToSave = {
+      const dataToSave: any = {
         ...formData,
         plano_contas_id: formData.plano_contas_id || null,
         centro_custo_id: formData.centro_custo_id || null,
+        vehicle_placa: formData.vehicle_placa || null,
       };
 
       if (editingLanc) {
@@ -278,6 +286,12 @@ export default function Lancamentos() {
                         <div className="flex items-center gap-4">
                           <p className="font-semibold">{formatDate(lanc.data)}</p>
                           <p>{lanc.descricao}</p>
+                          {lanc.vehicle_placa && (
+                            <span className="text-xs px-2 py-1 rounded bg-blue-500/10 text-blue-600 flex items-center gap-1">
+                              <Truck className="h-3 w-3" />
+                              {lanc.vehicle_placa}
+                            </span>
+                          )}
                         </div>
                         <div className="flex gap-4 text-sm text-muted-foreground">
                           {lanc.plano_contas && <span>{lanc.plano_contas.nome}</span>}
@@ -315,7 +329,7 @@ export default function Lancamentos() {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Data</Label>
+              <Label>Data *</Label>
               <Input
                 type="date"
                 value={formData.data}
@@ -323,7 +337,7 @@ export default function Lancamentos() {
               />
             </div>
             <div>
-              <Label>Valor</Label>
+              <Label>Valor *</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -332,7 +346,7 @@ export default function Lancamentos() {
               />
             </div>
             <div>
-              <Label>Tipo</Label>
+              <Label>Tipo *</Label>
               <Select
                 value={formData.tipo}
                 onValueChange={(value: any) => setFormData({ ...formData, tipo: value })}
@@ -343,6 +357,25 @@ export default function Lancamentos() {
                 <SelectContent>
                   <SelectItem value="entrada">Entrada</SelectItem>
                   <SelectItem value="saida">Saída</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Veículo (Placa)</Label>
+              <Select
+                value={formData.vehicle_placa}
+                onValueChange={(value) => setFormData({ ...formData, vehicle_placa: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um veículo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Nenhum</SelectItem>
+                  {vehicles.map((v) => (
+                    <SelectItem key={v.placa} value={v.placa}>
+                      {v.placa} - {v.modelo}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -365,7 +398,7 @@ export default function Lancamentos() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-2">
+            <div>
               <Label>Centro de Custo</Label>
               <Select
                 value={formData.centro_custo_id}
@@ -385,7 +418,7 @@ export default function Lancamentos() {
               </Select>
             </div>
             <div className="col-span-2">
-              <Label>Descrição</Label>
+              <Label>Descrição *</Label>
               <Textarea
                 value={formData.descricao}
                 onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}

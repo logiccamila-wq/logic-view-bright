@@ -29,6 +29,7 @@ export interface LancamentoFinanceiro {
   tipo: 'entrada' | 'saida';
   plano_contas_id?: string;
   centro_custo_id?: string;
+  vehicle_placa?: string;
   created_at: string;
 }
 

@@ -1636,6 +1636,7 @@ export type Database = {
           plano_contas_id: string | null
           tipo: string
           valor: number
+          vehicle_placa: string | null
         }
         Insert: {
           centro_custo_id?: string | null
@@ -1646,6 +1647,7 @@ export type Database = {
           plano_contas_id?: string | null
           tipo: string
           valor: number
+          vehicle_placa?: string | null
         }
         Update: {
           centro_custo_id?: string | null
@@ -1656,6 +1658,7 @@ export type Database = {
           plano_contas_id?: string | null
           tipo?: string
           valor?: number
+          vehicle_placa?: string | null
         }
         Relationships: [
           {
@@ -1671,6 +1674,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "plano_contas"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_financeiros_vehicle_placa_fkey"
+            columns: ["vehicle_placa"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["placa"]
           },
         ]
       }
