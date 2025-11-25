@@ -1,5 +1,3 @@
-// Correção: todos os SelectItem value="" viram value="todos" ou value="nenhum"
-
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -16,7 +14,6 @@ import { listPlanoContas } from "@/lib/db/planoContas";
 import { listCentrosCusto } from "@/lib/db/centrosCusto";
 import { supabase } from "@/integrations/supabase/client";
 
-// Troquei os valores iniciais dos filtros para "todos" ao invés de ""
 export default function Lancamentos() {
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [contas, setContas] = useState<any[]>([]);
@@ -29,8 +26,9 @@ export default function Lancamentos() {
     dataInicio: "",
     dataFim: "",
     tipo: "todos",
-    planoContasId: "todas",
+    planoContasId: "todos",
     centroCustoId: "todos",
+    vehiclePlaca: "todos",
   });
   const [formData, setFormData] = useState({
     data: new Date().toISOString().split("T")[0],
@@ -49,12 +47,12 @@ export default function Lancamentos() {
   async function loadData() {
     try {
       setLoading(true);
-      // Adapte aqui se precisar transformar "todos"/"todas"/"nenhum" para ""
       const lancFiltros = {
         ...filters,
         tipo: filters.tipo === "todos" ? "" : filters.tipo,
-        planoContasId: filters.planoContasId === "todas" ? "" : filters.planoContasId,
+        planoContasId: filters.planoContasId === "todos" ? "" : filters.planoContasId,
         centroCustoId: filters.centroCustoId === "todos" ? "" : filters.centroCustoId,
+        vehiclePlaca: filters.vehiclePlaca === "todos" ? "" : filters.vehiclePlaca,
       };
       const [lancData, contasData, centrosData, vehiclesData] = await Promise.all([
         listLancamentos(lancFiltros),
@@ -104,7 +102,10 @@ export default function Lancamentos() {
 
   async function handleSubmit() {
     try {
-      // Converte os valores "nenhum" para null para salvar
+      if (!formData.vehicle_placa || formData.vehicle_placa === "nenhum") {
+        toast.error("Selecione uma placa para a despesa!");
+        return;
+      }
       const dataToSave: any = {
         ...formData,
         plano_contas_id: formData.plano_contas_id === "nenhum" ? null : formData.plano_contas_id,
@@ -128,7 +129,6 @@ export default function Lancamentos() {
 
   async function handleDelete(id: string) {
     if (!confirm("Deseja realmente excluir este lançamento?")) return;
-
     try {
       await deleteLancamento(id);
       toast.success("Lançamento excluído");
@@ -150,9 +150,7 @@ export default function Lancamentos() {
   };
 
   const totalEntradas = lancamentos.filter((l) => l.tipo === "entrada").reduce((sum, l) => sum + Number(l.valor), 0);
-
   const totalSaidas = lancamentos.filter((l) => l.tipo === "saida").reduce((sum, l) => sum + Number(l.valor), 0);
-
   const saldo = totalEntradas - totalSaidas;
 
   return (
@@ -201,9 +199,10 @@ export default function Lancamentos() {
           </Card>
         </div>
 
+        {/* Filtros */}
         <Card>
           <CardHeader>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-6 gap-4">
               <div>
                 <Label>Data Início</Label>
                 <Input
@@ -243,7 +242,7 @@ export default function Lancamentos() {
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="todas">Todas</SelectItem>
+                    <SelectItem value="todos">Todas</SelectItem>
                     {contas.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.codigo} - {c.nome}
@@ -266,6 +265,25 @@ export default function Lancamentos() {
                     {centros.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.codigo} - {c.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Placa</Label>
+                <Select
+                  value={filters.vehiclePlaca}
+                  onValueChange={(value) => setFilters({ ...filters, vehiclePlaca: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas placas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas</SelectItem>
+                    {vehicles.map((v) => (
+                      <SelectItem key={v.placa} value={v.placa}>
+                        {v.placa} - {v.modelo}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -358,13 +376,13 @@ export default function Lancamentos() {
               </Select>
             </div>
             <div>
-              <Label>Veículo (Placa)</Label>
+              <Label>Placa do Veículo *</Label>
               <Select
                 value={formData.vehicle_placa}
                 onValueChange={(value) => setFormData({ ...formData, vehicle_placa: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione um veículo" />
+                  <SelectValue placeholder="Selecione uma placa" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="nenhum">Nenhum</SelectItem>
