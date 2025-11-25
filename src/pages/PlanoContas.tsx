@@ -11,7 +11,6 @@ import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { listPlanoContas, createPlanoContas, updatePlanoContas, deletePlanoContas } from "@/lib/db/planoContas";
 import { listCentrosCusto } from "@/lib/db/centrosCusto";
-import type { PlanoContas as PlanoContasType } from "@/types/financeiro";
 
 export default function PlanoContas() {
   const [contas, setContas] = useState<any[]>([]);
@@ -24,7 +23,7 @@ export default function PlanoContas() {
   const [formData, setFormData] = useState({
     codigo: "",
     nome: "",
-    tipo: "despesa" as PlanoContasType["tipo"],
+    tipo: "despesa",
     classe: "",
     centro_custo_id: "nenhum",
     descricao: "",
@@ -102,7 +101,6 @@ export default function PlanoContas() {
 
   async function handleDelete(id: string) {
     if (!confirm("Deseja realmente excluir esta conta?")) return;
-
     try {
       await deletePlanoContas(id);
       toast.success("Conta excluída");
@@ -130,7 +128,6 @@ export default function PlanoContas() {
             Nova Conta
           </Button>
         </div>
-
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
@@ -195,7 +192,6 @@ export default function PlanoContas() {
           </CardContent>
         </Card>
       </div>
-
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -220,7 +216,7 @@ export default function PlanoContas() {
             </div>
             <div>
               <Label>Tipo *</Label>
-              <Select value={formData.tipo} onValueChange={(value: any) => setFormData({ ...formData, tipo: value })}>
+              <Select value={formData.tipo} onValueChange={(value) => setFormData({ ...formData, tipo: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
