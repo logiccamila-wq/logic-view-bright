@@ -45,24 +45,40 @@ export const VehicleChangeDialog = ({
 
   const loadVehicles = async () => {
     // Buscar cavalos mecânicos
-    const { data: cavaloData } = await supabase
+    const { data: cavaloData, error: cavaloError } = await supabase
       .from('vehicles')
-      .select('placa, modelo, tipo')
+      .select('*')
       .eq('tipo', 'cavalo')
-      .eq('status', 'ativo')
-      .order('placa');
+      .in('status', ['ativo', 'Ativo']);
 
-    setVehicles(cavaloData || []);
+    if (cavaloError) {
+      console.error('Erro ao carregar cavalos:', cavaloError);
+    }
+
+    const mappedCavalos = (cavaloData || [])
+      .map((v: any) => ({ placa: v.placa || v.plate, modelo: v.modelo || v.model || '', tipo: v.tipo || '' }))
+      .filter((v) => !!v.placa)
+      .sort((a, b) => a.placa.localeCompare(b.placa));
+
+    setVehicles(mappedCavalos);
 
     // Buscar carretas
-    const { data: carretaData } = await supabase
+    const { data: carretaData, error: carretaError } = await supabase
       .from('vehicles')
-      .select('placa, modelo, tipo')
+      .select('*')
       .eq('tipo', 'carreta')
-      .eq('status', 'ativo')
-      .order('placa');
+      .in('status', ['ativo', 'Ativo']);
 
-    setCarretas(carretaData || []);
+    if (carretaError) {
+      console.error('Erro ao carregar carretas:', carretaError);
+    }
+
+    const mappedCarretas = (carretaData || [])
+      .map((v: any) => ({ placa: v.placa || v.plate, modelo: v.modelo || v.model || '', tipo: v.tipo || '' }))
+      .filter((v) => !!v.placa)
+      .sort((a, b) => a.placa.localeCompare(b.placa));
+
+    setCarretas(mappedCarretas);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

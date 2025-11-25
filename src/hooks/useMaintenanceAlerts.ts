@@ -26,6 +26,26 @@ export function useMaintenanceAlerts() {
 
       if (error) throw error;
 
+      // Buscar planos de manutenção ativos
+      const { data: plansRaw, error: plansError } = await (supabase as any)
+        .from('maintenance_plans')
+        .select('*')
+        .eq('is_active', true);
+
+      // Se a tabela ainda não existir (migration não aplicada), prosseguir sem planos
+      const plans: any[] = (() => {
+        const missingTable = plansError && (
+          (plansError as any).code === 'PGRST205' ||
+          String((plansError as any).message || '').includes('maintenance_plans')
+        );
+        if (missingTable) {
+          console.warn('[maintenance_plans] tabela ausente. Continuando sem planos de preventiva.');
+          return [];
+        }
+        if (plansError) throw plansError;
+        return plansRaw || [];
+      })();
+
       // Agrupar por veículo
       const vehicleMap = new Map<string, any[]>();
       serviceOrders?.forEach((order) => {
@@ -33,9 +53,19 @@ export function useMaintenanceAlerts() {
         vehicleMap.set(order.vehicle_plate, [...existing, order]);
       });
 
+      // Helper para inferir tipo de veículo pelo model (fallback: truck)
+      const classifyVehicleType = (model?: string): 'cavalo' | 'carreta' | 'truck' => {
+        const m = (model || '').toLowerCase();
+        if (m.includes('cavalo') || m.includes('tractor') || m.includes('fh') || m.includes('actros') || m.includes('xf')) return 'cavalo';
+        if (m.includes('carreta') || m.includes('trailer') || m.includes('semi')) return 'carreta';
+        return 'truck';
+      };
+
       // Calcular previsões e criar notificações
       for (const [plate, orders] of vehicleMap.entries()) {
         const currentOdometer = Math.max(...orders.map(o => o.odometer));
+        const vehicleModel = orders[0]?.vehicle_model || '';
+        const vehicleType = classifyVehicleType(vehicleModel);
         
         const prediction = predictNextMaintenance(
           orders.map(o => ({
@@ -81,6 +111,29 @@ export function useMaintenanceAlerts() {
             type: 'info',
             module: 'fleet'
           });
+        }
+
+        // Alertas baseados em planos de manutenção por tipo
+        const typePlans = (plans || []).filter((p: any) => p.vehicle_type === vehicleType);
+        for (const p of typePlans) {
+          const nextDueKm = Math.floor(currentOdometer / p.interval_km) * p.interval_km + p.interval_km;
+          const delta = nextDueKm - currentOdometer;
+
+          if (delta <= 0) {
+            await createNotification({
+              title: '🚨 Preventiva Atrasada',
+              message: `Veículo ${plate}: ${p.plan_item} atrasado. Próximo ciclo era ${nextDueKm.toLocaleString('pt-BR')} km.`,
+              type: 'error',
+              module: 'fleet'
+            });
+          } else if (delta <= p.tolerance_km) {
+            await createNotification({
+              title: '⚠️ Preventiva Próxima',
+              message: `Veículo ${plate}: ${p.plan_item} em ${delta.toLocaleString('pt-BR')} km (intervalo ${p.interval_km.toLocaleString('pt-BR')} km).`,
+              type: 'warning',
+              module: 'fleet'
+            });
+          }
         }
       }
     } catch (error) {

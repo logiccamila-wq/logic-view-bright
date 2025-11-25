@@ -5,6 +5,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { ClipboardCheck, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -58,6 +61,18 @@ export function MaintenanceChecklistTab() {
   const [checklists, setChecklists] = useState<Checklist[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeChecklist, setActiveChecklist] = useState<Checklist | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createType, setCreateType] = useState<string>('preventiva');
+  const [vehiclePlate, setVehiclePlate] = useState('');
+
+  const ensureItemsWithIds = (items: { name: string; checked: boolean }[]) =>
+    items.map((item, index) => ({
+      id: (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function')
+        ? globalThis.crypto.randomUUID()
+        : `item-${index}-${Date.now()}`,
+      name: item.name,
+      checked: false,
+    }));
 
   const fetchChecklists = async () => {
     try {
@@ -80,20 +95,24 @@ export function MaintenanceChecklistTab() {
     fetchChecklists();
   }, []);
 
-  const handleCreateChecklist = async (type: string) => {
-    const vehiclePlate = prompt('Digite a placa do veículo:');
-    if (!vehiclePlate) return;
+  const handleCreateChecklist = async () => {
+    if (!vehiclePlate) {
+      toast.error('Informe a placa do veículo');
+      return;
+    }
 
-    const items = type === 'preventiva' ? PREVENTIVE_CHECKLIST_ITEMS : CORRECTIVE_CHECKLIST_ITEMS;
+    const baseItems = createType === 'preventiva' ? PREVENTIVE_CHECKLIST_ITEMS : CORRECTIVE_CHECKLIST_ITEMS;
+    const items = ensureItemsWithIds(baseItems);
 
     try {
       const { data, error } = await supabase
         .from('maintenance_checklists')
         .insert({
           vehicle_plate: vehiclePlate.toUpperCase(),
-          checklist_type: type,
+          checklist_type: createType,
           items: items,
           mechanic_id: user?.id,
+          status: 'em_andamento',
         })
         .select()
         .single();
@@ -102,6 +121,8 @@ export function MaintenanceChecklistTab() {
 
       toast.success('Checklist criado com sucesso');
       setActiveChecklist(data);
+      setCreateOpen(false);
+      setVehiclePlate('');
       fetchChecklists();
     } catch (error) {
       console.error('Erro ao criar checklist:', error);
@@ -172,16 +193,48 @@ export function MaintenanceChecklistTab() {
         </div>
         
         <div className="flex gap-2">
-          <Button onClick={() => handleCreateChecklist('preventiva')}>
+          <Button onClick={() => { setCreateType('preventiva'); setCreateOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
             Manutenção Preventiva
           </Button>
-          <Button variant="outline" onClick={() => handleCreateChecklist('corretiva')}>
+          <Button variant="outline" onClick={() => { setCreateType('corretiva'); setCreateOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
             Manutenção Corretiva
           </Button>
         </div>
       </div>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Novo Checklist de Manutenção</DialogTitle>
+            <DialogDescription>
+              Informe a placa do veículo e confirme a criação.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="vehicle_plate">Placa do veículo</Label>
+              <Input
+                id="vehicle_plate"
+                placeholder="ABC1D23"
+                value={vehiclePlate}
+                onChange={(e) => setVehiclePlate(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Tipo</Label>
+              <div className="text-sm text-muted-foreground">
+                {createType === 'preventiva' ? 'Manutenção Preventiva' : 'Manutenção Corretiva'}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+            <Button onClick={handleCreateChecklist}>Criar Checklist</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {activeChecklist && (
         <Card className="p-6 border-2 border-primary">

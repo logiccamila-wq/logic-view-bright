@@ -18,7 +18,7 @@ const DRE = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [selectedPeriod, setSelectedPeriod] = useState("ano");
-  const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [selectedVehicle, setSelectedVehicle] = useState("todos");
 
   useEffect(() => {
     loadEntries();
@@ -47,7 +47,7 @@ const DRE = () => {
         .gte("data", startDate)
         .lte("data", endDate);
 
-      if (selectedVehicle) {
+      if (selectedVehicle !== "todos") {
         lancamentosQuery = lancamentosQuery.eq("vehicle_placa", selectedVehicle);
       }
 
@@ -55,11 +55,22 @@ const DRE = () => {
       if (lancError) throw lancError;
 
       // Carregar veículos
-      const { data: vehiclesData } = await supabase.from("vehicles").select("*").eq("status", "ativo").order("placa");
+      const { data: vehiclesData, error: vehiclesError } = await supabase
+        .from("vehicles")
+        .select("*")
+        .in("status", ["ativo", "Ativo"]);
+
+      if (vehiclesError) {
+        console.error("Erro ao carregar veículos:", vehiclesError);
+      }
 
       setEntries(dreData || []);
       setLancamentos(lancData || []);
-      setVehicles(vehiclesData || []);
+      const mappedVehicles = (vehiclesData || [])
+        .map((v: any) => ({ placa: v.placa || v.plate, modelo: v.modelo || v.model || "" }))
+        .filter((v) => !!v.placa)
+        .sort((a, b) => a.placa.localeCompare(b.placa));
+      setVehicles(mappedVehicles);
     } catch (error: any) {
       toast.error(`Erro ao carregar DRE: ${error.message}`);
     } finally {
@@ -190,7 +201,7 @@ const DRE = () => {
                       <SelectValue placeholder="Todos os veículos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os veículos</SelectItem>
+                      <SelectItem value="todos">Todos os veículos</SelectItem>
                       {vehicles.map((v) => (
                         <SelectItem key={v.placa} value={v.placa}>
                           {v.placa} - {v.modelo}

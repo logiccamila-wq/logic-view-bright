@@ -44,9 +44,13 @@ const Approvals = () => {
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [approvedCount, setApprovedCount] = useState<number>(0);
+  const [rejectedCount, setRejectedCount] = useState<number>(0);
+  const [pendingCount, setPendingCount] = useState<number>(0);
 
   useEffect(() => {
     loadPendingTrips();
+    loadSummaryCounts();
   }, []);
 
   const loadPendingTrips = async () => {
@@ -60,11 +64,34 @@ const Approvals = () => {
 
       if (error) throw error;
       setTrips(data || []);
+      setPendingCount((data || []).length);
     } catch (error) {
       console.error('Erro ao carregar viagens:', error);
       toast.error('Erro ao carregar viagens pendentes');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSummaryCounts = async () => {
+    try {
+      const { count: aprovadasCount, error: aproErr } = await supabase
+        .from('trips')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'aprovada');
+
+      if (aproErr) throw aproErr;
+      setApprovedCount(aprovadasCount || 0);
+
+      const { count: rejeitadasCount, error: rejeErr } = await supabase
+        .from('trips')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'cancelada');
+
+      if (rejeErr) throw rejeErr;
+      setRejectedCount(rejeitadasCount || 0);
+    } catch (error) {
+      console.error('Erro ao carregar contagens:', error);
     }
   };
 
@@ -142,7 +169,7 @@ const Approvals = () => {
               <Clock className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{trips.filter(t => t.status === 'pendente').length}</div>
+              <div className="text-2xl font-bold">{pendingCount}</div>
               <p className="text-xs text-muted-foreground">Aguardando aprovação</p>
             </CardContent>
           </Card>
@@ -153,7 +180,7 @@ const Approvals = () => {
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">--</div>
+              <div className="text-2xl font-bold text-green-600">{approvedCount}</div>
               <p className="text-xs text-muted-foreground">Viagens liberadas</p>
             </CardContent>
           </Card>
@@ -164,7 +191,7 @@ const Approvals = () => {
               <XCircle className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">--</div>
+              <div className="text-2xl font-bold text-red-600">{rejectedCount}</div>
               <p className="text-xs text-muted-foreground">Solicitações negadas</p>
             </CardContent>
           </Card>

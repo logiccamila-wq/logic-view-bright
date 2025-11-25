@@ -66,6 +66,15 @@ export function ContaReceberDialog({ open, onOpenChange, conta, onSuccess }: Con
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(formData.data_vencimento);
+
+    if (dueDate < today) {
+      toast.error("A data de vencimento não pode ser retroativa.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -165,15 +174,33 @@ export function ContaReceberDialog({ open, onOpenChange, conta, onSuccess }: Con
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="observacoes">Observações</Label>
-            <Textarea
-              id="observacoes"
-              value={formData.observacoes}
-              onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-              placeholder="Observações adicionais..."
-              rows={3}
-            />
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={formData.observacoes}
+                onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                placeholder="Observações adicionais..."
+                rows={3}
+              />
+            </div>
+            <div class="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => setFormData({ ...formData, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="recebido">Recebido</SelectItem>
+                  <SelectItem value="vencido">Vencido</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <DialogFooter>

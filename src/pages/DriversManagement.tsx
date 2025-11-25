@@ -24,6 +24,7 @@ import { Search, UserPlus, Eye, Edit, MapPin, Clock, TrendingUp } from "lucide-r
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { DriverDialog } from "@/components/driver/DriverDialog";
 
 interface Driver {
   id: string;
@@ -53,6 +54,7 @@ const DriversManagement = () => {
   const [tripHistory, setTripHistory] = useState<TripHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isNewDriverDialogOpen, setIsNewDriverDialogOpen] = useState(false);
 
   useEffect(() => {
     loadDrivers();
@@ -145,7 +147,7 @@ const DriversManagement = () => {
             <h1 className="text-3xl font-bold text-foreground">Gestão de Motoristas</h1>
             <p className="text-muted-foreground">Gerencie motoristas, viagens e jornadas</p>
           </div>
-          <Button>
+          <Button onClick={() => setIsNewDriverDialogOpen(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
             Novo Motorista
           </Button>
@@ -380,8 +382,27 @@ const DriversManagement = () => {
           </CardContent>
         </Card>
       </div>
+      {/* Dialogs para criar/editar motorista */}
+      <DriverDialog
+        open={isNewDriverDialogOpen}
+        onOpenChange={setIsNewDriverDialogOpen}
+        onSuccess={loadDrivers}
+      />
+
+      <DriverDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        driver={selectedDriver}
+        onSuccess={() => {
+          loadDrivers();
+          setSelectedDriver(null);
+        }}
+      />
     </Layout>
   );
 };
 
 export default DriversManagement;
+
+
+/* Removido bloco duplicado e fora do componente com DriverDialog e exports */

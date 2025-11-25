@@ -9,11 +9,12 @@ import { LavaJatoTab } from "@/components/mechanic/LavaJatoTab";
 import { BorachariaTab } from "@/components/mechanic/BorachariaTab";
 import { MaintenanceScheduler } from "@/components/mechanic/MaintenanceScheduler";
 import { PartsRequestTab } from "@/components/mechanic/PartsRequestTab";
+import { MaintenancePlansConfig } from "@/components/mechanic/MaintenancePlansConfig";
 
 import { MapTestPanel } from "@/components/maps/MapTestPanel";
 import { MechanicClockIn } from "@/components/mechanic/MechanicClockIn";
 
-import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, PackagePlus, TestTube } from "lucide-react";
+import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, PackagePlus, TestTube, ListChecks } from "lucide-react";
 
 const Mechanic = () => {
   return (
@@ -30,7 +31,7 @@ const Mechanic = () => {
         <MechanicClockIn />
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-9 gap-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-10 gap-1">
             <TabsTrigger value="orders" className="flex items-center gap-2 text-xs sm:text-sm">
               <Wrench className="h-4 w-4" />
               <span className="hidden sm:inline">Ordens de Serviço</span>
@@ -70,6 +71,12 @@ const Mechanic = () => {
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Agendamento</span>
               <span className="sm:hidden">Agend</span>
+            </TabsTrigger>
+
+            <TabsTrigger value="plans" className="flex items-center gap-2 text-xs sm:text-sm">
+              <ListChecks className="h-4 w-4" />
+              <span className="hidden sm:inline">Planos</span>
+              <span className="sm:hidden">Plano</span>
             </TabsTrigger>
 
             <TabsTrigger value="parts" className="flex items-center gap-2 text-xs sm:text-sm">
@@ -113,6 +120,10 @@ const Mechanic = () => {
 
           <TabsContent value="scheduler" className="space-y-6">
             <MaintenanceScheduler />
+          </TabsContent>
+
+          <TabsContent value="plans" className="space-y-6">
+            <MaintenancePlansConfig />
           </TabsContent>
 
           <TabsContent value="parts" className="space-y-6">

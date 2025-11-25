@@ -26,6 +26,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Approvals from "./pages/Approvals";
 import ControlTower from "./pages/ControlTower";
+import ControlTowerRedesign from "./pages/ControlTowerRedesign";
 import Documents from "./pages/Documents";
 import Developer from "./pages/Developer";
 import InnovationLab from "./pages/InnovationLab";
@@ -36,7 +37,9 @@ import OMS from "./pages/OMS";
 import SCM from "./pages/SCM";
 import CRM from "./pages/CRM";
 import ERP from "./pages/ERP";
+import EIP from "./pages/EIP";
 import AccountsPayable from "./pages/AccountsPayable";
+import BankReconciliation from "./pages/BankReconciliation";
 import AccountsReceivable from "./pages/AccountsReceivable";
 import CostMonitoring from "./pages/CostMonitoring";
 import ImportVehicles from "./pages/ImportVehicles";
@@ -83,6 +86,7 @@ const App = () => (
             <Route path="/settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
             <Route path="/approvals" element={<ProtectedRoute module="approvals"><Approvals /></ProtectedRoute>} />
             <Route path="/control-tower" element={<ProtectedRoute module="control-tower"><ControlTower /></ProtectedRoute>} />
+            <Route path="/control-tower-new" element={<ProtectedRoute module="control-tower"><ControlTowerRedesign /></ProtectedRoute>} />
             <Route path="/inventory" element={<ProtectedRoute module="inventory"><Inventory /></ProtectedRoute>} />
             <Route path="/wms" element={<ProtectedRoute module="wms"><WMS /></ProtectedRoute>} />
             <Route path="/tms" element={<ProtectedRoute module="tms"><TMS /></ProtectedRoute>} />
@@ -90,8 +94,10 @@ const App = () => (
             <Route path="/scm" element={<ProtectedRoute module="scm"><SCM /></ProtectedRoute>} />
             <Route path="/crm" element={<ProtectedRoute module="crm"><CRM /></ProtectedRoute>} />
             <Route path="/erp" element={<ProtectedRoute module="erp"><ERP /></ProtectedRoute>} />
+            <Route path="/eip" element={<ProtectedRoute module="eip"><EIP /></ProtectedRoute>} />
             <Route path="/accounts-payable" element={<ProtectedRoute module="finance"><AccountsPayable /></ProtectedRoute>} />
             <Route path="/accounts-receivable" element={<ProtectedRoute module="finance"><AccountsReceivable /></ProtectedRoute>} />
+            <Route path="/bank-reconciliation" element={<ProtectedRoute module="finance"><BankReconciliation /></ProtectedRoute>} />
             <Route path="/cost-monitoring" element={<ProtectedRoute module="finance"><CostMonitoring /></ProtectedRoute>} />
             <Route path="/documents" element={<ProtectedRoute module="documents"><Documents /></ProtectedRoute>} />
             <Route path="/developer" element={<ProtectedRoute module="developer"><Developer /></ProtectedRoute>} />

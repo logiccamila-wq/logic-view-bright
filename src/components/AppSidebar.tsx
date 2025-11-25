@@ -51,7 +51,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 
 const mainItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
   { title: "Torre de Controle", url: "/control-tower", icon: TowerControl, module: "control-tower" },
+  { title: "Torre de Controle (Novo)", url: "/control-tower-new", icon: TowerControl, module: "control-tower" },
   { title: "Rastreamento ao Vivo", url: "/live-tracking", icon: MapPin, module: "fleet" },
   { title: "Gestão de Frota", url: "/fleet", icon: Truck, module: "fleet" },
   { title: "Hub Mecânico", url: "/mechanic", icon: Wrench, module: "mechanic" },
@@ -71,6 +73,7 @@ const managementItems = [
   { title: "Centros de Custo", url: "/centros-custo", icon: Layers, module: "finance" },
   { title: "Plano de Contas", url: "/plano-contas", icon: Receipt, module: "finance" },
   { title: "Lançamentos", url: "/lancamentos", icon: FileText, module: "finance" },
+  { title: "Conciliação Bancária", url: "/bank-reconciliation", icon: Wallet, module: "finance" },
   { title: "Contas a Pagar", url: "/accounts-payable", icon: ArrowDownCircle, module: "finance" },
   { title: "Contas a Receber", url: "/accounts-receivable", icon: ArrowUpCircle, module: "finance" },
   { title: "Folha de Pagamento", url: "/folha-pagamento", icon: Calculator, module: "fleet" },
@@ -90,6 +93,7 @@ const modulesItems = [
   { title: "SCM", url: "/scm", icon: GitBranch, module: "scm" },
   { title: "CRM", url: "/crm", icon: UserCheck, module: "crm" },
   { title: "ERP", url: "/erp", icon: Building2, module: "erp" },
+  { title: "EIP", url: "/eip", icon: GitBranch, module: "eip" },
   { title: "Innovation Lab", url: "/innovation", icon: Sparkles, module: "innovation" },
   { title: "Developer", url: "/developer", icon: Code2, module: "developer" },
 ];

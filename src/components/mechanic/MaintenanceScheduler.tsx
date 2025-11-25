@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { predictNextMaintenance } from '@/utils/mlPredictive';
 import { Calendar, AlertTriangle, CheckCircle, Clock, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface VehicleSchedule {
   plate: string;
@@ -22,6 +23,7 @@ export const MaintenanceScheduler = () => {
   const [schedules, setSchedules] = useState<VehicleSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
     loadMaintenanceSchedules();
@@ -122,6 +124,59 @@ export const MaintenanceScheduler = () => {
     } catch (error) {
       console.error('Erro ao criar OS:', error);
       toast.error('Erro ao criar ordem de serviço');
+    }
+  };
+
+  const createPartsRequest = async (schedule: VehicleSchedule) => {
+    try {
+      if (!user) {
+        toast.error('Usuário não autenticado');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('parts_requests')
+        .insert({
+          mechanic_id: user.id,
+          mechanic_name: (user as any)?.user_metadata?.full_name || user.email || 'Mecânico',
+          vehicle_plate: schedule.plate,
+          parts_list: [],
+          urgency: schedule.status === 'overdue' ? 'alta' : schedule.status === 'soon' ? 'media' : 'normal',
+          notes: `Pedido para preventiva: ${schedule.maintenanceType}. Definir itens com checklist/planos.`
+        });
+
+      if (error) throw error;
+      toast.success('Pedido de peças criado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao criar pedido de peças:', error);
+      toast.error('Erro ao criar pedido de peças');
+    }
+  };
+
+  const createQuotation = async (schedule: VehicleSchedule) => {
+    try {
+      if (!user) {
+        toast.error('Usuário não autenticado');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('parts_requests')
+        .insert({
+          mechanic_id: user.id,
+          mechanic_name: (user as any)?.user_metadata?.full_name || user.email || 'Mecânico',
+          vehicle_plate: schedule.plate,
+          parts_list: [],
+          urgency: 'normal',
+          status: 'cotacao',
+          notes: `Cotação para preventiva: ${schedule.maintenanceType}. Solicitar preços e prazos.`
+        });
+
+      if (error) throw error;
+      toast.success('Solicitação de cotação criada!');
+    } catch (error) {
+      console.error('Erro ao criar cotação:', error);
+      toast.error('Erro ao criar cotação');
     }
   };
 
@@ -227,12 +282,17 @@ export const MaintenanceScheduler = () => {
 
                 {(schedule.status === 'overdue' || schedule.status === 'soon') && (
                   <div className="mt-4 pt-4 border-t">
-                    <Button
-                      onClick={() => createPreventiveMaintenance(schedule)}
-                      className="w-full"
-                    >
-                      Criar Ordem de Serviço Preventiva
-                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <Button onClick={() => createPreventiveMaintenance(schedule)}>
+                        Criar OS Preventiva
+                      </Button>
+                      <Button variant="outline" onClick={() => createPartsRequest(schedule)}>
+                        Gerar Pedido de Peças
+                      </Button>
+                      <Button variant="secondary" onClick={() => createQuotation(schedule)}>
+                        Abrir Cotação
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>

@@ -71,6 +71,15 @@ export function ContaPagarDialog({ open, onOpenChange, conta, onSuccess }: Conta
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(formData.data_vencimento);
+
+    if (dueDate < today) {
+      toast.error("A data de vencimento não pode ser retroativa.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -171,26 +180,44 @@ export function ContaPagarDialog({ open, onOpenChange, conta, onSuccess }: Conta
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="categoria">Categoria</Label>
-            <Select
-              value={formData.categoria}
-              onValueChange={(value) => setFormData({ ...formData, categoria: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Combustível">Combustível</SelectItem>
-                <SelectItem value="Manutenção">Manutenção</SelectItem>
-                <SelectItem value="Pedágio">Pedágio</SelectItem>
-                <SelectItem value="Folha de Pagamento">Folha de Pagamento</SelectItem>
-                <SelectItem value="Aluguel">Aluguel</SelectItem>
-                <SelectItem value="Impostos">Impostos</SelectItem>
-                <SelectItem value="Seguro">Seguro</SelectItem>
-                <SelectItem value="Outros">Outros</SelectItem>
-              </SelectContent>
-            </Select>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label htmlFor="categoria">Categoria</Label>
+              <Select
+                value={formData.categoria}
+                onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Combustível">Combustível</SelectItem>
+                  <SelectItem value="Manutenção">Manutenção</SelectItem>
+                  <SelectItem value="Pedágio">Pedágio</SelectItem>
+                  <SelectItem value="Folha de Pagamento">Folha de Pagamento</SelectItem>
+                  <SelectItem value="Aluguel">Aluguel</SelectItem>
+                  <SelectItem value="Impostos">Impostos</SelectItem>
+                  <SelectItem value="Seguro">Seguro</SelectItem>
+                  <SelectItem value="Outros">Outros</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div class="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => setFormData({ ...formData, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="pago">Pago</SelectItem>
+                  <SelectItem value="vencido">Vencido</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">

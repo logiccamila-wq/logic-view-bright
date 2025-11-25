@@ -59,12 +59,16 @@ export default function Lancamentos() {
         listLancamentos(lancFiltros),
         listPlanoContas(),
         listCentrosCusto(),
-        supabase.from("vehicles").select("*").eq("status", "ativo").order("placa"),
+        supabase.from("vehicles").select("*").in("status", ["ativo", "Ativo"]),
       ]);
       setLancamentos(lancData);
       setContas(contasData);
       setCentros(centrosData);
-      setVehicles(vehiclesData.data || []);
+      const mappedVehicles = (vehiclesData.data || [])
+        .map((v: any) => ({ placa: v.placa || v.plate, modelo: v.modelo || v.model || '' }))
+        .filter((v) => !!v.placa)
+        .sort((a, b) => a.placa.localeCompare(b.placa));
+      setVehicles(mappedVehicles);
     } catch (error: any) {
       toast.error("Erro ao carregar dados");
       console.error(error);

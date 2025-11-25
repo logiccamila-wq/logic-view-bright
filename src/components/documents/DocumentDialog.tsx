@@ -68,8 +68,28 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
   }, [open, document, documentType]);
 
   const loadVehicles = async () => {
-    const { data } = await supabase.from('vehicles').select('plate, model').eq('status', 'ativo').order('plate');
-    if (data) setVehicles(data);
+    try {
+      const { data, error } = await supabase
+        .from('vehicles')
+        .select('*')
+        .in('status', ['ativo', 'Ativo']);
+
+      if (error) {
+        console.error('Erro ao carregar veículos:', error);
+        setVehicles([]);
+        return;
+      }
+
+      const mapped = (data || [])
+        .map((v: any) => ({ plate: v.plate || v.placa, model: v.model || v.modelo || '' }))
+        .filter((v) => !!v.plate)
+        .sort((a, b) => a.plate.localeCompare(b.plate));
+
+      setVehicles(mapped);
+    } catch (e) {
+      console.error('Falha ao carregar veículos:', e);
+      setVehicles([]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

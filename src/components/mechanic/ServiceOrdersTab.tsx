@@ -70,12 +70,22 @@ export function ServiceOrdersTab() {
     try {
       const { data, error } = await supabase
         .from('vehicles')
-        .select('placa, modelo, tipo, status')
-        .eq('status', 'ativo')
-        .order('placa');
+        .select('*')
+        .in('status', ['ativo', 'Ativo']);
 
       if (error) throw error;
-      setVehicles(data || []);
+
+      const mapped = (data || [])
+        .map((v: any) => ({
+          placa: v.placa || v.plate,
+          modelo: v.modelo || v.model || '',
+          tipo: v.tipo || '',
+          status: v.status || ''
+        }))
+        .filter((v) => !!v.placa)
+        .sort((a, b) => a.placa.localeCompare(b.placa));
+
+      setVehicles(mapped);
     } catch (error) {
       console.error('Erro ao buscar veículos:', error);
       toast.error('Erro ao carregar veículos');

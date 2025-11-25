@@ -97,18 +97,27 @@ export function WorkSessionPanel() {
     try {
       const { data, error } = await supabase
         .from("vehicles")
-        .select("placa, modelo, ano, tipo")
-        .in("tipo", ["cavalo_mecanico", "caminhao"])
-        .eq("status", "ativo")
-        .order("placa");
+        .select("*")
+        .in("tipo", ["cavalo_mecanico", "caminhao", "cavalo", "carreta"]) // cobrir variações
+        .in("status", ["ativo", "Ativo"]);
 
       if (error) {
         console.error("Erro ao carregar veículos:", error);
         toast.error("Erro ao carregar veículos");
         setAvailableVehicles([]);
       } else {
-        console.log("Veículos carregados:", data);
-        setAvailableVehicles(data || []);
+        const mapped = (data || [])
+          .map((v: any) => ({
+            placa: v.placa || v.plate,
+            modelo: v.modelo || v.model || "",
+            ano: v.ano || v.year,
+            tipo: v.tipo || ""
+          }))
+          .filter((v) => !!v.placa)
+          .sort((a, b) => a.placa.localeCompare(b.placa));
+
+        console.log("Veículos carregados:", mapped);
+        setAvailableVehicles(mapped);
       }
     } catch (error) {
       console.error("Erro ao carregar veículos:", error);

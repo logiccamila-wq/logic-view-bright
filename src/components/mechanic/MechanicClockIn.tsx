@@ -10,11 +10,14 @@ const OFICINA_LAT = -8.272213;
 const OFICINA_LON = -35.028048;
 const RAIO = 120; // metros
 
+type PunchType = 'entrada' | 'almoco_inicio' | 'almoco_fim' | 'saida';
+
 export function MechanicClockIn() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const { toast } = useToast();
   const { user } = useAuth();
+  const [lastPunch, setLastPunch] = useState<PunchType | null>(null);
 
   const calcDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371000; // Earth radius in meters
@@ -29,7 +32,7 @@ export function MechanicClockIn() {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
-  const baterPonto = async () => {
+  const baterPonto = async (type: PunchType) => {
     if (!user) {
       toast({
         title: "Erro",
@@ -40,7 +43,7 @@ export function MechanicClockIn() {
     }
 
     setLoading(true);
-    setStatus('Obtendo localização...');
+    setStatus(`Obtendo localização para ${type}...`);
 
     try {
       if (!navigator.geolocation) {
@@ -68,6 +71,7 @@ export function MechanicClockIn() {
             .from('mechanic_clock_in')
             .insert({
               mechanic_id: user.id,
+              punch_type: type,
               latitude,
               longitude,
               distance: distancia,
@@ -78,9 +82,10 @@ export function MechanicClockIn() {
           if (error) throw error;
 
           setStatus('✅ Ponto registrado com sucesso!');
+          setLastPunch(type);
           toast({
             title: "Ponto registrado",
-            description: `Localização: ${distancia.toFixed(1)}m da oficina`,
+            description: `Tipo: ${type.toUpperCase()} • Distância: ${distancia.toFixed(1)}m da oficina`,
           });
           setLoading(false);
         },
@@ -120,15 +125,18 @@ export function MechanicClockIn() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            onClick={baterPonto} 
-            disabled={loading}
-            size="lg"
-            className="flex-1"
-          >
-            <MapPin className="h-4 w-4 mr-2" />
-            {loading ? 'Registrando...' : 'Bater Ponto'}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Button onClick={() => baterPonto('entrada')} disabled={loading} size="sm" variant="default">
+            <MapPin className="h-4 w-4 mr-2" /> Entrada
+          </Button>
+          <Button onClick={() => baterPonto('almoco_inicio')} disabled={loading} size="sm" variant="secondary">
+            <MapPin className="h-4 w-4 mr-2" /> Início Almoço
+          </Button>
+          <Button onClick={() => baterPonto('almoco_fim')} disabled={loading} size="sm" variant="secondary">
+            <MapPin className="h-4 w-4 mr-2" /> Fim Almoço
+          </Button>
+          <Button onClick={() => baterPonto('saida')} disabled={loading} size="sm" variant="outline">
+            <MapPin className="h-4 w-4 mr-2" /> Saída
           </Button>
         </div>
         
@@ -154,6 +162,7 @@ export function MechanicClockIn() {
         <div className="text-xs text-muted-foreground">
           <p>📍 Oficina: Lat {OFICINA_LAT}, Lon {OFICINA_LON}</p>
           <p>📏 Raio permitido: {RAIO} metros</p>
+          {lastPunch && <p>🕒 Última marcação: {lastPunch.toUpperCase()}</p>}
         </div>
       </CardContent>
     </Card>

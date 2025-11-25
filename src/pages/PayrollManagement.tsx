@@ -25,6 +25,7 @@ import { Calculator, DollarSign, Eye, CheckCircle, FileText } from "lucide-react
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PayrollDetailDialog } from "@/components/payroll/PayrollDetailDialog";
 
 interface PayrollRecord {
   id: string;
@@ -56,6 +57,8 @@ export default function PayrollManagement() {
   const [calculating, setCalculating] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedPayroll, setSelectedPayroll] = useState<PayrollRecord | null>(null);
 
   useEffect(() => {
     loadPayrolls();
@@ -164,6 +167,11 @@ export default function PayrollManagement() {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const handleViewDetails = (payroll: PayrollRecord) => {
+    setSelectedPayroll(payroll);
+    setDetailDialogOpen(true);
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -207,12 +215,8 @@ export default function PayrollManagement() {
                 />
               </div>
 
-              <Button
-                onClick={calculatePayroll}
-                disabled={calculating}
-                className="w-full"
-              >
-                {calculating ? "Calculando..." : "Calcular Folha"}
+              <Button onClick={calculatePayroll} disabled={calculating} className="w-full mt-4">
+                {calculating ? "Calculando..." : "Confirmar Cálculo"}
               </Button>
             </div>
           </DialogContent>
@@ -434,6 +438,13 @@ export default function PayrollManagement() {
           </div>
         )}
       </Card>
+      <PayrollDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        payroll={selectedPayroll}
+      />
     </div>
   );
 }
+
+/* Removido bloco duplicado fora do componente */

@@ -129,7 +129,7 @@ export function CostAlertsConfig() {
         period_days: ['cost_threshold', 'vehicle_specific'].includes(formData.alert_type) ? parseInt(formData.period_days) : null,
         trend_percentage: formData.alert_type === 'trend_increase' ? parseFloat(formData.trend_percentage) : null,
         trend_period_months: formData.alert_type === 'trend_increase' ? parseInt(formData.trend_period_months) : null,
-        vehicle_plate: formData.vehicle_plate || null,
+        vehicle_plate: !formData.vehicle_plate || formData.vehicle_plate === 'todos' ? null : formData.vehicle_plate,
       };
 
       const { error } = await (supabase as any)
@@ -373,7 +373,7 @@ export function CostAlertsConfig() {
                       <SelectValue placeholder="Todos os veículos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os veículos</SelectItem>
+                      <SelectItem value="todos">Todos os veículos</SelectItem>
                       {vehicles.map((plate) => (
                         <SelectItem key={plate} value={plate}>
                           {plate}

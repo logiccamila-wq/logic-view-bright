@@ -204,39 +204,16 @@ export function EJGChatbot() {
 
     setLoading(true);
     try {
-      // Save user message
-      const { error: saveError } = await (supabase as any)
-        .from("chat_messages")
-        .insert({
-          conversation_id: selectedConversation,
-          sender_id: user!.id,
-          message: newMessage,
-          message_type: "text",
-        });
-
-      if (saveError) throw saveError;
-
-      const userMessage = newMessage;
-      setNewMessage("");
-
-      // Get AI response
-      const { data, error } = await supabase.functions.invoke("ejg-chatbot", {
-        body: {
-          messages: [
-            ...messages.map(m => ({
-              role: m.sender_id === user!.id ? "user" : "assistant",
-              content: m.message,
-            })),
-            { role: "user", content: userMessage },
-          ],
-          conversationId: selectedConversation,
-          userId: user!.id,
-        },
+      const { error } = await (supabase as any).from("chat_messages").insert({
+        conversation_id: selectedConversation,
+        sender_id: user!.id,
+        message: newMessage,
+        message_type: "text",
       });
 
       if (error) throw error;
 
-      // Messages will be updated via realtime subscription
+      setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Erro ao enviar mensagem");
@@ -275,9 +252,9 @@ export function EJGChatbot() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
-          <img src={chatbotAvatar} alt="EJG Assistant" className="h-10 w-10 rounded-full" />
+          <img src={chatbotAvatar} alt="Assistente OptiLog" className="h-10 w-10 rounded-full" />
           <div>
-            <h3 className="font-semibold">EJG Assistant</h3>
+            <h3 className="font-semibold">Assistente OptiLog</h3>
             <p className="text-xs text-muted-foreground">Assistente Virtual</p>
           </div>
         </div>
@@ -325,7 +302,7 @@ export function EJGChatbot() {
                           >
                             {msg.sender_id !== user?.id && (
                               <p className="text-xs font-semibold mb-1 opacity-80">
-                                {msg.sender_name || 'EJG Assistant'}
+                                {msg.sender_name || 'Assistente OptiLog'}
                               </p>
                             )}
                             <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
@@ -377,7 +354,7 @@ export function EJGChatbot() {
                 <Card className="p-4 mb-4 space-y-3">
                   <Select value={conversationType} onValueChange={(v: any) => setConversationType(v)}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="help">Ajuda do Sistema</SelectItem>
@@ -395,7 +372,7 @@ export function EJGChatbot() {
                   {conversationType === "support" && (
                     <Select value={priority} onValueChange={(v: any) => setPriority(v)}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Selecione a prioridade" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="low">Baixa</SelectItem>

@@ -99,9 +99,9 @@ const Login = () => {
             {resetMode ? "Redefinir Senha" : "Entrar"}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            {resetMode 
-              ? "Digite seu email para receber instruções" 
-              : "Acesse sua conta LogicFlow AI"
+            {resetMode
+              ? "Digite seu e-mail para receber as instruções"
+              : "Acesse sua conta Optilog"
             }
           </CardDescription>
         </CardHeader>
@@ -109,23 +109,23 @@ const Login = () => {
           {resetSent ? (
             <div className="text-center space-y-4">
               <p className="text-sm text-muted-foreground">
-                Um email com instruções foi enviado para <strong>{email}</strong>
+                Um e-mail com as instruções foi enviado para <strong>{email}</strong>
               </p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={() => {
                   setResetSent(false);
                   setResetMode(false);
                 }}
               >
-                Voltar ao login
+                Voltar ao Login
               </Button>
             </div>
           ) : (
             <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">E-mail *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -152,20 +152,20 @@ const Login = () => {
                 </div>
               )}
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? (resetMode ? "Enviando..." : "Entrando...") : (resetMode ? "ENVIAR EMAIL" : "ENTRAR")}
+                {loading ? (resetMode ? "Enviando..." : "Entrando...") : (resetMode ? "ENVIAR E-MAIL" : "ENTRAR")}
               </Button>
-              <Button 
+              <Button
                 type="button"
-                variant="ghost" 
+                variant="ghost"
                 className="w-full text-sm"
                 onClick={() => setResetMode(!resetMode)}
                 disabled={loading}
               >
-                {resetMode ? "Voltar ao login" : "Esqueci minha senha"}
+                {resetMode ? "Voltar ao Login" : "Esqueci minha senha"}
               </Button>
               <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
                 <Lock className="w-3 h-3" />
-                Dados protegidos com criptografia
+                Seus dados estão protegidos por criptografia de ponta a ponta.
               </p>
             </form>
           )}

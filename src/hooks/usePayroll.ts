@@ -32,6 +32,43 @@ export interface PayrollRecord {
 export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
   const queryClient = useQueryClient();
 
+  // Calcula o range do mês (início e próximo mês) baseado em mesReferencia 'YYYY-MM-01'
+  const getMonthRange = (mes: string) => {
+    const start = new Date(mes);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+    return {
+      start: start.toISOString().slice(0, 10),
+      end: end.toISOString().slice(0, 10),
+    };
+  };
+
+  // Busca horas de mecânicos por funcionário no mês
+  const fetchMechanicHoursByEmployee = async (mes: string) => {
+    try {
+      const { start, end } = getMonthRange(mes);
+      const { data, error } = await supabase
+        .from('mechanic_daily_hours')
+        .select('employee_id, dia, total_minutes, overtime_minutes')
+        .gte('dia', start)
+        .lt('dia', end);
+
+      if (error) throw error;
+
+      const map = new Map<string, { totalMinutes: number; overtimeMinutes: number }>();
+      (data || []).forEach((row: any) => {
+        const prev = map.get(row.employee_id) || { totalMinutes: 0, overtimeMinutes: 0 };
+        prev.totalMinutes += row.total_minutes || 0;
+        prev.overtimeMinutes += row.overtime_minutes || 0;
+        map.set(row.employee_id, prev);
+      });
+      return map;
+    } catch (err) {
+      console.error('Erro ao buscar mechanic_daily_hours:', err);
+      return new Map<string, { totalMinutes: number; overtimeMinutes: number }>();
+    }
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["payroll", mesReferencia, page, pageSize],
     queryFn: async () => {
@@ -66,9 +103,20 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
     },
   });
 
-  const calculatePayroll = (employee: any): Omit<PayrollRecord, "id" | "created_at" | "updated_at"> => {
+  const calculatePayroll = (
+    employee: any,
+    mechanicHoursMap?: Map<string, { totalMinutes: number; overtimeMinutes: number }>,
+    mes?: string,
+  ): Omit<PayrollRecord, "id" | "created_at" | "updated_at"> => {
     const salarioBase = employee.salario || 0;
-    const horasExtras = 0; // Pode ser calculado de driver_work_sessions
+    // Horas extras: usar mechanic_daily_hours se disponível
+    const mech = mechanicHoursMap?.get(employee.id);
+    const overtimeMinutes = mech?.overtimeMinutes || 0;
+    const horasExtrasHoras = overtimeMinutes / 60;
+    const cargaMensalPadrao = 220; // horas
+    const valorHora = cargaMensalPadrao > 0 ? (salarioBase / cargaMensalPadrao) : 0;
+    const fatorHoraExtra = 1.5; // simplificado (50%)
+    const horasExtras = horasExtrasHoras * valorHora * fatorHoraExtra;
     const adicionalNoturno = 0;
     const adicionalPericulosidade = 0;
     const adicionalInsalubridade = 0;
@@ -91,7 +139,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
 
     return {
       employee_id: employee.id,
-      mes_referencia: new Date().toISOString().slice(0, 7) + "-01",
+      mes_referencia: mes || (new Date().toISOString().slice(0, 7) + "-01"),
       salario_base: salarioBase,
       horas_extras: horasExtras,
       adicional_noturno: adicionalNoturno,
@@ -117,8 +165,9 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
         .is("data_demissao", null);
 
       if (empError) throw empError;
-
-      const payrollRecords = employees.map((emp) => calculatePayroll(emp));
+      // Buscar horas de mecânicos no mês
+      const mechanicHoursMap = await fetchMechanicHoursByEmployee(mesReferencia);
+      const payrollRecords = employees.map((emp) => calculatePayroll(emp, mechanicHoursMap, mesReferencia));
 
       // Inserir todas as folhas
       const { error: insertError } = await supabase

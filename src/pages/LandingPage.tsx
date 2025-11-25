@@ -129,7 +129,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={optilogLogo} alt="OptiLog" className="h-8" />
-            <span className="text-xl font-bold">LogicFlow AI</span>
+            <span className="text-xl font-bold">Optilog</span>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" onClick={() => navigate('/login')}>
