@@ -12,11 +12,11 @@ $buildPath = Join-Path -Path (Get-Location) -ChildPath $BuildDir
 if (-not (Test-Path $buildPath)) { throw "Build directory not found: $buildPath" }
 
 if ($UseVercel) {
-    if ($DryRun) { Write-Output "DRYRUN vercel pull --yes --environment=production"; Write-Output "DRYRUN vercel build"; Write-Output "DRYRUN vercel deploy --prebuilt --prod --yes"; return }
+    if ($DryRun) { Write-Output "DRYRUN vercel pull --yes --environment=production"; Write-Output "DRYRUN vercel build --prod"; Write-Output "DRYRUN vercel deploy --prebuilt --prod --yes"; return }
     $vercel = Get-Command vercel -ErrorAction SilentlyContinue
     if (-not $vercel) { throw "Vercel CLI not found" }
     vercel pull --yes --environment=production
-    vercel build
+    vercel build --prod
     vercel deploy --prebuilt --prod --yes
     return
 }

@@ -23,8 +23,8 @@ function App() {
     <HelmetProvider>
       <I18nextProvider i18n={i18n}>
         <AppThemeProvider>
-          <AuthProvider>
           <Router>
+          <AuthProvider>
             <div className="min-h-screen bg-background text-foreground">
               <Routes>
                 {/* Onboarding Flow */}
@@ -58,8 +58,8 @@ function App() {
                 } />
               </Routes>
             </div>
-          </Router>
           </AuthProvider>
+          </Router>
           <Toaster />
         </AppThemeProvider>
       </I18nextProvider>
