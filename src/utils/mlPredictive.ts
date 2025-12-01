@@ -124,6 +124,33 @@ export function predictTireFailureRisk(readings: TPMSReading[]): {
   };
 }
 
+export function xgboostLikeClassification(features: Array<{ value: number; weight?: number }>): { score: number; label: 'low' | 'medium' | 'high' } {
+  const base = 0.5;
+  const sum = features.reduce((s, f) => s + (f.value * (f.weight ?? 1)), base);
+  const score = 1 / (1 + Math.exp(-sum));
+  const label = score > 0.7 ? 'high' : score > 0.5 ? 'medium' : 'low';
+  return { score, label };
+}
+
+export function lstmLikeForecast(series: number[], horizon: number): number[] {
+  const out: number[] = [];
+  let last = series[series.length - 1] ?? 0;
+  const avg = series.slice(-10).reduce((s,v)=>s+v,0)/Math.max(1,Math.min(10,series.length));
+  for (let i=0;i<horizon;i++) {
+    last = 0.6*last + 0.4*avg;
+    out.push(last);
+  }
+  return out;
+}
+
+export function prescriptiveActions(predictions: { failureRisk?: number; costTrend?: 'increasing'|'decreasing'|'stable' }): string[] {
+  const recs: string[] = [];
+  if ((predictions.failureRisk ?? 0) > 0.7) recs.push('Agendar inspeção imediata e rodízio recomendado');
+  if (predictions.costTrend === 'increasing') recs.push('Revisar calibragem e rotas; avaliar recapagem');
+  if (predictions.costTrend === 'stable') recs.push('Manter plano e monitorar KPIs semanalmente');
+  return recs;
+}
+
 /**
  * Prever próxima manutenção baseado em histórico de ordens de serviço
  */

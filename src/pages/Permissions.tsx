@@ -4,8 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Shield, Users, Key } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 type AppRole = 'admin' | 'driver' | 'finance' | 'operations' | 'commercial' | 'fleet_maintenance' | 'maintenance_assistant' | 'logistics_manager' | 'maintenance_manager';
+type DynProfile = { key: string; name: string };
+type DynModule = { key: string; name: string; description?: string };
+type DynMatrix = Record<string, Record<string, boolean>>;
 
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
   driver: ['dashboard', 'fleet', 'tms', 'driver'],
@@ -55,17 +59,39 @@ const ROLE_INFO: Record<AppRole, { name: string; color: string; description: str
   maintenance_manager: { name: 'Gerente de Manutenção', color: 'bg-pink-500', description: 'Gestão de manutenção' },
 };
 
+function safeJson(r: Response) {
+  const ct = r.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) throw new Error("Resposta não JSON");
+  return r.json();
+}
+
 const Permissions = () => {
   const { hasRole, roles } = useAuth();
+  const [dynProfiles, setDynProfiles] = useState<DynProfile[]>([]);
+  const [dynModules, setDynModules] = useState<DynModule[]>([]);
+  const [dynMatrix, setDynMatrix] = useState<DynMatrix>({});
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const r = await fetch(`/api/permissions-matrix`);
+        const data = await safeJson(r);
+        setDynProfiles((data.profiles || []).map((p:any)=>({ key: p.key, name: p.name })));
+        setDynModules((data.modules || []).map((m:any)=>({ key: m.key, name: m.name, description: m.description })));
+        setDynMatrix(data.matrix || {});
+      } catch {}
+    };
+    load();
+  }, []);
 
   // Apenas admins podem ver esta página
   if (!hasRole('admin')) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const allRoles = Object.keys(MODULE_PERMISSIONS) as AppRole[];
-  const allModules = Array.from(new Set(Object.values(MODULE_PERMISSIONS).flat()));
-  const categories = Array.from(new Set(Object.values(MODULES_INFO).map(m => m.category)));
+  const allRoles = dynProfiles.length > 0 ? dynProfiles.map(p=>p.key) : (Object.keys(MODULE_PERMISSIONS) as AppRole[]);
+  const allModules = dynModules.length > 0 ? dynModules.map(m=>m.key) : Array.from(new Set(Object.values(MODULE_PERMISSIONS).flat()));
+  const categories = Array.from(new Set(Object.values(MODULES_INFO).map(m => m.category)).add('Outros'));
 
   return (
     <Layout>
@@ -114,11 +140,11 @@ const Permissions = () => {
                       <th className="text-left p-3 font-semibold sticky left-0 bg-card z-10">
                         Módulo
                       </th>
-                      {allRoles.map((role) => (
-                        <th key={role} className="p-3 text-center">
-                          <div className="flex flex-col items-center gap-1">
-                            <Badge className={`${ROLE_INFO[role].color} text-white text-xs`}>
-                              {ROLE_INFO[role].name}
+                          {allRoles.map((role) => (
+                            <th key={role} className="p-3 text-center">
+                              <div className="flex flex-col items-center gap-1">
+                            <Badge className={`${ROLE_INFO[(role as AppRole)]?.color || 'bg-gray-500'} text-white text-xs`}>
+                              {ROLE_INFO[(role as AppRole)]?.name || role}
                             </Badge>
                           </div>
                         </th>
@@ -127,7 +153,7 @@ const Permissions = () => {
                   </thead>
                   <tbody>
                     {allModules
-                      .filter(module => MODULES_INFO[module]?.category === category)
+                      .filter(module => (MODULES_INFO[module]?.category || 'Outros') === category)
                       .map((module) => (
                         <tr key={module} className="border-b hover:bg-muted/50">
                           <td className="p-3 font-medium sticky left-0 bg-card">
@@ -137,7 +163,7 @@ const Permissions = () => {
                             </div>
                           </td>
                           {allRoles.map((role) => {
-                            const hasAccess = MODULE_PERMISSIONS[role].includes(module);
+                            const hasAccess = dynProfiles.length > 0 ? !!dynMatrix[module]?.[role] : MODULE_PERMISSIONS[(role as AppRole)]?.includes(module);
                             return (
                               <td key={role} className="p-3 text-center">
                                 {hasAccess ? (

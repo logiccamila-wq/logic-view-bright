@@ -51,8 +51,16 @@ const GaelChatbot: React.FC<GaelChatbotProps> = ({ dashboardData }) => {
       });
 
       if (!resp.ok) {
-        const errorData = await resp.json();
-        throw new Error(errorData.error || "Falha ao conectar com a IA");
+        const ct = resp.headers.get("content-type") || ""
+        let msg = "Falha ao conectar com a IA"
+        if (ct.includes("application/json")) {
+          const errorData = await resp.json()
+          msg = errorData.error || msg
+        } else {
+          const text = await resp.text()
+          msg = text || msg
+        }
+        throw new Error(msg)
       }
 
       if (!resp.body) throw new Error("Sem resposta do servidor");

@@ -66,14 +66,24 @@ const DriversManagement = () => {
 
   const loadDrivers = async () => {
     try {
-      const { data: profilesData, error } = await supabase
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          user_roles (
+            role
+          )
+        `)
         .order('full_name');
-
-      if (error) throw error;
-
-      setDrivers(profilesData as any || []);
+  
+      if (profilesError) throw profilesError;
+  
+      const profiles = (profilesData || []) as any[];
+      const drivers = profiles.filter((profile: any) => 
+        Array.isArray(profile.user_roles) && profile.user_roles.some((r: any) => r.role === 'driver')
+      );
+  
+      setDrivers(drivers || []);
     } catch (error) {
       console.error('Erro ao carregar motoristas:', error);
       toast.error('Erro ao carregar motoristas');
@@ -403,6 +413,3 @@ const DriversManagement = () => {
 };
 
 export default DriversManagement;
-
-
-/* Removido bloco duplicado e fora do componente com DriverDialog e exports */

@@ -50,7 +50,7 @@ export const DriverDialog = ({ open, onOpenChange, driver, onSuccess }: DriverDi
     try {
       if (driver) {
         // Update
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("profiles")
           .update(formData)
           .eq("id", driver.id);
@@ -58,7 +58,7 @@ export const DriverDialog = ({ open, onOpenChange, driver, onSuccess }: DriverDi
         toast.success("Motorista atualizado com sucesso!");
       } else {
         // Create
-        const { error } = await supabase.from("profiles").insert([formData]);
+        const { error } = await (supabase as any).from("profiles").insert([formData]);
         if (error) throw error;
         toast.success("Motorista cadastrado com sucesso!");
       }

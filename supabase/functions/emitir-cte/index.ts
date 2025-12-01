@@ -1,14 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { logFunction } from "../_shared/correlation.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const getCors = (origin: string | null) => buildCorsHeaders(origin);
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handlePreflight(origin);
   }
 
   try {
@@ -221,27 +221,37 @@ serve(async (req) => {
       throw dbError;
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        cte_id: cteRecord.id,
-        numero: cteData.numero,
-        chave: responseData.chave,
-        protocolo: responseData.protocolo,
-        pdf_url: responseData.pdf,
-        xml_url: responseData.xml,
-        status: responseData.status,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({
+      success: true,
+      cte_id: cteRecord.id,
+      numero: cteData.numero,
+      chave: responseData.chave,
+      protocolo: responseData.protocolo,
+      pdf_url: responseData.pdf,
+      xml_url: responseData.xml,
+      status: responseData.status,
+    }), { headers: { ...getCors(origin), 'Content-Type': 'application/json' } });
+
+    // Criar viagem TMS e notificar motorista (opcional)
+    try {
+      if ((cteData as any).driver_id) {
+        const tripPayload: any = {
+          vehicle_plate: (cteData as any).vehicle_plate || null,
+          driver_id: (cteData as any).driver_id,
+          cte_id: cteRecord.id,
+          status: 'planned',
+          created_at: new Date().toISOString()
+        };
+        const { data: trip } = await supabase.from('trips').insert(tripPayload).select('*').maybeSingle();
+        await supabase.from('notifications').insert({ user_id: (cteData as any).driver_id, title: 'Nova viagem', message: 'Uma viagem foi criada a partir do CT-e', type: 'info', module: 'operations', read: false });
+        await logFunction(supabase, crypto.randomUUID(), 'emitir-cte', 'info', 'trip created from cte', { trip_id: trip?.id, driver_id: (cteData as any).driver_id });
+      }
+    } catch (_) {}
   } catch (error) {
     console.error('Erro ao emitir CT-e:', error);
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Erro desconhecido' 
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Erro desconhecido' 
+    }), { status: 500, headers: { ...getCors(origin), 'Content-Type': 'application/json' } });
   }
 });

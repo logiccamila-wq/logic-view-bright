@@ -34,6 +34,7 @@ import { DriverPerformance } from "@/components/driver/DriverPerformance";
 import { DriverPayrollHistory } from "@/components/driver/DriverPayrollHistory";
 import { DriverRouteFinancial } from "@/components/driver/DriverRouteFinancial";
 import { DeliveryRouting } from "@/components/driver/DeliveryRouting";
+import { LiveLocationToggle } from "@/components/driver/LiveLocationToggle";
 import GaelChatbot from "@/components/GaelChatbot";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -163,6 +164,7 @@ export default function DriverApp() {
           <p className="text-sm md:text-base text-muted-foreground">
             Gestão completa da sua jornada
           </p>
+          <LiveLocationToggle />
         </div>
 
         {/* KPIs Mobile-friendly */}

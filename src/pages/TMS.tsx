@@ -15,6 +15,7 @@ import { TripManagement } from "@/components/tms/TripManagement";
 import { OrdemColetaManagement } from "@/components/tms/OrdemColetaManagement";
 import { RouteOptimizer } from "@/components/tms/RouteOptimizer";
 import { VehicleList } from "@/components/tms/VehicleList";
+import { CostEstimator } from "@/components/tms/CostEstimator";
 
 const TMS = () => {
   return (
@@ -98,7 +99,10 @@ const TMS = () => {
 
           {/* CT-e */}
           <TabsContent value="cte">
-            <CTEManagement />
+            <div className="grid gap-4">
+              <CostEstimator />
+              <CTEManagement />
+            </div>
           </TabsContent>
 
           {/* MDF-e */}

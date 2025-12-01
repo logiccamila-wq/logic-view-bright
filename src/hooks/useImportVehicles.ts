@@ -63,7 +63,8 @@ export const useImportVehicles = () => {
       const zip = await JSZip.loadAsync(file);
       const vehicles: VehicleData[] = [];
 
-      for (const [filename, zipEntry] of Object.entries(zip.files)) {
+      const files = zip.files as Record<string, any>;
+      for (const [filename, zipEntry] of Object.entries(files)) {
         if (zipEntry.dir) continue;
         
         // Processar arquivos .txt (relatórios de frota)

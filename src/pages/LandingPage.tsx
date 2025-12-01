@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import optilogLogo from "@/assets/optilog-logo.png";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { PWACacheReset } from "@/components/PWACacheReset";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -132,12 +133,20 @@ const LandingPage = () => {
             <span className="text-xl font-bold">Optilog</span>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/login')}>
-              Entrar
-            </Button>
-            <Button className="gap-2" onClick={() => navigate('/login')}>
-              Começar Grátis
+            <Button variant="ghost" onClick={() => navigate('/login')}>Entrar</Button>
+            <Button className="gap-2" onClick={() => navigate('/login?brand=ejg')}>
+              Acesso EJG
               <ArrowRight className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => navigate('/login?brand=albuquerque')}>
+              Acesso Albuquerque
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" className="gap-2">
+              <a href="https://wa.me/5581989684986" target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                WhatsApp Comercial
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </Button>
           </div>
         </div>
@@ -175,13 +184,19 @@ const LandingPage = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Button size="lg" className="gap-2 text-lg h-14 px-8 hover-scale" onClick={() => navigate('/login')}>
+              <Button size="lg" className="gap-2 text-lg h-14 px-8 hover-scale" onClick={() => navigate('/login?brand=ejg')}>
                 <Rocket className="w-5 h-5" />
-                Testar 14 Dias Grátis
+                Acesso EJG Transportes
+              </Button>
+              <Button size="lg" variant="outline" className="gap-2 text-lg h-14 px-8 hover-scale" onClick={() => navigate('/login?brand=albuquerque')}>
+                <Rocket className="w-5 h-5" />
+                Acesso Albuquerque
               </Button>
               <Button size="lg" variant="outline" className="gap-2 text-lg h-14 px-8 hover-scale">
-                <Brain className="w-5 h-5" />
-                Ver Demo ao Vivo
+                <a href="mailto:comercial@xyzlogicflow.tech" className="flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  Solicitar Acesso de Teste
+                </a>
               </Button>
             </div>
 
@@ -306,6 +321,35 @@ const LandingPage = () => {
                 </CardContent>
               </Card>
             </motion.div>
+          </div>
+          {/* Access & Contacts */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-8">
+            <Card className="border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold mb-3">Acesso Visitante (Teste)</h3>
+                <p className="text-muted-foreground mb-6">Peça credenciais de teste e explore o sistema.</p>
+                <div className="flex gap-3">
+                  <Button variant="modern">
+                    <a href="https://wa.me/5581989684986" target="_blank" rel="noreferrer">WhatsApp +55 81 98968-4986</a>
+                  </Button>
+                  <Button variant="outline">
+                    <a href="mailto:comercial@xyzlogicflow.tech">comercial@xyzlogicflow.tech</a>
+                  </Button>
+                  <PWACacheReset />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/10 to-purple-500/10">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold mb-3">Suporte e Chamados</h3>
+                <p className="text-muted-foreground mb-6">Abra tickets e obtenha suporte prioritário.</p>
+                <div className="flex gap-3">
+                  <Button>
+                    <a href="mailto:suporte@logicflow.tech">suporte@logicflow.tech</a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -559,7 +603,7 @@ const LandingPage = () => {
             <div className="flex items-center gap-2">
               <img src={optilogLogo} alt="OptiLog" className="h-6" />
               <span className="text-sm text-muted-foreground">
-                © 2025 LogicFlow AI. Todos os direitos reservados.
+                Sistema desenvolvido pela XYZ Logicflow e licenciado à EJG Transportes.
               </span>
             </div>
             <div className="flex items-center gap-4">

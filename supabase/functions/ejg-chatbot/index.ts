@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 const requestSchema = z.object({
   messages: z.array(z.object({
@@ -11,25 +12,34 @@ const requestSchema = z.object({
   userId: z.string().uuid()
 });
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const getCors = (origin: string | null) => buildCorsHeaders(origin);
 
 serve(async (req) => {
+  const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handlePreflight(origin);
   }
 
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     const body = await req.json();
     const validated = requestSchema.parse(body);
     const { messages, conversationId, userId } = validated;
+    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: auth } = await supabase.auth.getUser(token);
+      if (!auth?.user || auth.user.id !== userId) {
+        return new Response(JSON.stringify({ error: "Não autorizado" }), {
+          status: 401,
+          headers: { ...getCors(origin), "Content-Type": "application/json" },
+        });
+      }
+    }
     
     console.log(`Processing chat request for conversation ${conversationId}`);
 
@@ -54,6 +64,13 @@ serve(async (req) => {
       .select("*")
       .eq("id", conversationId)
       .single();
+
+    if (!conversation || conversation.user_id !== userId) {
+      return new Response(JSON.stringify({ error: "Conversa não encontrada ou sem permissão" }), {
+        status: 404,
+        headers: { ...getCors(origin), "Content-Type": "application/json" },
+      });
+    }
 
     const systemPrompt = `Você é EJG Assistant, um assistente virtual da EJG Evolução em Transporte, 
 especializado em logística e transporte. Você está conversando com ${profile?.full_name || "um usuário"} 
@@ -118,20 +135,20 @@ IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações es
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Limite de uso atingido. Tente novamente em instantes." }), {
           status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...getCors(origin), "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "Créditos insuficientes. Entre em contato com o administrador." }), {
           status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...getCors(origin), "Content-Type": "application/json" },
         });
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       return new Response(JSON.stringify({ error: "Erro ao processar sua mensagem" }), {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCors(origin), "Content-Type": "application/json" },
       });
     }
 
@@ -149,20 +166,14 @@ IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações es
         metadata: { model: "google/gemini-2.5-flash" },
       });
 
-    return new Response(
-      JSON.stringify({ message: aiMessage }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ message: aiMessage }), {
+      headers: { ...getCors(origin), "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Error in ejg-chatbot:", error);
-    return new Response(
-      JSON.stringify({ error: (error as Error).message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
+      status: 500,
+      headers: { ...getCors(req.headers.get("origin")), "Content-Type": "application/json" },
+    });
   }
 });

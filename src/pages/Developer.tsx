@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,14 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AlertCircle as AlertIcon } from "lucide-react";
+import { toast } from "sonner";
+
+function safeJson(r: Response) {
+  const ct = r.headers.get("content-type") || ""
+  if (!ct.includes("application/json")) throw new Error("Resposta não JSON")
+  return r.json()
+}
 
 const Developer = () => {
   const [selectedLog, setSelectedLog] = useState<any>(null);
@@ -181,12 +189,13 @@ const Developer = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="functions" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="functions">Edge Functions</TabsTrigger>
             <TabsTrigger value="database">Database</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
             <TabsTrigger value="api">API Monitor</TabsTrigger>
             <TabsTrigger value="config">Configurações</TabsTrigger>
+            <TabsTrigger value="supabase">Supabase Debug</TabsTrigger>
           </TabsList>
 
           {/* Edge Functions */}
@@ -462,10 +471,248 @@ const Developer = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Supabase Debug */}
+          <TabsContent value="supabase" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Supabase Diagnostics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="text-sm text-muted-foreground">URL</div>
+                    <div className="font-mono break-all bg-muted/30 p-2 rounded">
+                      {import.meta.env.VITE_SUPABASE_URL || 'N/A'}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm text-muted-foreground">Publishable Key (anon)</div>
+                    <div className="font-mono break-all bg-muted/30 p-2 rounded">
+                      {(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').slice(0, 16)}…
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 border rounded p-3">
+                  <Diagnostics />
+                </div>
+                <div className="mt-4">
+                  <UsersDiagnostics />
+                </div>
+                <div className="mt-4 p-3 border rounded">
+                  <AssignRoleTool />
+                </div>
+                {/* Runtime API Key Check */}
+                <div className="mt-4 p-3 border rounded">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">Teste de Auth Settings</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+                          const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
+
+                          const res = await fetch(`${url}/auth/v1/settings`, {
+                            headers: {
+                              apikey: key,
+                              Authorization: `Bearer ${key}`
+                            }
+                          });
+
+                          if (res.ok) {
+                            const json = await safeJson(res);
+                            alert(`Auth Settings OK. Providers: ${Object.keys(json).join(', ')}`);
+                          } else {
+                            const text = await res.text();
+                            alert(`Auth Settings falhou (${res.status}). Resposta: ${text}`);
+                          }
+                        } catch (e: any) {
+                          alert(`Erro ao testar Auth Settings: ${e?.message || e}`);
+                        }
+                      }}
+                    >
+                      Testar
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Este teste chama <code className="font-mono">/auth/v1/settings</code> com sua chave anon/public para validar se a API aceita a key.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </Layout>
   );
 };
 
+function Diagnostics() {
+  // Decode token payload to show ref and role
+  const url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+  const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
+
+  let projectRef = '';
+  let tokenRef = '';
+  let role = '';
+  let tokenValid = false;
+  let mismatch = false;
+
+  try {
+    const host = new URL(url).host;
+    projectRef = host.split('.supabase.co')[0] || '';
+  } catch {}
+
+  try {
+    const parts = key.split('.');
+    if (parts.length === 3) {
+      const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = payloadBase64 + '='.repeat((4 - (payloadBase64.length % 4)) % 4);
+      const payloadJson = JSON.parse(atob(padded));
+      tokenRef = payloadJson?.ref || '';
+      role = payloadJson?.role || '';
+      tokenValid = !!tokenRef;
+    }
+  } catch {}
+
+  mismatch = !!projectRef && !!tokenRef && projectRef !== tokenRef;
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <Info label="Project Ref" value={projectRef || 'N/A'} />
+        <Info label="Token Ref" value={tokenRef || 'N/A'} />
+        <Info label="Role" value={role || 'N/A'} />
+      </div>
+      <div className="flex items-center gap-2 text-sm">
+        {mismatch ? (
+          <span className="text-red-600 flex items-center gap-1"><AlertIcon className="w-4 h-4" /> Mismatch: a chave pertence ao projeto {tokenRef}, mas a URL aponta para {projectRef}.</span>
+        ) : (
+          <span className="text-green-700 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Chave e URL parecem consistentes.</span>
+        )}
+      </div>
+      {!tokenValid && (
+        <div className="text-yellow-700 text-sm flex items-center gap-1">
+          <AlertIcon className="w-4 h-4" /> Não foi possível decodificar a chave. Verifique se é uma publishable/anon key válida.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="font-mono bg-muted/30 p-2 rounded break-all">{value}</div>
+    </div>
+  );
+}
+
 export default Developer;
+
+const UsersDiagnostics = () => {
+  const [users, setUsers] = useState([] as any[]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, created_at, user_roles(role)')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast.error('Erro ao carregar usuários: ' + error.message);
+      } else {
+        setUsers(data);
+      }
+      setLoading(false);
+    };
+    fetchUsers();
+  }, []);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Diagnóstico de Usuários e Roles</CardTitle>
+        <CardDescription>Lista de usuários com roles e status</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <p>Carregando...</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>E-mail</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Roles</TableHead>
+                <TableHead>Criado em</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.full_name}</TableCell>
+                  <TableCell>
+                    {user.user_roles?.map(r => r.role).join(', ') || 'Sem role'}
+                  </TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+const AssignRoleTool = () => {
+  const [email, setEmail] = useState("logiccamila@gmail.com");
+  const [role, setRole] = useState("admin");
+  const [loading, setLoading] = useState(false);
+  const submit = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch('/api/assign-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, role })
+      });
+      const ct = r.headers.get('content-type') || '';
+      let msg = `Status ${r.status}`;
+      if (ct.includes('application/json')) {
+        const j = await r.json();
+        msg = j.error ? `Erro: ${j.error}` : `OK: ${j.role || role}`;
+      } else {
+        msg = await r.text();
+      }
+      alert(`Assign Role: ${msg}`);
+    } catch (e: any) {
+      alert(`Falha: ${e?.message || e}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <div className="space-y-2">
+      <h3 className="font-medium">Atribuir Role ao Usuário</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <input className="p-2 border rounded" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="email" />
+        <input className="p-2 border rounded" value={role} onChange={(e)=>setRole(e.target.value)} placeholder="role" />
+        <Button disabled={loading} onClick={submit}>{loading ? 'Processando…' : 'Atribuir'}</Button>
+      </div>
+      <p className="text-xs text-muted-foreground">Usa /api/assign-role no backend. Requer SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY em Produção.</p>
+    </div>
+  );
+};

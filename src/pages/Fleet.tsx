@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench, TrendingUp, BarChart3, Upload } from "lucide-react";
+import { Plus, Search, Edit, Trash2, AlertCircle, CheckCircle, Bell, Wrench, TrendingUp, BarChart3, Upload, TriangleAlert, Gauge } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Truck } from "lucide-react";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
@@ -14,6 +14,11 @@ import { useNotifications } from "@/contexts/NotificationsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MaintenanceCostAnalysis } from "@/components/mechanic/MaintenanceCostAnalysis";
 import { useNavigate } from "react-router-dom";
+import { TireControl } from "@/components/fleet/TireControl";
+import { TireApprovals } from "@/components/fleet/TireApprovals";
+import { ProcessActions } from "@/components/fleet/ProcessActions";
+import { NonConformities } from "@/components/fleet/NonConformities";
+import { ProductivityPanel } from "@/components/fleet/ProductivityPanel";
 
 interface Vehicle {
   id: string;
@@ -145,6 +150,22 @@ const Fleet = () => {
             <TabsTrigger value="cost-analysis" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Análise de Custos
+            </TabsTrigger>
+            <TabsTrigger value="tires" className="flex items-center gap-2">
+              <Wrench className="h-4 w-4" />
+              Pneus
+            </TabsTrigger>
+            <TabsTrigger value="actions" className="flex items-center gap-2">
+              <TriangleAlert className="h-4 w-4" />
+              Ações
+            </TabsTrigger>
+            <TabsTrigger value="nc" className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Não Conformidades
+            </TabsTrigger>
+            <TabsTrigger value="prod" className="flex items-center gap-2">
+              <Gauge className="h-4 w-4" />
+              Produtividade
             </TabsTrigger>
           </TabsList>
 
@@ -305,10 +326,27 @@ const Fleet = () => {
             </Card>
           ))}
         </div>
+        <TireApprovals />
           </TabsContent>
 
           <TabsContent value="cost-analysis" className="space-y-6">
             <MaintenanceCostAnalysis />
+          </TabsContent>
+
+          <TabsContent value="tires" className="space-y-6">
+            <TireControl />
+          </TabsContent>
+
+          <TabsContent value="actions" className="space-y-6">
+            <ProcessActions />
+          </TabsContent>
+
+          <TabsContent value="nc" className="space-y-6">
+            <NonConformities />
+          </TabsContent>
+
+          <TabsContent value="prod" className="space-y-6">
+            <ProductivityPanel />
           </TabsContent>
         </Tabs>
       </div>

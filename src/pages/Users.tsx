@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,39 +8,80 @@ import { Plus, Search, Edit, Trash2, User } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Users as UsersIcon } from "lucide-react";
 import { UserFormDialog } from "@/components/UserFormDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface UserData {
   id: string;
-  nome: string;
+  full_name: string;
   email: string;
-  role: "admin" | "motorista" | "mecanico" | "gestor";
+  roles: string[];
   status: "ativo" | "inativo";
+  nome?: string;
 }
 
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const mockUsers: UserData[] = [
-    { id: "1", nome: "João Silva", email: "joao@optilog.com", role: "motorista", status: "ativo" },
-    { id: "2", nome: "Maria Santos", email: "maria@optilog.com", role: "mecanico", status: "ativo" },
-    { id: "3", nome: "Pedro Costa", email: "pedro@optilog.com", role: "gestor", status: "ativo" },
-    { id: "4", nome: "Ana Lima", email: "ana@optilog.com", role: "admin", status: "ativo" },
-  ];
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-  const filteredUsers = mockUsers.filter(u =>
-    u.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*');
+
+      if (profilesError) throw profilesError;
+
+      const userIds = profiles.map(p => p.id);
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      if (rolesError) throw rolesError;
+
+      const rolesMap = new Map();
+      rolesData.forEach(r => {
+        if (!rolesMap.has(r.user_id)) rolesMap.set(r.user_id, []);
+        rolesMap.get(r.user_id).push(r.role);
+      });
+
+      const enrichedUsers: UserData[] = profiles.map(profile => ({
+        id: profile.id,
+        full_name: profile.full_name || profile.email,
+        nome: profile.full_name || profile.email,
+        email: profile.email,
+        roles: rolesMap.get(profile.id) || [],
+        status: 'ativo'
+      }));
+
+      setUsers(enrichedUsers);
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+      toast.error('Erro ao carregar usuários');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredUsers = users.filter(u =>
+    ((u.nome || u.full_name || "").toLowerCase().includes(searchTerm.toLowerCase())) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getRoleBadge = (role: UserData["role"]) => {
-    const variants = {
-      admin: { label: "Admin", className: "bg-purple-500/20 text-purple-600" },
-      motorista: { label: "Motorista", className: "bg-blue-500/20 text-blue-600" },
-      mecanico: { label: "Mecânico", className: "bg-orange-500/20 text-orange-600" },
-      gestor: { label: "Gestor", className: "bg-green-500/20 text-green-600" },
-    };
-    return variants[role];
+  const getRoleBadge = (roles: string[]) => {
+    return roles.map(role => (
+      <Badge key={role} className="bg-blue-500/20 text-blue-600 mr-1">
+        {role}
+      </Badge>
+    ));
   };
 
   return (
@@ -87,7 +128,9 @@ const Users = () => {
 
         {/* User List */}
         <div className="grid gap-4">
-          {filteredUsers.map((user) => (
+          {loading ? (
+            <div>Carregando usuários...</div>
+          ) : filteredUsers.map((user) => (
             <Card key={user.id}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -97,10 +140,8 @@ const Users = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold">{user.nome}</h3>
-                        <Badge className={getRoleBadge(user.role).className}>
-                          {getRoleBadge(user.role).label}
-                        </Badge>
+                        <h3 className="text-lg font-semibold">{user.full_name || user.nome}</h3>
+                        {getRoleBadge(user.roles)}
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
                     </div>

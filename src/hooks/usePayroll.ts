@@ -47,7 +47,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
   const fetchMechanicHoursByEmployee = async (mes: string) => {
     try {
       const { start, end } = getMonthRange(mes);
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('mechanic_daily_hours')
         .select('employee_id, dia, total_minutes, overtime_minutes')
         .gte('dia', start)

@@ -13,7 +13,8 @@ type AppRole =
   | "fleet_maintenance"
   | "maintenance_assistant"
   | "logistics_manager"
-  | "maintenance_manager";
+  | "maintenance_manager"
+  | "super_consultant";
 
 interface AuthContextType {
   user: User | null;
@@ -79,6 +80,11 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
     "control-tower",
     "inventory",
     "documents",
+  ],
+  super_consultant: [
+    "dashboard",
+    "supergestor",
+    "reports",
   ],
 };
 
@@ -209,9 +215,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
-        await supabase.from("user_roles").insert({
+        await (supabase as any).from("user_roles").insert({
           user_id: data.user.id,
-          role,
+          role: role as any,
         });
 
         await supabase.from("profiles").insert({

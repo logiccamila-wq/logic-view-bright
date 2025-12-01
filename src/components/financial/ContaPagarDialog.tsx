@@ -180,8 +180,8 @@ export function ContaPagarDialog({ open, onOpenChange, conta, onSuccess }: Conta
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="categoria">Categoria</Label>
               <Select
                 value={formData.categoria}
@@ -202,7 +202,7 @@ export function ContaPagarDialog({ open, onOpenChange, conta, onSuccess }: Conta
                 </SelectContent>
               </Select>
             </div>
-            <div class="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}

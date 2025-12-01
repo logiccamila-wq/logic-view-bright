@@ -2,8 +2,28 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const rawKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+
+// Sanitize and validate envs to prevent common issues (backticks, spaces, placeholders)
+// Also strip accidental surrounding quotes ("..." or '...') in addition to backticks
+const SUPABASE_URL = (rawUrl || '')
+  .trim()
+  .replace(/^`|`$/g, '')
+  .replace(/^"|"$/g, '')
+  .replace(/^'|'$/g, '');
+const SUPABASE_PUBLISHABLE_KEY = (rawKey || '')
+  .trim()
+  .replace(/^`|`$/g, '')
+  .replace(/^"|"$/g, '')
+  .replace(/^'|'$/g, '');
+
+if (!SUPABASE_URL || SUPABASE_URL.includes('SEU-PROJETO')) {
+  console.error('[Supabase] VITE_SUPABASE_URL inválida ou placeholder. Atualize .env.local com a URL real.');
+}
+if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.includes('REPLACE_ME')) {
+  console.error('[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY inválida ou placeholder. Use sua anon/publishable key real.');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
@@ -15,3 +35,27 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+// Runtime diagnostic: verify that the key matches the project ref in URL
+try {
+  const host = new URL(SUPABASE_URL).host; // e.g., eixkv...supabase.co
+  const projectRef = host.split('.supabase.co')[0];
+
+  const parts = SUPABASE_PUBLISHABLE_KEY.split('.');
+  if (parts.length === 3) {
+    const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = payloadBase64 + '='.repeat((4 - (payloadBase64.length % 4)) % 4);
+    const payloadJson = JSON.parse(atob(padded));
+    const ref = payloadJson?.ref;
+    const role = payloadJson?.role;
+
+    if (ref && ref !== projectRef) {
+      console.error(`[Supabase] A chave pertence ao projeto '${ref}', mas a URL aponta para '${projectRef}'. Atualize .env.local com a chave correta do mesmo projeto.`);
+    }
+    if (role && role !== 'anon') {
+      console.warn(`[Supabase] A chave usada tem role '${role}'. Para frontend, use a chave public/anon do projeto.`);
+    }
+  }
+} catch (e) {
+  // Silently ignore decode errors; only used for diagnostics
+}

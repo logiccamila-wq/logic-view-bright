@@ -10,7 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Circle, Plus, Package, ArrowRightLeft, AlertCircle } from 'lucide-react';
+import { Circle, Plus, Package, ArrowRightLeft, AlertCircle, Map } from 'lucide-react';
+import { TirePlanner } from './TirePlanner';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -491,6 +492,7 @@ export function BorachariaTab() {
         <TabsList>
           <TabsTrigger value="pneus">Pneus</TabsTrigger>
           <TabsTrigger value="movimentacoes">Movimentações</TabsTrigger>
+          <TabsTrigger value="planner" className="flex items-center gap-2"><Map className="h-4 w-4" /> Mapa de Pneus</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pneus" className="space-y-4">
@@ -604,6 +606,10 @@ export function BorachariaTab() {
               </Card>
             ))
           )}
+        </TabsContent>
+
+        <TabsContent value="planner" className="space-y-4">
+          <TirePlanner />
         </TabsContent>
       </Tabs>
     </div>
