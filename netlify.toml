@@ -1,0 +1,17 @@
+# Netlify configuration
+
+[build]
+  publish = "dist"
+  command = "bun run build"
+
+[build.environment]
+  # Whitelist VITE_ variables that are expected to appear in the client bundle.
+  # These are public Supabase keys (anon key and URL) and are safe to expose.
+  # Database URLs are also whitelisted as they are managed by Netlify.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,NETLIFY_DATABASE_URL,NETLIFY_DATABASE_URL_UNPOOLED"
+
+# SPA fallback - serve index.html for all routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
