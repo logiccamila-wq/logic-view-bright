@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Droplet, Plus, Clock, CheckCircle, Camera } from 'lucide-react';
+import { useVehicles } from '@/lib/hooks/useVehicles';
+import { VehicleSelect } from '@/components/VehicleSelect';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -43,6 +45,7 @@ const TIPOS_LAVAGEM = [
 
 export function LavaJatoTab() {
   const { user } = useAuth();
+  const { vehicles } = useVehicles();
   const [lavagens, setLavagens] = useState<Lavagem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -189,13 +192,19 @@ export function LavaJatoTab() {
             <form onSubmit={handleCreateLavagem} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="vehicle_plate">Placa do Veículo</Label>
-                  <Input
-                    id="vehicle_plate"
-                    value={formData.vehicle_plate}
-                    onChange={(e) => setFormData({ ...formData, vehicle_plate: e.target.value.toUpperCase() })}
-                    placeholder="ABC-1234"
+                  <Label htmlFor="vehicle_plate">Placa do Veículo *</Label>
+                  <VehicleSelect
                     required
+                    value={formData.vehicle_plate}
+                    onChange={(value) => {
+                      const v = vehicles.find(x => x.plate === value);
+                      setFormData({
+                        ...formData,
+                        vehicle_plate: value,
+                        km: v?.mileage ? String(v.mileage) : formData.km,
+                      });
+                    }}
+                    placeholder="Selecione a placa"
                   />
                 </div>
                 <div className="space-y-2">

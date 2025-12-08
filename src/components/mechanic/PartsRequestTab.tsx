@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, Package, AlertCircle, Clock, CheckCircle } from "lucide-react";
+import { VehicleSelect } from "@/components/VehicleSelect";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Part {
@@ -157,10 +158,10 @@ export function PartsRequestTab() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Placa do Veículo (opcional)</Label>
-              <Input
-                placeholder="ABC-1234"
+              <VehicleSelect
                 value={vehiclePlate}
-                onChange={(e) => setVehiclePlate(e.target.value.toUpperCase())}
+                onChange={setVehiclePlate}
+                placeholder="Selecione a placa"
               />
             </div>
 

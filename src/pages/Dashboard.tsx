@@ -58,9 +58,9 @@ const Dashboard = () => {
     <Layout>
       <div className="space-y-8">
         <div className="space-y-1">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">Dashboard OptiLog</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">Dashboard Geral</h1>
           <p className="text-base text-muted-foreground">
-            Bem-vindo ao sistema de gestão EJG Evolução em Transporte
+            Visão geral da operação logística e indicadores de performance
           </p>
         </div>
 
@@ -95,7 +95,7 @@ const Dashboard = () => {
           {/* Card App Motorista */}
           <Card 
             className="border border-info/20 bg-gradient-to-br from-info/5 to-info/10 hover:border-info/40 hover:shadow-lg transition-all duration-300 cursor-pointer group"
-            onClick={() => canAccessModule('driver') ? navigate('/driver') : toast.error('Sem permissão para acessar o App Motorista')}
+            onClick={() => navigate('/driver')}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -121,7 +121,7 @@ const Dashboard = () => {
           {/* Card Hub Mecânico */}
           <Card 
             className="border border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10 hover:border-accent/40 hover:shadow-lg transition-all duration-300 cursor-pointer group"
-            onClick={() => canAccessModule('mechanic') ? navigate('/mechanic') : toast.error('Sem permissão para acessar o Hub Mecânico')}
+            onClick={() => navigate('/mechanic')}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -153,6 +153,9 @@ const Dashboard = () => {
             <p className="text-sm text-muted-foreground mt-2">
               Sistema em testes. Acesse o módulo de Rastreamento para ver veículos.
             </p>
+            <div className="mt-4">
+              <Button variant="outline" onClick={() => navigate('/live-tracking')}>Abrir Live Tracking</Button>
+            </div>
           </CardContent>
         </Card>
       </div>

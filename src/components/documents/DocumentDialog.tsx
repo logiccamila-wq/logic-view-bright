@@ -1,3 +1,4 @@
+import { VehicleSelect } from "@/components/VehicleSelect";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,6 @@ interface DocumentDialogProps {
 
 export function DocumentDialog({ open, onOpenChange, document, documentType, onSuccess }: DocumentDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [vehicles, setVehicles] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     vehicle_plate: '',
     document_type: documentType || '',
@@ -42,7 +42,6 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
 
   useEffect(() => {
     if (open) {
-      loadVehicles();
       if (document) {
         setFormData({
           vehicle_plate: document.vehicle_plate || '',
@@ -66,31 +65,6 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
       }
     }
   }, [open, document, documentType]);
-
-  const loadVehicles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('*')
-        .in('status', ['ativo', 'Ativo']);
-
-      if (error) {
-        console.error('Erro ao carregar veículos:', error);
-        setVehicles([]);
-        return;
-      }
-
-      const mapped = (data || [])
-        .map((v: any) => ({ plate: v.plate || v.placa, model: v.model || v.modelo || '' }))
-        .filter((v) => !!v.plate)
-        .sort((a, b) => a.plate.localeCompare(b.plate));
-
-      setVehicles(mapped);
-    } catch (e) {
-      console.error('Falha ao carregar veículos:', e);
-      setVehicles([]);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -498,22 +472,12 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Placa do Veículo *</Label>
-              <Select 
+              <VehicleSelect 
                 required
                 value={formData.vehicle_plate} 
-                onValueChange={(value) => setFormData({ ...formData, vehicle_plate: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a placa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {vehicles.map((vehicle) => (
-                    <SelectItem key={vehicle.plate} value={vehicle.plate}>
-                      {vehicle.plate} - {vehicle.model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(value) => setFormData({ ...formData, vehicle_plate: value })}
+                placeholder="Selecione a placa"
+              />
             </div>
 
             <div>

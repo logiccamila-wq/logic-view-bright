@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
@@ -38,12 +39,15 @@ interface Module {
   popular?: boolean;
 }
 
+import { modules as registry } from '@/modules/registry';
+
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
-  const modules: Module[] = [
+  const modules: Module[] = useMemo(() => [
     {
       id: 'dashboard',
       name: t('modules.dashboard.name'),
@@ -229,9 +233,22 @@ const ModuleMarketplace: React.FC = () => {
         t('modules.blockchain.features.secureTransactions'),
         t('modules.blockchain.features.smartContracts')
       ]
-    }
-  ];
+    },
+    ...registry.map(m => ({
+      id: m.slug,
+      name: m.name,
+      description: m.description,
+      icon: <Package className="w-8 h-8" />,
+      price: 0,
+      rating: 4.8,
+      reviews: 0,
+      category: (m.category || 'operations') as any,
+      status: (m.enabled ? 'installed' : 'available') as 'installed' | 'available',
+      features: [],
+    }))
+  ], [t]) as Module[];
 
+  const registryCategories = Array.from(new Set(registry.map(r => r.category))).filter(Boolean);
   const categories = [
     { id: 'all', name: t('marketplace.categories.all'), icon: <Package className="w-4 h-4" /> },
     { id: 'core', name: t('marketplace.categories.core'), icon: <Zap className="w-4 h-4" /> },
@@ -240,7 +257,10 @@ const ModuleMarketplace: React.FC = () => {
     { id: 'mobile', name: t('marketplace.categories.mobile'), icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'business', name: t('marketplace.categories.business'), icon: <Users className="w-4 h-4" /> },
     { id: 'maintenance', name: t('marketplace.categories.maintenance'), icon: <Wrench className="w-4 h-4" /> },
-    { id: 'advanced', name: t('marketplace.categories.advanced'), icon: <Brain className="w-4 h-4" /> }
+    { id: 'advanced', name: t('marketplace.categories.advanced'), icon: <Brain className="w-4 h-4" /> },
+    ...registryCategories
+      .filter(id => !['core','logistics','operations','mobile','business','maintenance','advanced'].includes(id))
+      .map(id => ({ id, name: id, icon: <Package className="w-4 h-4" /> }))
   ];
 
   const filteredModules = modules.filter(module => {
@@ -325,6 +345,22 @@ const ModuleMarketplace: React.FC = () => {
     );
   };
 
+  const openRouteFor = (id: string) => {
+    const map: Record<string, string> = {
+      dashboard: '/dashboard',
+      tms: '/tms',
+      wms: '/wms',
+      oms: '/oms',
+      crm: '/crm',
+      erp: '/erp',
+      'driver-app': '/driver',
+      'mechanic-hub': '/mechanic',
+    };
+    const reg = registry.find(r => r.slug === id);
+    const path = reg?.route || map[id] || `/module/${id}`;
+    navigate(path);
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
@@ -339,6 +375,9 @@ const ModuleMarketplace: React.FC = () => {
           </h1>
           <p className="text-xl text-text-secondary">
             {t('marketplace.subtitle')}
+          </p>
+          <p className="text-sm text-text-secondary mt-2">
+            {filteredModules.length} módulos disponíveis
           </p>
         </motion.div>
 
@@ -467,16 +506,29 @@ const ModuleMarketplace: React.FC = () => {
                     >
                       {t('marketplace.actions.install')}
                     </button>
+                    <button
+                      onClick={() => openRouteFor(module.id)}
+                      className="flex-1 px-4 py-2 rounded-lg bg-surface text-text hover:bg-surface-hover border border-border transition-colors font-medium"
+                    >
+                      {t('marketplace.actions.open')}
+                    </button>
                   </>
                 )}
                 
                 {module.status === 'installed' && (
-                  <button
-                    disabled
-                    className="w-full px-4 py-2 rounded-lg bg-green-100 text-green-800 font-medium cursor-not-allowed"
-                  >
-                    {t('marketplace.actions.installed')}
-                  </button>
+                  <>
+                    <button
+                      className="flex-1 px-4 py-2 rounded-lg bg-green-100 text-green-800 font-medium"
+                    >
+                      {t('marketplace.actions.installed')}
+                    </button>
+                    <button
+                      onClick={() => openRouteFor(module.id)}
+                      className="flex-1 px-4 py-2 rounded-lg bg-surface text-text hover:bg-surface-hover border border-border transition-colors font-medium"
+                    >
+                      {t('marketplace.actions.open')}
+                    </button>
+                  </>
                 )}
                 
                 {module.status === 'coming-soon' && (

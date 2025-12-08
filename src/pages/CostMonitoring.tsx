@@ -180,7 +180,7 @@ export default function CostMonitoring() {
                   Região: {neonMetrics.region} • {neonMetrics.branches} branches ativos
                 </p>
                 <p className="text-xs text-green-700 dark:text-green-300">
-                  Última atualização: {new Date(neonMetrics.lastUpdated).toLocaleString('pt-BR')}
+                  Última atualização: {neonMetrics.lastUpdated ? new Date(neonMetrics.lastUpdated).toLocaleString('pt-BR') : '-'}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={refetch} disabled={neonLoading}>

@@ -5,13 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   DollarSign, 
   TrendingUp, 
-  TrendingDown, 
   FileText,
   Users,
   Package,
-  Download,
-  AlertTriangle,
-  CheckCircle2
+  Download
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,9 +18,6 @@ import {
   Line,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -34,8 +28,11 @@ import {
 import { RevenueAlertsConfig } from "./RevenueAlertsConfig";
 import { RevenueForecast } from "./RevenueForecast";
 import { PredictiveAlertsConfig } from "./PredictiveAlertsConfig";
+import { calculateROI } from "@/utils/mlPredictive";
+import { useCallback } from "react";
+import { Tables } from "@/integrations/supabase/types";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+//
 
 interface MonthlyRevenue {
   mes: string;
@@ -63,6 +60,7 @@ export function RevenueAnalysis() {
   const [monthlyData, setMonthlyData] = useState<MonthlyRevenue[]>([]);
   const [topClients, setTopClients] = useState<ClientRevenue[]>([]);
   const [topRoutes, setTopRoutes] = useState<RouteRevenue[]>([]);
+  const [icmsByUF, setIcmsByUF] = useState<Array<{ uf: string; icms: number; receita: number }>>([]);
   const [summary, setSummary] = useState({
     receita_total: 0,
     custo_total: 0,
@@ -70,25 +68,21 @@ export function RevenueAnalysis() {
     total_ctes: 0,
     total_clientes: 0,
     ticket_medio: 0,
-    receita_por_kg: 0
+    receita_por_kg: 0,
+    icms_total: 0,
+    icms_percentual: 0
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadRevenueData();
-  }, [timeframe]);
-
-  const loadRevenueData = async () => {
+  const loadRevenueData = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Calcular período
       const months = timeframe === '3m' ? 3 : timeframe === '6m' ? 6 : 12;
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - months);
 
-      // Buscar dados de receita
-      const { data: revenues, error: revenueError } = await (supabase as any)
+      const { data: revenues, error: revenueError } = await supabase
         .from('revenue_records')
         .select('*')
         .gte('data_emissao', startDate.toISOString())
@@ -97,64 +91,65 @@ export function RevenueAnalysis() {
 
       if (revenueError) throw revenueError;
 
-      // Processar dados mensais
       const monthlyMap = new Map<string, MonthlyRevenue>();
       const clientMap = new Map<string, { valor: number; nome: string; cnpj: string }>();
       const routeMap = new Map<string, { valor: number; qtd: number }>();
+      const icmsUFMap = new Map<string, { uf: string; icms: number; receita: number }>();
 
       let totalReceita = 0;
       let totalPeso = 0;
+      let icmsTotal = 0;
       const clientsSet = new Set<string>();
 
-      revenues?.forEach((rev: any) => {
+      (revenues as Tables<'revenue_records'>[] | null)?.forEach((rev) => {
         const month = new Date(rev.data_emissao).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-        const valorFrete = parseFloat(rev.valor_frete || 0);
-        const valorMercadoria = parseFloat(rev.valor_mercadoria || 0);
-        const peso = parseFloat(rev.peso_kg || 0);
+        const valorFrete = parseFloat(String(rev.valor_frete || 0));
+        const peso = parseFloat(String(rev.peso_kg || 0));
+        const valorIcms = parseFloat(String(rev.valor_icms || 0));
 
-        // Agregar por mês
         const existing = monthlyMap.get(month) || { mes: month, receita: 0, custo: 0, margem: 0 };
         existing.receita += valorFrete;
-        // Estimativa de custo (70% do frete)
         existing.custo += valorFrete * 0.7;
         existing.margem = existing.receita - existing.custo;
         monthlyMap.set(month, existing);
 
-        // Agregar por cliente
         const clientKey = rev.cliente_cnpj;
         const clientData = clientMap.get(clientKey) || { valor: 0, nome: rev.cliente_nome, cnpj: clientKey };
         clientData.valor += valorFrete;
         clientMap.set(clientKey, clientData);
         clientsSet.add(clientKey);
 
-        // Agregar por rota
         const routeKey = `${rev.origem_uf} → ${rev.destino_uf}`;
         const routeData = routeMap.get(routeKey) || { valor: 0, qtd: 0 };
         routeData.valor += valorFrete;
         routeData.qtd += 1;
         routeMap.set(routeKey, routeData);
 
+        const ufKey = rev.destino_uf || '—';
+        const ufData = icmsUFMap.get(ufKey) || { uf: ufKey, icms: 0, receita: 0 };
+        ufData.icms += valorIcms;
+        ufData.receita += valorFrete;
+        icmsUFMap.set(ufKey, ufData);
+
         totalReceita += valorFrete;
         totalPeso += peso;
+        icmsTotal += valorIcms;
       });
 
-      // Converter para arrays
       const monthlyArray = Array.from(monthlyMap.values());
       setMonthlyData(monthlyArray);
 
-      // Top 5 clientes
       const clientsArray = Array.from(clientMap.entries())
         .map(([cnpj, data]) => ({
           cliente: data.nome,
           cnpj,
           valor: data.valor,
-          percentual: (data.valor / totalReceita) * 100
+          percentual: (data.valor / Math.max(1, totalReceita)) * 100
         }))
         .sort((a, b) => b.valor - a.valor)
         .slice(0, 5);
       setTopClients(clientsArray);
 
-      // Top 5 rotas
       const routesArray = Array.from(routeMap.entries())
         .map(([rota, data]) => ({
           rota,
@@ -165,29 +160,40 @@ export function RevenueAnalysis() {
         .slice(0, 5);
       setTopRoutes(routesArray);
 
-      // Calcular totais
-      const totalCusto = totalReceita * 0.7; // Estimativa
+      const icmsArray = Array.from(icmsUFMap.values())
+        .sort((a, b) => b.icms - a.icms)
+        .slice(0, 10);
+      setIcmsByUF(icmsArray);
+
+      const totalCusto = totalReceita * 0.7;
       setSummary({
         receita_total: totalReceita,
         custo_total: totalCusto,
-        margem_liquida: ((totalReceita - totalCusto) / totalReceita) * 100,
-        total_ctes: revenues?.length || 0,
+        margem_liquida: totalReceita ? ((totalReceita - totalCusto) / totalReceita) * 100 : 0,
+        total_ctes: (revenues as Tables<'revenue_records'>[] | null)?.length || 0,
         total_clientes: clientsSet.size,
-        ticket_medio: revenues?.length ? totalReceita / revenues.length : 0,
-        receita_por_kg: totalPeso ? totalReceita / totalPeso : 0
+        ticket_medio: (revenues as Tables<'revenue_records'>[] | null)?.length ? totalReceita / (revenues as Tables<'revenue_records'>[]).length : 0,
+        receita_por_kg: totalPeso ? totalReceita / totalPeso : 0,
+        icms_total: icmsTotal,
+        icms_percentual: totalReceita ? (icmsTotal / totalReceita) * 100 : 0
       });
-
-    } catch (error: any) {
-      console.error('Erro ao carregar dados:', error);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Erro ao carregar dados:', message);
       toast({
-        title: "Erro ao carregar dados",
-        description: error.message,
-        variant: "destructive"
+        title: 'Erro ao carregar dados',
+        description: message,
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeframe, toast]);
+
+  useEffect(() => {
+    loadRevenueData();
+  }, [loadRevenueData]);
+
 
   const exportData = () => {
     const csv = [
@@ -234,7 +240,7 @@ export function RevenueAnalysis() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
@@ -292,17 +298,51 @@ export function RevenueAnalysis() {
             </p>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ROI</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const roi = calculateROI({ investment: summary.custo_total, gain: summary.receita_total });
+              return (
+                <div className="text-2xl font-bold">{roi.roiPercent.toFixed(2)}%</div>
+              );
+            })()}
+            <p className="text-xs text-muted-foreground mt-1">
+              Retorno sobre investimento
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ICMS</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(summary.icms_total)}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {summary.icms_percentual.toFixed(1)}% da receita
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="clients">Clientes</TabsTrigger>
           <TabsTrigger value="routes">Rotas</TabsTrigger>
           <TabsTrigger value="forecast">Previsão ML</TabsTrigger>
           <TabsTrigger value="predictive">Alertas ML</TabsTrigger>
           <TabsTrigger value="alerts">Alertas</TabsTrigger>
+          <TabsTrigger value="tax">Tributário</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -431,6 +471,30 @@ export function RevenueAnalysis() {
 
         <TabsContent value="alerts" className="space-y-4">
           <RevenueAlertsConfig />
+        </TabsContent>
+        <TabsContent value="tax" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>ICMS por Estado (Top 10)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {icmsByUF.map((item) => (
+                  <div key={item.uf} className="flex items-center justify-between p-3 border rounded-md">
+                    <div className="font-medium">{item.uf}</div>
+                    <div className="text-right">
+                      <div className="font-bold">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.icms)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {((item.icms / Math.max(1, item.receita)) * 100).toFixed(1)}% da receita
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

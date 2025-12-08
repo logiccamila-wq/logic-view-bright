@@ -23,6 +23,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { InventoryItemDialog } from "@/components/inventory/InventoryItemDialog";
 import { MovementDialog } from "@/components/inventory/MovementDialog";
+import { InventoryRequestsTable } from "@/components/inventory/InventoryRequestsTable";
+import { RequestItemDialog } from "@/components/inventory/RequestItemDialog";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { MovementsTable } from "@/components/inventory/MovementsTable";
 import { StatCard } from "@/components/StatCard";
@@ -43,8 +45,28 @@ interface InventoryItem {
   barcode: string | null;
   notes: string | null;
   last_restocked: string | null;
+  warehouse_type: string | null;
   created_at: string;
   updated_at: string;
+}
+
+interface Request {
+  id: string;
+  item_id: string;
+  quantity: number;
+  status: string;
+  reason: string;
+  created_at: string;
+  requester_id: string;
+  warehouse_type: string;
+  workshop_inventory: {
+    part_name: string;
+    part_code: string;
+  };
+  profiles?: {
+    full_name: string;
+    email: string;
+  };
 }
 
 interface Movement {
@@ -67,11 +89,14 @@ const Inventory = () => {
   const [loading, setLoading] = useState(true);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
+  const [requests, setRequests] = useState<Request[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [movementDialogOpen, setMovementDialogOpen] = useState(false);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [activeTab, setActiveTab] = useState("workshop");
 
   useEffect(() => {
     loadData();
@@ -82,16 +107,16 @@ const Inventory = () => {
     try {
       // Carregar inventário
       const { data: invData, error: invError } = await supabase
-        .from('workshop_inventory')
+        .from('workshop_inventory' as any)
         .select('*')
         .order('part_name');
 
       if (invError) throw invError;
-      setInventory(invData || []);
+      setInventory((invData as any) || []);
 
       // Carregar movimentações
       const { data: movData, error: movError } = await supabase
-        .from('inventory_movements')
+        .from('inventory_movements' as any)
         .select(`
           *,
           workshop_inventory (
@@ -103,7 +128,29 @@ const Inventory = () => {
         .limit(50);
 
       if (movError) throw movError;
-      setMovements(movData || []);
+      setMovements((movData as any) || []);
+
+      // Carregar solicitações
+      const { data: reqData, error: reqError } = await supabase
+        .from('inventory_requests' as any)
+        .select(`
+          *,
+          workshop_inventory (
+            part_name,
+            part_code
+          ),
+          profiles:requester_id (
+            full_name,
+            email
+          )
+        `)
+        .order('created_at', { ascending: false });
+      
+      if (!reqError) {
+        // Cast seguro pois a query retorna a estrutura correta
+        setRequests((reqData as any) || []);
+      }
+
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       toast.error('Erro ao carregar dados do estoque');
@@ -112,16 +159,54 @@ const Inventory = () => {
     }
   };
 
-  const filteredInventory = inventory.filter(item => {
-    const matchesSearch = 
-      item.part_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.part_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.supplier || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const getFilteredInventory = (type: string) => {
+    return inventory.filter(item => {
+      const matchesSearch = 
+        item.part_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.part_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.supplier || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+      const matchesType = (item.warehouse_type || 'workshop') === type;
+      
+      return matchesSearch && matchesCategory && matchesType;
+    });
+  };
+
+  const handleRequestApprove = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .rpc('approve_inventory_request' as any, {
+          p_request_id: id,
+          p_approver_id: user?.id
+        });
+      
+      if (error) throw error;
+      toast.success('Solicitação aprovada');
+      loadData();
+    } catch (e: any) {
+      console.error('Erro ao aprovar:', e);
+      toast.error(e.message || 'Erro ao aprovar solicitação');
+    }
+  };
+
+  const handleRequestReject = async (id: string, reason: string) => {
+    try {
+      const { error } = await supabase
+        .rpc('reject_inventory_request' as any, {
+          p_request_id: id,
+          p_approver_id: user?.id,
+          p_reason: reason
+        });
+      
+      if (error) throw error;
+      toast.success('Solicitação rejeitada');
+      loadData();
+    } catch (e: any) {
+      console.error('Erro ao rejeitar:', e);
+      toast.error(e.message || 'Erro ao rejeitar solicitação');
+    }
+  };
 
   const lowStockItems = inventory.filter(item => item.quantity <= item.minimum_stock);
   const criticalStockItems = inventory.filter(item => item.quantity <= item.critical_stock);
@@ -153,6 +238,11 @@ const Inventory = () => {
   const handleAddMovement = (item?: InventoryItem) => {
     setSelectedItem(item || null);
     setMovementDialogOpen(true);
+  };
+
+  const handleRequestItem = (item?: InventoryItem) => {
+    setSelectedItem(item || null);
+    setRequestDialogOpen(true);
   };
 
   const handleBarcodeScan = async (barcode: string) => {
@@ -193,6 +283,10 @@ const Inventory = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button onClick={() => handleRequestItem()} variant="outline">
+              <FileText className="w-4 h-4 mr-2" />
+              Solicitar Material
+            </Button>
             <Button onClick={() => handleAddMovement()} variant="outline">
               <ArrowUpDown className="w-4 h-4 mr-2" />
               Nova Movimentação
@@ -216,13 +310,13 @@ const Inventory = () => {
           />
           <StatCard
             title="Valor Total"
-            value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            value={`R$ ${Number(totalValue ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
             icon={TrendingUp}
           />
           <StatCard
-            title="Estoque Baixo"
-            value={lowStockItems.length.toString()}
-            icon={AlertTriangle}
+            title="Solicitações Pendentes"
+            value={requests.filter(r => r.status === 'pending').length.toString()}
+            icon={FileText}
           />
           <StatCard
             title="Estoque Crítico"
@@ -263,27 +357,31 @@ const Inventory = () => {
           </Card>
         )}
 
-        <Tabs defaultValue="inventory" className="space-y-6">
+        <Tabs defaultValue="workshop" className="space-y-6" onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="inventory">
+            <TabsTrigger value="workshop">
               <Package className="w-4 h-4 mr-2" />
-              Inventário
+              Oficina
+            </TabsTrigger>
+            <TabsTrigger value="office">
+              <Package className="w-4 h-4 mr-2" />
+              Empresa
+            </TabsTrigger>
+            <TabsTrigger value="requests">
+              <FileText className="w-4 h-4 mr-2" />
+              Solicitações
             </TabsTrigger>
             <TabsTrigger value="movements">
               <ArrowUpDown className="w-4 h-4 mr-2" />
               Movimentações
             </TabsTrigger>
-            <TabsTrigger value="carwash">
-              <SprayCan className="w-4 h-4 mr-2" />
-              Lavajato
-            </TabsTrigger>
           </TabsList>
 
-          {/* Tab: Inventário */}
-          <TabsContent value="inventory" className="space-y-4">
+          {/* Tab: Inventário Oficina */}
+          <TabsContent value="workshop" className="space-y-4">
             <Card>
               <CardContent className="p-4">
-                <div className="flex gap-4">
+                <div className="flex gap-4 mb-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
@@ -298,104 +396,73 @@ const Inventory = () => {
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
                   >
-                    {categories.map(cat => (
+                    {categories.map((cat) => (
                       <option key={cat.value} value={cat.value}>
                         {cat.label}
                       </option>
                     ))}
                   </select>
                 </div>
+
+                <InventoryTable
+                  inventory={getFilteredInventory('workshop')}
+                  onEdit={handleEditItem}
+                  onAddMovement={handleAddMovement}
+                  onRefresh={loadData}
+                />
               </CardContent>
             </Card>
-
-            <InventoryTable
-              inventory={filteredInventory}
-              onEdit={handleEditItem}
-              onAddMovement={handleAddMovement}
-              onRefresh={loadData}
-            />
           </TabsContent>
 
-          {/* Tab: Movimentações */}
-          <TabsContent value="movements" className="space-y-4">
+          {/* Tab: Inventário Empresa */}
+          <TabsContent value="office" className="space-y-4">
+             <Card>
+              <CardContent className="p-4">
+                <div className="flex gap-4 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Buscar por nome, código ou fornecedor..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <select
+                    className="border rounded-md px-3 py-2 text-sm"
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <InventoryTable
+                  inventory={getFilteredInventory('office')}
+                  onEdit={handleEditItem}
+                  onAddMovement={handleAddMovement}
+                  onRefresh={loadData}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab: Solicitações */}
+          <TabsContent value="requests" className="space-y-4">
+             <InventoryRequestsTable 
+                requests={requests}
+                onApprove={handleRequestApprove}
+                onReject={handleRequestReject}
+                userRole={user?.role || ''}
+             />
+          </TabsContent>
+
+          <TabsContent value="movements">
             <MovementsTable movements={movements} />
-          </TabsContent>
-
-          {/* Tab: Lavajato */}
-          <TabsContent value="carwash" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Produtos Químicos */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Droplet className="w-5 h-5" />
-                    Produtos Químicos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {inventory
-                      .filter(item => item.category === 'Lavajato - Químicos')
-                      .map(item => (
-                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{item.part_name}</p>
-                            <p className="text-xs text-muted-foreground">{item.part_code}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge variant={
-                              item.quantity <= item.critical_stock ? 'destructive' :
-                              item.quantity <= item.minimum_stock ? 'outline' :
-                              'secondary'
-                            }>
-                              {item.quantity} un.
-                            </Badge>
-                            <Button size="sm" variant="ghost" onClick={() => handleAddMovement(item)}>
-                              <ArrowUpDown className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Consumíveis */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5" />
-                    Consumíveis
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {inventory
-                      .filter(item => item.category === 'Lavajato - Consumíveis')
-                      .map(item => (
-                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{item.part_name}</p>
-                            <p className="text-xs text-muted-foreground">{item.part_code}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge variant={
-                              item.quantity <= item.critical_stock ? 'destructive' :
-                              item.quantity <= item.minimum_stock ? 'outline' :
-                              'secondary'
-                            }>
-                              {item.quantity} un.
-                            </Badge>
-                            <Button size="sm" variant="ghost" onClick={() => handleAddMovement(item)}>
-                              <ArrowUpDown className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
         </Tabs>
       </div>
@@ -413,6 +480,13 @@ const Inventory = () => {
         item={selectedItem}
         inventory={inventory}
         onSuccess={loadData}
+      />
+
+      <RequestItemDialog
+        open={requestDialogOpen}
+        onOpenChange={setRequestDialogOpen}
+        onSuccess={loadData}
+        preselectedItem={selectedItem}
       />
     </Layout>
   );

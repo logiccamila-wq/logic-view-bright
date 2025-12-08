@@ -18,13 +18,22 @@ export function useMaintenanceAlerts() {
     if (!user || !canReceiveAlerts) return;
 
     try {
-      // Buscar todas as ordens de serviço
-      const { data: serviceOrders, error } = await supabase
+      const { data: serviceOrdersRaw, error: ordersError } = await supabase
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      const serviceOrders: any[] = (() => {
+        const missingTable = ordersError && (
+          (ordersError as any).code === 'PGRST205' ||
+          String((ordersError as any).message || '').includes('service_orders')
+        );
+        if (missingTable) {
+          return [];
+        }
+        if (ordersError) throw ordersError;
+        return serviceOrdersRaw || [];
+      })();
 
       // Buscar planos de manutenção ativos
       const { data: plansRaw, error: plansError } = await (supabase as any)
@@ -48,7 +57,7 @@ export function useMaintenanceAlerts() {
 
       // Agrupar por veículo
       const vehicleMap = new Map<string, any[]>();
-      serviceOrders?.forEach((order) => {
+      serviceOrders.forEach((order) => {
         const existing = vehicleMap.get(order.vehicle_plate) || [];
         vehicleMap.set(order.vehicle_plate, [...existing, order]);
       });

@@ -36,6 +36,7 @@ const itemSchema = z.object({
   part_name: z.string().min(1, "Nome é obrigatório"),
   category: z.string().min(1, "Categoria é obrigatória"),
   subcategory: z.string().optional(),
+  warehouse_type: z.string().default('workshop'),
   quantity: z.string().min(1),
   minimum_stock: z.string().min(1),
   critical_stock: z.string().min(1),
@@ -70,12 +71,13 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ItemFormValues>({
-    resolver: zodResolver(itemSchema),
+    resolver: zodResolver(itemSchema) as any,
     defaultValues: {
       part_code: "",
       part_name: "",
       category: "",
       subcategory: "",
+      warehouse_type: "workshop",
       quantity: "0",
       minimum_stock: "5",
       critical_stock: "2",
@@ -94,6 +96,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
         part_name: item.part_name || "",
         category: item.category || "",
         subcategory: item.subcategory || "",
+        warehouse_type: item.warehouse_type || "workshop",
         quantity: String(item.quantity || 0),
         minimum_stock: String(item.minimum_stock || 5),
         critical_stock: String(item.critical_stock || 2),
@@ -116,6 +119,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
         part_name: values.part_name,
         category: values.category,
         subcategory: values.subcategory || null,
+        warehouse_type: values.warehouse_type,
         quantity: parseInt(values.quantity, 10),
         minimum_stock: parseInt(values.minimum_stock, 10),
         critical_stock: parseInt(values.critical_stock, 10),
@@ -164,10 +168,10 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="part_code"
                 render={({ field }) => (
                   <FormItem>
@@ -181,7 +185,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
               />
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="part_name"
                 render={({ field }) => (
                   <FormItem>
@@ -197,7 +201,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="category"
                 render={({ field }) => (
                   <FormItem>
@@ -222,7 +226,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
               />
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="subcategory"
                 render={({ field }) => (
                   <FormItem>
@@ -238,8 +242,30 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
 
             <div className="grid grid-cols-3 gap-4">
               <FormField
-                control={form.control}
-                name="quantity"
+              control={form.control as any}
+              name="warehouse_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Estoque</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="workshop">Oficina</SelectItem>
+                      <SelectItem value="office">Empresa/Escritório</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control as any}
+              name="quantity"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Quantidade</FormLabel>
@@ -252,7 +278,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
               />
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="minimum_stock"
                 render={({ field }) => (
                   <FormItem>
@@ -266,7 +292,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
               />
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="critical_stock"
                 render={({ field }) => (
                   <FormItem>
@@ -282,7 +308,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="unit_price"
                 render={({ field }) => (
                   <FormItem>
@@ -296,7 +322,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
               />
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="supplier"
                 render={({ field }) => (
                   <FormItem>
@@ -312,7 +338,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="location"
                 render={({ field }) => (
                   <FormItem>
@@ -326,7 +352,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
               />
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="barcode"
                 render={({ field }) => (
                   <FormItem>
@@ -341,7 +367,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
             </div>
 
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="notes"
               render={({ field }) => (
                 <FormItem>

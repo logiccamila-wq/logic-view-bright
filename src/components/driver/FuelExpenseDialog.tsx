@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { VehicleSelect } from "@/components/VehicleSelect";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ export function FuelExpenseDialog() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [recent, setRecent] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     vehicle_plate: "",
     km: "",
@@ -19,18 +21,33 @@ export function FuelExpenseDialog() {
     total_value: ""
   });
 
+  const litersNum = parseFloat(formData.liters || "0");
+  const totalNum = parseFloat(formData.total_value || "0");
+  const kmNum = parseInt(formData.km || "0");
+  const pricePerLiter = litersNum > 0 ? (totalNum / litersNum) : 0;
+  const canSubmit = !!formData.vehicle_plate && kmNum > 0 && litersNum > 0 && totalNum > 0;
+
+  useEffect(() => {
+    const loadRecent = async () => {
+      const { data } = await supabase.from('refuelings' as any).select('*').order('created_at', { ascending: false }).limit(5);
+      setRecent((data as any) || []);
+    };
+    if (open) loadRecent();
+  }, [open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('refuelings').insert({
+      const { error } = await supabase.from('refuelings' as any).insert({
         driver_id: user?.id,
         vehicle_plate: formData.vehicle_plate,
-        km: parseInt(formData.km),
-        liters: parseFloat(formData.liters),
-        total_value: parseFloat(formData.total_value),
-        cost_per_km: parseFloat(formData.total_value) / parseInt(formData.km)
+        km: kmNum,
+        liters: litersNum,
+        total_value: totalNum,
+        cost_per_km: totalNum / Math.max(kmNum, 1),
+        price_per_liter: pricePerLiter
       });
 
       if (error) throw error;
@@ -61,15 +78,14 @@ export function FuelExpenseDialog() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label>Placa do Veículo</Label>
-            <Input
-              required
-              value={formData.vehicle_plate}
-              onChange={(e) => setFormData({...formData, vehicle_plate: e.target.value})}
-              placeholder="ABC-1234"
+            <VehicleSelect 
+              value={formData.vehicle_plate} 
+              onChange={(v) => setFormData({ ...formData, vehicle_plate: v })} 
+              placeholder="Selecione a placa"
             />
           </div>
           <div>
-            <Label>KM Atual</Label>
+            <Label>KM Real</Label>
             <Input
               required
               type="number"
@@ -97,9 +113,23 @@ export function FuelExpenseDialog() {
               onChange={(e) => setFormData({...formData, total_value: e.target.value})}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <div>
+            <Label>Preço por Litro (R$/L)</Label>
+            <Input disabled value={pricePerLiter > 0 ? pricePerLiter.toFixed(2) : ""} />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading || !canSubmit}>
             {loading ? "Salvando..." : "Registrar"}
           </Button>
+          {recent.length > 0 && (
+            <div className="space-y-2">
+              <Label>Últimos abastecimentos</Label>
+              {recent.map((r) => (
+                <div key={r.id} className="text-sm text-muted-foreground">
+                  {r.vehicle_plate} • {r.km} km • {r.liters} L • R$ {Number(r.total_value || 0).toFixed(2)}
+                </div>
+              ))}
+            </div>
+          )}
         </form>
       </DialogContent>
     </Dialog>

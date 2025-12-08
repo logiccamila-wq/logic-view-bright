@@ -55,7 +55,6 @@ export function predictTireFailureRisk(readings: TPMSReading[]): {
 
   // Calcular tendências
   const pressures = sorted.map(r => r.pressure_psi);
-  const avgPressure = pressures.reduce((a, b) => a + b, 0) / pressures.length;
   const pressureTrend = pressures[pressures.length - 1] - pressures[0];
   
   let riskScore = 0;
@@ -375,4 +374,44 @@ export function calculateFleetHealthScore(data: {
   else status = "critical";
 
   return { score: Math.round(score), status, factors };
+}
+
+export function calculateFinancialDerivative(series: Array<{ x: number; y: number }>): Array<{ x: number; derivative: number }> {
+  const derivatives: Array<{ x: number; derivative: number }> = [];
+  if (!series || series.length < 2) return derivatives;
+  for (let i = 1; i < series.length; i++) {
+    const dx = series[i].x - series[i - 1].x;
+    const dy = series[i].y - series[i - 1].y;
+    const d = dx !== 0 ? dy / dx : 0;
+    derivatives.push({ x: series[i].x, derivative: d });
+  }
+  return derivatives;
+}
+
+export function integrateSeries(series: Array<{ x: number; y: number }>): Array<{ x: number; integral: number }> {
+  const integrals: Array<{ x: number; integral: number }> = [];
+  if (!series || series.length === 0) return integrals;
+  let acc = 0;
+  integrals.push({ x: series[0].x, integral: 0 });
+  for (let i = 1; i < series.length; i++) {
+    const dx = series[i].x - series[i - 1].x;
+    const area = ((series[i].y + series[i - 1].y) / 2) * dx;
+    acc += area;
+    integrals.push({ x: series[i].x, integral: acc });
+  }
+  return integrals;
+}
+
+export function calculateROI(params: { investment: number; gain: number; months?: number }): { roiPercent: number; annualizedPercent?: number } {
+  const investment = Number(params.investment) || 0;
+  const gain = Number(params.gain) || 0;
+  if (investment <= 0) return { roiPercent: 0 };
+  const roi = ((gain - investment) / investment) * 100;
+  let annualizedPercent: number | undefined;
+  if (params.months && params.months > 0) {
+    const r = (gain - investment) / investment;
+    const periodsPerYear = 12 / params.months;
+    annualizedPercent = (Math.pow(1 + r, periodsPerYear) - 1) * 100;
+  }
+  return { roiPercent: +roi.toFixed(2), annualizedPercent: annualizedPercent !== undefined ? +annualizedPercent.toFixed(2) : undefined };
 }

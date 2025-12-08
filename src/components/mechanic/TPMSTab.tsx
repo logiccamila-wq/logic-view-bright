@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Gauge, ThermometerSun, Activity } from 'lucide-react';
 import { toast } from 'sonner';
+import { VehicleSelect } from '@/components/VehicleSelect';
 
 interface TPMSReading {
   id: string;
@@ -155,12 +156,11 @@ export function TPMSTab() {
             <form onSubmit={handleCreateReading} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="vehicle_plate">Placa do Veículo</Label>
-                  <Input
-                    id="vehicle_plate"
+                  <Label>Placa do Veículo</Label>
+                  <VehicleSelect
                     value={formData.vehicle_plate}
-                    onChange={(e) => setFormData({ ...formData, vehicle_plate: e.target.value })}
-                    required
+                    onChange={(value) => setFormData({ ...formData, vehicle_plate: value })}
+                    placeholder="Selecione a placa"
                   />
                 </div>
                 <div>

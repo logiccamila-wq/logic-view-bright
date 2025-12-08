@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Circle, Plus, Package, ArrowRightLeft, AlertCircle, Map } from 'lucide-react';
+import { VehicleSelect } from '@/components/VehicleSelect';
+import { useVehicles } from '@/lib/hooks/useVehicles';
 import { TirePlanner } from './TirePlanner';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -65,6 +67,7 @@ export function BorachariaTab() {
   const [loading, setLoading] = useState(true);
   const [isPneuDialogOpen, setIsPneuDialogOpen] = useState(false);
   const [isMovimentacaoDialogOpen, setIsMovimentacaoDialogOpen] = useState(false);
+  const { vehicles } = useVehicles();
 
   const [pneuFormData, setpneuFormData] = useState({
     codigo: '',
@@ -417,11 +420,17 @@ export function BorachariaTab() {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="vehicle_plate_destino">Placa Veículo</Label>
-                    <Input
-                      id="vehicle_plate_destino"
+                    <VehicleSelect
                       value={movimentacaoFormData.vehicle_plate_destino}
-                      onChange={(e) => setMovimentacaoFormData({ ...movimentacaoFormData, vehicle_plate_destino: e.target.value.toUpperCase() })}
-                      placeholder="ABC-1234"
+                      onChange={(value) => {
+                        const v = vehicles.find(x => x.plate === value);
+                        setMovimentacaoFormData({
+                          ...movimentacaoFormData,
+                          vehicle_plate_destino: value,
+                          km_veiculo: v?.mileage ? String(v.mileage) : movimentacaoFormData.km_veiculo,
+                        });
+                      }}
+                      placeholder="Selecione a placa"
                     />
                   </div>
                   <div className="space-y-2">

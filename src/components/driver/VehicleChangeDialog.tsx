@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Truck, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { VehicleSelect } from "@/components/VehicleSelect";
 
 interface VehicleChangeDialogProps {
   open: boolean;
@@ -31,55 +32,9 @@ export const VehicleChangeDialog = ({
   onVehicleChanged 
 }: VehicleChangeDialogProps) => {
   const [loading, setLoading] = useState(false);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [carretas, setCarretas] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState(currentVehicle);
   const [selectedCarreta, setSelectedCarreta] = useState("");
   const [motivo, setMotivo] = useState("");
-
-  useEffect(() => {
-    if (open) {
-      loadVehicles();
-    }
-  }, [open]);
-
-  const loadVehicles = async () => {
-    // Buscar cavalos mecânicos
-    const { data: cavaloData, error: cavaloError } = await supabase
-      .from('vehicles')
-      .select('*')
-      .eq('tipo', 'cavalo')
-      .in('status', ['ativo', 'Ativo']);
-
-    if (cavaloError) {
-      console.error('Erro ao carregar cavalos:', cavaloError);
-    }
-
-    const mappedCavalos = (cavaloData || [])
-      .map((v: any) => ({ placa: v.placa || v.plate, modelo: v.modelo || v.model || '', tipo: v.tipo || '' }))
-      .filter((v) => !!v.placa)
-      .sort((a, b) => a.placa.localeCompare(b.placa));
-
-    setVehicles(mappedCavalos);
-
-    // Buscar carretas
-    const { data: carretaData, error: carretaError } = await supabase
-      .from('vehicles')
-      .select('*')
-      .eq('tipo', 'carreta')
-      .in('status', ['ativo', 'Ativo']);
-
-    if (carretaError) {
-      console.error('Erro ao carregar carretas:', carretaError);
-    }
-
-    const mappedCarretas = (carretaData || [])
-      .map((v: any) => ({ placa: v.placa || v.plate, modelo: v.modelo || v.model || '', tipo: v.tipo || '' }))
-      .filter((v) => !!v.placa)
-      .sort((a, b) => a.placa.localeCompare(b.placa));
-
-    setCarretas(mappedCarretas);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,46 +113,22 @@ export const VehicleChangeDialog = ({
 
           <div className="space-y-2">
             <Label htmlFor="vehicle">Novo Cavalo Mecânico *</Label>
-            <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
-              <SelectTrigger id="vehicle">
-                <SelectValue placeholder="Selecione o cavalo" />
-              </SelectTrigger>
-              <SelectContent>
-                {vehicles.map((vehicle) => (
-                  <SelectItem key={vehicle.placa} value={vehicle.placa}>
-                    <div className="flex items-center gap-2">
-                      <Truck className="h-4 w-4" />
-                      <span className="font-mono font-semibold">{vehicle.placa}</span>
-                      <span className="text-muted-foreground text-sm">
-                        - {vehicle.modelo}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <VehicleSelect
+              value={selectedVehicle}
+              onChange={setSelectedVehicle}
+              filter={v => v.type === 'cavalo' || v.type === 'caminhao'}
+              placeholder="Selecione o cavalo"
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="carreta">Carreta (Opcional)</Label>
-            <Select value={selectedCarreta} onValueChange={setSelectedCarreta}>
-              <SelectTrigger id="carreta">
-                <SelectValue placeholder="Selecione a carreta (se aplicável)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="nenhuma">Nenhuma</SelectItem>
-                {carretas.map((carreta) => (
-                  <SelectItem key={carreta.placa} value={carreta.placa}>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-semibold">{carreta.placa}</span>
-                      <span className="text-muted-foreground text-sm">
-                        - {carreta.modelo}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <VehicleSelect
+              value={selectedCarreta}
+              onChange={setSelectedCarreta}
+              filter={v => v.type === 'carreta' || v.type === 'reboque'}
+              placeholder="Selecione a carreta (se aplicável)"
+            />
           </div>
 
           <div className="space-y-2">

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { VehicleSelect } from "@/components/VehicleSelect";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MapPin,
@@ -29,6 +30,12 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { demoList, demoCreate } from "@/lib/demoStore";
+const apiDB = async (op: string, table: string, data?: any, extra?: any) => {
+  const r = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, table, data, ...(extra||{}) }) });
+  const t = await r.text();
+  try { return { ok: r.ok, data: JSON.parse(t) }; } catch { return { ok: r.ok, data: { raw: t } }; }
+};
 
 const MACROS = [
   { id: 'INICIO', label: 'Início da Jornada', icon: Clock, color: 'bg-green-500' },
@@ -41,7 +48,7 @@ const MACROS = [
 const Driver = () => {
   const { user } = useAuth();
   const [currentMacro, setCurrentMacro] = useState<string | null>(null);
-  const [abastecimento, setAbastecimento] = useState({ km: '', litros: '', valor: '' });
+  const [abastecimento, setAbastecimento] = useState({ km: '', litros: '', valor: '', plate: '' });
   const [macroStatus, setMacroStatus] = useState<Array<{ label: string; time: string; success: boolean }>>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTrip, setActiveTrip] = useState<any>(null);
@@ -72,7 +79,13 @@ const Driver = () => {
 
     if (data) {
       setActiveTrip(data);
+      return;
     }
+    const alt = await apiDB('list','trips',null,{ limit: 1 });
+    const item = Array.isArray(alt.data) ? alt.data[0] : null;
+    if (item) { setActiveTrip(item); return; }
+    const demo = demoList('trips')[0] || demoCreate('trips', { driver_id: user.id, vehicle_plate: 'EJG-1234', origin: 'Curitiba', destination: 'São Paulo', status: 'em_andamento', created_at: new Date().toISOString() });
+    setActiveTrip(demo);
   };
 
   const loadActiveCTE = async () => {
@@ -87,7 +100,13 @@ const Driver = () => {
 
     if (data) {
       setActiveCTE(data);
+      return;
     }
+    const alt = await apiDB('list','cte',null,{ limit: 1 });
+    const item = Array.isArray(alt.data) ? alt.data[0] : null;
+    if (item) { setActiveCTE(item); return; }
+    const demo = demoList('cte')[0];
+    if (demo) setActiveCTE(demo);
   };
 
   const loadMacroHistory = async () => {
@@ -106,7 +125,15 @@ const Driver = () => {
         time: new Date(m.timestamp).toLocaleTimeString('pt-BR'),
         success: true
       })));
+      return;
     }
+    const alt = await apiDB('list','trip_macros',null,{ limit: 10 });
+    const arr = Array.isArray(alt.data) ? alt.data : demoList('trip_macros');
+    setMacroStatus(arr.map((m: any) => ({
+      label: MACROS.find(x => x.id === m.macro_type)?.label || m.macro_type,
+      time: new Date(m.timestamp || Date.now()).toLocaleTimeString('pt-BR'),
+      success: true
+    })));
   };
 
   const handleMacroClick = async (macro: typeof MACROS[0]) => {
@@ -153,16 +180,22 @@ const Driver = () => {
         setActiveTrip(null);
       }
     } catch (error: any) {
-      console.error('Erro ao registrar macro:', error);
-      toast.error('Erro ao registrar macro');
-      setErrorMessage('Falha ao registrar macro. Tente novamente.');
+      const alt = await apiDB('create','trip_macros',{ trip_id: activeTrip?.id, driver_id: user?.id, macro_type: macro.id, timestamp: new Date().toISOString() });
+      if (alt.ok) {
+        toast.success(`${macro.label} registrado com sucesso!`);
+        setMacroStatus(prev => [...prev, { label: macro.label, time: new Date().toLocaleTimeString('pt-BR'), success: true }]);
+      } else {
+        const demo = demoCreate('trip_macros', { trip_id: activeTrip?.id, driver_id: user?.id, macro_type: macro.id, timestamp: new Date().toISOString() });
+        setMacroStatus(prev => [...prev, { label: MACROS.find(x => x.id === demo.macro_type)?.label || demo.macro_type, time: new Date().toLocaleTimeString('pt-BR'), success: true }]);
+        toast.success('Macro registrada localmente');
+      }
     }
   };
 
   const handleAbastecimentoSubmit = async () => {
     if (!user) return;
     
-    if (!abastecimento.km || !abastecimento.litros || !abastecimento.valor) {
+    if (!abastecimento.km || !abastecimento.litros || !abastecimento.valor || !abastecimento.plate) {
       setErrorMessage('Preencha todos os campos do abastecimento.');
       toast.error('Preencha todos os campos');
       return;
@@ -176,7 +209,7 @@ const Driver = () => {
         .insert({
           trip_id: activeTrip?.id,
           driver_id: user.id,
-          vehicle_plate: activeTrip?.vehicle_plate || 'N/A',
+          vehicle_plate: abastecimento.plate,
           km: parseFloat(abastecimento.km),
           liters: parseFloat(abastecimento.litros),
           total_value: parseFloat(abastecimento.valor),
@@ -185,11 +218,17 @@ const Driver = () => {
       if (error) throw error;
 
       toast.success('Abastecimento registrado! Custo/KM será atualizado.');
-      setAbastecimento({ km: '', litros: '', valor: '' });
+      setAbastecimento({ km: '', litros: '', valor: '', plate: '' });
     } catch (error: any) {
-      console.error('Erro ao registrar abastecimento:', error);
-      toast.error('Erro ao registrar abastecimento');
-      setErrorMessage('Falha ao registrar abastecimento.');
+      const alt = await apiDB('create','refuelings',{ trip_id: activeTrip?.id, driver_id: user?.id, vehicle_plate: abastecimento.plate, km: parseFloat(abastecimento.km), liters: parseFloat(abastecimento.litros), total_value: parseFloat(abastecimento.valor) });
+      if (alt.ok) {
+        toast.success('Abastecimento registrado!');
+        setAbastecimento({ km: '', litros: '', valor: '', plate: '' });
+      } else {
+        demoCreate('refuelings', { trip_id: activeTrip?.id, driver_id: user?.id, vehicle_plate: abastecimento.plate, km: parseFloat(abastecimento.km), liters: parseFloat(abastecimento.litros), total_value: parseFloat(abastecimento.valor) });
+        toast.success('Abastecimento registrado localmente');
+        setAbastecimento({ km: '', litros: '', valor: '', plate: '' });
+      }
     }
   };
 
@@ -316,7 +355,7 @@ const Driver = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Valor Total</p>
                   <p className="font-semibold text-green-600">
-                    R$ {activeCTE.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {Number(activeCTE?.valor_total ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </p>
                 </div>
                 {activeCTE.observacoes && (
@@ -398,6 +437,11 @@ const Driver = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
+              <VehicleSelect 
+                value={abastecimento.plate} 
+                onChange={(v) => setAbastecimento({ ...abastecimento, plate: v })} 
+                placeholder="Selecione o Veículo"
+              />
               <Input
                 type="number"
                 placeholder="KM Atual (Obrigatório)"

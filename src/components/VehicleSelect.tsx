@@ -1,59 +1,55 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useVehicles, VehicleItem } from "@/lib/hooks/useVehicles";
+import { cn } from "@/lib/utils";
 
-interface Props {
+interface VehicleSelectProps {
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (value: string) => void;
+  onSelectVehicle?: (vehicle: VehicleItem) => void;
+  className?: string;
+  placeholder?: string;
+  filter?: (vehicle: VehicleItem) => boolean;
+  required?: boolean;
 }
 
-export function VehicleSelect({ value, onChange }: Props) {
-  const [vehicles, setVehicles] = useState<{ placa: string }[]>([]);
+export function VehicleSelect({ value, onChange, onSelectVehicle, className, placeholder = "Selecione uma placa", filter, required }: VehicleSelectProps) {
+  const { vehicles, loading } = useVehicles();
 
-  useEffect(() => {
-    async function fetchVehicles() {
-      try {
-        const { data, error } = await supabase
-          .from("vehicles")
-          .select("*")
-          .in("status", ["ativo", "Ativo"]);
-
-        if (error) {
-          console.error("Erro ao carregar veículos:", error);
-          setVehicles([]);
-          return;
-        }
-
-        const mapped = (data || [])
-          .map((v: any) => ({ placa: v.placa || v.plate }))
-          .filter((v) => !!v.placa)
-          .sort((a, b) => a.placa.localeCompare(b.placa));
-
-        setVehicles(mapped);
-      } catch (e) {
-        console.error("Falha ao carregar veículos:", e);
-        setVehicles([]);
-      }
-    }
-    fetchVehicles();
-  }, []);
+  const filteredVehicles = filter ? vehicles.filter(filter) : vehicles;
 
   return (
-    <select
-      value={value || ""}
-      onChange={onChange}
-      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    <Select 
+      value={value || ""} 
+      onValueChange={(val) => {
+        onChange(val);
+        if (onSelectVehicle) {
+          const v = vehicles.find(item => item.plate === val);
+          if (v) onSelectVehicle(v);
+        }
+      }} 
+      required={required}
     >
-      <option value="">Selecione uma placa</option>
-      {vehicles.length === 0 && (
-        <option value="" disabled>
-          Nenhum veículo encontrado
-        </option>
-      )}
-      {vehicles.map((v) => (
-        <option key={v.placa} value={v.placa}>
-          {v.placa}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className={cn("w-full", className)}>
+        <SelectValue placeholder={loading ? "Carregando..." : placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {filteredVehicles.map((vehicle) => (
+          <SelectItem key={vehicle.plate} value={vehicle.plate}>
+            {vehicle.plate} {vehicle.model ? `- ${vehicle.model}` : ""}
+          </SelectItem>
+        ))}
+        {filteredVehicles.length === 0 && !loading && (
+          <SelectItem value="_empty" disabled>
+            Nenhum veículo encontrado
+          </SelectItem>
+        )}
+      </SelectContent>
+    </Select>
   );
 }

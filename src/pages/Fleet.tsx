@@ -308,7 +308,7 @@ const Fleet = () => {
                           </span>
                         )}
                         <span className="text-muted-foreground">
-                          KM: <span className="text-foreground">{vehicle.km.toLocaleString()}</span>
+                          KM: <span className="text-foreground">{Number(vehicle.km ?? 0).toLocaleString()}</span>
                         </span>
                       </div>
                     </div>

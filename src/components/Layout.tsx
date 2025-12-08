@@ -5,7 +5,7 @@ import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import { useCostAlerts } from "@/hooks/useCostAlerts";
 import { NotificationBell } from "@/components/NotificationBell";
 import { EJGChatbot } from "@/components/EJGChatbot";
-import ejgLogo from "@/assets/ejg-logo.png";
+import { Zap } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,12 +23,14 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex-1 flex flex-col">
           <header className="sticky top-0 z-10 h-16 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 flex items-center px-6 gap-4 shadow-sm">
             <SidebarTrigger className="mr-2" />
-            <img src={ejgLogo} alt="EJG Logo" className="h-10 w-10 rounded-lg" />
+            <div className="bg-primary/10 p-1.5 rounded-lg">
+              <Zap className="h-6 w-6 text-primary" />
+            </div>
             <div className="flex flex-col">
               <h2 className="text-sm font-semibold text-foreground">
-                EJG Evolução em Transporte
+                XYZLogicFlow
               </h2>
-              <span className="text-xs text-muted-foreground">Sistema OptiLog</span>
+              <span className="text-xs text-muted-foreground">Enterprise Logistics</span>
             </div>
             <div className="ml-auto">
               <NotificationBell />

@@ -55,7 +55,13 @@ export function useDrivers(searchTerm = "", page = 1, pageSize = 10) {
 
       const { data, error, count } = await query;
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST205' || error.message.includes('drivers')) {
+           console.warn('Tabela drivers ausente.');
+           return { drivers: [], totalCount: 0, totalPages: 0 };
+        }
+        throw error;
+      }
 
       return {
         drivers: data || [],

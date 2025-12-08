@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { generateTireDiscardReport, generateTireRecapReport } from "@/utils/tireReport";
 import { SignaturePad } from "@/components/ui/SignaturePad";
+import { VehicleSelect } from "@/components/VehicleSelect";
 
 type Pneu = { id: string; codigo: string; medida: string; status: string; vehicle_plate: string | null; posicao: string | null; vida_util_km: number | null; valor_compra: number | null; valor_recape: number | null; km_instalacao: number | null; km_atual: number | null; life_stage: string };
 type AxleConfig = { id: string; vehicle_plate: string; layout: string; axles: any };
@@ -119,16 +120,12 @@ export function TireControl() {
 
         <TabsContent value="planner" className="space-y-4">
           <div className="flex items-center gap-3">
-            <Select value={plate} onValueChange={setPlate}>
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Selecione a placa" />
-              </SelectTrigger>
-              <SelectContent>
-                {[...new Set(pneus.filter(p => p.vehicle_plate).map(p => p.vehicle_plate))]
-                  .filter(Boolean)
-                  .map((v) => (<SelectItem key={v as string} value={v as string}>{v}</SelectItem>))}
-              </SelectContent>
-            </Select>
+            <VehicleSelect
+              value={plate}
+              onChange={setPlate}
+              className="w-64"
+              placeholder="Selecione a placa"
+            />
             <Select value={preset} onValueChange={setPreset}>
               <SelectTrigger className="w-64"><SelectValue /></SelectTrigger>
               <SelectContent>

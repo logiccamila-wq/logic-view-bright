@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { VehicleSelect } from "@/components/VehicleSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,7 +19,6 @@ interface OrdemColetaDialogProps {
 
 export function OrdemColetaDialog({ open, onOpenChange, ordem, onSuccess }: OrdemColetaDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [vehicles, setVehicles] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     numero_ordem: '',
     fornecedor_nome: '',
@@ -37,7 +37,6 @@ export function OrdemColetaDialog({ open, onOpenChange, ordem, onSuccess }: Orde
 
   useEffect(() => {
     if (open) {
-      loadVehicles();
       if (ordem) {
         setFormData({
           numero_ordem: ordem.numero_ordem || '',
@@ -59,11 +58,6 @@ export function OrdemColetaDialog({ open, onOpenChange, ordem, onSuccess }: Orde
       }
     }
   }, [open, ordem]);
-
-  const loadVehicles = async () => {
-    const { data } = await supabase.from('vehicles').select('*').eq('status', 'ativo');
-    if (data) setVehicles(data);
-  };
 
   const generateNumeroOrdem = () => {
     const now = new Date();
@@ -171,29 +165,21 @@ export function OrdemColetaDialog({ open, onOpenChange, ordem, onSuccess }: Orde
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Placa Cavalo</Label>
-                <Select value={formData.placa_cavalo} onValueChange={v => setFormData({...formData, placa_cavalo: v})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vehicles.filter(v => v.tipo === 'caminhao').map(v => (
-                      <SelectItem key={v.id} value={v.placa}>{v.placa} - {v.modelo}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <VehicleSelect 
+                  value={formData.placa_cavalo} 
+                  onChange={v => setFormData({...formData, placa_cavalo: v})}
+                  filter={v => v.type === 'caminhao' || v.type === 'cavalo'}
+                  placeholder="Selecione"
+                />
               </div>
               <div>
                 <Label>Placa Carreta</Label>
-                <Select value={formData.placa_carreta} onValueChange={v => setFormData({...formData, placa_carreta: v})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vehicles.filter(v => v.tipo === 'carreta').map(v => (
-                      <SelectItem key={v.id} value={v.placa}>{v.placa} - {v.modelo}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <VehicleSelect 
+                  value={formData.placa_carreta} 
+                  onChange={v => setFormData({...formData, placa_carreta: v})}
+                  filter={v => v.type === 'carreta' || v.type === 'reboque'}
+                  placeholder="Selecione"
+                />
               </div>
               <div>
                 <Label>Capacidade</Label>

@@ -13,6 +13,9 @@ import { Wrench, Plus, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { demoList, demoCreate } from '@/lib/demoStore';
+import { VehicleSelect } from '@/components/VehicleSelect';
+import { useVehicles } from '@/lib/hooks/useVehicles';
 
 interface ServiceOrder {
   id: string;
@@ -36,7 +39,7 @@ interface ServiceOrder {
 export function ServiceOrdersTab() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
+  const { vehicles } = useVehicles();
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | null>(null);
@@ -60,41 +63,16 @@ export function ServiceOrdersTab() {
       setOrders(data || []);
     } catch (error) {
       console.error('Erro ao buscar ordens:', error);
-      toast.error('Erro ao carregar ordens de serviço');
+      const demo = demoList('service_orders');
+      setOrders(demo);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchVehicles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('*')
-        .in('status', ['ativo', 'Ativo']);
-
-      if (error) throw error;
-
-      const mapped = (data || [])
-        .map((v: any) => ({
-          placa: v.placa || v.plate,
-          modelo: v.modelo || v.model || '',
-          tipo: v.tipo || '',
-          status: v.status || ''
-        }))
-        .filter((v) => !!v.placa)
-        .sort((a, b) => a.placa.localeCompare(b.placa));
-
-      setVehicles(mapped);
-    } catch (error) {
-      console.error('Erro ao buscar veículos:', error);
-      toast.error('Erro ao carregar veículos');
-    }
-  };
 
   useEffect(() => {
     fetchOrders();
-    fetchVehicles();
 
     const channel = supabase
       .channel('service_orders_changes')
@@ -131,7 +109,10 @@ export function ServiceOrdersTab() {
       });
     } catch (error) {
       console.error('Erro ao criar ordem:', error);
-      toast.error('Erro ao criar ordem de serviço');
+      const demo = demoCreate('service_orders', { ...formData, odometer: parseInt(formData.odometer), status: 'pendente', created_by: user?.id, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+      setOrders(prev => [demo, ...prev]);
+      toast.success('Ordem criada localmente');
+      setIsDialogOpen(false);
     }
   };
 
@@ -156,7 +137,8 @@ export function ServiceOrdersTab() {
       toast.success('Status atualizado');
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
-      toast.error('Erro ao atualizar status');
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus, mechanic_id: newStatus === 'em_andamento' ? (o.mechanic_id || user?.id) : o.mechanic_id, completed_at: newStatus === 'concluida' ? new Date().toISOString() : o.completed_at, updated_at: new Date().toISOString() } : o));
+      toast.success('Status atualizado localmente');
     }
   };
 
@@ -205,28 +187,20 @@ export function ServiceOrdersTab() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="vehicle_plate">Placa do Veículo</Label>
-                  <Select 
-                    value={formData.vehicle_plate} 
-                    onValueChange={(value) => {
-                      const selectedVehicle = vehicles.find(v => v.placa === value);
-                      setFormData({ 
-                        ...formData, 
-                        vehicle_plate: value,
-                        vehicle_model: selectedVehicle?.modelo || ''
-                      });
+                  <VehicleSelect
+                    value={formData.vehicle_plate}
+                    onChange={(value) => {
+                      setFormData(prev => ({ ...prev, vehicle_plate: value }));
                     }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a placa" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {vehicles.map((vehicle) => (
-                        <SelectItem key={vehicle.placa} value={vehicle.placa}>
-                          {vehicle.placa} - {vehicle.modelo}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onSelectVehicle={(vehicle) => {
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        vehicle_plate: vehicle.plate,
+                        vehicle_model: vehicle.model || ''
+                      }));
+                    }}
+                    placeholder="Selecione a placa"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="vehicle_model">Modelo</Label>

@@ -31,8 +31,8 @@ import {
   TrendingUp,
   Layers,
   Receipt,
+  Zap,
 } from "lucide-react";
-import optilogLogo from "@/assets/optilog-logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -126,12 +126,12 @@ export function AppSidebar() {
       <SidebarContent className="bg-sidebar border-r border-border">
         {/* Logo */}
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+             <div className="bg-primary/10 p-1.5 rounded-lg">
+                <Zap className="h-6 w-6 text-primary" />
+             </div>
             {!collapsed && (
-              <img src={optilogLogo} alt="OptiLog" className="h-8 w-auto" />
-            )}
-            {collapsed && (
-              <img src={optilogLogo} alt="OptiLog" className="h-8 w-8 object-contain" />
+              <span className="font-bold text-lg text-foreground">XYZLogicFlow</span>
             )}
           </div>
           {!collapsed && <NotificationBell />}

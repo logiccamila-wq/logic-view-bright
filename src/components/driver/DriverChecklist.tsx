@@ -6,6 +6,8 @@ import { ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { VehicleSelect } from "@/components/VehicleSelect";
+import { Label } from "@/components/ui/label";
 
 const checklistItems = [
   { id: "pneus", label: "Verificar pressão dos pneus" },
@@ -79,12 +81,11 @@ export function DriverChecklist() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <input
-            type="text"
-            placeholder="Placa do veículo"
-            className="w-full px-3 py-2 border rounded-md"
+          <Label className="mb-2 block">Placa do Veículo</Label>
+          <VehicleSelect
             value={vehiclePlate}
-            onChange={(e) => setVehiclePlate(e.target.value)}
+            onChange={setVehiclePlate}
+            placeholder="Selecione a placa"
           />
         </div>
         

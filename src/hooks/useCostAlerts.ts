@@ -35,23 +35,33 @@ export function useCostAlerts() {
     if (!user || !canManageAlerts) return;
 
     try {
-      // Get active alerts
-      const { data: alerts, error: alertsError } = await (supabase as any)
+      const { data: alertsRaw, error: alertsError } = await (supabase as any)
         .from('maintenance_cost_alerts')
         .select('*')
         .eq('is_active', true);
 
-      if (alertsError) throw alertsError;
-      if (!alerts || alerts.length === 0) return;
+      const alerts: any[] = (() => {
+        const missing = alertsError && ((alertsError as any).code === 'PGRST205' || String((alertsError as any).message || '').includes('maintenance_cost_alerts'));
+        if (missing) return [];
+        if (alertsError) throw alertsError;
+        return alertsRaw || [];
+      })();
 
-      // Get service orders data
-      const { data: serviceOrders, error: ordersError } = await supabase
+      if (alerts.length === 0) return;
+
+      const { data: ordersRaw, error: ordersError } = await supabase
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (ordersError) throw ordersError;
-      if (!serviceOrders) return;
+      const serviceOrders = (() => {
+        const missing = ordersError && ((ordersError as any).code === 'PGRST205' || String((ordersError as any).message || '').includes('service_orders'));
+        if (missing) return [];
+        if (ordersError) throw ordersError;
+        return ordersRaw || [];
+      })();
+
+      if (serviceOrders.length === 0) return;
 
       // Process each alert
       for (const alert of alerts as CostAlert[]) {

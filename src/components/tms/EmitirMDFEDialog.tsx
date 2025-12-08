@@ -208,7 +208,7 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
                 <Label>Placa</Label>
                 <VehicleSelect
                   value={formData.placa_cavalo}
-                  onChange={(e) => setFormData({ ...formData, placa_cavalo: e.target.value })}
+                  onChange={(value) => setFormData({ ...formData, placa_cavalo: value })}
                 />
               </div>
               <div>

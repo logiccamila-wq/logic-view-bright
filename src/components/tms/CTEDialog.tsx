@@ -257,7 +257,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
         return;
       }
 
-      const { error } = await supabase
+      const { data: cteData, error } = await supabase
         .from('cte')
         .insert({
           ...formData,
@@ -271,9 +271,41 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
           valor_total: parseFloat(formData.valor_total),
           created_by: user?.id,
           status: 'emitido'
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Criar conta a receber automaticamente
+      try {
+        const vencimento = new Date();
+        vencimento.setDate(vencimento.getDate() + 30); // Vencimento padrão em 30 dias
+
+        const clienteNome = formData.tomador_nome || 
+          (formData.tipo_frete === 'cif' ? formData.remetente_nome : formData.destinatario_nome);
+
+        const { error: financeError } = await supabase
+          .from('contas_receber')
+          .insert({
+            descricao: `CT-e ${formData.numero_cte} - ${formData.produto_predominante}`,
+            cliente: clienteNome,
+            valor: parseFloat(formData.valor_total),
+            data_vencimento: vencimento.toISOString().split('T')[0],
+            status: 'pendente',
+            observacoes: `Gerado automaticamente via emissão de CT-e.\nOrigem: ${formData.remetente_cidade}/${formData.remetente_uf}\nDestino: ${formData.destinatario_cidade}/${formData.destinatario_uf}`,
+            // cte_id: cteData.id // Se houver coluna de relacionamento
+          });
+
+        if (financeError) {
+          console.error('Erro ao criar conta a receber:', financeError);
+          toast.error('CT-e emitido, mas houve erro ao gerar o financeiro.');
+        } else {
+          toast.success('Conta a receber gerada com sucesso!');
+        }
+      } catch (err) {
+        console.error('Erro ao processar financeiro:', err);
+      }
 
       toast.success('CT-e criado com sucesso! Disponível no app do motorista.');
       onSuccess?.();
@@ -691,17 +723,20 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
               </div>
               <div>
                 <Label>Placa Veículo *</Label>
-            <VehicleSelect
-  value={formData.placa_veiculo}
-  onChange={e => setFormData({ ...formData, placa_veiculo: e.target.value })}
-/>
+                <VehicleSelect
+                  value={formData.placa_veiculo}
+                  onChange={value => setFormData({ ...formData, placa_veiculo: value })}
+                  filter={v => v.type === 'caminhao' || v.type === 'cavalo'}
+                  placeholder="Selecione"
+                />
               </div>
               <div>
                 <Label>Placa Carreta</Label>
-                <Input
+                <VehicleSelect
                   value={formData.placa_carreta}
-                  onChange={e => setFormData({ ...formData, placa_carreta: e.target.value })}
-                  placeholder="DEF-5678"
+                  onChange={value => setFormData({ ...formData, placa_carreta: value })}
+                  filter={v => v.type === 'carreta' || v.type === 'reboque'}
+                  placeholder="Selecione (Opcional)"
                 />
               </div>
               <div className="col-span-2">

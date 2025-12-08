@@ -93,7 +93,13 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
 
       const { data, error, count } = await query;
 
-      if (error) throw error;
+      if (error) {
+         if (error.code === 'PGRST205' || error.message.includes('payroll_records')) {
+            console.warn('Tabela payroll_records ausente.');
+            return { records: [], totalCount: 0, totalPages: 0 };
+         }
+         throw error;
+      }
 
       return {
         records: data || [],

@@ -1,0 +1,22 @@
+{
+  "version": 3,
+  "routes": [
+    {
+      "src": "^/api/(.*)$",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/index.html"
+    }
+  ],
+  "framework": {
+    "version": "6.4.1"
+  },
+  "crons": [
+    {
+      "path": "/api/process-cron",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

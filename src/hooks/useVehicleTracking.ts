@@ -60,7 +60,15 @@ export function useVehicleTracking() {
         .select('*')
         .order('timestamp', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // Ignorar erro se tabela não existir
+        if (error.code === 'PGRST205' || error.message.includes('vehicle_tracking')) {
+          console.warn('Tabela vehicle_tracking não encontrada. Ignorando.');
+          setVehicles([]);
+          return;
+        }
+        throw error;
+      }
 
       // Agrupar por vehicle_plate e pegar apenas a mais recente
       const latestPositions = data?.reduce((acc: VehiclePosition[], curr) => {

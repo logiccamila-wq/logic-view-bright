@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock } from "lucide-react";
+import { Lock, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import optilogLogo from "@/assets/optilog-logo.png";
 import { PWACacheReset } from "@/components/PWACacheReset";
 
 const Login = () => {
@@ -93,24 +92,35 @@ const Login = () => {
   const params = new URLSearchParams(location.search);
   const brand = (params.get('brand') || '').toLowerCase();
   const isAlb = brand === 'albuquerque';
-  const brandName = isAlb ? 'Albuquerque' : 'Optilog';
-  const brandSubtitle = isAlb ? 'Acesse sua conta Albuquerque' : 'Acesse sua conta Optilog';
+  const brandName = isAlb ? 'Albuquerque' : 'XYZLogicFlow';
+  const brandSubtitle = isAlb ? 'Acesse sua conta Albuquerque' : 'Acesse sua conta XYZLogicFlow';
   const brandBg = isAlb ? '#2b2d31' : undefined;
-  const logoParam = params.get('logo') || '';
-  const brandLogo = logoParam
-    ? logoParam
-    : isAlb
-      ? 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=' +
+  
+  const BrandLogo = () => {
+    if (isAlb) {
+      const logoParam = params.get('logo') || '';
+      const src = logoParam || 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=' +
         encodeURIComponent('SDXL render of a metallic white monogram letter A with molecule nodes motif, centered above ALBUQUERQUE text and QUIMICA subtitle, embossed 3D on dark graphite background, cinematic studio lighting, ultra-detailed, logo mark minimal, no extra text beyond brand') +
-        '&image_size=square_hd'
-      : optilogLogo;
+        '&image_size=square_hd';
+      return <img src={src} alt={brandName} className="h-16 w-auto" />;
+    }
+    
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
+          <Zap className="h-10 w-10 text-white" />
+        </div>
+        <span className="text-white font-bold text-xl tracking-tight">XYZLogicFlow</span>
+      </div>
+    );
+  };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${!isAlb ? 'bg-gradient-to-br from-indigo-700 via-fuchsia-600 to-pink-600' : ''}`} style={isAlb ? { backgroundColor: brandBg } : undefined}>
+    <div className={`min-h-screen flex items-center justify-center p-4 ${!isAlb ? 'bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-600' : ''}`} style={isAlb ? { backgroundColor: brandBg } : undefined}>
       <Card className="w-full max-w-md border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl">
         <CardHeader className="text-center space-y-4">
           <div className="flex items-center justify-center mb-4">
-            <img src={brandLogo} alt={brandName} className="h-16 w-auto" />
+            <BrandLogo />
           </div>
           <CardTitle className="text-2xl text-white">
             {resetMode ? "Redefinir Senha" : "Entrar"}

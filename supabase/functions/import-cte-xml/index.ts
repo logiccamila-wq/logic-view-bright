@@ -166,6 +166,38 @@ serve(async (req) => {
 
     console.log('CT-e importado com sucesso:', cteInserted)
 
+    // Inserir Conta a Receber automaticamente
+    try {
+      console.log('Gerando conta a receber...');
+      // Calcular vencimento se não vier no XML (padrão 30 dias)
+      let vencimentoCR = cteData.data_vencimento;
+      if (!vencimentoCR) {
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        vencimentoCR = d.toISOString();
+      }
+
+      const { error: crError } = await supabaseClient
+        .from('contas_receber')
+        .insert({
+          descricao: `CT-e ${cteData.numero_cte} - ${cteData.produto_predominante}`,
+          cliente: cteData.tomador_nome,
+          valor: cteData.valor_total,
+          data_vencimento: vencimentoCR,
+          status: 'pendente', 
+          observacoes: `Importado via XML. Origem: ${cteData.remetente_cidade}/${cteData.remetente_uf} -> Destino: ${cteData.destinatario_cidade}/${cteData.destinatario_uf}`,
+          cte_id: cteInserted[0].id
+        });
+        
+      if (crError) {
+         console.error('Erro ao gerar conta a receber:', crError);
+      } else {
+         console.log('Conta a receber gerada com sucesso');
+      }
+    } catch (crErr) {
+      console.error('Exceção ao gerar financeiro:', crErr);
+    }
+
     // Atualizar análise financeira
     await supabaseClient.rpc('calculate_client_financial_analysis')
 

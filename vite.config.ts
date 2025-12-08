@@ -7,6 +7,12 @@ import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 export default defineConfig({
   build: {
     sourcemap: 'hidden',
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        // manualChunks removed to avoid circular dependency issues
+      }
+    }
   },
   plugins: [
     react({

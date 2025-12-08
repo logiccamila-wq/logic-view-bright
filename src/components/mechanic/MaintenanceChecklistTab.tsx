@@ -4,12 +4,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ClipboardCheck, Plus } from 'lucide-react';
+import { useVehicles } from '@/lib/hooks/useVehicles';
 import { toast } from 'sonner';
+import { VehicleSelect } from '@/components/VehicleSelect';
 
 interface ChecklistItem {
   id: string;
@@ -64,6 +67,7 @@ export function MaintenanceChecklistTab() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createType, setCreateType] = useState<string>('preventiva');
   const [vehiclePlate, setVehiclePlate] = useState('');
+  const { vehicles } = useVehicles();
 
   const ensureItemsWithIds = (items: { name: string; checked: boolean }[]) =>
     items.map((item, index) => ({
@@ -215,11 +219,10 @@ export function MaintenanceChecklistTab() {
           <div className="grid gap-4 py-2">
             <div className="grid gap-2">
               <Label htmlFor="vehicle_plate">Placa do veículo</Label>
-              <Input
-                id="vehicle_plate"
-                placeholder="ABC1D23"
+              <VehicleSelect
                 value={vehiclePlate}
-                onChange={(e) => setVehiclePlate(e.target.value)}
+                onChange={setVehiclePlate}
+                placeholder="Selecione a placa"
               />
             </div>
             <div className="grid gap-2">

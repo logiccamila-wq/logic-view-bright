@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { VehicleChangeDialog } from "./VehicleChangeDialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { VehicleSelect } from "@/components/VehicleSelect";
 
 interface WorkSession {
   id: string;
@@ -88,44 +88,10 @@ export function WorkSessionPanel() {
   };
 
   const [showVehicleSelect, setShowVehicleSelect] = useState(false);
-  const [availableVehicles, setAvailableVehicles] = useState<any[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<string>("");
 
-  const handleIniciarJornadaClick = async () => {
+  const handleIniciarJornadaClick = () => {
     setShowVehicleSelect(true);
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("vehicles")
-        .select("*")
-        .in("tipo", ["cavalo_mecanico", "caminhao", "cavalo", "carreta"]) // cobrir variações
-        .in("status", ["ativo", "Ativo"]);
-
-      if (error) {
-        console.error("Erro ao carregar veículos:", error);
-        toast.error("Erro ao carregar veículos");
-        setAvailableVehicles([]);
-      } else {
-        const mapped = (data || [])
-          .map((v: any) => ({
-            placa: v.placa || v.plate,
-            modelo: v.modelo || v.model || "",
-            ano: v.ano || v.year,
-            tipo: v.tipo || ""
-          }))
-          .filter((v) => !!v.placa)
-          .sort((a, b) => a.placa.localeCompare(b.placa));
-
-        console.log("Veículos carregados:", mapped);
-        setAvailableVehicles(mapped);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar veículos:", error);
-      toast.error("Erro ao carregar veículos");
-      setAvailableVehicles([]);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const iniciarJornadaComViagem = async () => {
@@ -349,24 +315,12 @@ export function WorkSessionPanel() {
             <div className="max-w-md mx-auto space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Selecione o Veículo</label>
-                <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Escolha um cavalo mecânico" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableVehicles.length === 0 ? (
-                      <SelectItem value="nenhum" disabled>
-                        Nenhum veículo disponível
-                      </SelectItem>
-                    ) : (
-                      availableVehicles.map((v) => (
-                        <SelectItem key={v.placa} value={v.placa}>
-                          {v.placa} - {v.modelo} {v.ano ? `(${v.ano})` : ''}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
+                <VehicleSelect
+                  value={selectedVehicle}
+                  onChange={setSelectedVehicle}
+                  filter={v => v.type === 'cavalo' || v.type === 'caminhao'}
+                  placeholder="Escolha um cavalo mecânico"
+                />
               </div>
               <div className="flex gap-2">
                 <Button 

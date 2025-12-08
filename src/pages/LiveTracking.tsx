@@ -283,7 +283,11 @@ const LiveTracking = () => {
 
               <div>
                 <label className="text-xs font-semibold text-muted-foreground">Última atualização</label>
-                <p className="text-sm">{new Date(selectedVehicle.timestamp).toLocaleString('pt-BR')}</p>
+                <p className="text-sm">
+                  {selectedVehicle?.timestamp 
+                    ? new Date(selectedVehicle.timestamp).toLocaleString('pt-BR') 
+                    : '-'}
+                </p>
               </div>
             </div>
           </aside>

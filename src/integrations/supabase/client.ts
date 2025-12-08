@@ -3,7 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const rawKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const rawKeyAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const rawKeyPub = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const rawKey = rawKeyAnon ?? rawKeyPub;
 
 // Sanitize and validate envs to prevent common issues (backticks, spaces, placeholders)
 // Also strip accidental surrounding quotes ("..." or '...') in addition to backticks
@@ -22,7 +24,7 @@ if (!SUPABASE_URL || SUPABASE_URL.includes('SEU-PROJETO')) {
   console.error('[Supabase] VITE_SUPABASE_URL inválida ou placeholder. Atualize .env.local com a URL real.');
 }
 if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.includes('REPLACE_ME')) {
-  console.error('[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY inválida ou placeholder. Use sua anon/publishable key real.');
+  console.error('[Supabase] VITE_SUPABASE_ANON_KEY/VITE_SUPABASE_PUBLISHABLE_KEY inválida ou placeholder. Use sua anon/publishable key real.');
 }
 
 // Import the supabase client like this:

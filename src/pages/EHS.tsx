@@ -104,7 +104,7 @@ const EHS = () => {
               </Dialog>
             </div>
             <div className="grid gap-3">
-              {(incidents.data || []).map((i:any)=>(<Card key={i.id} className="p-4"><div className="flex items-center justify-between"><div><div className="font-semibold">{i.product} • {i.vehicle_plate||''}</div><div className="text-sm text-muted-foreground">Sev {i.severity} • {new Date(i.occurred_at).toLocaleString('pt-BR')}</div></div><div className="text-sm">{i.status}</div></div></Card>))}
+              {(incidents.data || []).map((i:any)=>(<Card key={i.id} className="p-4"><div className="flex items-center justify-between"><div><div className="font-semibold">{i.product} • {i.vehicle_plate||''}</div><div className="text-sm text-muted-foreground">Sev {i.severity} • {i.occurred_at ? new Date(i.occurred_at).toLocaleString('pt-BR') : '-'}</div></div><div className="text-sm">{i.status}</div></div></Card>))}
             </div>
           </TabsContent>
 

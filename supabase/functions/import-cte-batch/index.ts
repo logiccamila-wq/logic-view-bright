@@ -150,8 +150,8 @@ serve(async (req) => {
           continue
         }
 
-        // Inserir CT-e com status autorizado para trigger criar conta a receber
-        const { error: insertError } = await supabaseClient
+        // Inserir CT-e com status autorizado
+        const { data: cteInsertedBatch, error: insertError } = await supabaseClient
           .from('cte')
           .insert([{
             numero_cte: cteData.numero_cte,
@@ -161,7 +161,7 @@ serve(async (req) => {
             chave_acesso: cteData.chave_acesso,
             data_emissao: cteData.data_emissao,
             data_vencimento: cteData.data_vencimento,
-            status: 'autorizado', // Status autorizado para trigger criar conta a receber
+            status: 'autorizado', 
             remetente_nome: cteData.remetente_nome,
             remetente_cnpj: cteData.remetente_cnpj,
             remetente_endereco: cteData.remetente_endereco,
@@ -192,6 +192,8 @@ serve(async (req) => {
             modal: cteData.modal,
             created_by: user.id
           }])
+          .select()
+          .single()
 
         if (insertError) {
           console.error('Erro ao inserir CT-e:', insertError)
@@ -200,6 +202,26 @@ serve(async (req) => {
             error: insertError.message
           })
           continue
+        }
+
+        // Gerar Financeiro (Conta a Receber)
+        if (cteInsertedBatch) {
+          try {
+            const vencimentoCR = cteData.data_vencimento || new Date(Date.now() + 30*24*60*60*1000).toISOString();
+            await supabaseClient
+              .from('contas_receber')
+              .insert({
+                descricao: `CT-e ${cteData.numero_cte} - ${cteData.produto_predominante}`,
+                cliente: cteData.tomador_nome,
+                valor: cteData.valor_total,
+                data_vencimento: vencimentoCR,
+                status: 'pendente',
+                observacoes: `Importado em lote. Origem: ${cteData.remetente_cidade} -> Destino: ${cteData.destinatario_cidade}`,
+                cte_id: cteInsertedBatch.id
+              });
+          } catch (finErr) {
+            console.error('Erro ao gerar financeiro no batch:', finErr);
+          }
         }
 
         results.success.push(cteData.numero_cte)

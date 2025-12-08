@@ -8,6 +8,7 @@ import { Receipt } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { VehicleSelect } from "@/components/VehicleSelect";
 
 export function TripExpenseDialog() {
   const { user } = useAuth();
@@ -16,7 +17,8 @@ export function TripExpenseDialog() {
   const [formData, setFormData] = useState({
     tipo: "",
     descricao: "",
-    valor: ""
+    valor: "",
+    plate: ""
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +29,7 @@ export function TripExpenseDialog() {
       // Criar despesa e notificação para aprovação
       const { error } = await supabase.from('contas_pagar').insert({
         fornecedor: 'Motorista',
-        descricao: `${formData.tipo}: ${formData.descricao}`,
+        descricao: `${formData.tipo}: ${formData.descricao} (Veículo: ${formData.plate})`,
         valor: parseFloat(formData.valor),
         data_vencimento: new Date().toISOString(),
         status: 'pendente',
@@ -41,14 +43,14 @@ export function TripExpenseDialog() {
       await supabase.from('notifications').insert({
         user_id: user?.id,
         title: 'Solicitação de Despesa',
-        message: `Motorista solicitou aprovação de despesa: ${formData.tipo} - R$ ${formData.valor}`,
+        message: `Motorista solicitou aprovação de despesa: ${formData.tipo} - R$ ${formData.valor} - Veículo ${formData.plate}`,
         type: 'warning',
         module: 'driver'
       });
 
       toast.success("Despesa enviada para aprovação!");
       setOpen(false);
-      setFormData({ tipo: "", descricao: "", valor: "" });
+      setFormData({ tipo: "", descricao: "", valor: "", plate: "" });
     } catch (error) {
       console.error(error);
       toast.error("Erro ao registrar despesa");
@@ -70,6 +72,14 @@ export function TripExpenseDialog() {
           <DialogTitle>Lançamento de Despesas de Viagem</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label>Veículo</Label>
+            <VehicleSelect
+              value={formData.plate}
+              onChange={(v) => setFormData({ ...formData, plate: v })}
+              placeholder="Selecione o Veículo"
+            />
+          </div>
           <div>
             <Label>Tipo de Despesa</Label>
             <Select value={formData.tipo} onValueChange={(v) => setFormData({...formData, tipo: v})}>

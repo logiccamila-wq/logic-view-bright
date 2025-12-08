@@ -377,7 +377,7 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
                 <Label>Placa</Label>
                 <VehicleSelect
                   value={formData.placa_veiculo}
-                  onChange={(e) => setFormData({ ...formData, placa_veiculo: e.target.value })}
+                  onChange={(value) => setFormData({ ...formData, placa_veiculo: value })}
                 />
               </div>
               <div>
