@@ -4,7 +4,6 @@ import {
   Truck, 
   Package, 
   Users, 
-  Settings, 
   Wrench, 
   BarChart3, 
   Shield, 
@@ -13,7 +12,6 @@ import {
   Leaf, 
   Wifi,
   ShoppingBag,
-  LogOut,
   Menu,
   Zap
 } from "lucide-react";
@@ -21,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   className?: string;
@@ -29,17 +28,18 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const { canAccessModule } = useAuth();
 
   const menuItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, module: "dashboard" },
     { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
-    { href: "/tms", label: "TMS", icon: Truck },
-    { href: "/erp", label: "ERP", icon: BarChart3 },
-    { href: "/wms", label: "WMS", icon: Package },
-    { href: "/crm", label: "CRM", icon: Users },
-    { href: "/oms", label: "OMS", icon: Activity },
-    { href: "/driver", label: "Motorista", icon: Truck },
-    { href: "/mechanic", label: "Mecânico", icon: Wrench },
+    { href: "/tms", label: "TMS", icon: Truck, module: "tms" },
+    { href: "/erp", label: "ERP", icon: BarChart3, module: "erp" },
+    { href: "/wms", label: "WMS", icon: Package, module: "wms" },
+    { href: "/crm", label: "CRM", icon: Users, module: "crm" },
+    { href: "/oms", label: "OMS", icon: Activity, module: "oms" },
+    { href: "/driver", label: "Motorista", icon: Truck, module: "driver" },
+    { href: "/mechanic", label: "Mecânico", icon: Wrench, module: "mechanic" },
     { href: "/supergestor", label: "Supergestor", icon: BarChart3 },
     { href: "/gate", label: "Portaria", icon: Shield },
     { href: "/predictive-maintenance", label: "Manutenção Preditiva", icon: Activity },
@@ -47,6 +47,8 @@ export function Sidebar({ className }: SidebarProps) {
     { href: "/esg", label: "ESG", icon: Leaf },
     { href: "/iot", label: "IoT", icon: Wifi },
   ];
+
+  const visibleItems = menuItems.filter((item) => !item.module || canAccessModule(item.module));
 
   return (
     <div className={cn("pb-12 border-r bg-background h-screen sticky top-0 transition-all duration-300", collapsed ? "w-16" : "w-64", className)}>
@@ -65,7 +67,7 @@ export function Sidebar({ className }: SidebarProps) {
           </div>
           <ScrollArea className="h-[calc(100vh-8rem)] px-1">
             <div className="space-y-1">
-              {menuItems.map((item) => (
+              {visibleItems.map((item) => (
                 <Link
                   key={item.href}
                   to={item.href}

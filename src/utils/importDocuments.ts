@@ -14,6 +14,11 @@ interface VehicleData {
   noiseExpiry?: string;
   chemicalExpiry?: string;
   cnhExpiry?: string;
+  epiExpiry?: string;
+  trainingIssue?: string;
+  trainingExpiry?: string;
+  emergencyKitLast?: string;
+  emergencyKitNext?: string;
 }
 
 interface DocumentPreview {
@@ -130,28 +135,28 @@ function validateDocumentDate(dateStr: string | undefined, documentType: string)
 
 export const vehiclesData: VehicleData[] = [
   // Trucks e CMs
-  { plate: 'FYB-2J16', anttExpiry: '10/31/2025', crlvExpiry: '10/31/2025', civExpiry: '10/05/2029', cippExpiry: '10/05/2029', tacografExpiry: '01/03/2027', extinguisherExpiry: '06/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '10/24/2025', noiseExpiry: '10/24/2025', chemicalExpiry: '10/24/2025' },
-  { plate: 'FYB-0F07', anttExpiry: '10/31/2025', crlvExpiry: '10/31/2025', civExpiry: '10/05/2029', cippExpiry: '10/05/2029', tacografExpiry: '01/03/2027', extinguisherExpiry: '06/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '10/24/2025', noiseExpiry: '10/24/2025', chemicalExpiry: '10/24/2025' },
-  { plate: 'PFB-2A13', anttExpiry: '09/06/2026', crlvExpiry: '2025', civExpiry: '04/17/2025', cippExpiry: '05/07/2025', tacografExpiry: '02/05/2027', extinguisherExpiry: '06/01/2029', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '04/17/2025', noiseExpiry: '04/17/2025' },
-  { plate: 'RCP-3F78', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '06/12/2025', cippExpiry: '06/12/2025', tacografExpiry: '06/10/2026', extinguisherExpiry: '06/01/2025', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '06/12/2025', noiseExpiry: '06/12/2025' },
-  { plate: 'PES-6F45', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '09/07/2025', tacografExpiry: '02/16/2027', extinguisherExpiry: '12/31/2024', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '03/23/2025', noiseExpiry: '03/23/2025' },
-  { plate: 'QQN-8J78', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '07/22/2025', tacografExpiry: '07/20/2025', extinguisherExpiry: '01/30/2025', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '07/22/2025', noiseExpiry: '07/22/2025' },
-  { plate: 'SNO-6F99', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '12/04/2025', tacografExpiry: '09/12/2025', extinguisherExpiry: '06/30/2028', ctfExpiry: '11/11/2025', aatippExpiry: '11/11/2025', opacityExpiry: '12/04/2025', noiseExpiry: '12/04/2025' },
-  { plate: 'QIZ-3E10', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '02/25/2026', tacografExpiry: '03/11/2026', extinguisherExpiry: '12/31/2027', ctfExpiry: '11/05/2025', aatippExpiry: '12/08/2025', opacityExpiry: '02/25/2026', noiseExpiry: '02/25/2026' },
-  { plate: 'SOC-0G05', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '06/11/2026', tacografExpiry: '07/01/2026', extinguisherExpiry: '06/30/2029', ctfExpiry: '11/11/2025', aatippExpiry: '12/08/2025', opacityExpiry: '06/11/2026', noiseExpiry: '06/11/2026' },
-  { plate: 'EGJ-4B71', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '12/09/2025', cippExpiry: '12/09/2025', tacografExpiry: '02/11/2027', extinguisherExpiry: '06/30/2027', ctfExpiry: '11/11/2025', aatippExpiry: '12/08/2025', opacityExpiry: '12/09/2025', noiseExpiry: '12/09/2025' },
+  { plate: 'FYB-2J16', anttExpiry: '10/31/2025', crlvExpiry: '10/31/2025', civExpiry: '10/05/2029', cippExpiry: '10/05/2029', tacografExpiry: '01/03/2027', extinguisherExpiry: '06/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '10/24/2025', noiseExpiry: '10/24/2025', chemicalExpiry: '10/24/2025', epiExpiry: '12/31/2025', trainingIssue: '08/15/2024', trainingExpiry: '08/15/2026', emergencyKitLast: '11/01/2024', emergencyKitNext: '11/01/2025' },
+  { plate: 'FYB-0F07', anttExpiry: '10/31/2025', crlvExpiry: '10/31/2025', civExpiry: '10/05/2029', cippExpiry: '10/05/2029', tacografExpiry: '01/03/2027', extinguisherExpiry: '06/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '10/24/2025', noiseExpiry: '10/24/2025', chemicalExpiry: '10/24/2025', epiExpiry: '12/31/2025', trainingIssue: '07/10/2023', trainingExpiry: '07/10/2025', emergencyKitLast: '10/01/2024', emergencyKitNext: '10/01/2025' },
+  { plate: 'PFB-2A13', anttExpiry: '09/06/2026', crlvExpiry: '2025', civExpiry: '04/17/2025', cippExpiry: '05/07/2025', tacografExpiry: '02/05/2027', extinguisherExpiry: '06/01/2029', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '04/17/2025', noiseExpiry: '04/17/2025', epiExpiry: '12/31/2025', trainingIssue: '03/15/2024', trainingExpiry: '03/15/2026', emergencyKitLast: '10/01/2024', emergencyKitNext: '10/01/2025' },
+  { plate: 'RCP-3F78', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '06/12/2025', cippExpiry: '06/12/2025', tacografExpiry: '06/10/2026', extinguisherExpiry: '06/01/2025', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '06/12/2025', noiseExpiry: '06/12/2025', epiExpiry: '12/31/2025', trainingIssue: '07/22/2023', trainingExpiry: '07/22/2025', emergencyKitLast: '08/01/2024', emergencyKitNext: '08/01/2025' },
+  { plate: 'PES-6F45', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '09/07/2025', tacografExpiry: '02/16/2027', extinguisherExpiry: '12/31/2024', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '03/23/2025', noiseExpiry: '03/23/2025', epiExpiry: '12/31/2025', trainingIssue: '09/01/2023', trainingExpiry: '09/01/2025', emergencyKitLast: '07/15/2024', emergencyKitNext: '07/15/2025' },
+  { plate: 'QQN-8J78', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '07/22/2025', tacografExpiry: '07/20/2025', extinguisherExpiry: '01/30/2025', ctfExpiry: '05/07/2025', aatippExpiry: '04/14/2025', opacityExpiry: '07/22/2025', noiseExpiry: '07/22/2025', epiExpiry: '01/31/2026', trainingIssue: '06/10/2024', trainingExpiry: '06/10/2026', emergencyKitLast: '10/01/2024', emergencyKitNext: '10/01/2025' },
+  { plate: 'SNO-6F99', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '12/04/2025', tacografExpiry: '09/12/2025', extinguisherExpiry: '06/30/2028', ctfExpiry: '11/11/2025', aatippExpiry: '11/11/2025', opacityExpiry: '12/04/2025', noiseExpiry: '12/04/2025', epiExpiry: '12/31/2026', trainingIssue: '12/01/2024', trainingExpiry: '12/01/2026', emergencyKitLast: '06/15/2024', emergencyKitNext: '06/15/2025' },
+  { plate: 'QIZ-3E10', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '02/25/2026', tacografExpiry: '03/11/2026', extinguisherExpiry: '12/31/2027', ctfExpiry: '11/05/2025', aatippExpiry: '12/08/2025', opacityExpiry: '02/25/2026', noiseExpiry: '02/25/2026', epiExpiry: '11/30/2025', trainingIssue: '10/10/2024', trainingExpiry: '10/10/2026', emergencyKitLast: '11/30/2024', emergencyKitNext: '11/30/2025' },
+  { plate: 'SOC-0G05', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '06/11/2026', tacografExpiry: '07/01/2026', extinguisherExpiry: '06/30/2029', ctfExpiry: '11/11/2025', aatippExpiry: '12/08/2025', opacityExpiry: '06/11/2026', noiseExpiry: '06/11/2026', epiExpiry: '12/31/2026', trainingIssue: '06/05/2024', trainingExpiry: '06/05/2026', emergencyKitLast: '06/15/2024', emergencyKitNext: '06/15/2025' },
+  { plate: 'EGJ-4B71', anttExpiry: '05/31/2025', crlvExpiry: '2025', civExpiry: '12/09/2025', cippExpiry: '12/09/2025', tacografExpiry: '02/11/2027', extinguisherExpiry: '06/30/2027', ctfExpiry: '11/11/2025', aatippExpiry: '12/08/2025', opacityExpiry: '12/09/2025', noiseExpiry: '12/09/2025', epiExpiry: '12/31/2026', trainingIssue: '12/01/2024', trainingExpiry: '12/01/2026', emergencyKitLast: '12/10/2024', emergencyKitNext: '12/10/2025' },
   
   // Carretas
-  { plate: 'IFW-4A83', anttExpiry: '02/28/2025', crlvExpiry: '02/29/2025', civExpiry: '03/24/2029', cippExpiry: '03/24/2029', tacografExpiry: '03/28/2027', extinguisherExpiry: '08/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '08/07/2025', noiseExpiry: '08/07/2025', chemicalExpiry: '08/07/2025', cnhExpiry: '02/25/2027' },
-  { plate: 'GXQ-5738', anttExpiry: '05/31/2025', crlvExpiry: '05/31/2025', civExpiry: '05/27/2025', cippExpiry: '05/27/2025', tacografExpiry: '06/03/2027', extinguisherExpiry: '11/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '11/11/2025', noiseExpiry: '11/11/2025', chemicalExpiry: '11/11/2025', cnhExpiry: '03/04/2027' },
-  { plate: 'SID-7730', anttExpiry: '08/31/2025', crlvExpiry: '08/31/2025', civExpiry: '08/01/2027', cippExpiry: '08/01/2027', tacografExpiry: '08/27/2026', extinguisherExpiry: '02/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '02/13/2026', noiseExpiry: '02/13/2026', chemicalExpiry: '02/13/2026', cnhExpiry: '09/23/2029' },
-  { plate: 'IEO-0I34', anttExpiry: '11/30/2025', crlvExpiry: '11/30/2025', civExpiry: '11/12/2029', cippExpiry: '11/12/2029', tacografExpiry: '11/14/2026', extinguisherExpiry: '05/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '05/19/2026', noiseExpiry: '05/19/2026', chemicalExpiry: '05/19/2026', cnhExpiry: '08/16/2027' },
-  { plate: 'RLO-8I70', anttExpiry: '02/28/2026', crlvExpiry: '02/28/2026', civExpiry: '02/10/2028', cippExpiry: '02/10/2028', tacografExpiry: '02/12/2027', extinguisherExpiry: '08/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '08/13/2026', noiseExpiry: '08/13/2026', chemicalExpiry: '08/13/2026', cnhExpiry: '05/22/2030' },
-  { plate: 'RZY-7A41', anttExpiry: '05/31/2026', crlvExpiry: '05/31/2026', civExpiry: '05/20/2028', cippExpiry: '05/20/2028', tacografExpiry: '05/21/2027', extinguisherExpiry: '11/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '11/14/2026', noiseExpiry: '11/14/2026', chemicalExpiry: '11/14/2026', cnhExpiry: '07/09/2027' },
-  { plate: 'SBN-7A97', anttExpiry: '08/31/2026', crlvExpiry: '08/31/2026', civExpiry: '08/23/2028', cippExpiry: '08/23/2028', tacografExpiry: '08/24/2027', extinguisherExpiry: '02/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '02/16/2027', noiseExpiry: '02/16/2027', chemicalExpiry: '02/16/2027', cnhExpiry: '12/08/2027' },
-  { plate: 'SKT-5H25', anttExpiry: '11/30/2026', crlvExpiry: '11/30/2026', civExpiry: '11/25/2028', cippExpiry: '11/25/2028', tacografExpiry: '11/27/2027', extinguisherExpiry: '05/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '05/20/2027', noiseExpiry: '05/20/2027', chemicalExpiry: '05/20/2027', cnhExpiry: '03/15/2028' },
-  { plate: 'RWV-4H15', anttExpiry: '02/28/2027', crlvExpiry: '02/28/2027', civExpiry: '02/16/2029', cippExpiry: '02/16/2029', tacografExpiry: '02/18/2028', extinguisherExpiry: '08/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '08/22/2027', noiseExpiry: '08/22/2027', chemicalExpiry: '08/22/2027', cnhExpiry: '06/20/2028' },
-  { plate: 'RVN-6G05', anttExpiry: '05/31/2027', crlvExpiry: '05/31/2027', civExpiry: '05/19/2029', cippExpiry: '05/19/2029', tacografExpiry: '05/21/2028', extinguisherExpiry: '11/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '11/23/2027', noiseExpiry: '11/23/2027', chemicalExpiry: '11/23/2027', cnhExpiry: '09/25/2028' },
+  { plate: 'IFW-4A83', anttExpiry: '02/28/2025', crlvExpiry: '02/29/2025', civExpiry: '03/24/2029', cippExpiry: '03/24/2029', tacografExpiry: '03/28/2027', extinguisherExpiry: '08/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '08/07/2025', noiseExpiry: '08/07/2025', chemicalExpiry: '08/07/2025', cnhExpiry: '02/25/2027', epiExpiry: '01/31/2026', trainingIssue: '02/15/2024', trainingExpiry: '02/15/2026', emergencyKitLast: '08/15/2024', emergencyKitNext: '08/15/2025' },
+  { plate: 'GXQ-5738', anttExpiry: '05/31/2025', crlvExpiry: '05/31/2025', civExpiry: '05/27/2025', cippExpiry: '05/27/2025', tacografExpiry: '06/03/2027', extinguisherExpiry: '11/01/2025', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '11/11/2025', noiseExpiry: '11/11/2025', chemicalExpiry: '11/11/2025', cnhExpiry: '03/04/2027', epiExpiry: '11/30/2025', trainingIssue: '03/10/2024', trainingExpiry: '03/10/2026', emergencyKitLast: '11/11/2024', emergencyKitNext: '11/11/2025' },
+  { plate: 'SID-7730', anttExpiry: '08/31/2025', crlvExpiry: '08/31/2025', civExpiry: '08/01/2027', cippExpiry: '08/01/2027', tacografExpiry: '08/27/2026', extinguisherExpiry: '02/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '02/13/2026', noiseExpiry: '02/13/2026', chemicalExpiry: '02/13/2026', cnhExpiry: '09/23/2029', epiExpiry: '02/01/2026', trainingIssue: '08/15/2024', trainingExpiry: '08/15/2026', emergencyKitLast: '02/13/2025', emergencyKitNext: '02/13/2026' },
+  { plate: 'IEO-0I34', anttExpiry: '11/30/2025', crlvExpiry: '11/30/2025', civExpiry: '11/12/2029', cippExpiry: '11/12/2029', tacografExpiry: '11/14/2026', extinguisherExpiry: '05/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '05/19/2026', noiseExpiry: '05/19/2026', chemicalExpiry: '05/19/2026', cnhExpiry: '08/16/2027', epiExpiry: '05/01/2026', trainingIssue: '11/12/2024', trainingExpiry: '11/12/2026', emergencyKitLast: '05/19/2025', emergencyKitNext: '05/19/2026' },
+  { plate: 'RLO-8I70', anttExpiry: '02/28/2026', crlvExpiry: '02/28/2026', civExpiry: '02/10/2028', cippExpiry: '02/10/2028', tacografExpiry: '02/12/2027', extinguisherExpiry: '08/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '08/13/2026', noiseExpiry: '08/13/2026', chemicalExpiry: '08/13/2026', cnhExpiry: '05/22/2030', epiExpiry: '08/01/2026', trainingIssue: '02/10/2025', trainingExpiry: '02/10/2027', emergencyKitLast: '08/13/2025', emergencyKitNext: '08/13/2026' },
+  { plate: 'RZY-7A41', anttExpiry: '05/31/2026', crlvExpiry: '05/31/2026', civExpiry: '05/20/2028', cippExpiry: '05/20/2028', tacografExpiry: '05/21/2027', extinguisherExpiry: '11/01/2026', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '11/14/2026', noiseExpiry: '11/14/2026', chemicalExpiry: '11/14/2026', cnhExpiry: '07/09/2027', epiExpiry: '11/01/2026', trainingIssue: '05/20/2024', trainingExpiry: '05/20/2026', emergencyKitLast: '11/14/2025', emergencyKitNext: '11/14/2026' },
+  { plate: 'SBN-7A97', anttExpiry: '08/31/2026', crlvExpiry: '08/31/2026', civExpiry: '08/23/2028', cippExpiry: '08/23/2028', tacografExpiry: '08/24/2027', extinguisherExpiry: '02/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '02/16/2027', noiseExpiry: '02/16/2027', chemicalExpiry: '02/16/2027', cnhExpiry: '12/08/2027', epiExpiry: '02/01/2027', trainingIssue: '08/23/2024', trainingExpiry: '08/23/2026', emergencyKitLast: '02/16/2026', emergencyKitNext: '02/16/2027' },
+  { plate: 'SKT-5H25', anttExpiry: '11/30/2026', crlvExpiry: '11/30/2026', civExpiry: '11/25/2028', cippExpiry: '11/25/2028', tacografExpiry: '11/27/2027', extinguisherExpiry: '05/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '05/20/2027', noiseExpiry: '05/20/2027', chemicalExpiry: '05/20/2027', cnhExpiry: '03/15/2028', epiExpiry: '05/01/2027', trainingIssue: '11/25/2024', trainingExpiry: '11/25/2026', emergencyKitLast: '05/20/2026', emergencyKitNext: '05/20/2027' },
+  { plate: 'RWV-4H15', anttExpiry: '02/28/2027', crlvExpiry: '02/28/2027', civExpiry: '02/16/2029', cippExpiry: '02/16/2029', tacografExpiry: '02/18/2028', extinguisherExpiry: '08/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '08/22/2027', noiseExpiry: '08/22/2027', chemicalExpiry: '08/22/2027', cnhExpiry: '06/20/2028', epiExpiry: '08/01/2027', trainingIssue: '02/16/2025', trainingExpiry: '02/16/2027', emergencyKitLast: '08/22/2026', emergencyKitNext: '08/22/2027' },
+  { plate: 'RVN-6G05', anttExpiry: '05/31/2027', crlvExpiry: '05/31/2027', civExpiry: '05/19/2029', cippExpiry: '05/19/2029', tacografExpiry: '05/21/2028', extinguisherExpiry: '11/01/2027', ctfExpiry: '03/31/2025', aatippExpiry: '12/31/2024', opacityExpiry: '11/23/2027', noiseExpiry: '11/23/2027', chemicalExpiry: '11/23/2027', cnhExpiry: '09/25/2028', epiExpiry: '11/01/2027', trainingIssue: '05/19/2025', trainingExpiry: '05/19/2027', emergencyKitLast: '11/23/2026', emergencyKitNext: '11/23/2027' },
 ];
 
 export async function previewImport(): Promise<PreviewResult> {
@@ -162,7 +167,7 @@ export async function previewImport(): Promise<PreviewResult> {
   for (const vehicle of vehiclesData) {
     const vehicleWarnings: string[] = [];
 
-    const documentTypes = [
+    const documentTypes: { type: string; date?: string; issueDate?: string }[] = [
       { type: 'ANTT', date: vehicle.anttExpiry },
       { type: 'CRLV', date: vehicle.crlvExpiry },
       { type: 'CIV', date: vehicle.civExpiry },
@@ -175,9 +180,12 @@ export async function previewImport(): Promise<PreviewResult> {
       { type: 'Ruído', date: vehicle.noiseExpiry },
       { type: 'Químicos', date: vehicle.chemicalExpiry },
       { type: 'CNH', date: vehicle.cnhExpiry },
+      { type: 'EPI', date: vehicle.epiExpiry },
+      { type: 'Treinamentos', date: vehicle.trainingExpiry, issueDate: vehicle.trainingIssue },
+      { type: 'Kit de Emergências', date: vehicle.emergencyKitNext, issueDate: vehicle.emergencyKitLast },
     ];
 
-    for (const { type, date } of documentTypes) {
+    for (const { type, date, issueDate } of documentTypes) {
       const validation = validateDocumentDate(date, type);
       vehicleWarnings.push(...validation.warnings);
 
@@ -193,6 +201,13 @@ export async function previewImport(): Promise<PreviewResult> {
           warnings: validation.warnings,
         });
         totalDocuments++;
+      }
+
+      if (issueDate && issueDate !== 'NA') {
+        const parsedIssue = parseDate(issueDate);
+        if (!parsedIssue) {
+          vehicleWarnings.push(`${type}: data de emissão inválida (${issueDate})`);
+        }
       }
     }
 
@@ -225,35 +240,44 @@ export async function importDocuments(dryRun: boolean = false): Promise<ImportRe
     try {
       const documents: any[] = [];
 
-      const documentTypes = [
-        { type: 'ANTT', date: vehicle.anttExpiry },
-        { type: 'CRLV', date: vehicle.crlvExpiry },
-        { type: 'CIV', date: vehicle.civExpiry },
-        { type: 'CIPP', date: vehicle.cippExpiry },
-        { type: 'Tacógrafo', date: vehicle.tacografExpiry },
-        { type: 'Extintores', date: vehicle.extinguisherExpiry },
-        { type: 'IBAMA CTF', date: vehicle.ctfExpiry },
-        { type: 'IBAMA AATIPP', date: vehicle.aatippExpiry },
-        { type: 'Opacidade', date: vehicle.opacityExpiry },
-        { type: 'Ruído', date: vehicle.noiseExpiry },
-        { type: 'Químicos', date: vehicle.chemicalExpiry },
-        { type: 'CNH', date: vehicle.cnhExpiry },
-      ];
+    const documentTypes: { type: string; date?: string; issueDate?: string }[] = [
+      { type: 'ANTT', date: vehicle.anttExpiry },
+      { type: 'CRLV', date: vehicle.crlvExpiry },
+      { type: 'CIV', date: vehicle.civExpiry },
+      { type: 'CIPP', date: vehicle.cippExpiry },
+      { type: 'Tacógrafo', date: vehicle.tacografExpiry },
+      { type: 'Extintores', date: vehicle.extinguisherExpiry },
+      { type: 'IBAMA CTF', date: vehicle.ctfExpiry },
+      { type: 'IBAMA AATIPP', date: vehicle.aatippExpiry },
+      { type: 'Opacidade', date: vehicle.opacityExpiry },
+      { type: 'Ruído', date: vehicle.noiseExpiry },
+      { type: 'Químicos', date: vehicle.chemicalExpiry },
+      { type: 'CNH', date: vehicle.cnhExpiry },
+      { type: 'EPI', date: vehicle.epiExpiry },
+      { type: 'Treinamentos', date: vehicle.trainingExpiry, issueDate: vehicle.trainingIssue },
+      { type: 'Kit de Emergências', date: vehicle.emergencyKitNext, issueDate: vehicle.emergencyKitLast },
+    ];
 
-      for (const { type, date } of documentTypes) {
-        if (date && date !== 'NA') {
-          const expiryDate = parseDate(date);
-          if (expiryDate) {
-            documents.push({
-              vehicle_plate: vehicle.plate,
-              document_type: type,
-              expiry_date: expiryDate,
-              status: getDocumentStatus(expiryDate),
-              created_by: user.id
-            });
+    for (const { type, date, issueDate } of documentTypes) {
+      if (date && date !== 'NA') {
+        const expiryDate = parseDate(date);
+        if (expiryDate) {
+          documents.push({
+            vehicle_plate: vehicle.plate,
+            document_type: LABEL_TO_TOKEN[type] || type,
+            expiry_date: expiryDate,
+            status: getDocumentStatus(expiryDate),
+            created_by: user.id
+          });
+          if (LABEL_TO_TOKEN[type] === 'training' || LABEL_TO_TOKEN[type] === 'emergency_kit') {
+            const last = issueDate ? parseDate(issueDate) : null;
+            const extra: any = {};
+            if (last) extra.issue_date = last;
+            Object.assign(documents[documents.length - 1], extra);
           }
         }
       }
+    }
 
       if (documents.length > 0 && !dryRun) {
         console.log(`Importando ${documents.length} documentos para veículo ${vehicle.plate}`);
@@ -287,3 +311,20 @@ export async function importDocuments(dryRun: boolean = false): Promise<ImportRe
 
   return { imported, errors, total: vehiclesData.length, errorDetails };
 }
+const LABEL_TO_TOKEN: Record<string, string> = {
+  'ANTT': 'antt',
+  'CRLV': 'crlv',
+  'CIV': 'civ',
+  'CIPP': 'cipp',
+  'Tacógrafo': 'tachograph',
+  'Extintores': 'fire_extinguisher',
+  'IBAMA CTF': 'ibama_ctf',
+  'IBAMA AATIPP': 'ibama_aatipp',
+  'Opacidade': 'opacity_test',
+  'Ruído': 'noise_test',
+  'Químicos': 'chemical',
+  'CNH': 'cnh',
+  'EPI': 'epi',
+  'Treinamentos': 'training',
+  'Kit de Emergências': 'emergency_kit',
+};

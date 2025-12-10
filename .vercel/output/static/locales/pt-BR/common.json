@@ -141,5 +141,145 @@
   "settingsSaved": "Configurações Salvas com Sucesso",
   "settingsError": "Erro ao Salvar Configurações",
   "changesApplied": "Alterações Aplicadas",
-  "changesDiscarded": "Alterações Descartadas"
+  "changesDiscarded": "Alterações Descartadas",
+  "marketplace": {
+    "title": "Mercado de Módulos",
+    "subtitle": "Expanda as capacidades do seu sistema com módulos especializados",
+    "searchPlaceholder": "Buscar módulos...",
+    "categories": {
+      "all": "Todos",
+      "core": "Principal",
+      "logistics": "Logística",
+      "operations": "Operações",
+      "mobile": "Mobile",
+      "business": "Negócios",
+      "maintenance": "Manutenção",
+      "advanced": "Avançado"
+    },
+    "status": {
+      "installed": "Instalado",
+      "trial": "Avaliação",
+      "comingSoon": "Em Breve",
+      "available": "Disponível"
+    },
+    "price": {
+      "installed": "Instalado",
+      "comingSoon": "Em Breve",
+      "free": "Grátis",
+      "perMonth": "/mês"
+    },
+    "actions": {
+      "install": "Instalar",
+      "installed": "Instalado",
+      "startTrial": "Testar",
+      "comingSoon": "Em Breve",
+      "open": "Abrir"
+    },
+    "popular": "Popular",
+    "empty": {
+      "title": "Nenhum módulo encontrado",
+      "description": "Tente ajustar sua busca ou filtros"
+    }
+  },
+  "modules": {
+    "dashboard": {
+      "name": "Dashboard OptiLog",
+      "description": "Visão geral operacional e KPIs",
+      "features": {
+        "realTimeAnalytics": "Análise em tempo real",
+        "customizableWidgets": "Widgets personalizáveis",
+        "mobileResponsive": "Responsivo para mobile"
+      }
+    },
+    "tms": {
+      "name": "TMS",
+      "description": "Gestão de transporte e entregas",
+      "features": {
+        "routeOptimization": "Otimização de rotas",
+        "fleetManagement": "Gestão de frota",
+        "realTimeTracking": "Rastreamento em tempo real"
+      }
+    },
+    "wms": {
+      "name": "WMS",
+      "description": "Sistema de gestão de armazém",
+      "features": {
+        "inventoryControl": "Controle de estoque",
+        "automatedPicking": "Separação automatizada",
+        "spaceOptimization": "Otimização de espaço"
+      }
+    },
+    "oms": {
+      "name": "OMS",
+      "description": "Sistema de gestão de pedidos",
+      "features": {
+        "orderProcessing": "Processamento de pedidos",
+        "multiChannel": "Multicanal",
+        "customerPortal": "Portal do cliente"
+      }
+    },
+    "mechanicHub": {
+      "name": "Hub Mecânico",
+      "description": "Gestão de manutenção e oficina",
+      "features": {
+        "maintenanceScheduling": "Agendamento de manutenção",
+        "partsInventory": "Inventário de peças",
+        "serviceHistory": "Histórico de serviços"
+      }
+    },
+    "driverApp": {
+      "name": "App Motorista",
+      "description": "Aplicativo para condutores",
+      "features": {
+        "gpsNavigation": "Navegação GPS",
+        "proofDelivery": "Comprovante de entrega",
+        "communication": "Comunicação"
+      }
+    },
+    "controlTower": {
+      "name": "Torre de Controle",
+      "description": "Monitoramento centralizado",
+      "features": {
+        "realTimeMonitoring": "Monitoramento em tempo real",
+        "alertManagement": "Gestão de alertas",
+        "incidentResponse": "Resposta a incidentes"
+      }
+    },
+    "crm": {
+      "name": "CRM",
+      "description": "Gestão de relacionamento com cliente",
+      "features": {
+        "customerManagement": "Gestão de clientes",
+        "salesPipeline": "Pipeline de vendas",
+        "communicationHistory": "Histórico de comunicação"
+      }
+    },
+    "erp": {
+      "name": "ERP",
+      "description": "Planejamento de recursos empresariais",
+      "features": {
+        "financialManagement": "Gestão financeira",
+        "hrManagement": "Recursos humanos",
+        "procurement": "Compras"
+      }
+    },
+    "ai": {
+      "name": "Inteligência Artificial",
+      "description": "Recursos avançados de IA",
+      "features": {
+        "predictiveAnalytics": "Análise preditiva",
+        "routeOptimization": "Otimização de rotas",
+        "demandForecasting": "Previsão de demanda"
+      }
+    },
+    "blockchain": {
+      "name": "Blockchain",
+      "description": "Rastreabilidade segura",
+      "features": {
+        "supplyChainTransparency": "Transparência na cadeia",
+        "secureTransactions": "Transações seguras",
+        "smartContracts": "Contratos inteligentes"
+      }
+    }
+  }
 }

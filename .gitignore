@@ -1,6 +1,4 @@
-# Ambiente
-.env
-.env.local
-.env.*
-bun.lockb
-node_modules
+.env*
+node_modules/
+dist/
+.DS_Store

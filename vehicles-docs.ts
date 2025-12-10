@@ -1,1 +1,1 @@
-Placeholder for /mnt/data/project/A/src/data/vehicles-docs.ts
+export const vehiclesDocsPlaceholder: any[] = [];

@@ -1,40 +1,13 @@
-project_id = "yssqhlogdqdjmqwuvnkv"
+[project]
+ref = "eixkvkst"
+url = "https://eixkvkst.supabase.co"
 
-[functions.get-secret]
-verify_jwt = false
+[functions]
+# Replace the placeholder below with your SUPABASE_SERVICE_ROLE_KEY in your local copy.
+service_role_key = "YOUR_SERVICE_ROLE_KEY_HERE"[project]
+ref = "eixkvkst"
+url = "https://eixkvkst.supabase.co"
 
-[functions.gael-chat]
-verify_jwt = true
-
-[functions.seed-users]
-verify_jwt = true
-
-[functions.seed-drivers]
-verify_jwt = false
-
-[functions.ejg-chatbot]
-verify_jwt = true
-
-[functions.get-neon-metrics]
-verify_jwt = true
-
-[functions.analyze-client]
-verify_jwt = true
-
-[functions.import-cte-brasilnfe]
-verify_jwt = true
-
-[functions.notify-support-ticket]
-verify_jwt = true
-
-[functions.emitir-cte]
-verify_jwt = true
-
-[functions.emitir-mdfe]
-verify_jwt = true
-
-[functions.encerrar-mdfe]
-verify_jwt = true
-
-[functions.consultar-status-cte]
-verify_jwt = true
+[functions]
+# Replace the placeholder below with your SUPABASE_SERVICE_ROLE_KEY in your local copy.
+service_role_key = "YOUR_SERVICE_ROLE_KEY_HERE"

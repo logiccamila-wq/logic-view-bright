@@ -31,13 +31,18 @@ export function useVehicles() {
       if (error) throw error;
       let mapped = (data || [])
         .map(mapVehicle)
-        .filter(v => !!v.plate)
-        .sort((a, b) => a.plate.localeCompare(b.plate));
+        .filter(v => !!v.plate);
+      
+      // Remove duplicates based on plate
+      mapped = [...new Map(mapped.map(item => [item.plate, item])).values()];
+      
+      mapped.sort((a, b) => a.plate.localeCompare(b.plate));
 
       if (mapped.length === 0) {
         // Fallback to demo data if DB is empty
         const demo = demoList('vehicles') || [];
-        const demoMapped = demo.map(mapVehicle);
+        const demoMapped = demo.map(mapVehicle).filter(v => !!v.plate);
+        
         if (demoMapped.length > 0) {
           mapped = demoMapped;
         } else {

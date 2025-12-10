@@ -338,7 +338,7 @@ function parseXML(xmlContent: string): CTEDataFromXML {
     extractValueNs(veicTracao, 'placa') ||
     extractValueNs(xmlContent, 'placa')
   );
-  let ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR';
+  const ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR';
   const placaCarreta = sanitizePlate(extractValueNs(veicReboque, 'placa')) || undefined;
 
   // Fallbacks adicionais: CT-e pode trazer placa dentro de infModal/rodo ou com outras tags

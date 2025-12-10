@@ -1749,6 +1749,10 @@ export type Database = {
           photos: Json | null
           service_order_id: string | null
           status: string
+          odometer_km: number | null
+          authorized_by: string | null
+          entry_at: string | null
+          exit_at: string | null
           updated_at: string | null
           vehicle_plate: string
         }
@@ -1762,6 +1766,10 @@ export type Database = {
           photos?: Json | null
           service_order_id?: string | null
           status?: string
+          odometer_km?: number | null
+          authorized_by?: string | null
+          entry_at?: string | null
+          exit_at?: string | null
           updated_at?: string | null
           vehicle_plate: string
         }
@@ -1775,6 +1783,10 @@ export type Database = {
           photos?: Json | null
           service_order_id?: string | null
           status?: string
+          odometer_km?: number | null
+          authorized_by?: string | null
+          entry_at?: string | null
+          exit_at?: string | null
           updated_at?: string | null
           vehicle_plate?: string
         }
@@ -2399,6 +2411,48 @@ export type Database = {
         }
         Relationships: []
       }
+      gate_events: {
+        Row: {
+          id: string
+          vehicle_plate: string
+          driver_name: string | null
+          direction: string
+          odometer: number | null
+          reason: string | null
+          authorized_by: string | null
+          is_visitor: boolean
+          organization_id: string | null
+          created_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          vehicle_plate: string
+          driver_name?: string | null
+          direction: string
+          odometer?: number | null
+          reason?: string | null
+          authorized_by?: string | null
+          is_visitor?: boolean
+          organization_id?: string | null
+          created_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          vehicle_plate?: string
+          driver_name?: string | null
+          direction?: string
+          odometer?: number | null
+          reason?: string | null
+          authorized_by?: string | null
+          is_visitor?: boolean
+          organization_id?: string | null
+          created_at?: string
+          created_by?: string | null
+        }
+        Relationships: []
+      }
       payment_alerts: {
         Row: {
           alert_type: string
@@ -2581,7 +2635,6 @@ export type Database = {
           codigo: string
           created_at: string
           data_compra: string | null
-          data_instalacao: string | null
           fornecedor: string | null
           id: string
           km_atual: number | null
@@ -2593,6 +2646,9 @@ export type Database = {
           observacoes: string | null
           posicao: string | null
           pressao_recomendada: number | null
+          sulco_inicial_mm: number | null
+          vida_atual: number | null
+          possui_concerto: boolean | null
           profundidade_sulco: number | null
           status: string
           tipo: string
@@ -2605,8 +2661,10 @@ export type Database = {
           codigo: string
           created_at?: string
           data_compra?: string | null
-          data_instalacao?: string | null
           fornecedor?: string | null
+          sulco_inicial_mm?: number | null
+          vida_atual?: number | null
+          possui_concerto?: boolean | null
           id?: string
           km_atual?: number | null
           km_instalacao?: number | null
@@ -2629,7 +2687,6 @@ export type Database = {
           codigo?: string
           created_at?: string
           data_compra?: string | null
-          data_instalacao?: string | null
           fornecedor?: string | null
           id?: string
           km_atual?: number | null
@@ -3626,6 +3683,9 @@ export type Database = {
         | "antt"
         | "opacity_test"
         | "noise_test"
+        | "epi"
+        | "training"
+        | "emergency_kit"
       driver_activity_type:
         | "direcao"
         | "descanso"
@@ -3810,6 +3870,9 @@ export const Constants = {
         "antt",
         "opacity_test",
         "noise_test",
+        "epi",
+        "training",
+        "emergency_kit",
       ],
       driver_activity_type: [
         "direcao",

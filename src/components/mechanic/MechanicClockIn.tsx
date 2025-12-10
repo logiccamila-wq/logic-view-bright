@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, MapPin, CheckCircle, XCircle } from 'lucide-react';
@@ -6,9 +6,10 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-const OFICINA_LAT = -8.272213;
-const OFICINA_LON = -35.028048;
-const RAIO = 120; // metros
+// Distrito Industrial Diper (Cabo de Santo Agostinho - PE)
+const DEFAULT_LAT = -8.2783782;
+const DEFAULT_LON = -35.030952;
+const DEFAULT_RADIUS = 800; // metros
 
 type PunchType = 'entrada' | 'almoco_inicio' | 'almoco_fim' | 'saida';
 
@@ -18,6 +19,8 @@ export function MechanicClockIn() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [lastPunch, setLastPunch] = useState<PunchType | null>(null);
+  const [center, setCenter] = useState<{ lat: number; lon: number }>({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
+  const [radius, setRadius] = useState<number>(DEFAULT_RADIUS);
 
   const calcDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371000; // Earth radius in meters
@@ -31,6 +34,27 @@ export function MechanicClockIn() {
 
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
+
+  // Carrega área de oficina se existir na base (fallback para DIPER)
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from('workshop_area')
+          .select('center_lat, center_lon, radius_meters')
+          .limit(1);
+        if (!error && data && data.length > 0) {
+          const row = data[0];
+          if (typeof row.center_lat === 'number' && typeof row.center_lon === 'number') {
+            setCenter({ lat: row.center_lat, lon: row.center_lon });
+          }
+          if (typeof row.radius_meters === 'number' && row.radius_meters > 0) {
+            setRadius(row.radius_meters);
+          }
+        }
+      } catch {}
+    })();
+  }, []);
 
   const baterPonto = async (type: PunchType) => {
     if (!user) {
@@ -53,13 +77,13 @@ export function MechanicClockIn() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const distancia = calcDistance(latitude, longitude, OFICINA_LAT, OFICINA_LON);
+          const distancia = calcDistance(latitude, longitude, center.lat, center.lon);
 
-          if (distancia > RAIO) {
+          if (distancia > radius) {
             setStatus(`Você está ${distancia.toFixed(1)}m fora da área permitida.`);
             toast({
               title: "Fora da área",
-              description: `Você está ${distancia.toFixed(1)}m distante da oficina. É necessário estar dentro de ${RAIO}m.`,
+              description: `Você está ${distancia.toFixed(1)}m distante da oficina. É necessário estar dentro de ${radius}m.`,
               variant: "destructive"
             });
             setLoading(false);
@@ -160,8 +184,8 @@ export function MechanicClockIn() {
         )}
 
         <div className="text-xs text-muted-foreground">
-          <p>📍 Oficina: Lat {OFICINA_LAT}, Lon {OFICINA_LON}</p>
-          <p>📏 Raio permitido: {RAIO} metros</p>
+          <p>📍 Oficina: Lat {center.lat}, Lon {center.lon}</p>
+          <p>📏 Raio permitido: {radius} metros</p>
           {lastPunch && <p>🕒 Última marcação: {lastPunch.toUpperCase()}</p>}
         </div>
       </CardContent>

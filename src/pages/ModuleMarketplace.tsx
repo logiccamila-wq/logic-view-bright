@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
@@ -270,14 +271,36 @@ const ModuleMarketplace: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleInstall = (moduleId: string) => {
-    // Implement module installation logic
-    console.log(`Installing module: ${moduleId}`);
+  const handleInstall = async (moduleId: string) => {
+    try {
+      const r = await fetch('/api/install-module', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId, clientKey: 'ejg' })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data?.error || 'Falha ao instalar');
+      toast.success(`Módulo instalado: ${moduleId}`);
+      openRouteFor(moduleId);
+    } catch (e: any) {
+      toast.error(e.message || 'Erro ao instalar módulo');
+    }
   };
 
-  const handleTrial = (moduleId: string) => {
-    // Implement trial start logic
-    console.log(`Starting trial for module: ${moduleId}`);
+  const handleTrial = async (moduleId: string) => {
+    try {
+      const r = await fetch('/api/install-module', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId, clientKey: 'ejg' })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data?.error || 'Falha ao iniciar teste');
+      toast.success(`Teste iniciado: ${moduleId}`);
+      openRouteFor(moduleId);
+    } catch (e: any) {
+      toast.error(e.message || 'Erro ao iniciar teste');
+    }
   };
 
   const getStatusBadge = (status: Module['status']) => {
@@ -397,24 +420,31 @@ const ModuleMarketplace: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
               />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {categories.map((category) => (
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                      selectedCategory === category.id
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-surface text-text border-border hover:bg-surface-hover'
+                    }`}
+                  >
+                    {category.icon}
+                    {category.name}
+                  </button>
+                ))}
                 <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-surface text-text border-border hover:bg-surface-hover'
-                  }`}
+                  onClick={() => handleInstall('all')}
+                  className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors font-medium"
                 >
-                  {category.icon}
-                  {category.name}
+                  {t('marketplace.actions.installAll')}
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
+          
         </motion.div>
 
         {/* Modules Grid */}

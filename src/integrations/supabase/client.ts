@@ -5,7 +5,7 @@ import type { Database } from './types';
 const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const rawKeyAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const rawKeyPub = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
-const rawKey = rawKeyAnon ?? rawKeyPub;
+const rawKey = rawKeyPub ?? rawKeyAnon;
 
 // Sanitize and validate envs to prevent common issues (backticks, spaces, placeholders)
 // Also strip accidental surrounding quotes ("..." or '...') in addition to backticks
@@ -58,6 +58,5 @@ try {
       console.warn(`[Supabase] A chave usada tem role '${role}'. Para frontend, use a chave public/anon do projeto.`);
     }
   }
-} catch (e) {
-  // Silently ignore decode errors; only used for diagnostics
+} catch {
 }

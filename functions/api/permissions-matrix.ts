@@ -4,18 +4,33 @@ export const onRequest: PagesFunction = async ({ request, env }) => {
   const serviceKey = (env as any).SUPABASE_SERVICE_ROLE_KEY || "";
   if (!supabaseUrl || !serviceKey) return new Response(JSON.stringify({ error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" }), { status: 500 });
   const h = { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } as Record<string, string>;
-  const [modsRes, profRes, permRes] = await Promise.all([
+
+  const [modsRes, rolesRes, permRes] = await Promise.all([
     fetch(`${supabaseUrl}/rest/v1/modules`, { headers: h }),
-    fetch(`${supabaseUrl}/rest/v1/profiles`, { headers: h }),
+    fetch(`${supabaseUrl}/rest/v1/user_roles?select=role`, { headers: h }),
     fetch(`${supabaseUrl}/rest/v1/permissions`, { headers: h }),
   ]);
-  const modules = modsRes.ok ? await modsRes.json() : [];
-  const profiles = profRes.ok ? await profRes.json() : [];
-  let permissions: any = [];
+
+  const modules = modsRes.ok ? await modsRes.json().catch(()=>[]) : [];
+  const rolesRows = rolesRes.ok ? await rolesRes.json().catch(()=>[]) : [];
+  const roleKeys = Array.from(new Set((rolesRows || []).map((r:any)=>r.role))).filter(Boolean);
+  const profiles = roleKeys.map((key:string)=>({ key, name: key }));
+
+  let permissionsRows: any[] = [];
   if (permRes.ok) {
-    try { permissions = await permRes.json(); } catch { permissions = []; }
+    try { permissionsRows = await permRes.json(); } catch { permissionsRows = []; }
   } else {
-    try { const txt = await permRes.text(); permissions = { warning: "permissions_table_missing", detail: txt }; } catch { permissions = []; }
+    try { const txt = await permRes.text(); permissionsRows = []; } catch { permissionsRows = []; }
   }
-  return new Response(JSON.stringify({ modules, profiles, permissions }), { status: 200 });
+
+  const matrix: Record<string, Record<string, boolean>> = {};
+  for (const row of permissionsRows) {
+    const mk = row.module_key;
+    const pk = row.profile_key;
+    if (!mk || !pk) continue;
+    matrix[mk] = matrix[mk] || {};
+    matrix[mk][pk] = !!row.allowed;
+  }
+
+  return new Response(JSON.stringify({ modules, profiles, matrix }), { status: 200 });
 };

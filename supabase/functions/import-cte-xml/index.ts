@@ -298,7 +298,7 @@ function parseXML(xmlContent: string): CTEDataFromXML {
   const veicReboque = extractSectionNs(xmlContent, 'veicReboque')
   
   let placaVeiculo = sanitizePlate(extractValueNs(veicTracao, 'placa') || extractValueNs(xmlContent, 'placa'))
-  let ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR'
+  const ufVeiculo = extractValueNs(veicTracao, 'UF') || extractValueNs(xmlContent, 'UF') || 'PR'
   const placaCarreta = sanitizePlate(extractValueNs(veicReboque, 'placa'))
 
   console.log('Placas extraídas:', { placaVeiculo, placaCarreta, veicTracao: !!veicTracao, veicReboque: !!veicReboque })

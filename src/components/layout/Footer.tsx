@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Truck, Shield, Zap } from "lucide-react";
+ 
 
 export default function Footer() {
   return (

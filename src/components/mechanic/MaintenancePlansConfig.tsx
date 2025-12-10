@@ -156,7 +156,29 @@ export function MaintenancePlansConfig() {
         { vehicle_type: "truck", plan_item: "Filtros (óleo/ar/combustível)", interval_km: 15000, tolerance_km: 1000, notes: "" },
         { vehicle_type: "truck", plan_item: "Revisão de freios", interval_km: 15000, tolerance_km: 1000, notes: "" },
         { vehicle_type: "truck", plan_item: "Suspensão", interval_km: 25000, tolerance_km: 1500, notes: "" },
-        { vehicle_type: "truck", plan_item: "Alinhamento e balanceamento", interval_km: 15000, tolerance_km: 1000, notes: "" }
+        { vehicle_type: "truck", plan_item: "Alinhamento e balanceamento", interval_km: 15000, tolerance_km: 1000, notes: "" },
+        { vehicle_type: "cavalo", plan_item: "Troca de óleo do motor (Volvo FH)", interval_km: 20000, tolerance_km: 1000, notes: "Volvo FH" },
+        { vehicle_type: "cavalo", plan_item: "Filtro de óleo (Volvo FH)", interval_km: 20000, tolerance_km: 1000, notes: "Volvo FH" },
+        { vehicle_type: "cavalo", plan_item: "Filtro de ar (Volvo FH)", interval_km: 30000, tolerance_km: 1500, notes: "Volvo FH" },
+        { vehicle_type: "cavalo", plan_item: "Revisão de freios (Volvo FH)", interval_km: 30000, tolerance_km: 1500, notes: "Volvo FH" },
+        { vehicle_type: "cavalo", plan_item: "Suspensão e buchas (Volvo FH)", interval_km: 40000, tolerance_km: 1500, notes: "Volvo FH" },
+        { vehicle_type: "cavalo", plan_item: "Troca de óleo do motor (Scania)", interval_km: 25000, tolerance_km: 1000, notes: "Scania" },
+        { vehicle_type: "cavalo", plan_item: "Filtro de óleo (Scania)", interval_km: 25000, tolerance_km: 1000, notes: "Scania" },
+        { vehicle_type: "cavalo", plan_item: "Filtro de ar (Scania)", interval_km: 30000, tolerance_km: 1500, notes: "Scania" },
+        { vehicle_type: "cavalo", plan_item: "Revisão de freios (Scania)", interval_km: 25000, tolerance_km: 1000, notes: "Scania" },
+        { vehicle_type: "cavalo", plan_item: "Troca de óleo do motor (Mercedes)", interval_km: 30000, tolerance_km: 1500, notes: "Mercedes-Benz Actros/Atego" },
+        { vehicle_type: "cavalo", plan_item: "Filtro de óleo (Mercedes)", interval_km: 30000, tolerance_km: 1500, notes: "Mercedes-Benz Actros/Atego" },
+        { vehicle_type: "cavalo", plan_item: "Filtro de ar (Mercedes)", interval_km: 30000, tolerance_km: 1500, notes: "Mercedes-Benz Actros/Atego" },
+        { vehicle_type: "cavalo", plan_item: "Revisão de freios (Mercedes)", interval_km: 30000, tolerance_km: 1500, notes: "Mercedes-Benz Actros/Atego" },
+        { vehicle_type: "cavalo", plan_item: "Troca de óleo do motor (DAF)", interval_km: 30000, tolerance_km: 1500, notes: "DAF XF" },
+        { vehicle_type: "cavalo", plan_item: "Filtros (DAF)", interval_km: 30000, tolerance_km: 1500, notes: "DAF XF" },
+        { vehicle_type: "cavalo", plan_item: "Troca de óleo do motor (Iveco)", interval_km: 20000, tolerance_km: 1000, notes: "Iveco S-Way/Stralis" },
+        { vehicle_type: "cavalo", plan_item: "Filtros (Iveco)", interval_km: 20000, tolerance_km: 1000, notes: "Iveco S-Way/Stralis" },
+        { vehicle_type: "carreta", plan_item: "Revisão de eixos (3 eixos)", interval_km: 30000, tolerance_km: 1500, notes: "Vanderleia" },
+        { vehicle_type: "carreta", plan_item: "Sistema de freios (3 eixos)", interval_km: 20000, tolerance_km: 1000, notes: "Vanderleia" },
+        { vehicle_type: "carreta", plan_item: "Engate e pino do reboque", interval_km: 15000, tolerance_km: 1000, notes: "Vanderleia" },
+        { vehicle_type: "carreta", plan_item: "Conferência estrutural", interval_km: 30000, tolerance_km: 1500, notes: "Inox" },
+        { vehicle_type: "carreta", plan_item: "Conferência estrutural", interval_km: 30000, tolerance_km: 1500, notes: "Fibra" }
       ];
 
       const { error } = await (supabase as any)

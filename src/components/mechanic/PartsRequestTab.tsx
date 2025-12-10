@@ -21,13 +21,15 @@ interface Part {
 }
 
 export function PartsRequestTab() {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const queryClient = useQueryClient();
   const [parts, setParts] = useState<Part[]>([]);
   const [newPart, setNewPart] = useState({ name: "", quantity: 1, unit: "unidade" });
   const [vehiclePlate, setVehiclePlate] = useState("");
   const [urgency, setUrgency] = useState("normal");
   const [notes, setNotes] = useState("");
+
+  const isManager = hasRole('admin') || hasRole('maintenance_manager') || hasRole('logistics_manager');
 
   const { data: requests = [], isLoading } = useQuery({
     queryKey: ["parts-requests"],
@@ -37,9 +39,36 @@ export function PartsRequestTab() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // Fail gracefully if table doesn't exist yet
+        if (error.code === 'PGRST205') return [];
+        throw error;
+      }
       return data;
     },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status, reason }: { id: string, status: string, reason?: string }) => {
+      const { error } = await supabase
+        .from("parts_requests")
+        .update({ 
+          status, 
+          approved_by: status === 'aprovado' ? user?.id : null,
+          approved_at: status === 'aprovado' ? new Date().toISOString() : null,
+          rejection_reason: reason 
+        })
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Status atualizado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["parts-requests"] });
+    },
+    onError: (error: Error) => {
+      toast.error("Erro ao atualizar status: " + error.message);
+    }
   });
 
   const createRequest = useMutation({
@@ -307,6 +336,30 @@ export function PartsRequestTab() {
                     {request.notes && (
                       <div className="mt-3 pt-3 border-t">
                         <p className="text-sm text-muted-foreground">{request.notes}</p>
+                      </div>
+                    )}
+
+                    {isManager && request.status === 'pendente' && (
+                      <div className="flex gap-2 mt-4 pt-3 border-t justify-end">
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          onClick={() => {
+                            const reason = prompt("Motivo da rejeição:");
+                            if (reason) updateStatus.mutate({ id: request.id, status: 'rejeitado', reason });
+                          }}
+                          disabled={updateStatus.isPending}
+                        >
+                          Rejeitar
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => updateStatus.mutate({ id: request.id, status: 'aprovado' })}
+                          disabled={updateStatus.isPending}
+                        >
+                          Aprovar
+                        </Button>
                       </div>
                     )}
                   </CardContent>

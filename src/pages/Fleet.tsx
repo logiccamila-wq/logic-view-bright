@@ -19,18 +19,12 @@ import { TireApprovals } from "@/components/fleet/TireApprovals";
 import { ProcessActions } from "@/components/fleet/ProcessActions";
 import { NonConformities } from "@/components/fleet/NonConformities";
 import { ProductivityPanel } from "@/components/fleet/ProductivityPanel";
-
-interface Vehicle {
-  id: string;
-  placa: string;
-  modelo: string;
-  status: "ativo" | "manutencao" | "inativo";
-  motorista?: string;
-  km: number;
-}
+import { VehicleFormDialog } from "@/components/fleet/VehicleFormDialog";
+import { useVehicles } from "@/lib/hooks/useVehicles";
 
 const Fleet = () => {
   const navigate = useNavigate();
+  const { vehicles, refresh } = useVehicles();
   const [searchTerm, setSearchTerm] = useState("");
   const [maintenanceStats, setMaintenanceStats] = useState({
     overdue: 0,
@@ -91,25 +85,16 @@ const Fleet = () => {
     loadMaintenanceStats();
   }, [canViewAlerts]);
 
-  const mockVehicles: Vehicle[] = [
-    { id: "1", placa: "ABC-1234", modelo: "Mercedes-Benz Atego", status: "ativo", motorista: "João Silva", km: 85000 },
-    { id: "2", placa: "DEF-5678", modelo: "Volvo FH", status: "manutencao", km: 120000 },
-    { id: "3", placa: "GHI-9012", modelo: "Scania R450", status: "ativo", motorista: "Maria Santos", km: 65000 },
-    { id: "4", placa: "JKL-3456", modelo: "Iveco Daily", status: "inativo", km: 180000 },
-  ];
-
-  const filteredVehicles = mockVehicles.filter(v =>
-    v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.modelo.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = vehicles.filter(v =>
+    v.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (v.model || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStatusBadge = (status: Vehicle["status"]) => {
-    const variants = {
-      ativo: { label: "Ativo", className: "bg-success/15 text-success border border-success/20" },
-      manutencao: { label: "Manutenção", className: "bg-warning/15 text-warning border border-warning/20" },
-      inativo: { label: "Inativo", className: "bg-destructive/15 text-destructive border border-destructive/20" },
-    };
-    return variants[status];
+  const getStatusBadge = (status: string = '') => {
+    const s = status.toLowerCase();
+    if (s.includes('ativo')) return { label: "Ativo", className: "bg-green-500/15 text-green-600 border-green-500/20" };
+    if (s.includes('manuten')) return { label: "Manutenção", className: "bg-yellow-500/15 text-yellow-600 border-yellow-500/20" };
+    return { label: status || "Inativo", className: "bg-red-500/15 text-red-600 border-red-500/20" };
   };
 
   // Filtrar notificações de frota
@@ -134,10 +119,7 @@ const Fleet = () => {
               <Upload className="h-4 w-4" />
               Importar CRLV
             </Button>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Adicionar Veículo
-            </Button>
+            <VehicleFormDialog onSuccess={refresh} />
           </div>
         </div>
 
@@ -286,7 +268,7 @@ const Fleet = () => {
         {/* Vehicle List */}
         <div className="grid gap-4">
           {filteredVehicles.map((vehicle) => (
-            <Card key={vehicle.id}>
+            <Card key={vehicle.plate}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
@@ -295,20 +277,18 @@ const Fleet = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold">{vehicle.placa}</h3>
+                        <h3 className="text-lg font-semibold">{vehicle.plate}</h3>
                         <Badge className={getStatusBadge(vehicle.status).className}>
                           {getStatusBadge(vehicle.status).label}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{vehicle.modelo}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{vehicle.model}</p>
                       <div className="flex gap-4 mt-2 text-sm">
-                        {vehicle.motorista && (
-                          <span className="text-muted-foreground">
-                            Motorista: <span className="text-foreground">{vehicle.motorista}</span>
-                          </span>
-                        )}
                         <span className="text-muted-foreground">
-                          KM: <span className="text-foreground">{Number(vehicle.km ?? 0).toLocaleString()}</span>
+                          Tipo: <span className="text-foreground">{vehicle.type}</span>
+                        </span>
+                        <span className="text-muted-foreground">
+                          KM: <span className="text-foreground">{Number(vehicle.mileage ?? 0).toLocaleString()}</span>
                         </span>
                       </div>
                     </div>

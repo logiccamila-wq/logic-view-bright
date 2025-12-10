@@ -117,6 +117,23 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
         submitData.paid = formData.paid;
       }
       
+      if (formData.document_type === 'epi') {
+        submitData.description = formData.description;
+        submitData.expiry_date = formData.expiry_date || null;
+      }
+
+      if (formData.document_type === 'training') {
+        submitData.description = formData.description;
+        submitData.issue_date = formData.issue_date || null;
+        submitData.expiry_date = formData.expiry_date || null;
+      }
+
+      if (formData.document_type === 'emergency_kit') {
+        submitData.issue_date = formData.issue_date || null;
+        submitData.expiry_date = formData.expiry_date || null;
+        submitData.notes = formData.notes || null;
+      }
+      
       if (document) {
         const { error } = await supabase
           .from('vehicle_documents')
@@ -456,6 +473,99 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
           </>
         );
       
+      case 'epi':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Descrição</Label>
+                <Input
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Ex: Capacete, Luvas, CA"
+                />
+              </div>
+              <div>
+                <Label>Validade</Label>
+                <Input
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+            </div>
+          </>
+        );
+
+      case 'training':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Treinamento</Label>
+                <Input
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Ex: MOPP, Direção Defensiva"
+                />
+              </div>
+              <div>
+                <Label>Conclusão</Label>
+                <Input
+                  type="date"
+                  value={formData.issue_date}
+                  onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 mt-2">
+              <div>
+                <Label>Validade</Label>
+                <Input
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+            </div>
+          </>
+        );
+
+      case 'emergency_kit':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Última Conferência</Label>
+                <Input
+                  type="date"
+                  value={formData.issue_date}
+                  onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Próxima Conferência</Label>
+                <Input
+                  type="date"
+                  value={formData.expiry_date}
+                  onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 mt-2">
+              <div>
+                <Label>Observações</Label>
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Itens conferidos, reposição necessária, etc"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </>
+        );
+      
       default:
         return null;
     }
@@ -491,21 +601,24 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="chemical">Químicos</SelectItem>
-                  <SelectItem value="civ">CIV</SelectItem>
-                  <SelectItem value="cipp">CIPP</SelectItem>
-                  <SelectItem value="tachograph">Tacógrafo</SelectItem>
-                  <SelectItem value="fire_extinguisher">Extintor</SelectItem>
-                  <SelectItem value="ibama_ctf">IBAMA CTF</SelectItem>
-                  <SelectItem value="ibama_aatipp">IBAMA AATIPP</SelectItem>
-                  <SelectItem value="antt">ANTT</SelectItem>
-                  <SelectItem value="opacity_test">Teste Opacidade</SelectItem>
-                  <SelectItem value="noise_test">Teste Ruído</SelectItem>
-                  <SelectItem value="fine">Multa</SelectItem>
-                  <SelectItem value="cnh">CNH</SelectItem>
-                  <SelectItem value="crlv">CRLV</SelectItem>
-                </SelectContent>
+              <SelectContent>
+                <SelectItem value="chemical">Químicos</SelectItem>
+                <SelectItem value="civ">CIV</SelectItem>
+                <SelectItem value="cipp">CIPP</SelectItem>
+                <SelectItem value="tachograph">Tacógrafo</SelectItem>
+                <SelectItem value="fire_extinguisher">Extintor</SelectItem>
+                <SelectItem value="ibama_ctf">IBAMA CTF</SelectItem>
+                <SelectItem value="ibama_aatipp">IBAMA AATIPP</SelectItem>
+                <SelectItem value="antt">ANTT</SelectItem>
+                <SelectItem value="opacity_test">Teste Opacidade</SelectItem>
+                <SelectItem value="noise_test">Teste Ruído</SelectItem>
+                <SelectItem value="fine">Multa</SelectItem>
+                <SelectItem value="cnh">CNH</SelectItem>
+                <SelectItem value="crlv">CRLV</SelectItem>
+                <SelectItem value="epi">EPI</SelectItem>
+                <SelectItem value="training">Treinamentos</SelectItem>
+                <SelectItem value="emergency_kit">Kit de Emergências</SelectItem>
+              </SelectContent>
               </Select>
             </div>
           </div>

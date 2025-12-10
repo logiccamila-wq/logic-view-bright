@@ -274,7 +274,7 @@ export function ServiceOrdersTab() {
                     {order.vehicle_model} - {order.vehicle_plate}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {order.odometer.toLocaleString('pt-BR')} km
+                    {order.odometer?.toLocaleString('pt-BR') || '0'} km
                   </p>
                 </div>
               </div>

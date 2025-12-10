@@ -10,6 +10,8 @@ import { BorachariaTab } from "@/components/mechanic/BorachariaTab";
 import { MaintenanceScheduler } from "@/components/mechanic/MaintenanceScheduler";
 import { PartsRequestTab } from "@/components/mechanic/PartsRequestTab";
 import { MaintenancePlansConfig } from "@/components/mechanic/MaintenancePlansConfig";
+import { TireControl } from "@/components/fleet/TireControl";
+import { TireApprovals } from "@/components/fleet/TireApprovals";
 
 import { MapTestPanel } from "@/components/maps/MapTestPanel";
 import { MechanicClockIn } from "@/components/mechanic/MechanicClockIn";
@@ -31,64 +33,60 @@ const Mechanic = () => {
         <MechanicClockIn />
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-10 gap-1">
-            <TabsTrigger value="orders" className="flex items-center gap-2 text-xs sm:text-sm">
+          <TabsList className="flex w-full flex-wrap justify-start gap-2 h-auto p-2 bg-muted/50 rounded-lg">
+            <TabsTrigger value="orders" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <Wrench className="h-4 w-4" />
-              <span className="hidden sm:inline">Ordens de Serviço</span>
-              <span className="sm:hidden">OS</span>
+              <span>Ordens</span>
             </TabsTrigger>
 
-            <TabsTrigger value="lavajato" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="lavajato" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <Droplet className="h-4 w-4" />
-              <span className="hidden sm:inline">Lava-Jato</span>
-              <span className="sm:hidden">Lava</span>
+              <span>Lava-Jato</span>
             </TabsTrigger>
 
-            <TabsTrigger value="borracharia" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="borracharia" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <Circle className="h-4 w-4" />
-              <span className="hidden sm:inline">Borracharia</span>
-              <span className="sm:hidden">Pneu</span>
+              <span>Borracharia</span>
             </TabsTrigger>
 
-            <TabsTrigger value="tpms" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="tires" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
+              <Circle className="h-4 w-4" />
+              <span>Pneus</span>
+            </TabsTrigger>
+
+            <TabsTrigger value="tpms" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <Gauge className="h-4 w-4" />
               <span>TPMS</span>
             </TabsTrigger>
 
-            <TabsTrigger value="workshop" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="workshop" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <Package className="h-4 w-4" />
-              <span className="hidden sm:inline">Oficina</span>
-              <span className="sm:hidden">Ofic</span>
+              <span>Oficina</span>
             </TabsTrigger>
 
-            <TabsTrigger value="checklist" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="checklist" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <ClipboardCheck className="h-4 w-4" />
-              <span className="hidden sm:inline">Checklists</span>
-              <span className="sm:hidden">Check</span>
+              <span>Checklists</span>
             </TabsTrigger>
 
-            <TabsTrigger value="scheduler" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="scheduler" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Agendamento</span>
-              <span className="sm:hidden">Agend</span>
+              <span>Agendamento</span>
             </TabsTrigger>
 
-            <TabsTrigger value="plans" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="plans" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <ListChecks className="h-4 w-4" />
-              <span className="hidden sm:inline">Planos</span>
-              <span className="sm:hidden">Plano</span>
+              <span>Planos</span>
             </TabsTrigger>
 
-            <TabsTrigger value="parts" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="parts" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <PackagePlus className="h-4 w-4" />
-              <span className="hidden sm:inline">Pedido Peças</span>
-              <span className="sm:hidden">Peças</span>
+              <span>Peças</span>
             </TabsTrigger>
 
-            <TabsTrigger value="test" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsTrigger value="test" className="flex items-center gap-2 px-3 py-2 flex-grow sm:flex-grow-0">
               <TestTube className="h-4 w-4" />
-              <span className="hidden sm:inline">Teste APIs</span>
-              <span className="sm:hidden">Test</span>
+              <span>Teste APIs</span>
             </TabsTrigger>
           </TabsList>
 
@@ -104,6 +102,11 @@ const Mechanic = () => {
 
           <TabsContent value="borracharia" className="space-y-6">
             <BorachariaTab />
+          </TabsContent>
+
+          <TabsContent value="tires" className="space-y-6">
+            <TireControl />
+            <TireApprovals />
           </TabsContent>
 
           <TabsContent value="tpms" className="space-y-6">

@@ -37,6 +37,13 @@
       "require": "@vercel/node",
       "requirePath": "C:\\Users\\Camila Lareste\\AppData\\Roaming\\npm\\node_modules\\vercel\\node_modules\\@vercel\\node\\dist\\index",
       "apiVersion": 3,
+      "src": "api/install-module.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "require": "@vercel/node",
+      "requirePath": "C:\\Users\\Camila Lareste\\AppData\\Roaming\\npm\\node_modules\\vercel\\node_modules\\@vercel\\node\\dist\\index",
+      "apiVersion": 3,
       "src": "api/permissions-matrix.ts",
       "use": "@vercel/node"
     },

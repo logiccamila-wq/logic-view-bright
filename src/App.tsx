@@ -58,6 +58,22 @@ const DriverApp = lazy(() => import("@/pages/DriverApp"));
 const Routing = lazy(() => import("@/pages/Routing"));
 const Users = lazy(() => import("@/pages/Users"));
 const PayrollManagement = lazy(() => import("@/pages/PayrollManagement"));
+const AccountsPayable = lazy(() => import("@/pages/AccountsPayable"));
+const AccountsReceivable = lazy(() => import("@/pages/AccountsReceivable"));
+const BankReconciliation = lazy(() => import("@/pages/BankReconciliation"));
+const Lancamentos = lazy(() => import("@/pages/Lancamentos"));
+const Partners = lazy(() => import("@/pages/Partners"));
+const PlanoContas = lazy(() => import("@/pages/PlanoContas"));
+const CentrosCusto = lazy(() => import("@/pages/CentrosCusto"));
+const FolhaPagamento = lazy(() => import("@/pages/FolhaPagamento"));
+const DriverJourney = lazy(() => import("@/pages/DriverJourney"));
+const DriverPayroll = lazy(() => import("@/pages/DriverPayroll"));
+const ControlTowerRedesign = lazy(() => import("@/pages/ControlTowerRedesign"));
+const InnovationLab = lazy(() => import("@/pages/InnovationLab"));
+const EIP = lazy(() => import("@/pages/EIP"));
+const Permissions = lazy(() => import("@/pages/Permissions"));
+const Reports = lazy(() => import("@/pages/Reports"));
+const Settings = lazy(() => import("@/pages/Settings"));
 
 function App() {
   return (
@@ -81,6 +97,7 @@ function App() {
                               <Route index element={<Dashboard />} />
                               <Route path="dashboard" element={<Dashboard />} />
                               <Route path="settings">
+                                <Route index element={<Settings />} />
                                 <Route path="appearance" element={<SettingsAppearance />} />
                                 <Route path="branding" element={<SettingsBranding />} />
                                 <Route path="language" element={<SettingsLanguage />} />
@@ -96,6 +113,8 @@ function App() {
                               <Route path="oms" element={<OMS />} />
                               <Route path="driver" element={<Driver />} />
                               <Route path="dr" element={<Driver />} />
+                              <Route path="driver-journey" element={<DriverJourney />} />
+                              <Route path="driver-payroll" element={<DriverPayroll />} />
                               <Route path="mechanic" element={<Mechanic />} />
                               <Route path="maintenance-checklist" element={<MaintenanceChecklist />} />
                               <Route path="supergestor" element={<Supergestor />} />
@@ -103,6 +122,7 @@ function App() {
                               <Route path="live-tracking" element={<LiveTracking />} />
                               <Route path="install-app" element={<InstallApp />} />
                               <Route path="control-tower" element={<ControlTower />} />
+                              <Route path="control-tower-new" element={<ControlTowerRedesign />} />
                               <Route path="fleet" element={<Fleet />} />
                               <Route path="journey-management" element={<JourneyManagement />} />
                               <Route path="cost-monitoring" element={<CostMonitoring />} />
@@ -114,18 +134,33 @@ function App() {
                               <Route path="dre" element={<DRE />} />
                               <Route path="employees" element={<Employees />} />
                               <Route path="warehouse" element={<Inventory />} />
+                              <Route path="inventory" element={<Inventory />} />
                               <Route path="documents" element={<Documents />} />
                               <Route path="approvals" element={<Approvals />} />
                               <Route path="oem" element={<MaintenanceLibrary />} />
                               <Route path="scm" element={<SCM />} />
                               <Route path="executive-dashboard" element={<ExecutiveDashboard />} />
                               <Route path="drivers" element={<DriversManagement />} />
+                              <Route path="drivers-management" element={<DriversManagement />} />
                               <Route path="driver-app" element={<DriverApp />} />
                               <Route path="users" element={<Users />} />
                               <Route path="payroll" element={<PayrollManagement />} />
+                              <Route path="payroll-management" element={<PayrollManagement />} />
                               <Route path="routing" element={<Routing />} />
                               <Route path="demo" element={<Demo />} />
                               <Route path="developer" element={<Developer />} />
+                              <Route path="partners" element={<Partners />} />
+                              <Route path="centros-custo" element={<CentrosCusto />} />
+                              <Route path="plano-contas" element={<PlanoContas />} />
+                              <Route path="lancamentos" element={<Lancamentos />} />
+                              <Route path="bank-reconciliation" element={<BankReconciliation />} />
+                              <Route path="accounts-payable" element={<AccountsPayable />} />
+                              <Route path="accounts-receivable" element={<AccountsReceivable />} />
+                              <Route path="folha-pagamento" element={<FolhaPagamento />} />
+                              <Route path="permissions" element={<Permissions />} />
+                              <Route path="reports" element={<Reports />} />
+                              <Route path="eip" element={<EIP />} />
+                              <Route path="innovation" element={<InnovationLab />} />
                             </Routes>
                           </Suspense>
                         </Layout>

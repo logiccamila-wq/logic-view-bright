@@ -45,8 +45,8 @@ serve(async (req) => {
 
     console.log('Iniciando busca de CT-es na BrasilNFe...', { tipo, dataInicial, dataFinal, chaveAcesso });
 
-    let apiUrl = 'https://api.brasilnfe.com.br/v2/cte/consulta';
-    let body: any = {};
+    const apiUrl = 'https://api.brasilnfe.com.br/v2/cte/consulta';
+    const body: any = {};
 
     if (tipo === 'chave' && chaveAcesso) {
       body.chave = chaveAcesso;
@@ -186,6 +186,32 @@ serve(async (req) => {
         } else {
           importedCtes.push(inserted);
           console.log('CT-e importado:', ide.nCT);
+
+          // Criar conta a receber automaticamente
+          try {
+            const vencimento = new Date();
+            vencimento.setDate(vencimento.getDate() + 30); // Vencimento padrão em 30 dias
+
+            const { error: financeError } = await supabaseClient
+              .from('contas_receber')
+              .insert({
+                descricao: `CT-e ${inserted.numero_cte} - ${inserted.produto_predominante}`,
+                cliente: inserted.tomador_nome || inserted.remetente_nome,
+                valor: inserted.valor_total,
+                data_vencimento: vencimento.toISOString().split('T')[0],
+                status: 'pendente',
+                observacoes: `Gerado automaticamente via importação de CT-e.\nOrigem: ${inserted.remetente_cidade}/${inserted.remetente_uf}\nDestino: ${inserted.destinatario_cidade}/${inserted.destinatario_uf}`,
+                cte_id: inserted.id
+              });
+
+            if (financeError) {
+              console.error('Erro ao criar conta a receber para CT-e ' + ide.nCT, financeError);
+            } else {
+              console.log('Conta a receber gerada para CT-e ' + ide.nCT);
+            }
+          } catch (err) {
+            console.error('Erro ao processar financeiro:', err);
+          }
         }
 
       } catch (error) {

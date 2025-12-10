@@ -1,1 +1,0 @@
-import{r as s,ac as o,ad as u}from"./index-BiNiRHKa.js";var c=o[" useId ".trim().toString()]||(()=>{}),d=0;function i(t){const[a,r]=s.useState(c());return u(()=>{r(e=>e??String(d++))},[t]),t||(a?`radix-${a}`:"")}export{i as u};

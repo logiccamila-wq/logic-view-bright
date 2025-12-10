@@ -115,10 +115,10 @@ const Documents = () => {
     const now = new Date();
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     const expiring = documents.filter(doc => doc.expiry_date && new Date(doc.expiry_date) > now && new Date(doc.expiry_date) <= thirtyDaysFromNow).length;
-    const fines = filterDocuments('Multas').filter((f: any) => !f.paid);
+    const fines = filterDocuments('fine').filter((f: any) => !f.paid);
     const finesValue = fines.reduce((sum: number, f: any) => sum + (f.value || 0), 0);
-    const validCNHs = filterDocuments('CNH').filter((c: any) => c.status === 'valid').length;
-    const paidCRLVs = filterDocuments('CRLV').filter((c: any) => c.paid).length;
+    const validCNHs = filterDocuments('cnh').filter((c: any) => c.status === 'valid').length;
+    const paidCRLVs = filterDocuments('crlv').filter((c: any) => c.paid).length;
     return { expiring, pendingFines: fines.length, finesValue, validCNHs, paidCRLVs };
   };
 
@@ -143,9 +143,23 @@ const Documents = () => {
     );
   };
 
-  const documentTypes = [
-    'CRLV', 'CIV', 'CIPP', 'Tacógrafo', 'Extintores', 'IBAMA CTF', 
-    'IBAMA AATIPP', 'ANTT', 'Opacidade', 'Ruído', 'Químicos', 'CNH', 'Multas'
+  const DOCUMENT_TYPES = [
+    { value: 'crlv', label: 'CRLV' },
+    { value: 'civ', label: 'CIV' },
+    { value: 'cipp', label: 'CIPP' },
+    { value: 'tachograph', label: 'Tacógrafo' },
+    { value: 'fire_extinguisher', label: 'Extintores' },
+    { value: 'ibama_ctf', label: 'IBAMA CTF' },
+    { value: 'ibama_aatipp', label: 'IBAMA AATIPP' },
+    { value: 'antt', label: 'ANTT' },
+    { value: 'opacity_test', label: 'Opacidade' },
+    { value: 'noise_test', label: 'Ruído' },
+    { value: 'chemical', label: 'Químicos' },
+    { value: 'cnh', label: 'CNH' },
+    { value: 'fine', label: 'Multas' },
+    { value: 'epi', label: 'EPI' },
+    { value: 'training', label: 'Treinamentos' },
+    { value: 'emergency_kit', label: 'Kit de Emergências' },
   ];
 
   return (
@@ -196,24 +210,24 @@ const Documents = () => {
           />
         </div>
 
-        <Tabs defaultValue="CRLV" className="w-full">
-          <TabsList className="grid grid-cols-7 lg:grid-cols-13 gap-1">
-            {documentTypes.map(type => (
-              <TabsTrigger key={type} value={type} className="text-xs px-2">
-                {type}
+        <Tabs defaultValue="crlv" className="w-full">
+          <TabsList className="grid grid-cols-7 lg:grid-cols-16 gap-1">
+            {DOCUMENT_TYPES.map(dt => (
+              <TabsTrigger key={dt.value} value={dt.value} className="text-xs px-2">
+                {dt.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {documentTypes.map(type => (
-            <TabsContent key={type} value={type}>
+          {DOCUMENT_TYPES.map(dt => (
+            <TabsContent key={dt.value} value={dt.value}>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="w-5 h-5" />
-                    {type}
+                    {dt.label}
                   </CardTitle>
-                  <Button size="sm" onClick={() => handleNewDocument(type)}>
+                  <Button size="sm" onClick={() => handleNewDocument(dt.value)}>
                     <Plus className="w-4 h-4 mr-1" /> Novo
                   </Button>
                 </CardHeader>
@@ -239,14 +253,34 @@ const Documents = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filterDocuments(type).map(doc => (
+                      {filterDocuments(dt.value).map(doc => (
                         <TableRow key={doc.id}>
                           <TableCell className="font-medium">{doc.vehicle_plate}</TableCell>
                           <TableCell>
-                            {doc.expiry_date && (
-                              <span className="text-sm">
-                                Vence: {new Date(doc.expiry_date).toLocaleDateString('pt-BR')}
-                              </span>
+                            {dt.value === 'training' ? (
+                              <div className="space-y-1">
+                                {doc.issue_date && (
+                                  <span className="text-sm">Conclusão: {new Date(doc.issue_date).toLocaleDateString('pt-BR')}</span>
+                                )}
+                                {doc.expiry_date && (
+                                  <span className="text-sm">Vence: {new Date(doc.expiry_date).toLocaleDateString('pt-BR')}</span>
+                                )}
+                              </div>
+                            ) : dt.value === 'emergency_kit' ? (
+                              <div className="space-y-1">
+                                {doc.issue_date && (
+                                  <span className="text-sm">Última conferência: {new Date(doc.issue_date).toLocaleDateString('pt-BR')}</span>
+                                )}
+                                {doc.expiry_date && (
+                                  <span className="text-sm">Próxima: {new Date(doc.expiry_date).toLocaleDateString('pt-BR')}</span>
+                                )}
+                              </div>
+                            ) : (
+                              doc.expiry_date && (
+                                <span className="text-sm">
+                                  Vence: {new Date(doc.expiry_date).toLocaleDateString('pt-BR')}
+                                </span>
+                              )
                             )}
                           </TableCell>
                           <TableCell>{getStatusBadge(doc.status)}</TableCell>
@@ -262,7 +296,7 @@ const Documents = () => {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {filterDocuments(type).length === 0 && (
+                      {filterDocuments(dt.value).length === 0 && (
                         <TableRow>
                           <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
                             Nenhum documento encontrado

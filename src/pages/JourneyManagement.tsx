@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   AlertTriangle,
   Clock,
@@ -40,9 +41,21 @@ export default function JourneyManagement() {
   const [activeTab, setActiveTab] = useState("overview");
   const [violations, setViolations] = useState<Violation[]>([]);
   const [stats, setStats] = useState<any>(null);
+  type SessionAllowance = {
+    id: string;
+    driver_id: string;
+    vehicle_plate: string;
+    data_inicio: string;
+    data_fim: string | null;
+    allowance_approved?: boolean | null;
+    horas_extras_minutos?: number | null;
+  };
+  const [allowances, setAllowances] = useState<SessionAllowance[]>([]);
+  const [loadingAllowances, setLoadingAllowances] = useState(false);
 
   useEffect(() => {
     loadData();
+    loadAllowances();
   }, []);
 
   const loadData = async () => {
@@ -85,6 +98,42 @@ export default function JourneyManagement() {
         totalExtras: totalExtras.toFixed(1),
       });
     }
+  };
+
+  const loadAllowances = async () => {
+    setLoadingAllowances(true);
+    const { data } = await (supabase as any)
+      .from("driver_work_sessions")
+      .select("id,driver_id,vehicle_plate,data_inicio,data_fim,allowance_approved")
+      .eq("status", "finalizada")
+      .order("data_inicio", { ascending: false })
+      .limit(30);
+    setAllowances((data as SessionAllowance[]) || []);
+    setLoadingAllowances(false);
+  };
+
+  const approveAllowance = async (sessionId: string) => {
+    const { error } = await (supabase as any)
+      .from("driver_work_sessions")
+      .update({ allowance_approved: true })
+      .eq("id", sessionId);
+    if (!error) loadAllowances();
+  };
+
+  const updateExtraMinutes = async (sessionId: string, minutes: number) => {
+    const { error } = await (supabase as any)
+      .from("driver_work_sessions")
+      .update({ horas_extras_minutos: minutes })
+      .eq("id", sessionId);
+    if (!error) loadData();
+  };
+
+  const calculateDailyAllowance = (s: SessionAllowance) => {
+    if (!s?.data_inicio || !s?.data_fim) return 0;
+    const start = new Date(s.data_inicio);
+    const end = new Date(s.data_fim);
+    const days = Math.max(0, Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+    return days * 80;
   };
 
   const marcarComoResolvida = async (violationId: string) => {
@@ -172,7 +221,7 @@ export default function JourneyManagement() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">
               <Users className="mr-2 h-4 w-4" />
               Visão Geral
@@ -180,6 +229,10 @@ export default function JourneyManagement() {
             <TabsTrigger value="violations">
               <AlertTriangle className="mr-2 h-4 w-4" />
               Violações
+            </TabsTrigger>
+            <TabsTrigger value="allowances">
+              <Clock className="mr-2 h-4 w-4" />
+              Diárias
             </TabsTrigger>
             <TabsTrigger value="reports">
               <FileText className="mr-2 h-4 w-4" />
@@ -209,6 +262,58 @@ export default function JourneyManagement() {
                   </div>
                 </div>
               </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="allowances" className="space-y-4">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">Aprovação de Diárias</h2>
+                <Button variant="outline" onClick={loadAllowances}>Atualizar</Button>
+              </div>
+
+              {loadingAllowances ? (
+                <div className="text-center py-8 text-muted-foreground">Carregando...</div>
+              ) : allowances.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">Nenhuma diária pendente</div>
+              ) : (
+                <div className="space-y-3">
+                  {allowances.map((s) => (
+                    <div key={s.id} className="border rounded-lg p-4 flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{s.vehicle_plate}</Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {format(new Date(s.data_inicio), 'dd/MM/yyyy', { locale: ptBR })}
+                            {' → '}
+                            {s.data_fim && format(new Date(s.data_fim), 'dd/MM/yyyy', { locale: ptBR })}
+                          </span>
+                        </div>
+                        <div className="text-lg font-bold text-green-600">R$ {calculateDailyAllowance(s).toFixed(2)}</div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={s.allowance_approved ? 'default' : 'secondary'}>
+                            {s.allowance_approved ? 'Aprovado' : 'Pendente'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {!s.allowance_approved && (
+                          <Button onClick={() => approveAllowance(s.id)}>Aprovar</Button>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Input
+                            placeholder="Horas extras (min)"
+                            className="w-40"
+                            defaultValue={s.horas_extras_minutos || 0}
+                            onBlur={(e) => updateExtraMinutes(s.id, Number((e.target as HTMLInputElement).value || 0))}
+                          />
+                          <Button variant="outline" onClick={() => updateExtraMinutes(s.id, Number(s.horas_extras_minutos || 0))}>Salvar</Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </Card>
           </TabsContent>
 
