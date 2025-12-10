@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -41,12 +41,36 @@ interface Module {
 }
 
 import { modules as registry } from '@/modules/registry';
+import { supabase } from '@/integrations/supabase/client';
 
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+
+  const [dbModules, setDbModules] = useState<Module[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await (supabase as any).from('modules').select('key,name,description,category,enabled');
+        const mapped = (data || []).map((m: any) => ({
+          id: m.key,
+          name: m.name || m.key,
+          description: m.description || m.key,
+          icon: <Package className="w-8 h-8" />,
+          price: 0,
+          rating: 4.8,
+          reviews: 0,
+          category: (m.category || 'operations') as string,
+          status: (m.enabled ? 'installed' : 'available') as 'installed' | 'available',
+          features: [],
+        }));
+        setDbModules(mapped);
+      } catch {}
+    })();
+  }, []);
 
   const modules: Module[] = useMemo(() => [
     {
@@ -246,8 +270,9 @@ const ModuleMarketplace: React.FC = () => {
       category: (m.category || 'operations') as any,
       status: (m.enabled ? 'installed' : 'available') as 'installed' | 'available',
       features: [],
-    }))
-  ], [t]) as Module[];
+    })),
+    ...dbModules,
+  ], [t, dbModules]) as Module[];
 
   const registryCategories = Array.from(new Set(registry.map(r => r.category))).filter(Boolean);
   const categories = [

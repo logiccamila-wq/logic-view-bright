@@ -94,7 +94,7 @@ function App() {
                         <Layout>
                           <Suspense fallback={<div className="flex items-center justify-center h-64"><LoadingSpinner /></div>}>
                             <Routes>
-                              <Route index element={<Dashboard />} />
+                              <Route index element={<ModuleMarketplace />} />
                               <Route path="dashboard" element={<Dashboard />} />
                               <Route path="settings">
                                 <Route index element={<Settings />} />
