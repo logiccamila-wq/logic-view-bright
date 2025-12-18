@@ -1,67 +1,48 @@
-export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" })
-  const supabaseUrl = process.env.SUPABASE_URL || ""
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
-  if (!supabaseUrl || !serviceKey) return res.status(500).json({ error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" })
+import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-  let moduleId = ""
-  let clientKey = ""
-  try {
-    const b = req.body || {}
-    moduleId = (b.moduleId || "").trim()
-    clientKey = (b.clientKey || "").trim()
-  } catch {}
-  if (!moduleId) return res.status(400).json({ error: "moduleId required" })
+const ALLOWED_ORIGINS = [
+  'https://xyzlogicflow.pages.dev',
+  'https://www.xyzlogicflow.tech',
+  'https://logic-view-bright.vercel.app'
+]
 
-  const known: Record<string, { name: string; category: string; description?: string; comingSoon?: boolean }> = {
-    dashboard: { name: "Dashboard OptiLog", category: "core" },
-    tms: { name: "TMS", category: "logistics" },
-    wms: { name: "WMS", category: "logistics" },
-    oms: { name: "OMS", category: "operations" },
-    "mechanic-hub": { name: "Hub Mecânico", category: "maintenance" },
-    "driver-app": { name: "App Motorista", category: "mobile" },
-    "control-tower": { name: "Torre de Controle", category: "operations" },
-    crm: { name: "CRM", category: "business" },
-    erp: { name: "ERP", category: "business" },
-    ai: { name: "Inteligência Artificial", category: "advanced", comingSoon: true },
-    blockchain: { name: "Blockchain", category: "advanced", comingSoon: true },
-    supergestor: { name: "Supergestor", category: "operations" },
-    "predictive-maintenance": { name: "Manutenção Preditiva", category: "maintenance" },
-    "drivers-management": { name: "Gestão de Motoristas", category: "operations" },
-    approvals: { name: "Aprovações", category: "operations" },
-    "logistics-kpi": { name: "KPIs de Logística", category: "operations" },
-    "bank-reconciliation": { name: "Conciliação Bancária", category: "finance" },
-    "cost-monitoring": { name: "Monitoramento de Custos", category: "finance" },
-    iot: { name: "IoT", category: "iot" },
-    permissions: { name: "Permissões", category: "operations" },
-    developer: { name: "Developer", category: "dev" },
-    reports: { name: "Relatórios", category: "business" }
+function corsOrigin(origin?: string) {
+  return origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const origin = req.headers.origin
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', corsOrigin(origin))
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return res.status(204).end()
+  }
+  if (req.method !== 'POST') {
+    res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Access-Control-Allow-Origin', corsOrigin(origin))
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${serviceKey}`, apikey: serviceKey }
-  const upsert = async (slug: string) => {
-    const meta = known[slug] || { name: slug, category: "operations" }
-    const enabled = !meta.comingSoon
-    const url = `${supabaseUrl}/rest/v1/modules?on_conflict=slug`
-    const r = await fetch(url, {
-      method: "POST",
-      headers: { ...headers, Prefer: "resolution=merge-duplicates" },
-      body: JSON.stringify({ slug, name: meta.name, category: meta.category, description: meta.description || slug, enabled })
-    })
-    if (!r.ok) throw new Error(await r.text())
-    return r.json().catch(() => ({}))
-  }
+  const SUPABASE_URL = process.env.SUPABASE_URL
+  const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).json({ error: 'Missing env' })
 
-  try {
-    const targets = moduleId === "all" ? Object.keys(known).filter(k => !known[k]?.comingSoon) : [moduleId]
-    const installed: string[] = []
-    for (const slug of targets) {
-      await upsert(slug)
-      installed.push(slug)
-    }
-    return res.status(200).json({ ok: true, installedCount: installed.length, installed, client: clientKey || null })
-  } catch (e: any) {
-    return res.status(500).json({ error: e.message || "install_failed" })
-  }
+  const { client_key, module_key } = (req.body as any) || {}
+  if (!client_key || !module_key) return res.status(400).json({ error: 'client_key and module_key required' })
+
+  const resp = await fetch(`${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/client_modules`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${SERVICE_KEY}`, apikey: SERVICE_KEY, Prefer: 'return=representation' },
+    body: JSON.stringify({ client_key, module_key, status: 'installed', installed_at: new Date().toISOString() })
+  })
+  const txt = await resp.text()
+  let js: any
+  try { js = txt ? JSON.parse(txt) : null } catch { js = txt }
+  if (!resp.ok) return res.status(resp.status).json({ error: 'Failed to install module', details: js })
+
+  res.setHeader('Content-Type', 'application/json')
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin(origin))
+  return res.status(200).json({ success: true })
 }
 
