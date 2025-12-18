@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Clock, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,10 +18,13 @@ export function MechanicClockIn() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const [lastPunch, setLastPunch] = useState<PunchType | null>(null);
   const [center, setCenter] = useState<{ lat: number; lon: number }>({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
   const [radius, setRadius] = useState<number>(DEFAULT_RADIUS);
+  const [manualLat, setManualLat] = useState<string>('');
+  const [manualLon, setManualLon] = useState<string>('');
+  const canManualOverride = hasRole?.('admin') || hasRole?.('fleet_maintenance');
 
   const calcDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371000; // Earth radius in meters
@@ -56,6 +60,67 @@ export function MechanicClockIn() {
     })();
   }, []);
 
+  const registerPunch = async (type: PunchType, latitude: number, longitude: number) => {
+    const distancia = calcDistance(latitude, longitude, center.lat, center.lon);
+
+    const dentroDaArea = distancia <= radius;
+
+    const { error } = await supabase
+      .from('mechanic_clock_in')
+      .insert({
+        mechanic_id: user?.id,
+        punch_type: type,
+        latitude,
+        longitude,
+        distance: distancia,
+        within_area: dentroDaArea,
+        timestamp: new Date().toISOString()
+      });
+
+    if (error) throw error;
+
+    if (dentroDaArea) {
+      setStatus('✅ Ponto registrado com sucesso!');
+      toast({
+        title: "Ponto registrado",
+        description: `Tipo: ${type.toUpperCase()} • Distância: ${distancia.toFixed(1)}m da oficina`,
+      });
+    } else {
+      setStatus(`Ponto registrado fora da área (${distancia.toFixed(1)}m).`);
+      toast({
+        title: "Ponto liberado",
+        description: `Registrado fora da área permitida (${distancia.toFixed(1)}m).`,
+      });
+    }
+
+    setLastPunch(type);
+    setLoading(false);
+  };
+
+  const registerPunchNoLocation = async (type: PunchType) => {
+    const { error } = await supabase
+      .from('mechanic_clock_in')
+      .insert({
+        mechanic_id: user?.id,
+        punch_type: type,
+        latitude: null,
+        longitude: null,
+        distance: null,
+        within_area: false,
+        timestamp: new Date().toISOString()
+      });
+
+    if (error) throw error;
+
+    setStatus('Ponto liberado sem localização.');
+    setLastPunch(type);
+    toast({
+      title: "Ponto liberado",
+      description: `Registrado sem GPS para ${type.toUpperCase()}.`,
+    });
+    setLoading(false);
+  };
+
   const baterPonto = async (type: PunchType) => {
     if (!user) {
       toast({
@@ -77,50 +142,10 @@ export function MechanicClockIn() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const distancia = calcDistance(latitude, longitude, center.lat, center.lon);
-
-          if (distancia > radius) {
-            setStatus(`Você está ${distancia.toFixed(1)}m fora da área permitida.`);
-            toast({
-              title: "Fora da área",
-              description: `Você está ${distancia.toFixed(1)}m distante da oficina. É necessário estar dentro de ${radius}m.`,
-              variant: "destructive"
-            });
-            setLoading(false);
-            return;
-          }
-
-          // Registrar ponto no banco
-          const { error } = await supabase
-            .from('mechanic_clock_in')
-            .insert({
-              mechanic_id: user.id,
-              punch_type: type,
-              latitude,
-              longitude,
-              distance: distancia,
-              within_area: true,
-              timestamp: new Date().toISOString()
-            });
-
-          if (error) throw error;
-
-          setStatus('✅ Ponto registrado com sucesso!');
-          setLastPunch(type);
-          toast({
-            title: "Ponto registrado",
-            description: `Tipo: ${type.toUpperCase()} • Distância: ${distancia.toFixed(1)}m da oficina`,
-          });
-          setLoading(false);
+          await registerPunch(type, latitude, longitude);
         },
-        (error) => {
-          setStatus('Erro ao obter localização. Permita o acesso ao GPS.');
-          toast({
-            title: "Erro de localização",
-            description: "Não foi possível obter sua localização. Verifique as permissões do navegador.",
-            variant: "destructive"
-          });
-          setLoading(false);
+        async () => {
+          await registerPunchNoLocation(type);
         },
         {
           enableHighAccuracy: true,
@@ -180,6 +205,27 @@ export function MechanicClockIn() {
               <Clock className="h-4 w-4" />
             )}
             <span className="text-sm">{status}</span>
+          </div>
+        )}
+
+        {canManualOverride && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+            <Input placeholder="Latitude manual" value={manualLat} onChange={(e)=>setManualLat(e.target.value)} />
+            <Input placeholder="Longitude manual" value={manualLon} onChange={(e)=>setManualLon(e.target.value)} />
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={loading || !manualLat || !manualLon}
+              onClick={async ()=>{
+                setLoading(true);
+                const lat = parseFloat(manualLat);
+                const lon = parseFloat(manualLon);
+                if (isNaN(lat) || isNaN(lon)) { setLoading(false); return; }
+                await registerPunch('entrada', lat, lon);
+              }}
+            >
+              Usar localização manual
+            </Button>
           </div>
         )}
 

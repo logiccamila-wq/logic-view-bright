@@ -1,16 +1,1 @@
-{
-  "projectId": "prj_XcaU5LUlEbK5c1p6MhmBefjGU5vV",
-  "orgId": "team_0Vj5veTqtcl8M6tQ1VB8UEUj",
-  "projectName": "logic-view-bright",
-  "settings": {
-    "createdAt": 1762945132742,
-    "framework": null,
-    "devCommand": null,
-    "installCommand": null,
-    "buildCommand": null,
-    "outputDirectory": null,
-    "rootDirectory": null,
-    "directoryListing": false,
-    "nodeVersion": "22.x"
-  }
-}
+{"projectId":"prj_XcaU5LUlEbK5c1p6MhmBefjGU5vV","orgId":"team_0Vj5veTqtcl8M6tQ1VB8UEUj","projectName":"logic-view-bright","neverMindDeployCard":true}

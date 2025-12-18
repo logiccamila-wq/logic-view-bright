@@ -30,13 +30,39 @@ if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.includes('REPLACE_ME')
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-});
+const HAS_ENV = !!SUPABASE_URL && !!SUPABASE_PUBLISHABLE_KEY;
+let _supabase: any;
+if (HAS_ENV) {
+  _supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { storage: localStorage, persistSession: true, autoRefreshToken: true }
+  });
+} else {
+  const err = (msg: string) => Promise.resolve({ data: null, error: new Error(msg) });
+  const tableOps = {
+    select: () => err('Supabase não configurado'),
+    insert: () => err('Supabase não configurado'),
+    update: () => err('Supabase não configurado'),
+    delete: () => err('Supabase não configurado'),
+    eq: () => tableOps,
+    order: () => tableOps,
+    limit: () => tableOps,
+  } as any;
+  _supabase = {
+    from: () => tableOps,
+    auth: {
+      onAuthStateChange: (cb: any) => {
+        try { cb('SIGNED_OUT', null); } catch {}
+        return { data: { subscription: { unsubscribe() {} } } };
+      },
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: new Error('Supabase não configurado') }),
+      signUp: () => Promise.resolve({ data: { user: null, session: null }, error: new Error('Supabase não configurado') }),
+      signOut: () => Promise.resolve({ error: null }),
+      getUser: () => err('Supabase não configurado')
+    }
+  };
+}
+export const supabase = _supabase as ReturnType<typeof createClient<Database>>;
 
 // Runtime diagnostic: verify that the key matches the project ref in URL
 try {

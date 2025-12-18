@@ -29,12 +29,13 @@ export default function Gate() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('gate_events').insert({
+      const movement_type = kind === 'entry' ? 'Entrada' : 'Saida';
+      const { error } = await supabase.from('gate_events' as any).insert({
         vehicle_plate: plate,
         driver_name: driver,
-        direction: kind,
-        odometer: odometer ? parseInt(odometer) : null,
-        reason: reason,
+        movement_type,
+        odometer_km: odometer ? parseInt(odometer) : null,
+        notes: reason,
         authorized_by: authorizedBy,
         is_visitor: isVisitor
       } as any);

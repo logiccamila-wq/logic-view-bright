@@ -464,7 +464,8 @@ var onRequest15 = /* @__PURE__ */ __name2(async ({ request, env }) => {
     { email: "enio.gomes@ejgtransporte.com.br", password: "Multi.13", roles: ["admin", "logistics_manager", "operations"], full_name: "Enio Gomes" },
     { email: "comercial@ejgtransporte.com.br", password: "Multi.13", roles: ["commercial"], full_name: "Comercial" },
     { email: "mecanico@ejgtransporte.com.br", password: "Multi.13", roles: ["fleet_maintenance"], full_name: "Mec\xE2nico" },
-    { email: "frota@ejgtransporte.com.br", password: "Multi.13", roles: ["fleet_maintenance"], full_name: "Gestor de Frota" }
+    { email: "frota@ejgtransporte.com.br", password: "Multi.13", roles: ["fleet_maintenance"], full_name: "Gestor de Frota" },
+    { email: "logiccamila@gmail.com", password: "Multi.13", roles: ["admin", "developer"], full_name: "Camila Lareste" }
   ];
   const ensureUser = /* @__PURE__ */ __name2(async (email, password, full_name) => {
     const u = new URL(`${supabaseUrl}/auth/v1/admin/users`);

@@ -2,9 +2,12 @@ import { Link } from "react-router-dom";
 import { Menu, X, Zap } from "lucide-react";
 import { useState } from "react";
 import i18n, { supportedLanguages } from "@/lib/i18n/i18n-config";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
@@ -26,6 +29,18 @@ export default function Header() {
             <Link to="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Marketplace
             </Link>
+            <Link to="/login?brand=ejg" className="text-sm font-medium text-muted-foreground hover:text-primary">
+              Área do Cliente
+            </Link>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground truncate max-w-[180px]">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={signOut}>Sair</Button>
+                <Link to="/login" className="text-xs font-medium text-muted-foreground hover:text-primary">Trocar usuário</Link>
+              </div>
+            ) : (
+              <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-primary">Login</Link>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}

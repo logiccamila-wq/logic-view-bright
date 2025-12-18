@@ -83,6 +83,7 @@ const managementItems = [
   { title: "Usuários", url: "/users", icon: Users, module: "users" },
   { title: "Permissões", url: "/permissions", icon: Shield, module: "settings" },
   { title: "Relatórios", url: "/reports", icon: BarChart3, module: "reports" },
+  { title: "Relatório Executivo", url: "/executive-report", icon: BarChart3, module: "reports" },
   { title: "Configurações", url: "/settings", icon: Settings, module: "settings" },
 ];
 

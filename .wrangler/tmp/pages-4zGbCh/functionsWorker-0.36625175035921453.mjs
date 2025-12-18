@@ -490,7 +490,8 @@ var onRequest15 = /* @__PURE__ */ __name(async ({ request, env }) => {
     { email: "enio.gomes@ejgtransporte.com.br", password: "Multi.13", roles: ["admin", "logistics_manager", "operations"], full_name: "Enio Gomes" },
     { email: "comercial@ejgtransporte.com.br", password: "Multi.13", roles: ["commercial"], full_name: "Comercial" },
     { email: "mecanico@ejgtransporte.com.br", password: "Multi.13", roles: ["fleet_maintenance"], full_name: "Mec\xE2nico" },
-    { email: "frota@ejgtransporte.com.br", password: "Multi.13", roles: ["fleet_maintenance"], full_name: "Gestor de Frota" }
+    { email: "frota@ejgtransporte.com.br", password: "Multi.13", roles: ["fleet_maintenance"], full_name: "Gestor de Frota" },
+    { email: "logiccamila@gmail.com", password: "Multi.13", roles: ["admin", "developer"], full_name: "Camila Lareste" }
   ];
   const ensureUser = /* @__PURE__ */ __name(async (email, password, full_name) => {
     const u = new URL(`${supabaseUrl}/auth/v1/admin/users`);
@@ -1257,7 +1258,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-bHb3Hv/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-1N7VqQ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -1289,7 +1290,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-bHb3Hv/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-1N7VqQ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

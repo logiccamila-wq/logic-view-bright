@@ -39,6 +39,7 @@ interface ServiceOrder {
 export function ServiceOrdersTab() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
+  const [ordersTable, setOrdersTable] = useState<'service_orders' | 'mechanic_orders'>('service_orders');
   const { vehicles } = useVehicles();
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -60,11 +61,22 @@ export function ServiceOrdersTab() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      setOrdersTable('service_orders');
       setOrders(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar ordens:', error);
-      const demo = demoList('service_orders');
-      setOrders(demo);
+    } catch (error: any) {
+      try {
+        const { data, error: err2 } = await supabase
+          .from('mechanic_orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (err2) throw err2;
+        setOrdersTable('mechanic_orders');
+        setOrders(data || []);
+      } catch (error2) {
+        console.error('Erro ao buscar ordens:', error2);
+        const demo = demoList('service_orders');
+        setOrders(demo);
+      }
     } finally {
       setLoading(false);
     }
@@ -74,15 +86,23 @@ export function ServiceOrdersTab() {
   useEffect(() => {
     fetchOrders();
 
-    const channel = supabase
+    const channelService = supabase
       .channel('service_orders_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'service_orders' }, () => {
         fetchOrders();
       })
       .subscribe();
 
+    const channelMechanic = supabase
+      .channel('mechanic_orders_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mechanic_orders' }, () => {
+        fetchOrders();
+      })
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(channelService);
+      supabase.removeChannel(channelMechanic);
     };
   }, []);
 
@@ -90,7 +110,8 @@ export function ServiceOrdersTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('service_orders').insert({
+      const targetTable = ordersTable;
+      const { error } = await supabase.from(targetTable).insert({
         ...formData,
         odometer: parseInt(formData.odometer),
         created_by: user?.id,
@@ -129,7 +150,7 @@ export function ServiceOrdersTab() {
       }
 
       const { error } = await supabase
-        .from('service_orders')
+        .from(ordersTable)
         .update(updateData)
         .eq('id', orderId);
 

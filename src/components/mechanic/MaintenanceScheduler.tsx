@@ -24,6 +24,7 @@ export const MaintenanceScheduler = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
+  const [ordersTable, setOrdersTable] = useState<'service_orders' | 'mechanic_orders'>('service_orders');
 
   useEffect(() => {
     loadMaintenanceSchedules();
@@ -34,12 +35,23 @@ export const MaintenanceScheduler = () => {
       setLoading(true);
 
       // Buscar todas as ordens de serviço
-      const { data: serviceOrders, error: ordersError } = await supabase
+      let serviceOrders: any[] | null = null;
+      const first = await supabase
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
-
-      if (ordersError) throw ordersError;
+      if (first.error) {
+        const second = await supabase
+          .from('mechanic_orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (second.error) throw second.error;
+        serviceOrders = second.data || [];
+        setOrdersTable('mechanic_orders');
+      } else {
+        serviceOrders = first.data || [];
+        setOrdersTable('service_orders');
+      }
 
       // Agrupar por veículo
       const vehicleMap = new Map<string, any[]>();
@@ -106,7 +118,7 @@ export const MaintenanceScheduler = () => {
   const createPreventiveMaintenance = async (schedule: VehicleSchedule) => {
     try {
       const { error } = await supabase
-        .from('service_orders')
+        .from(ordersTable)
         .insert({
           vehicle_plate: schedule.plate,
           vehicle_model: 'N/A',

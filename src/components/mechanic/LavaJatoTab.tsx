@@ -97,10 +97,14 @@ export function LavaJatoTab() {
     
     try {
       const { error } = await supabase.from('lavagens' as any).insert({
-        ...formData,
-        km: parseInt(formData.km),
-        valor: formData.valor ? parseFloat(formData.valor) : null,
-        responsavel_id: user?.id,
+        vehicle_plate: formData.vehicle_plate,
+        type: formData.tipo_lavagem,
+        km: formData.km ? parseInt(formData.km) : null,
+        cost: formData.valor ? parseFloat(formData.valor) : null,
+        date: formData.data_agendada || new Date().toISOString(),
+        notes: formData.observacoes || null,
+        responsavel_id: user?.id || null,
+        status: 'pendente'
       } as any);
 
       if (error) throw error;

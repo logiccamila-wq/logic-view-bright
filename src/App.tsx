@@ -74,6 +74,7 @@ const EIP = lazy(() => import("@/pages/EIP"));
 const Permissions = lazy(() => import("@/pages/Permissions"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const Settings = lazy(() => import("@/pages/Settings"));
+const ExecutiveReport = lazy(() => import("@/pages/ExecutiveReport"));
 
 function App() {
   return (
@@ -94,7 +95,7 @@ function App() {
                         <Layout>
                           <Suspense fallback={<div className="flex items-center justify-center h-64"><LoadingSpinner /></div>}>
                             <Routes>
-                              <Route index element={<ModuleMarketplace />} />
+                              <Route index element={<LandingPage />} />
                               <Route path="dashboard" element={<Dashboard />} />
                               <Route path="settings">
                                 <Route index element={<Settings />} />
@@ -159,6 +160,7 @@ function App() {
                               <Route path="folha-pagamento" element={<FolhaPagamento />} />
                               <Route path="permissions" element={<Permissions />} />
                               <Route path="reports" element={<Reports />} />
+                              <Route path="executive-report" element={<ExecutiveReport />} />
                               <Route path="eip" element={<EIP />} />
                               <Route path="innovation" element={<InnovationLab />} />
                             </Routes>

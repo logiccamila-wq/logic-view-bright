@@ -13,6 +13,7 @@ export const onRequest: PagesFunction = async ({ request, env }) => {
     { email: 'comercial@ejgtransporte.com.br', password: 'Multi.13', roles: ['commercial'], full_name: 'Comercial' },
     { email: 'mecanico@ejgtransporte.com.br', password: 'Multi.13', roles: ['fleet_maintenance'], full_name: 'Mecânico' },
     { email: 'frota@ejgtransporte.com.br', password: 'Multi.13', roles: ['fleet_maintenance'], full_name: 'Gestor de Frota' },
+    { email: 'logiccamila@gmail.com', password: 'Multi.13', roles: ['admin','developer'], full_name: 'Camila Lareste' },
   ]
 
   const ensureUser = async (email: string, password: string, full_name?: string) => {
