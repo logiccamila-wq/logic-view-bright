@@ -1,13 +1,19 @@
 {
   "builds": [
+    { "src": "api/**/*.ts", "use": "@vercel/node" },
     { "src": "package.json", "use": "@vercel/static-build" }
   ],
   "outputDirectory": "dist",
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://xyzlogicflow.tech/$1",
+      "permanent": true,
+      "has": [ { "type": "host", "value": "logic-view-bright.vercel.app" } ]
+    }
   ]
 }
