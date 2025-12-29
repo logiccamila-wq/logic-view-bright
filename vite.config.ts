@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/', // deploy no root do domínio
+  base: '/', // deploy at domain root
   build: {
     target: 'es2017',
   },
