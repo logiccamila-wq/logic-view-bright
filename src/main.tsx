@@ -10,24 +10,21 @@ console.log('%c🚀 Logic View Bright Starting...', 'color: #3b82f6; font-size: 
 console.log('%c✓ React loaded', 'color: #10b981;')
 console.log('%c✓ Vite environment ready', 'color: #10b981;')
 
-// Install global error handler for runtime errors
-window.addEventListener('error', (event) => {
-  console.error('💥 Runtime Error:', event.error || event.message)
-  
-  // Create debug overlay safely
+// Helper function to create error overlay
+function createErrorOverlay(title: string, message: string): void {
   const overlay = document.createElement('div')
   overlay.className = 'debug-error-overlay'
   
-  const title = document.createElement('div')
-  title.className = 'debug-error-overlay-title'
-  title.textContent = '⚠️ Runtime Error Detected'
+  const titleEl = document.createElement('div')
+  titleEl.className = 'debug-error-overlay-title'
+  titleEl.textContent = title
   
-  const message = document.createElement('div')
-  message.className = 'debug-error-overlay-message'
-  message.textContent = event.error?.message || event.message || 'Unknown error'
+  const messageEl = document.createElement('div')
+  messageEl.className = 'debug-error-overlay-message'
+  messageEl.textContent = message
   
-  overlay.appendChild(title)
-  overlay.appendChild(message)
+  overlay.appendChild(titleEl)
+  overlay.appendChild(messageEl)
   
   // Add close button on click
   overlay.addEventListener('click', () => overlay.remove())
@@ -42,37 +39,24 @@ window.addEventListener('error', (event) => {
       overlay.remove()
     }
   }, 10000)
+}
+
+// Install global error handler for runtime errors
+window.addEventListener('error', (event) => {
+  console.error('💥 Runtime Error:', event.error || event.message)
+  createErrorOverlay(
+    '⚠️ Runtime Error Detected',
+    event.error?.message || event.message || 'Unknown error'
+  )
 })
 
 // Install global promise rejection handler
 window.addEventListener('unhandledrejection', (event) => {
   console.error('💥 Unhandled Promise Rejection:', event.reason)
-  
-  const overlay = document.createElement('div')
-  overlay.className = 'debug-error-overlay'
-  
-  const title = document.createElement('div')
-  title.className = 'debug-error-overlay-title'
-  title.textContent = '⚠️ Promise Rejection'
-  
-  const message = document.createElement('div')
-  message.className = 'debug-error-overlay-message'
-  message.textContent = event.reason?.message || String(event.reason) || 'Unknown rejection'
-  
-  overlay.appendChild(title)
-  overlay.appendChild(message)
-  
-  overlay.addEventListener('click', () => overlay.remove())
-  overlay.style.cursor = 'pointer'
-  overlay.title = 'Click to dismiss'
-  
-  document.body.appendChild(overlay)
-  
-  setTimeout(() => {
-    if (overlay.parentNode) {
-      overlay.remove()
-    }
-  }, 10000)
+  createErrorOverlay(
+    '⚠️ Promise Rejection',
+    event.reason?.message || String(event.reason) || 'Unknown rejection'
+  )
 })
 
 const queryClient = new QueryClient()
