@@ -14,13 +14,20 @@ console.log('%c✓ Vite environment ready', 'color: #10b981;')
 window.addEventListener('error', (event) => {
   console.error('💥 Runtime Error:', event.error || event.message)
   
-  // Create debug overlay
+  // Create debug overlay safely
   const overlay = document.createElement('div')
   overlay.className = 'debug-error-overlay'
-  overlay.innerHTML = `
-    <div class="debug-error-overlay-title">⚠️ Runtime Error Detected</div>
-    <div class="debug-error-overlay-message">${event.error?.message || event.message || 'Unknown error'}</div>
-  `
+  
+  const title = document.createElement('div')
+  title.className = 'debug-error-overlay-title'
+  title.textContent = '⚠️ Runtime Error Detected'
+  
+  const message = document.createElement('div')
+  message.className = 'debug-error-overlay-message'
+  message.textContent = event.error?.message || event.message || 'Unknown error'
+  
+  overlay.appendChild(title)
+  overlay.appendChild(message)
   
   // Add close button on click
   overlay.addEventListener('click', () => overlay.remove())
@@ -30,7 +37,11 @@ window.addEventListener('error', (event) => {
   document.body.appendChild(overlay)
   
   // Auto-remove after 10 seconds
-  setTimeout(() => overlay.remove(), 10000)
+  setTimeout(() => {
+    if (overlay.parentNode) {
+      overlay.remove()
+    }
+  }, 10000)
 })
 
 // Install global promise rejection handler
@@ -39,17 +50,29 @@ window.addEventListener('unhandledrejection', (event) => {
   
   const overlay = document.createElement('div')
   overlay.className = 'debug-error-overlay'
-  overlay.innerHTML = `
-    <div class="debug-error-overlay-title">⚠️ Promise Rejection</div>
-    <div class="debug-error-overlay-message">${event.reason?.message || String(event.reason) || 'Unknown rejection'}</div>
-  `
+  
+  const title = document.createElement('div')
+  title.className = 'debug-error-overlay-title'
+  title.textContent = '⚠️ Promise Rejection'
+  
+  const message = document.createElement('div')
+  message.className = 'debug-error-overlay-message'
+  message.textContent = event.reason?.message || String(event.reason) || 'Unknown rejection'
+  
+  overlay.appendChild(title)
+  overlay.appendChild(message)
   
   overlay.addEventListener('click', () => overlay.remove())
   overlay.style.cursor = 'pointer'
   overlay.title = 'Click to dismiss'
   
   document.body.appendChild(overlay)
-  setTimeout(() => overlay.remove(), 10000)
+  
+  setTimeout(() => {
+    if (overlay.parentNode) {
+      overlay.remove()
+    }
+  }, 10000)
 })
 
 const queryClient = new QueryClient()
@@ -74,11 +97,22 @@ if (!rootElement) {
     text-align: center;
     max-width: 500px;
   `
-  errorMessage.innerHTML = `
-    <h2 style="margin-bottom: 1rem;">⚠️ Application Error</h2>
-    <p>Root element with id "root" not found in the document.</p>
-    <p style="margin-top: 1rem; font-size: 0.875rem;">Please check your HTML file.</p>
-  `
+  
+  const title = document.createElement('h2')
+  title.style.marginBottom = '1rem'
+  title.textContent = '⚠️ Application Error'
+  
+  const message1 = document.createElement('p')
+  message1.textContent = 'Root element with id "root" not found in the document.'
+  
+  const message2 = document.createElement('p')
+  message2.style.cssText = 'margin-top: 1rem; font-size: 0.875rem;'
+  message2.textContent = 'Please check your HTML file.'
+  
+  errorMessage.appendChild(title)
+  errorMessage.appendChild(message1)
+  errorMessage.appendChild(message2)
+  
   document.body.appendChild(errorMessage)
   throw new Error('Root element not found')
 }
