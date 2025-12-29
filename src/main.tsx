@@ -4,8 +4,10 @@ import App from './App'
 import './styles/global.css'
 
 // Console log app boot messages for easier debugging
-console.log('🚀 LogicFlow app starting...');
-console.log('📦 Environment:', import.meta.env.MODE);
+if (import.meta.env.DEV) {
+  console.log('🚀 LogicFlow app starting...');
+  console.log('📦 Environment:', import.meta.env.MODE);
+}
 
 // Install global error handler to catch runtime errors
 window.addEventListener('error', (event) => {
@@ -34,13 +36,22 @@ window.addEventListener('error', (event) => {
     document.body.appendChild(overlay);
   }
   
-  overlay.innerHTML = `
-    <div style="font-weight: bold; margin-bottom: 8px;">⚠️ Runtime Error</div>
-    <div>${event.error?.message || event.message || 'Unknown error'}</div>
-    <div style="margin-top: 8px; font-size: 10px; opacity: 0.8;">
-      ${event.filename || ''}${event.lineno ? ':' + event.lineno : ''}
-    </div>
-  `;
+  // Use textContent to prevent XSS vulnerabilities
+  const errorTitle = document.createElement('div');
+  errorTitle.style.cssText = 'font-weight: bold; margin-bottom: 8px;';
+  errorTitle.textContent = '⚠️ Runtime Error';
+  
+  const errorMessage = document.createElement('div');
+  errorMessage.textContent = event.error?.message || event.message || 'Unknown error';
+  
+  const errorLocation = document.createElement('div');
+  errorLocation.style.cssText = 'margin-top: 8px; font-size: 10px; opacity: 0.8;';
+  errorLocation.textContent = `${event.filename || ''}${event.lineno ? ':' + event.lineno : ''}`;
+  
+  overlay.innerHTML = '';
+  overlay.appendChild(errorTitle);
+  overlay.appendChild(errorMessage);
+  overlay.appendChild(errorLocation);
 });
 
 // Get root element
@@ -68,7 +79,9 @@ if (!rootElement) {
   throw new Error('Root element not found. Cannot mount React app.');
 }
 
-console.log('✅ Root element found, mounting app...');
+if (import.meta.env.DEV) {
+  console.log('✅ Root element found, mounting app...');
+}
 
 // Mount React App
 createRoot(rootElement).render(
@@ -77,4 +90,6 @@ createRoot(rootElement).render(
   </StrictMode>,
 );
 
-console.log('✅ App mounted successfully!');
+if (import.meta.env.DEV) {
+  console.log('✅ App mounted successfully!');
+}

@@ -29,6 +29,8 @@ jobs:
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
+        # Using @v1 which is the stable release tag recommended by Cloudflare
+        # Pin to specific commit hash if absolute reproducibility is required
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
