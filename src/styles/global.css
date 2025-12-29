@@ -372,7 +372,7 @@ body {
     font-size: 2rem;
   }
   
-  .landing-nav {
+  .landing-nav a:not(.landing-button) {
     display: none;
   }
   
