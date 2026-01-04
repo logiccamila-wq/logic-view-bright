@@ -16,6 +16,7 @@ as $$
       and e.user_id = auth.uid()
   );
 $$;
+language sql;
 
 -- Motoristas podem inserir viagens para si mesmos
 create policy if not exists "Motoristas podem criar suas viagens"
