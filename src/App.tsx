@@ -1,182 +1,404 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { I18nextProvider } from "react-i18next";
-import { HelmetProvider } from "react-helmet-async";
-import { AppThemeProvider } from "@/lib/themes/ThemeProvider";
-import i18n from "@/lib/i18n/i18n-config";
-import { Toaster } from "@/components/ui/toaster";
-import Layout from "@/components/layout/Layout";
-import { Suspense, lazy } from "react";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { NotificationsProvider } from "@/contexts/NotificationsContext";
-import LoadingSpinner from "@/components/animations/LoadingSpinner";
+import React from 'react';
 
-const LandingPage = lazy(() => import("@/pages/LandingPage"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Login = lazy(() => import("@/pages/Login"));
-const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const SettingsAppearance = lazy(() => import("@/pages/settings/SettingsAppearance"));
-const SettingsBranding = lazy(() => import("@/pages/settings/SettingsBranding"));
-const SettingsLanguage = lazy(() => import("@/pages/settings/SettingsLanguage"));
-const SettingsDomain = lazy(() => import("@/pages/settings/SettingsDomain"));
-const SettingsModules = lazy(() => import("@/pages/settings/SettingsModules"));
-const ModuleMarketplace = lazy(() => import("@/pages/ModuleMarketplace"));
-const ModulePage = lazy(() => import("@/pages/Module"));
-const OnboardingFlow = lazy(() => import("@/pages/OnboardingFlow"));
-const Demo = lazy(() => import("@/pages/Demo"));
-const TMS = lazy(() => import("@/pages/TMS"));
-const ERP = lazy(() => import("@/pages/ERP"));
-const WMS = lazy(() => import("@/pages/WMS"));
-const CRM = lazy(() => import("@/pages/CRM"));
-const OMS = lazy(() => import("@/pages/OMS"));
-const Driver = lazy(() => import("@/pages/Driver"));
-const Mechanic = lazy(() => import("@/pages/Mechanic"));
-const MaintenanceChecklist = lazy(() => import("@/pages/MaintenanceChecklist"));
-const Supergestor = lazy(() => import("@/pages/Supergestor"));
-const Gate = lazy(() => import("@/pages/Gate"));
-const PredictiveMaintenance = lazy(() => import("@/pages/PredictiveMaintenance"));
-const Admin = lazy(() => import("@/pages/Admin"));
-const ESG = lazy(() => import("@/pages/ESG"));
-const IoT = lazy(() => import("@/pages/IoT"));
-const Developer = lazy(() => import("@/pages/Developer"));
-const LiveTracking = lazy(() => import("@/pages/LiveTracking"));
-const InstallApp = lazy(() => import("@/pages/InstallApp"));
-const Documents = lazy(() => import("@/pages/Documents"));
-const ControlTower = lazy(() => import("@/pages/ControlTower"));
-const Fleet = lazy(() => import("@/pages/Fleet"));
-const JourneyManagement = lazy(() => import("@/pages/JourneyManagement"));
-const CostMonitoring = lazy(() => import("@/pages/CostMonitoring"));
-const LogisticsKPI = lazy(() => import("@/pages/LogisticsKPI"));
-const DRE = lazy(() => import("@/pages/DRE"));
-const Employees = lazy(() => import("@/pages/Employees"));
-const Inventory = lazy(() => import("@/pages/Inventory"));
-const Approvals = lazy(() => import("@/pages/Approvals"));
-const MaintenanceLibrary = lazy(() => import("@/pages/MaintenanceLibrary"));
-const SCM = lazy(() => import("@/pages/SCM"));
-const ExecutiveDashboard = lazy(() => import("@/pages/ExecutiveDashboard"));
-const DriversManagement = lazy(() => import("@/pages/DriversManagement"));
-const DriverApp = lazy(() => import("@/pages/DriverApp"));
-const Routing = lazy(() => import("@/pages/Routing"));
-const Users = lazy(() => import("@/pages/Users"));
-const PayrollManagement = lazy(() => import("@/pages/PayrollManagement"));
-const AccountsPayable = lazy(() => import("@/pages/AccountsPayable"));
-const AccountsReceivable = lazy(() => import("@/pages/AccountsReceivable"));
-const BankReconciliation = lazy(() => import("@/pages/BankReconciliation"));
-const Lancamentos = lazy(() => import("@/pages/Lancamentos"));
-const Partners = lazy(() => import("@/pages/Partners"));
-const PlanoContas = lazy(() => import("@/pages/PlanoContas"));
-const CentrosCusto = lazy(() => import("@/pages/CentrosCusto"));
-const FolhaPagamento = lazy(() => import("@/pages/FolhaPagamento"));
-const DriverJourney = lazy(() => import("@/pages/DriverJourney"));
-const DriverPayroll = lazy(() => import("@/pages/DriverPayroll"));
-const ControlTowerRedesign = lazy(() => import("@/pages/ControlTowerRedesign"));
-const InnovationLab = lazy(() => import("@/pages/InnovationLab"));
-const EIP = lazy(() => import("@/pages/EIP"));
-const Permissions = lazy(() => import("@/pages/Permissions"));
-const Reports = lazy(() => import("@/pages/Reports"));
-const Settings = lazy(() => import("@/pages/Settings"));
-const ExecutiveReport = lazy(() => import("@/pages/ExecutiveReport"));
-
+/**
+ * Modern Landing Page Component
+ * 
+ * A polished, responsive landing page with:
+ * - Hero section with clear value proposition
+ * - Feature highlights
+ * - How it works section
+ * - Footer with branding
+ */
 function App() {
+  // Smooth scroll handler for anchor links
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <HelmetProvider>
-      <I18nextProvider i18n={i18n}>
-        <AppThemeProvider>
-          <Router>
-            <AuthProvider>
-              <NotificationsProvider>
-                <div className="min-h-screen bg-background text-foreground">
-                  <Suspense fallback={<div className="flex items-center justify-center h-screen"><LoadingSpinner /></div>}>
-                    <Routes>
-                      <Route path="/" element={<LandingPage />} />
-                      <Route path="/onboarding" element={<OnboardingFlow />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      <Route path="/*" element={
-                        <Layout>
-                          <Suspense fallback={<div className="flex items-center justify-center h-64"><LoadingSpinner /></div>}>
-                            <Routes>
-                              <Route index element={<LandingPage />} />
-                              <Route path="dashboard" element={<Dashboard />} />
-                              <Route path="settings">
-                                <Route index element={<Settings />} />
-                                <Route path="appearance" element={<SettingsAppearance />} />
-                                <Route path="branding" element={<SettingsBranding />} />
-                                <Route path="language" element={<SettingsLanguage />} />
-                                <Route path="domain" element={<SettingsDomain />} />
-                                <Route path="modules" element={<SettingsModules />} />
-                              </Route>
-                              <Route path="marketplace" element={<ModuleMarketplace />} />
-                              <Route path="module/:slug" element={<ModulePage />} />
-                              <Route path="tms" element={<TMS />} />
-                              <Route path="erp" element={<ERP />} />
-                              <Route path="wms" element={<WMS />} />
-                              <Route path="crm" element={<CRM />} />
-                              <Route path="oms" element={<OMS />} />
-                              <Route path="driver" element={<Driver />} />
-                              <Route path="dr" element={<Driver />} />
-                              <Route path="driver-journey" element={<DriverJourney />} />
-                              <Route path="driver-payroll" element={<DriverPayroll />} />
-                              <Route path="mechanic" element={<Mechanic />} />
-                              <Route path="maintenance-checklist" element={<MaintenanceChecklist />} />
-                              <Route path="supergestor" element={<Supergestor />} />
-                              <Route path="gate" element={<Gate />} />
-                              <Route path="live-tracking" element={<LiveTracking />} />
-                              <Route path="install-app" element={<InstallApp />} />
-                              <Route path="control-tower" element={<ControlTower />} />
-                              <Route path="control-tower-new" element={<ControlTowerRedesign />} />
-                              <Route path="fleet" element={<Fleet />} />
-                              <Route path="journey-management" element={<JourneyManagement />} />
-                              <Route path="cost-monitoring" element={<CostMonitoring />} />
-                              <Route path="logistics-kpi" element={<LogisticsKPI />} />
-                              <Route path="predictive-maintenance" element={<PredictiveMaintenance />} />
-                              <Route path="admin" element={<Admin />} />
-                              <Route path="esg" element={<ESG />} />
-                              <Route path="iot" element={<IoT />} />
-                              <Route path="dre" element={<DRE />} />
-                              <Route path="employees" element={<Employees />} />
-                              <Route path="warehouse" element={<Inventory />} />
-                              <Route path="inventory" element={<Inventory />} />
-                              <Route path="documents" element={<Documents />} />
-                              <Route path="approvals" element={<Approvals />} />
-                              <Route path="oem" element={<MaintenanceLibrary />} />
-                              <Route path="scm" element={<SCM />} />
-                              <Route path="executive-dashboard" element={<ExecutiveDashboard />} />
-                              <Route path="drivers" element={<DriversManagement />} />
-                              <Route path="drivers-management" element={<DriversManagement />} />
-                              <Route path="driver-app" element={<DriverApp />} />
-                              <Route path="users" element={<Users />} />
-                              <Route path="payroll" element={<PayrollManagement />} />
-                              <Route path="payroll-management" element={<PayrollManagement />} />
-                              <Route path="routing" element={<Routing />} />
-                              <Route path="demo" element={<Demo />} />
-                              <Route path="developer" element={<Developer />} />
-                              <Route path="partners" element={<Partners />} />
-                              <Route path="centros-custo" element={<CentrosCusto />} />
-                              <Route path="plano-contas" element={<PlanoContas />} />
-                              <Route path="lancamentos" element={<Lancamentos />} />
-                              <Route path="bank-reconciliation" element={<BankReconciliation />} />
-                              <Route path="accounts-payable" element={<AccountsPayable />} />
-                              <Route path="accounts-receivable" element={<AccountsReceivable />} />
-                              <Route path="folha-pagamento" element={<FolhaPagamento />} />
-                              <Route path="permissions" element={<Permissions />} />
-                              <Route path="reports" element={<Reports />} />
-                              <Route path="executive-report" element={<ExecutiveReport />} />
-                              <Route path="eip" element={<EIP />} />
-                              <Route path="innovation" element={<InnovationLab />} />
-                            </Routes>
-                          </Suspense>
-                        </Layout>
-                      } />
-                    </Routes>
-                  </Suspense>
-                </div>
-              </NotificationsProvider>
-            </AuthProvider>
-          </Router>
-          <Toaster />
-        </AppThemeProvider>
-      </I18nextProvider>
-    </HelmetProvider>
+    <div className="landing-page">
+      {/* Header */}
+      <header style={{
+        backgroundColor: 'var(--color-bg-primary)',
+        borderBottom: '1px solid var(--color-border)',
+        padding: 'var(--spacing-md) 0',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        boxShadow: 'var(--shadow-sm)'
+      }}>
+        <div className="container" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            fontSize: 'var(--font-size-xl)',
+            fontWeight: 700,
+            color: 'var(--color-primary)'
+          }}>
+            Logic View Bright
+          </div>
+          <nav style={{
+            display: 'flex',
+            gap: 'var(--spacing-lg)'
+          }}>
+            <a 
+              href="#features" 
+              onClick={(e) => handleScrollTo(e, 'features')}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Features
+            </a>
+            <a 
+              href="#how-it-works" 
+              onClick={(e) => handleScrollTo(e, 'how-it-works')}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              How It Works
+            </a>
+            <a 
+              href="#contact" 
+              onClick={(e) => handleScrollTo(e, 'contact')}
+              className="btn btn-primary btn-sm" 
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                fontSize: 'var(--font-size-sm)'
+              }}
+            >
+              Get Started
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'var(--color-text-inverse)',
+        padding: 'var(--spacing-3xl) 0',
+        textAlign: 'center'
+      }}>
+        <div className="container">
+          <h1 style={{
+            fontSize: 'var(--font-size-5xl)',
+            fontWeight: 700,
+            marginBottom: 'var(--spacing-lg)',
+            color: 'var(--color-text-inverse)'
+          }}>
+            Transform Your Logistics Operations
+          </h1>
+          <p style={{
+            fontSize: 'var(--font-size-xl)',
+            marginBottom: 'var(--spacing-2xl)',
+            color: 'rgba(255, 255, 255, 0.9)',
+            maxWidth: '800px',
+            margin: '0 auto var(--spacing-2xl)'
+          }}>
+            A comprehensive platform for managing fleet, routes, maintenance, and operations with real-time insights and intelligent automation.
+          </p>
+          <div style={{
+            display: 'flex',
+            gap: 'var(--spacing-md)',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <button 
+              className="btn btn-large" 
+              onClick={() => handleScrollTo(new MouseEvent('click') as any, 'contact')}
+              style={{
+                backgroundColor: 'var(--color-text-inverse)',
+                color: 'var(--color-primary)'
+              }}
+            >
+              Start Free Trial
+            </button>
+            <button 
+              className="btn btn-large btn-secondary" 
+              onClick={() => handleScrollTo(new MouseEvent('click') as any, 'how-it-works')}
+              style={{
+                borderColor: 'var(--color-text-inverse)',
+                color: 'var(--color-text-inverse)'
+              }}
+            >
+              Watch Demo
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="section section-light">
+        <div className="container">
+          <h2 className="text-center mb-2xl" style={{ color: 'var(--color-text-primary)' }}>
+            Powerful Features for Modern Logistics
+          </h2>
+          <div className="grid grid-3">
+            <div className="card">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 'var(--spacing-md)',
+                fontSize: 'var(--font-size-2xl)'
+              }}>
+                🚚
+              </div>
+              <h3 className="mb-sm">Fleet Management</h3>
+              <p>
+                Track your entire fleet in real-time with GPS integration, maintenance scheduling, and vehicle health monitoring.
+              </p>
+            </div>
+            
+            <div className="card">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 'var(--spacing-md)',
+                fontSize: 'var(--font-size-2xl)'
+              }}>
+                📊
+              </div>
+              <h3 className="mb-sm">Analytics Dashboard</h3>
+              <p>
+                Get actionable insights with comprehensive KPIs, cost monitoring, and executive-level reporting capabilities.
+              </p>
+            </div>
+            
+            <div className="card">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 'var(--spacing-md)',
+                fontSize: 'var(--font-size-2xl)'
+              }}>
+                🛠️
+              </div>
+              <h3 className="mb-sm">Maintenance Tracking</h3>
+              <p>
+                Predictive maintenance, service scheduling, and workshop management to keep your fleet running smoothly.
+              </p>
+            </div>
+            
+            <div className="card">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 'var(--spacing-md)',
+                fontSize: 'var(--font-size-2xl)'
+              }}>
+                🗺️
+              </div>
+              <h3 className="mb-sm">Route Optimization</h3>
+              <p>
+                Intelligent routing algorithms that reduce fuel costs, improve delivery times, and maximize efficiency.
+              </p>
+            </div>
+            
+            <div className="card">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 'var(--spacing-md)',
+                fontSize: 'var(--font-size-2xl)'
+              }}>
+                📱
+              </div>
+              <h3 className="mb-sm">Driver App</h3>
+              <p>
+                Mobile-first driver interface for journey management, digital documentation, and real-time communication.
+              </p>
+            </div>
+            
+            <div className="card">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 'var(--spacing-md)',
+                fontSize: 'var(--font-size-2xl)'
+              }}>
+                🔒
+              </div>
+              <h3 className="mb-sm">Enterprise Security</h3>
+              <p>
+                Role-based access control, audit trails, and compliance-ready security features for peace of mind.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="section">
+        <div className="container">
+          <h2 className="text-center mb-2xl">How It Works</h2>
+          <div className="grid grid-3">
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-inverse)',
+                borderRadius: 'var(--radius-full)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto var(--spacing-md)',
+                fontSize: 'var(--font-size-3xl)',
+                fontWeight: 700
+              }}>
+                1
+              </div>
+              <h4 className="mb-sm">Sign Up</h4>
+              <p>
+                Create your account in minutes and configure your organization settings.
+              </p>
+            </div>
+            
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-inverse)',
+                borderRadius: 'var(--radius-full)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto var(--spacing-md)',
+                fontSize: 'var(--font-size-3xl)',
+                fontWeight: 700
+              }}>
+                2
+              </div>
+              <h4 className="mb-sm">Import Data</h4>
+              <p>
+                Import your fleet, drivers, and routes with our easy-to-use data import tools.
+              </p>
+            </div>
+            
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-inverse)',
+                borderRadius: 'var(--radius-full)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto var(--spacing-md)',
+                fontSize: 'var(--font-size-3xl)',
+                fontWeight: 700
+              }}>
+                3
+              </div>
+              <h4 className="mb-sm">Go Live</h4>
+              <p>
+                Start managing operations, tracking KPIs, and optimizing your logistics immediately.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="section section-dark" id="contact">
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h2 className="mb-lg" style={{ color: 'var(--color-text-inverse)' }}>
+            Ready to Transform Your Logistics?
+          </h2>
+          <p style={{
+            fontSize: 'var(--font-size-lg)',
+            marginBottom: 'var(--spacing-xl)',
+            color: 'rgba(255, 255, 255, 0.8)',
+            maxWidth: '600px',
+            margin: '0 auto var(--spacing-xl)'
+          }}>
+            Join hundreds of companies already using Logic View Bright to streamline their operations.
+          </p>
+          <button className="btn btn-large" style={{
+            backgroundColor: 'var(--color-text-inverse)',
+            color: 'var(--color-primary)'
+          }}>
+            Get Started Today
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{
+        backgroundColor: 'var(--color-bg-tertiary)',
+        padding: 'var(--spacing-xl) 0',
+        borderTop: '1px solid var(--color-border)'
+      }}>
+        <div className="container">
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 'var(--spacing-md)'
+          }}>
+            <div>
+              <div style={{
+                fontSize: 'var(--font-size-lg)',
+                fontWeight: 700,
+                color: 'var(--color-primary)',
+                marginBottom: 'var(--spacing-sm)'
+              }}>
+                Logic View Bright
+              </div>
+              <p className="text-muted" style={{ fontSize: 'var(--font-size-sm)', marginBottom: 0 }}>
+                © 2024 Logic View Bright. All rights reserved.
+              </p>
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: 'var(--spacing-lg)',
+              fontSize: 'var(--font-size-sm)'
+            }}>
+              <a href="#privacy">Privacy Policy</a>
+              <a href="#terms">Terms of Service</a>
+              <a href="#support">Support</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
 
