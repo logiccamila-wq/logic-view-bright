@@ -31,7 +31,7 @@ const OMS = lazy(() => import("@/pages/OMS"));
 const Driver = lazy(() => import("@/pages/Driver"));
 const Mechanic = lazy(() => import("@/pages/Mechanic"));
 const MaintenanceChecklist = lazy(() => import("@/pages/MaintenanceChecklist"));
-const Supergestor = lazy(() => import("@/pages/Supergestor"));
+const Supergestor = lazy(() => import("@/pages/SuperGestor"));
 const Gate = lazy(() => import("@/pages/Gate"));
 const PredictiveMaintenance = lazy(() => import("@/pages/PredictiveMaintenance"));
 const Admin = lazy(() => import("@/pages/Admin"));

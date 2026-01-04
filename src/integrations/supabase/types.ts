@@ -3141,6 +3141,63 @@ export type Database = {
         }
         Relationships: []
       }
+      mechanic_orders: {
+        Row: {
+          id: string
+          vehicle_plate: string
+          vehicle_model: string
+          odometer: number
+          issue_description: string
+          priority: string
+          status: string
+          mechanic_id: string | null
+          mechanic_notes: string | null
+          parts_used: Json | null
+          labor_hours: number | null
+          estimated_completion: string | null
+          completed_at: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          vehicle_plate: string
+          vehicle_model: string
+          odometer: number
+          issue_description: string
+          priority?: string
+          status?: string
+          mechanic_id?: string | null
+          mechanic_notes?: string | null
+          parts_used?: Json | null
+          labor_hours?: number | null
+          estimated_completion?: string | null
+          completed_at?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          vehicle_plate?: string
+          vehicle_model?: string
+          odometer?: number
+          issue_description?: string
+          priority?: string
+          status?: string
+          mechanic_id?: string | null
+          mechanic_notes?: string | null
+          parts_used?: Json | null
+          labor_hours?: number | null
+          estimated_completion?: string | null
+          completed_at?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tpms_readings: {
         Row: {
           alert_level: string
