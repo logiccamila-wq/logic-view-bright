@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "build:check": "tsc -b && vite build",
     "lint": "eslint \"src/components/layout/**/*.{ts,tsx,js,jsx}\" \"src/modules/**/*.{ts,tsx,js,jsx}\" --fix --ignore-pattern supabase/functions/** --ignore-pattern vehicles-docs.ts --ignore-pattern tailwind.config.ts",
     "preview": "vite preview",
     "check": "tsc -b --noEmit",
