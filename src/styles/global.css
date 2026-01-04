@@ -1,5 +1,9 @@
 /* Global Theme and Component Styles */
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   /* Color Palette - Modern, High-Contrast */
   --color-primary: #3b82f6;

@@ -10,6 +10,15 @@ import React from 'react';
  * - Footer with branding
  */
 function App() {
+  // Smooth scroll handler for anchor links
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="landing-page">
       {/* Header */}
@@ -38,12 +47,31 @@ function App() {
             display: 'flex',
             gap: 'var(--spacing-lg)'
           }}>
-            <a href="#features" style={{ color: 'var(--color-text-primary)' }}>Features</a>
-            <a href="#how-it-works" style={{ color: 'var(--color-text-primary)' }}>How It Works</a>
-            <a href="#contact" className="btn btn-primary btn-sm" style={{
-              padding: 'var(--spacing-sm) var(--spacing-md)',
-              fontSize: 'var(--font-size-sm)'
-            }}>Get Started</a>
+            <a 
+              href="#features" 
+              onClick={(e) => handleScrollTo(e, 'features')}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Features
+            </a>
+            <a 
+              href="#how-it-works" 
+              onClick={(e) => handleScrollTo(e, 'how-it-works')}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              How It Works
+            </a>
+            <a 
+              href="#contact" 
+              onClick={(e) => handleScrollTo(e, 'contact')}
+              className="btn btn-primary btn-sm" 
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                fontSize: 'var(--font-size-sm)'
+              }}
+            >
+              Get Started
+            </a>
           </nav>
         </div>
       </header>
@@ -79,16 +107,24 @@ function App() {
             justifyContent: 'center',
             flexWrap: 'wrap'
           }}>
-            <button className="btn btn-large" style={{
-              backgroundColor: 'var(--color-text-inverse)',
-              color: 'var(--color-primary)'
-            }}>
+            <button 
+              className="btn btn-large" 
+              onClick={() => handleScrollTo(new MouseEvent('click') as any, 'contact')}
+              style={{
+                backgroundColor: 'var(--color-text-inverse)',
+                color: 'var(--color-primary)'
+              }}
+            >
               Start Free Trial
             </button>
-            <button className="btn btn-large btn-secondary" style={{
-              borderColor: 'var(--color-text-inverse)',
-              color: 'var(--color-text-inverse)'
-            }}>
+            <button 
+              className="btn btn-large btn-secondary" 
+              onClick={() => handleScrollTo(new MouseEvent('click') as any, 'how-it-works')}
+              style={{
+                borderColor: 'var(--color-text-inverse)',
+                color: 'var(--color-text-inverse)'
+              }}
+            >
               Watch Demo
             </button>
           </div>
