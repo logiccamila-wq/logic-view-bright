@@ -23,7 +23,7 @@ create policy if not exists "Motoristas podem criar suas viagens"
 on public.driver_trips
 for insert
 with check (
-  public.has_role('driver') and public.is_driver_owner(driver_id)
+  public.has_role('driver'::app_role) and public.is_driver_owner(driver_id)
 );
 
 -- Motoristas podem atualizar viagens próprias
@@ -31,8 +31,8 @@ create policy if not exists "Motoristas podem atualizar suas viagens"
 on public.driver_trips
 for update
 using (
-  public.has_role('driver') and public.is_driver_owner(driver_id)
+  public.has_role('driver'::app_role) and public.is_driver_owner(driver_id)
 )
 with check (
-  public.has_role('driver') and public.is_driver_owner(driver_id)
+  public.has_role('driver'::app_role) and public.is_driver_owner(driver_id)
 );
