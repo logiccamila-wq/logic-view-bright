@@ -79,7 +79,7 @@ Após o deploy:
 4. Copie a URL de produção
 5. Teste a aplicação
 
-## Troubleshooting
+## Resolução de Problemas
 
 ### Build falha com erros TypeScript
 ✅ **Solucionado**: O comando `build` agora usa apenas `vite build`, pulando a verificação de tipos.
@@ -104,5 +104,6 @@ Após o deploy:
 ## Notas
 
 - O workflow só dispara em push para a branch `main`
-- TypeScript errors em `api/` e `src/components/mechanic/` são conhecidos e não afetam o build da landing page
-- A landing page é standalone e não depende das rotas complexas do app completo
+- Erros TypeScript em `api/` e `src/components/mechanic/` são pré-existentes (falta de tipos para Node.js e dependências específicas do backend) e não afetam o build da landing page standalone
+- A landing page é independente e não depende das rotas complexas do app completo
+- Para resolver os erros TypeScript do restante do projeto, será necessário instalar tipos adicionais (`@types/node`, `@vercel/node`, etc.) em um PR futuro
