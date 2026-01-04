@@ -4,6 +4,7 @@
 -- Função auxiliar para verificar se o driver_id pertence ao usuário autenticado
 create or replace function public.is_driver_owner(_driver_id uuid)
 returns boolean
+language sql
 security definer
 stable
 set search_path = public, auth
@@ -15,14 +16,14 @@ as $$
     where d.id = _driver_id
       and e.user_id = auth.uid()
   );
-$$ language sql;
+$$;
 
 -- Motoristas podem inserir viagens para si mesmos
 create policy if not exists "Motoristas podem criar suas viagens"
 on public.driver_trips
 for insert
 with check (
-  public.is_driver_owner(driver_id)
+  public.has_role('driver') and public.is_driver_owner(driver_id)
 );
 
 -- Motoristas podem atualizar viagens próprias
@@ -30,8 +31,8 @@ create policy if not exists "Motoristas podem atualizar suas viagens"
 on public.driver_trips
 for update
 using (
-  public.is_driver_owner(driver_id)
+  public.has_role('driver') and public.is_driver_owner(driver_id)
 )
 with check (
-  public.is_driver_owner(driver_id)
+  public.has_role('driver') and public.is_driver_owner(driver_id)
 );
