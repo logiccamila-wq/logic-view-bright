@@ -1,53 +1,95 @@
-# React + TypeScript + Vite
+# 🚀 Logic View Bright - Plataforma Logística Unificada
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Sistema completo de gestão logística com arquitetura moderna: Vercel + Supabase
 
-Currently, two official plugins are available:
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
+[![Backend](https://img.shields.io/badge/Backend-Supabase-green)](https://supabase.com)
+[![Framework](https://img.shields.io/badge/Framework-React%2018-blue)](https://react.dev)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📐 Arquitetura
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+GitHub (Source) → Vercel (Frontend) + Supabase (Backend + DB) → xyzlogicflow.tech
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Stack
+- **Frontend:** React 18 + TypeScript + TailwindCSS + Vite
+- **Backend:** Supabase Edge Functions (Deno)
+- **Database:** PostgreSQL (Supabase)
+- **Deploy:** Vercel (auto) + Supabase CLI
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Deploy Rápido
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
+```bash
+# Deploy completo automatizado
+./deploy.sh
+
+# Ou manual
+git push origin main              # Frontend (Vercel auto-deploy)
+npm run deploy:functions          # Edge Functions (Supabase)
+```
+
+## 📦 Comandos
+
+```bash
+npm run dev              # Dev server (http://localhost:5173)
+npm run build            # Build produção
+npm run deploy:all       # Deploy completo
+npm run db:push          # Aplicar migrations
+```
+
+## 🔐 Variáveis de Ambiente
+
+**Frontend** (.env.local):
+```env
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJxxx...
+```
+
+**Supabase** (Dashboard → Settings → Edge Functions):
+```env
+SUPABASE_SERVICE_ROLE_KEY=xxx
+OPENAI_API_KEY=sk-xxx
+```
+
+## 📁 Estrutura
+
+```
+src/                  # Frontend React
+├── components/      # UI components
+├── pages/           # Páginas/Rotas
+├── modules/         # Módulos do sistema
+└── integrations/    # Supabase client
+
+supabase/
+├── functions/       # Edge Functions (Backend)
+└── migrations/      # Database migrations
+```
+
+## 🎯 Módulos
+
+- Fleet Management - Gestão de frota
+- TMS - Transporte
+- WMS - Armazém
+- Financial - Financeiro
+- CRM - Clientes
+- Reports - KPIs e Relatórios
+
+## 🌐 URLs
+
+- **Produção:** https://xyzlogicflow.tech
+- **Vercel:** https://vercel.com/dashboard
+- **Supabase:** https://supabase.com/dashboard
+
+## 📖 Documentação
+
+- [Deploy Completo](DEPLOY_SINGLE.md)
+- [Setup Usuários](SETUP_USUARIOS.md)
+- [Innovation Roadmap](INNOVATION_ROADMAP.md)
+
+---
+
+**⚠️ Arquitetura Unificada:** Este projeto usa APENAS Vercel + Supabase. Cloudflare e Netlify foram removidos.
     parserOptions: {
       project: ['./tsconfig.node.json', './tsconfig.app.json'],
       tsconfigRootDir: import.meta.dirname,
