@@ -3,8 +3,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, BarChart3, Truck, Shield, Zap, ShoppingBag, Users, Globe, PlayCircle, Mail, Phone } from "lucide-react";
+import { 
+  ArrowRight, Check, BarChart3, Truck, Shield, Zap, ShoppingBag, Users, Globe, 
+  PlayCircle, Mail, Phone, TrendingUp, DollarSign, Package, MapPin, Clock, 
+  Star, Sparkles, Rocket, Target, Award, ChevronRight, Menu, X
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";

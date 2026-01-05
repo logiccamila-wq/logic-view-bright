@@ -10,8 +10,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import LoadingSpinner from "@/components/animations/LoadingSpinner";
 
-const LandingPage = lazy(() => import("@/pages/LandingPage"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const LandingPage = lazy(() => import("@/pages/ModernLandingPage"));
+const Dashboard = lazy(() => import("@/pages/ModernDashboard"));
 const Login = lazy(() => import("@/pages/Login"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const SettingsAppearance = lazy(() => import("@/pages/settings/SettingsAppearance"));

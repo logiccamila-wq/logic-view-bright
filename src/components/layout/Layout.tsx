@@ -3,25 +3,32 @@ import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import { useCostAlerts } from "@/hooks/useCostAlerts";
 import Header from "./Header";
 import { Sidebar } from "./Sidebar";
+import { Outlet } from 'react-router-dom';
 
 interface LayoutProps {
   children?: ReactNode;
 }
 
-import { Outlet } from 'react-router-dom';
-
 export default function Layout({ children }: LayoutProps) {
   useMaintenanceAlerts();
   useCostAlerts();
+  
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-gradient-to-br from-background via-background to-muted/10">
+      {/* Modern Sidebar */}
       <Sidebar className="hidden md:block" />
+      
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Modern Header with backdrop blur */}
         <Header />
-        <main className="flex-grow container mx-auto p-4 md:p-6 overflow-auto pt-16">
-          {children || <Outlet />}
+        
+        {/* Main Content with smooth animations */}
+        <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 overflow-auto pt-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="max-w-[1600px] mx-auto">
+            {children || <Outlet />}
+          </div>
         </main>
-        {/* Footer removido conforme solicitado */}
       </div>
     </div>
   );
