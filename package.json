@@ -9,8 +9,10 @@
     "lint": "eslint \"src/components/layout/**/*.{ts,tsx,js,jsx}\" \"src/modules/**/*.{ts,tsx,js,jsx}\" --fix --ignore-pattern supabase/functions/** --ignore-pattern vehicles-docs.ts --ignore-pattern tailwind.config.ts",
     "preview": "vite preview",
     "check": "tsc -b --noEmit",
-    "pages:preview": "wrangler pages dev dist",
-    "pages:deploy": "wrangler pages publish dist --project-name xyzlogicflow"
+    "deploy:functions": "supabase functions deploy --no-verify-jwt",
+    "deploy:all": "npm run build && git push origin main && npm run deploy:functions",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
