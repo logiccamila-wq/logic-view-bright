@@ -224,7 +224,7 @@ export function AppSidebar() {
         <div className="mt-auto p-4 border-t border-border space-y-2">
           {user && !collapsed && (
             <div className="text-xs text-muted-foreground truncate px-2">
-              {user.email}
+              {user.user_metadata?.name || user.user_metadata?.display_name || user.email}
             </div>
           )}
           <Button

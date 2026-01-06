@@ -109,7 +109,7 @@ const ModernDashboard = () => {
         {/* Page Header */}
         <FadeInUp>
           <PageHeader
-            title={`Bem-vindo, ${user?.email?.split('@')[0] || 'Usuário'}!`}
+            title={`Bem-vindo, ${user?.user_metadata?.name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Usuário'}!`}
             description="Aqui está um resumo da sua operação em tempo real"
             action={
               <HoverScale>

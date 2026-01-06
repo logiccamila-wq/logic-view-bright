@@ -279,7 +279,7 @@ const ControlTower = () => {
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <User className="w-4 h-4" />
-            <span>{user?.email}</span>
+            <span>{user?.user_metadata?.name || user?.user_metadata?.display_name || user?.email}</span>
           </div>
         </div>
 
