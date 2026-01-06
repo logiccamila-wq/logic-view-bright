@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -148,7 +147,7 @@ const AccountsReceivable = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -302,7 +301,7 @@ const AccountsReceivable = () => {
         title="Confirmar Exclusão"
         description="Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita."
       />
-    </Layout>
+    </>
   );
 };
 

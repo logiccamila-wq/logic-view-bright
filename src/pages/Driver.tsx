@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -233,7 +232,6 @@ const Driver = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -586,7 +584,6 @@ const Driver = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,6 @@ const Insurance = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Apólices de Seguro</h1>
@@ -87,7 +85,6 @@ const Insurance = () => {
           ))}
         </div>
       </div>
-    </Layout>
   );
 };
 

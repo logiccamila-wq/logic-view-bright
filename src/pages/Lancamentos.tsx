@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -152,7 +151,7 @@ export default function Lancamentos() {
   const saldo = totalEntradas - totalSaidas;
 
   return (
-    <Layout>
+    <>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Lançamentos Financeiros</h1>
@@ -349,6 +348,6 @@ export default function Lancamentos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Layout>
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -98,7 +97,7 @@ export default function CentrosCusto() {
   );
 
   return (
-    <Layout>
+    <>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Centros de Custo</h1>
@@ -197,6 +196,6 @@ export default function CentrosCusto() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Layout>
-  );
+    </>
+  )
 }

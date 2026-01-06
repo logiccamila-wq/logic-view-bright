@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import { Bell, Lock, User, Building2, Save } from "lucide-react";
 
 const Settings = () => {
   return (
-    <Layout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Configurações</h1>
 
@@ -151,7 +149,6 @@ const Settings = () => {
           </Card>
         </div>
       </div>
-    </Layout>
   );
 };
 

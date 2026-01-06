@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-background via-background to-muted/10">
       {/* Modern Sidebar */}
-      <Sidebar className="hidden md:block" />
+      <Sidebar />
       
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">

@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ServiceOrdersTab } from "@/components/mechanic/ServiceOrdersTab";
@@ -20,7 +19,6 @@ import { Wrench, Gauge, Package, ClipboardCheck, Droplet, Circle, Calendar, Pack
 
 const Mechanic = () => {
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Portal do Mecânico</h1>
@@ -138,7 +136,6 @@ const Mechanic = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

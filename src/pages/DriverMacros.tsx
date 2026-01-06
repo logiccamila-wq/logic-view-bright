@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,6 @@ const DriverMacros = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Mobilização Manual do Motorista</h1>
         <Card className="p-4">
@@ -48,7 +46,6 @@ const DriverMacros = () => {
           </div>
         </Card>
       </div>
-    </Layout>
   );
 };
 

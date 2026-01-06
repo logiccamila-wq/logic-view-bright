@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +59,6 @@ export default function Gate() {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Portaria</h1>
@@ -151,6 +149,5 @@ export default function Gate() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

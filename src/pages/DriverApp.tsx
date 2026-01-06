@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -143,11 +142,9 @@ export default function DriverApp() {
 
   if (loadingSession || loadingAllowances || loadingEarnings) {
     return (
-      <Layout>
         <div className="flex items-center justify-center h-96">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      </Layout>
     );
   }
 
@@ -156,7 +153,6 @@ export default function DriverApp() {
     .reduce((sum: number, s: any) => sum + calculateDailyAllowance(s), 0) || 0;
 
   return (
-    <Layout>
       <div className="space-y-6 max-w-7xl mx-auto">
         {/* Header Mobile-friendly */}
         <div className="space-y-2">
@@ -392,6 +388,5 @@ export default function DriverApp() {
           <GaelChatbot />
         </div>
       </div>
-    </Layout>
   );
 }

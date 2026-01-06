@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,7 +142,6 @@ const ControlTowerRedesign = () => {
   }, []);
 
   return (
-    <Layout>
       <div className="flex h-[calc(100vh-8rem)] gap-4">
         {/* Sidebar Esquerda - Lista de Veículos */}
         {!isTvMode && (
@@ -342,7 +340,6 @@ const ControlTowerRedesign = () => {
           </aside>
         )}
       </div>
-    </Layout>
   );
 };
 

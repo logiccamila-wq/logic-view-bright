@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,19 +75,16 @@ const LiveTracking = () => {
 
   if (loading) {
     return (
-      <Layout>
         <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
           <div className="flex flex-col items-center gap-4">
             <RefreshCw className="h-8 w-8 animate-spin text-primary" />
             <p className="text-muted-foreground">Carregando rastreamento...</p>
           </div>
         </div>
-      </Layout>
     );
   }
 
   return (
-    <Layout>
       <div className="flex h-[calc(100vh-8rem)] gap-4">
         {/* Sidebar Esquerda - Lista de Veículos */}
         {!isTvMode && (
@@ -293,7 +289,6 @@ const LiveTracking = () => {
           </aside>
         )}
       </div>
-    </Layout>
   );
 };
 

@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -29,7 +28,6 @@ const LogisticsKPI = () => {
   const speed = operationalSpeed(totalKm, ((sessions.data||[]).reduce((s,w)=> s + Math.max(0,(new Date(w.end_time||w.start_time).getTime()-new Date(w.start_time).getTime())/(1000*60*60)),0)));
 
   return (
-    <Layout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Indicadores Logísticos</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -43,7 +41,6 @@ const LogisticsKPI = () => {
           <Card className="p-4"><div className="text-sm text-muted-foreground">Abastecimentos</div><div className="text-3xl font-bold">{refuel.data?.length || 0}</div></Card>
         </div>
       </div>
-    </Layout>
   );
 };
 

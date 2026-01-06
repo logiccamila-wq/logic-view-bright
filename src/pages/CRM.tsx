@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,9 +93,7 @@ const CRM = () => {
     }
   };
 
-  return (
-    <Layout>
-      <div className="space-y-8">
+  return (    <>      <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-4xl font-bold tracking-tight text-foreground">CRM - Gestão de Clientes</h1>
@@ -249,7 +246,7 @@ const CRM = () => {
         client={selectedClient}
         onSuccess={refetch}
       />
-    </Layout>
+    </>
   );
 };
 

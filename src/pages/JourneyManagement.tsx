@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
@@ -163,7 +162,6 @@ export default function JourneyManagement() {
   };
 
   return (
-    <Layout>
       <div className="container mx-auto py-8 space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestão de Jornadas</h1>
@@ -430,6 +428,5 @@ export default function JourneyManagement() {
           </div>
         </Card>
       </div>
-    </Layout>
   );
 }

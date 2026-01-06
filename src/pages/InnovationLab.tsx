@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -110,7 +109,6 @@ const InnovationLab = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -379,7 +377,6 @@ const InnovationLab = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

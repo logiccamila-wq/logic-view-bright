@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -101,7 +100,6 @@ const Fleet = () => {
   const fleetNotifications = notifications.filter(n => n.module === 'fleet' && !n.read);
 
   return (
-    <Layout>
       <div className="space-y-8">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
@@ -330,7 +328,6 @@ const Fleet = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

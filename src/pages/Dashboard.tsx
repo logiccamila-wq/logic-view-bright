@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Truck, AlertCircle, CheckCircle, Clock, ArrowRight, Wrench } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
@@ -55,7 +54,6 @@ const Dashboard = () => {
   });
 
   return (
-    <Layout>
       <div className="space-y-8">
         <div className="space-y-1">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">Dashboard Geral</h1>
@@ -159,7 +157,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

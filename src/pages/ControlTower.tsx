@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -246,30 +245,26 @@ const ControlTower = () => {
 
   if (loading) {
     return (
-      <Layout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Carregando Torre de Controle...</p>
           </div>
         </div>
-      </Layout>
     );
   }
 
   if (!data) {
     return (
-      <Layout>
         <div className="text-center py-8">
           <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <p className="text-muted-foreground">Erro ao carregar dados do dashboard</p>
         </div>
-      </Layout>
     );
   }
 
   return (
-    <Layout>
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -762,7 +757,7 @@ const ControlTower = () => {
         operacional: data.operacional,
         manutencao: data.manutencao,
       }} />
-    </Layout>
+    </>
   );
 };
 

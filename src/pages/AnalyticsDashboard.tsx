@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { PageHeader, Section } from "@/components/ui/modern-components";
 import { InteractiveChart, useSampleChartData } from "@/components/charts";
 import { PageTransition, StaggerContainer, StaggerItem } from "@/components/animations";
@@ -13,7 +12,6 @@ export default function AnalyticsDashboard() {
   const { revenueData, tripData, vehicleStatusData, efficiencyData } = useSampleChartData();
 
   return (
-    <Layout>
       <PageTransition className="space-y-8">
         <PageHeader
           title="Analytics Dashboard"
@@ -106,6 +104,5 @@ export default function AnalyticsDashboard() {
           </StaggerContainer>
         </Section>
       </PageTransition>
-    </Layout>
   );
 }

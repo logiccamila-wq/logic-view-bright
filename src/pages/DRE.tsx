@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -154,7 +153,6 @@ const DRE = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">DRE - Demonstrativo de Resultados</h1>
@@ -266,7 +264,6 @@ const DRE = () => {
         {/* Tabela Detalhada */}
         {!isLoading && <DRETable entries={entries} />}
       </div>
-    </Layout>
   );
 };
 

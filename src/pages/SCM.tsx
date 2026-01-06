@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,7 +37,6 @@ const SCM = () => {
   ];
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">SCM - Supply Chain Management</h1>
@@ -335,7 +333,6 @@ const SCM = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

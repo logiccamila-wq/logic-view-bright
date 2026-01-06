@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +41,6 @@ const EHS = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">EHS / SSMA</h1>
         <Tabs defaultValue="dashboard" className="space-y-4">
@@ -124,7 +122,6 @@ const EHS = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

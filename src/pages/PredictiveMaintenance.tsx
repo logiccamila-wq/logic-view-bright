@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -32,7 +31,6 @@ export default function PredictiveMaintenance() {
   useEffect(() => { load(); }, []);
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Manutenção Preditiva</h1>
@@ -58,6 +56,5 @@ export default function PredictiveMaintenance() {
           ))}
         </div>
       </div>
-    </Layout>
   );
 }

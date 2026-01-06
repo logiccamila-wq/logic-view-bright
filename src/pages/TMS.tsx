@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -19,7 +18,6 @@ import { CostEstimator } from "@/components/tms/CostEstimator";
 
 const TMS = () => {
   return (
-    <Layout>
       <div className="space-y-8">
         <div className="space-y-1">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">TMS - Transport Management</h1>
@@ -116,7 +114,6 @@ const TMS = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

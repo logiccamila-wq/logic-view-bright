@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -43,11 +42,9 @@ const ERP = () => {
 
   if (isLoading) {
     return (
-      <Layout>
         <div className="flex items-center justify-center h-96">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      </Layout>
     );
   }
 
@@ -68,7 +65,6 @@ const ERP = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">ERP - Enterprise Resource Planning</h1>
@@ -322,7 +318,6 @@ const ERP = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

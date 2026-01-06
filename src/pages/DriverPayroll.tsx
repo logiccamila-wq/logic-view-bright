@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Banknote, TrendingUp, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
-import { Layout } from "@/components/Layout";
 
 interface Gratification {
   id: string;
@@ -77,7 +76,6 @@ export default function DriverPayroll() {
   );
 
   return (
-    <Layout>
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Folha de Pagamento & Ponto</h1>
@@ -217,6 +215,5 @@ export default function DriverPayroll() {
         </div>
       </Card>
       </div>
-    </Layout>
   );
 }

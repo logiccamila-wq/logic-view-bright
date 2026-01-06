@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -152,7 +151,6 @@ const Developer = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Painel do Desenvolvedor</h1>
@@ -549,7 +547,6 @@ const Developer = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VehicleSelect } from "@/components/VehicleSelect";
@@ -39,7 +38,6 @@ export default function MaintenanceChecklist() {
   };
 
   return (
-    <Layout>
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -99,6 +97,5 @@ export default function MaintenanceChecklist() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

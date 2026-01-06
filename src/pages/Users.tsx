@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,7 +84,6 @@ const Users = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Gestão de Usuários</h1>
@@ -160,7 +158,6 @@ const Users = () => {
           ))}
         </div>
       </div>
-    </Layout>
   );
 };
 

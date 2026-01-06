@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -164,7 +163,6 @@ const Documents = () => {
 
   return (
     <>
-      <Layout>
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Gestão de Documentos</h1>
           <p className="text-muted-foreground">Controle de documentos por placa</p>
@@ -337,7 +335,6 @@ const Documents = () => {
             </div>
           </div>
         )}
-      </Layout>
     </>
   );
 };

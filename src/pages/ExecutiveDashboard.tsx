@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { useQuery } from "@tanstack/react-query";
@@ -93,7 +92,6 @@ const ExecutiveDashboard = () => {
   const fuelInsights: ReturnType<typeof optimizeFuelCosts> = refuelQuery.data ? optimizeFuelCosts(refuelQuery.data) : { avgCostPerKm: 0, trend: "stable", inefficientVehicles: [], recommendations: [] };
 
   return (
-    <Layout>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Painel Executivo</h1>
@@ -172,7 +170,6 @@ const ExecutiveDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 

@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -104,23 +103,22 @@ const ModernDashboard = () => {
   ];
 
   return (
-    <Layout>
-      <PageTransition className="space-y-8">
-        {/* Page Header */}
-        <FadeInUp>
-          <PageHeader
-            title={`Bem-vindo, ${user?.user_metadata?.name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Usuário'}!`}
-            description="Aqui está um resumo da sua operação em tempo real"
-            action={
-              <HoverScale>
-                <Button onClick={() => navigate('/control-tower')} className="gap-2">
-                  <Target className="h-4 w-4" />
-                  Torre de Controle
-                </Button>
-              </HoverScale>
-            }
-          />
-        </FadeInUp>
+    <PageTransition className="space-y-8">
+      {/* Page Header */}
+      <FadeInUp>
+        <PageHeader
+          title={`Bem-vindo, ${user?.user_metadata?.name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Usuário'}!`}
+          description="Aqui está um resumo da sua operação em tempo real"
+          action={
+            <HoverScale>
+              <Button onClick={() => navigate('/control-tower')} className="gap-2">
+                <Target className="h-4 w-4" />
+                Torre de Controle
+              </Button>
+            </HoverScale>
+          }
+        />
+      </FadeInUp>
 
         {/* KPI Cards */}
         <Section>
@@ -426,7 +424,6 @@ const ModernDashboard = () => {
           </div>
         </Section>
       </PageTransition>
-    </Layout>
   );
 };
 

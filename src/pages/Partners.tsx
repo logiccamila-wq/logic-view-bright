@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,7 +57,7 @@ export default function Partners() {
   ).reduce((sum, d) => sum + Number(d.valor_liquido), 0) || 0;
 
   return (
-    <Layout>
+    <>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -189,6 +188,6 @@ export default function Partners() {
         partners={partners || []}
         onSuccess={() => window.location.reload()}
       />
-    </Layout>
+    </>
   );
 }

@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Shield, Users, Key } from "lucide-react";
@@ -94,7 +93,6 @@ const Permissions = () => {
   const categories = Array.from(new Set(Object.values(MODULES_INFO).map(m => m.category)).add('Outros'));
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -212,7 +210,6 @@ const Permissions = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

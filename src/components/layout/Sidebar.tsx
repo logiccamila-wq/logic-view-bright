@@ -27,31 +27,72 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
+  // Iniciar sempre expandida (false = expandida, true = collapsed)
   const [collapsed, setCollapsed] = useState(false);
   const { canAccessModule } = useAuth();
 
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, module: "dashboard" },
-    { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
-    { href: "/tms", label: "TMS", icon: Truck, module: "tms" },
+    { href: "/control-tower", label: "Torre de Controle", icon: Shield, module: "control-tower" },
+    
+    // Módulos Core de Sistema
     { href: "/erp", label: "ERP", icon: BarChart3, module: "erp" },
-    { href: "/wms", label: "WMS", icon: Package, module: "wms" },
+    { href: "/eip", label: "EIP", icon: Package, module: "eip" },
     { href: "/crm", label: "CRM", icon: Users, module: "crm" },
+    { href: "/tms", label: "TMS", icon: Truck, module: "tms" },
+    { href: "/wms", label: "WMS", icon: Package, module: "wms" },
     { href: "/oms", label: "OMS", icon: Activity, module: "oms" },
-    { href: "/driver", label: "Motorista", icon: Truck, module: "driver" },
-    { href: "/mechanic", label: "Mecânico", icon: Wrench, module: "mechanic" },
-    { href: "/supergestor", label: "Supergestor", icon: BarChart3 },
-    { href: "/gate", label: "Portaria", icon: Shield },
-    { href: "/predictive-maintenance", label: "Manutenção Preditiva", icon: Activity },
-    { href: "/admin", label: "Admin Dados", icon: Database },
-    { href: "/esg", label: "ESG", icon: Leaf },
-    { href: "/iot", label: "IoT", icon: Wifi },
+    { href: "/scm", label: "SCM", icon: Package, module: "scm" },
+    
+    // Gestão Operacional
+    { href: "/fleet", label: "Gestão de Frota", icon: Truck, module: "fleet" },
+    { href: "/drivers-management", label: "Gestão de Motoristas", icon: Users, module: "fleet" },
+    { href: "/journey-management", label: "Gestão Jornadas", icon: Activity, module: "fleet" },
+    { href: "/approvals", label: "Aprovações", icon: Shield, module: "approvals" },
+    
+    // Apps e Ferramentas
+    { href: "/driver", label: "App Motorista", icon: Truck, module: "driver" },
+    { href: "/mechanic", label: "Hub Mecânico", icon: Wrench, module: "mechanic" },
+    { href: "/inventory", label: "Estoque/Oficina", icon: Package, module: "inventory" },
+    
+    // Análises e Gestão
+    { href: "/supergestor", label: "Supergestor", icon: BarChart3, module: "operations" },
+    { href: "/predictive-maintenance", label: "Manutenção Preditiva", icon: Activity, module: "maintenance" },
+    { href: "/logistics-kpi", label: "KPIs de Logística", icon: BarChart3, module: "operations" },
+    { href: "/cost-monitoring", label: "Monitoramento de Custos", icon: BarChart3, module: "finance" },
+    
+    // Financeiro
+    { href: "/bank-reconciliation", label: "Conciliação Bancária", icon: BarChart3, module: "finance" },
+    { href: "/accounts-payable", label: "Contas a Pagar", icon: BarChart3, module: "finance" },
+    { href: "/accounts-receivable", label: "Contas a Receber", icon: BarChart3, module: "finance" },
+    { href: "/dre", label: "DRE", icon: BarChart3, module: "finance" },
+    
+    // Admin e Configurações
+    { href: "/employees", label: "Funcionários", icon: Users, module: "operations" },
+    { href: "/users", label: "Usuários", icon: Users, module: "users" },
+    { href: "/permissions", label: "Permissões", icon: Shield, module: "settings" },
+    { href: "/documents", label: "Documentos", icon: Database, module: "documents" },
+    { href: "/reports", label: "Relatórios", icon: BarChart3, module: "reports" },
+    
+    // Inovação e Tecnologia
+    { href: "/innovation", label: "Innovation Lab", icon: Leaf, module: "innovation" },
+    { href: "/esg", label: "ESG", icon: Leaf, module: "operations" },
+    { href: "/iot", label: "IoT", icon: Wifi, module: "iot" },
+    { href: "/developer", label: "Developer", icon: Database, module: "developer" },
+    
+    // Outros
+    { href: "/marketplace", label: "Marketplace", icon: ShoppingBag, module: "operations" },
+    { href: "/gate", label: "Portaria", icon: Shield, module: "operations" },
   ];
 
   const visibleItems = menuItems.filter((item) => !item.module || canAccessModule(item.module));
 
   return (
-    <div className={cn("pb-12 border-r bg-background h-screen sticky top-0 transition-all duration-300", collapsed ? "w-16" : "w-64", className)}>
+    <div className={cn(
+      "pb-12 border-r bg-background h-screen sticky top-0 transition-all duration-300 flex-shrink-0",
+      collapsed ? "w-16" : "w-64 md:w-64",
+      className
+    )}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="flex items-center justify-between mb-4 px-4">

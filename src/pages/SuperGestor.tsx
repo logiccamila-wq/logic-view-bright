@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -123,7 +122,6 @@ export default function Supergestor() {
   useEffect(() => { fetchInsights(); }, []);
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Supergestor</h1>
@@ -164,6 +162,5 @@ export default function Supergestor() {
           }}>Rodar Preditivo</Button>
         </div>
       </div>
-    </Layout>
   );
 }

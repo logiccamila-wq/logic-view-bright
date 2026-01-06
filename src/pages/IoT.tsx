@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -25,7 +24,6 @@ export default function IoT() {
   useEffect(()=>{ load(); },[]);
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">IoT & Telemetria</h1>
@@ -55,6 +53,5 @@ export default function IoT() {
           ))}
         </div>
       </div>
-    </Layout>
   );
 }

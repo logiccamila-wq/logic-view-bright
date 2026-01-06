@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, TrendingUp, TrendingDown, DollarSign, Fuel, Clock } from "lucide-react";
@@ -6,7 +5,6 @@ import { StatCard } from "@/components/StatCard";
 
 const Reports = () => {
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Relatórios</h1>
@@ -142,7 +140,6 @@ const Reports = () => {
           </Card>
         </div>
       </div>
-    </Layout>
   );
 };
 

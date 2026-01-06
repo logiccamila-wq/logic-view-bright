@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -150,7 +149,7 @@ const DriversManagement = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -408,7 +407,7 @@ const DriversManagement = () => {
           setSelectedDriver(null);
         }}
       />
-    </Layout>
+    </>
   );
 };
 

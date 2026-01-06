@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,7 +54,6 @@ const MaintenanceLibrary = () => {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Biblioteca OEM de Manutenção</h1>
         <Card className="p-4">
@@ -69,7 +67,6 @@ const MaintenanceLibrary = () => {
           </div>
         </Card>
       </div>
-    </Layout>
   );
 };
 
