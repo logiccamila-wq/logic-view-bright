@@ -144,7 +144,7 @@ export default function ModernLandingPage() {
                 <Zap className="h-8 w-8 text-primary" fill="currentColor" />
                 <Sparkles className="h-4 w-4 text-yellow-500 absolute -top-1 -right-1" />
               </div>
-              <span className="font-black text-2xl bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="font-black text-2xl inline-block bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent" style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 XYZLogicFlow
               </span>
             </div>
@@ -205,7 +205,7 @@ export default function ModernLandingPage() {
 
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight">
                 A Revolução da{" "}
-                <span className="bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="inline-block bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent" style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   Logística
                 </span>{" "}
                 Começa Aqui
