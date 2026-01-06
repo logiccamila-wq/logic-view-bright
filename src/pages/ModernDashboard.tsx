@@ -19,10 +19,13 @@ import {
 } from "@/components/ui/modern-components";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageTransition, FadeInUp, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
+import { InteractiveChart, useSampleChartData } from "@/components/charts";
 
 const ModernDashboard = () => {
   const navigate = useNavigate();
   const { canAccessModule, roles, loading, user } = useAuth();
+  const { revenueData, tripData } = useSampleChartData();
 
   // Redirecionar mecânicos
   useEffect(() => {
@@ -102,77 +105,118 @@ const ModernDashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-8">
+      <PageTransition className="space-y-8">
         {/* Page Header */}
-        <PageHeader
-          title={`Bem-vindo, ${user?.email?.split('@')[0] || 'Usuário'}!`}
-          description="Aqui está um resumo da sua operação em tempo real"
-          action={
-            <Button onClick={() => navigate('/control-tower')} className="gap-2">
-              <Target className="h-4 w-4" />
-              Torre de Controle
-            </Button>
-          }
-        />
+        <FadeInUp>
+          <PageHeader
+            title={`Bem-vindo, ${user?.email?.split('@')[0] || 'Usuário'}!`}
+            description="Aqui está um resumo da sua operação em tempo real"
+            action={
+              <HoverScale>
+                <Button onClick={() => navigate('/control-tower')} className="gap-2">
+                  <Target className="h-4 w-4" />
+                  Torre de Controle
+                </Button>
+              </HoverScale>
+            }
+          />
+        </FadeInUp>
 
         {/* KPI Cards */}
         <Section>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-              title="Veículos Ativos"
-              value={vehicles.length || 0}
-              description="Em operação agora"
-              icon={Truck}
-              trend={{ value: 12, isPositive: true }}
-            />
-            <StatCard
-              title="Viagens Ativas"
-              value={trips.length || 0}
-              description="Em andamento"
-              icon={MapPin}
-              trend={{ value: 8, isPositive: true }}
-            />
-            <StatCard
-              title="Taxa de Entregas"
-              value="98.5%"
-              description="No prazo este mês"
-              icon={CheckCircle}
-              trend={{ value: 2.5, isPositive: true }}
-            />
-            <StatCard
-              title="Receita Mensal"
-              value="R$ 1.2M"
-              description="vs. R$ 980k mês anterior"
-              icon={TrendingUp}
-              trend={{ value: 22, isPositive: true }}
-            />
-          </div>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StaggerItem>
+              <StatCard
+                title="Veículos Ativos"
+                value={vehicles.length || 0}
+                description="Em operação agora"
+                icon={Truck}
+                trend={{ value: 12, isPositive: true }}
+              />
+            </StaggerItem>
+            <StaggerItem>
+              <StatCard
+                title="Viagens Ativas"
+                value={trips.length || 0}
+                description="Em andamento"
+                icon={MapPin}
+                trend={{ value: 8, isPositive: true }}
+              />
+            </StaggerItem>
+            <StaggerItem>
+              <StatCard
+                title="Taxa de Entregas"
+                value="98.5%"
+                description="No prazo este mês"
+                icon={CheckCircle}
+                trend={{ value: 2.5, isPositive: true }}
+              />
+            </StaggerItem>
+            <StaggerItem>
+              <StatCard
+                title="Receita Mensal"
+                value="R$ 1.2M"
+                description="vs. R$ 980k mês anterior"
+                icon={TrendingUp}
+                trend={{ value: 22, isPositive: true }}
+              />
+            </StaggerItem>
+          </StaggerContainer>
         </Section>
 
         {/* Quick Actions */}
         <Section title="Ações Rápidas">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {quickActions.map((action, idx) => (
-              <ModernCard 
-                key={idx} 
-                hover 
-                className="cursor-pointer"
-                onClick={() => navigate(action.path)}
-              >
-                <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                  <div className={`p-3 rounded-full ${
-                    action.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
-                    action.color === 'green' ? 'bg-green-100 dark:bg-green-900/30 text-green-600' :
-                    action.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600' :
-                    'bg-orange-100 dark:bg-orange-900/30 text-orange-600'
-                  }`}>
-                    <action.icon className="h-6 w-6" />
-                  </div>
-                  <p className="font-semibold">{action.label}</p>
-                </CardContent>
-              </ModernCard>
+              <HoverScale key={idx}>
+                <ModernCard 
+                  hover 
+                  className="cursor-pointer"
+                  onClick={() => navigate(action.path)}
+                >
+                  <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
+                    <div className={`p-3 rounded-full ${
+                      action.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
+                      action.color === 'green' ? 'bg-green-100 dark:bg-green-900/30 text-green-600' :
+                      action.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600' :
+                      'bg-orange-100 dark:bg-orange-900/30 text-orange-600'
+                    }`}>
+                      <action.icon className="h-6 w-6" />
+                    </div>
+                    <p className="font-semibold">{action.label}</p>
+                  </CardContent>
+                </ModernCard>
+              </HoverScale>
             ))}
           </div>
+        </Section>
+
+        {/* Charts Interativos */}
+        <Section title="Performance" description="Análise visual de métricas em tempo real">
+          <StaggerContainer className="grid lg:grid-cols-2 gap-6">
+            <StaggerItem>
+              <InteractiveChart
+                title="Receita Mensal"
+                description="Evolução dos últimos 6 meses"
+                data={revenueData}
+                type="area"
+                dataKey="value"
+                xAxisKey="name"
+                color="#007BFF"
+              />
+            </StaggerItem>
+            <StaggerItem>
+              <InteractiveChart
+                title="Viagens Semanais"
+                description="Última semana"
+                data={tripData}
+                type="bar"
+                dataKey="value"
+                xAxisKey="name"
+                color="#10B981"
+              />
+            </StaggerItem>
+          </StaggerContainer>
         </Section>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -381,7 +425,7 @@ const ModernDashboard = () => {
             </ModernCard>
           </div>
         </Section>
-      </div>
+      </PageTransition>
     </Layout>
   );
 };

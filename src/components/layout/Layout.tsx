@@ -24,7 +24,13 @@ export default function Layout({ children }: LayoutProps) {
         <Header />
         
         {/* Main Content with smooth animations */}
-        <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 overflow-auto pt-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <main 
+          id="main-content"
+          tabIndex={-1}
+          className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 overflow-auto pt-16 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          role="main"
+          aria-label="Conteúdo principal"
+        >
           <div className="max-w-[1600px] mx-auto">
             {children || <Outlet />}
           </div>

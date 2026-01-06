@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { PageTransition, FadeInUp, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 export default function ModernLandingPage() {
   const navigate = useNavigate();
@@ -133,7 +134,7 @@ export default function ModernLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       {/* Header */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-background/80 backdrop-blur-lg border-b shadow-sm' : 'bg-transparent'}`}>
         <div className="container mx-auto px-4">
@@ -196,7 +197,7 @@ export default function ModernLandingPage() {
 
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 text-center lg:text-left">
+            <FadeInUp className="space-y-8 text-center lg:text-left">
               <Badge className="inline-flex gap-2 px-4 py-2 text-sm">
                 <Sparkles className="h-4 w-4" />
                 Lançamento: Marketplace de Logística
@@ -215,26 +216,30 @@ export default function ModernLandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="h-14 px-8 text-lg gap-2 shadow-xl shadow-primary/20" onClick={() => document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' })}>
-                  <Rocket className="h-5 w-5" />
-                  Começar Grátis por 14 Dias
-                </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 text-lg gap-2">
-                  <PlayCircle className="h-5 w-5" />
-                  Ver Demo ao Vivo
-                </Button>
+                <HoverScale>
+                  <Button size="lg" className="h-14 px-8 text-lg gap-2 shadow-xl shadow-primary/20" onClick={() => document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' })}>
+                    <Rocket className="h-5 w-5" />
+                    Começar Grátis por 14 Dias
+                  </Button>
+                </HoverScale>
+                <HoverScale>
+                  <Button size="lg" variant="outline" className="h-14 px-8 text-lg gap-2">
+                    <PlayCircle className="h-5 w-5" />
+                    Ver Demo ao Vivo
+                  </Button>
+                </HoverScale>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-4 gap-4 pt-8 border-t">
+              <StaggerContainer className="grid grid-cols-4 gap-4 pt-8 border-t">
                 {stats.map((stat, idx) => (
-                  <div key={idx} className="text-center lg:text-left">
+                  <StaggerItem key={idx} className="text-center lg:text-left">
                     <p className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</p>
                     <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
+                  </StaggerItem>
                 ))}
-              </div>
-            </div>
+              </StaggerContainer>
+            </FadeInUp>
 
             {/* Hero Image/Dashboard Preview */}
             <div className="relative">
@@ -281,26 +286,30 @@ export default function ModernLandingPage() {
       {/* Features Section */}
       <section id="features" className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <FadeInUp className="text-center mb-16">
             <Badge className="mb-4">Recursos</Badge>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Tudo que você precisa em um só lugar</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Ferramentas completas para otimizar cada aspecto da sua operação logística
             </p>
-          </div>
+          </FadeInUp>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, idx) => (
-              <Card key={idx} className="p-6 hover:shadow-xl transition-shadow cursor-pointer group">
-                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <StaggerItem key={idx}>
+                <HoverScale>
+                  <Card className="p-6 hover:shadow-xl transition-shadow cursor-pointer group h-full">
+                    <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.desc}</p>
                 <ChevronRight className="h-5 w-5 text-primary mt-4 group-hover:translate-x-2 transition-transform" />
-              </Card>
+                  </Card>
+                </HoverScale>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
@@ -568,6 +577,6 @@ export default function ModernLandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </PageTransition>
   );
 }

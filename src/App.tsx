@@ -9,6 +9,8 @@ import { Suspense, lazy } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import LoadingSpinner from "@/components/animations/LoadingSpinner";
+import { SkeletonDashboard, SkeletonPage } from "@/components/skeletons";
+import { AccessibilityAnnouncer } from "@/components/accessibility";
 
 const LandingPage = lazy(() => import("@/pages/ModernLandingPage"));
 const Dashboard = lazy(() => import("@/pages/ModernDashboard"));
@@ -84,8 +86,13 @@ function App() {
           <Router>
             <AuthProvider>
               <NotificationsProvider>
+                <AccessibilityAnnouncer />
                 <div className="min-h-screen bg-background text-foreground">
-                  <Suspense fallback={<div className="flex items-center justify-center h-screen"><LoadingSpinner /></div>}>
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center h-screen">
+                      <LoadingSpinner size="lg" text="Carregando..." />
+                    </div>
+                  }>
                     <Routes>
                       <Route path="/" element={<LandingPage />} />
                       <Route path="/onboarding" element={<OnboardingFlow />} />
@@ -93,7 +100,11 @@ function App() {
                       <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/*" element={
                         <Layout>
-                          <Suspense fallback={<div className="flex items-center justify-center h-64"><LoadingSpinner /></div>}>
+                          <Suspense fallback={
+                            <div className="container mx-auto px-4 py-8">
+                              <SkeletonDashboard />
+                            </div>
+                          }>
                             <Routes>
                               <Route index element={<LandingPage />} />
                               <Route path="dashboard" element={<Dashboard />} />
