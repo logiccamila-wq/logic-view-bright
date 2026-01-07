@@ -79,6 +79,13 @@ const Reports = lazy(() => import("@/pages/Reports"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const ExecutiveReport = lazy(() => import("@/pages/ExecutiveReport"));
 const ExportCenter = lazy(() => import("@/pages/ExportCenter"));
+const SuperGestorAI = lazy(() => import("@/pages/SuperGestorAI"));
+const BlockchainTracking = lazy(() => import("@/pages/BlockchainTracking"));
+const DigitalTwin = lazy(() => import("@/pages/DigitalTwin"));
+const ESGDashboard = lazy(() => import("@/pages/ESGDashboard"));
+const AIRouteOptimization = lazy(() => import("@/pages/AIRouteOptimization"));
+const CargoMarketplace = lazy(() => import("@/pages/CargoMarketplace"));
+const AdvancedAnalytics = lazy(() => import("@/pages/AdvancedAnalytics"));
 
 function App() {
   return (
@@ -178,6 +185,13 @@ function App() {
                               <Route path="export-center" element={<ExportCenter />} />
                               <Route path="eip" element={<EIP />} />
                               <Route path="innovation" element={<InnovationLab />} />
+                              <Route path="supergestor-ai" element={<SuperGestorAI />} />
+                              <Route path="blockchain-tracking" element={<BlockchainTracking />} />
+                              <Route path="digital-twin" element={<DigitalTwin />} />
+                              <Route path="esg-dashboard" element={<ESGDashboard />} />
+                              <Route path="ai-route-optimization" element={<AIRouteOptimization />} />
+                              <Route path="cargo-marketplace" element={<CargoMarketplace />} />
+                              <Route path="advanced-analytics" element={<AdvancedAnalytics />} />
                             </Routes>
                           </Suspense>
                         </Layout>
