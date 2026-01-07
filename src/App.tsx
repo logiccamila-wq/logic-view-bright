@@ -86,6 +86,11 @@ const ESGDashboard = lazy(() => import("@/pages/ESGDashboard"));
 const AIRouteOptimization = lazy(() => import("@/pages/AIRouteOptimization"));
 const CargoMarketplace = lazy(() => import("@/pages/CargoMarketplace"));
 const AdvancedAnalytics = lazy(() => import("@/pages/AdvancedAnalytics"));
+const ConsultoriaFinanceiraIA = lazy(() => import("@/pages/ConsultoriaFinanceiraIA"));
+const AnaliseTributaria = lazy(() => import("@/pages/AnaliseTributaria"));
+const AppMotorista = lazy(() => import("@/pages/AppMotorista"));
+const GestaoProcessosOperacionais = lazy(() => import("@/pages/GestaoProcessosOperacionais"));
+const AuditoriaSASSMAQ = lazy(() => import("@/pages/AuditoriaSASSMAQ"));
 
 function App() {
   return (
@@ -192,6 +197,11 @@ function App() {
                               <Route path="ai-route-optimization" element={<AIRouteOptimization />} />
                               <Route path="cargo-marketplace" element={<CargoMarketplace />} />
                               <Route path="advanced-analytics" element={<AdvancedAnalytics />} />
+                              <Route path="consultoria-financeira-ia" element={<ConsultoriaFinanceiraIA />} />
+                              <Route path="analise-tributaria" element={<AnaliseTributaria />} />
+                              <Route path="app-motorista" element={<AppMotorista />} />
+                              <Route path="gestao-pops" element={<GestaoProcessosOperacionais />} />
+                              <Route path="auditoria-sassmaq" element={<AuditoriaSASSMAQ />} />
                             </Routes>
                           </Suspense>
                         </Layout>
