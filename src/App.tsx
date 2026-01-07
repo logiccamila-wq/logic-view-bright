@@ -13,7 +13,7 @@ import { SkeletonDashboard, SkeletonPage } from "@/components/skeletons";
 import { AccessibilityAnnouncer } from "@/components/accessibility";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-const LandingPage = lazy(() => import("@/pages/ModernLandingPage"));
+const LandingPage = lazy(() => import("@/pages/ProfessionalLandingPage"));
 const Dashboard = lazy(() => import("@/pages/ModernDashboard"));
 const Login = lazy(() => import("@/pages/Login"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
