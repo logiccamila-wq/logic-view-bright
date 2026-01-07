@@ -123,7 +123,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(
-      "pb-12 border-r bg-background h-screen sticky top-0 transition-all duration-300 flex-shrink-0",
+      "pb-12 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-screen sticky top-0 transition-all duration-300 flex-shrink-0 z-50",
       collapsed ? "w-16" : "w-64 md:w-72",
       className
     )}>
