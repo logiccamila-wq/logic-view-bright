@@ -11,6 +11,7 @@ import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import LoadingSpinner from "@/components/animations/LoadingSpinner";
 import { SkeletonDashboard, SkeletonPage } from "@/components/skeletons";
 import { AccessibilityAnnouncer } from "@/components/accessibility";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const LandingPage = lazy(() => import("@/pages/ModernLandingPage"));
 const Dashboard = lazy(() => import("@/pages/ModernDashboard"));
@@ -77,16 +78,18 @@ const Permissions = lazy(() => import("@/pages/Permissions"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const ExecutiveReport = lazy(() => import("@/pages/ExecutiveReport"));
+const ExportCenter = lazy(() => import("@/pages/ExportCenter"));
 
 function App() {
   return (
-    <HelmetProvider>
-      <I18nextProvider i18n={i18n}>
-        <AppThemeProvider>
-          <Router>
-            <AuthProvider>
-              <NotificationsProvider>
-                <AccessibilityAnnouncer />
+    <ErrorBoundary>
+      <HelmetProvider>
+        <I18nextProvider i18n={i18n}>
+          <AppThemeProvider>
+            <Router>
+              <AuthProvider>
+                <NotificationsProvider>
+                  <AccessibilityAnnouncer />
                 <div className="min-h-screen bg-background text-foreground">
                   <Suspense fallback={
                     <div className="flex items-center justify-center h-screen">
@@ -172,6 +175,7 @@ function App() {
                               <Route path="permissions" element={<Permissions />} />
                               <Route path="reports" element={<Reports />} />
                               <Route path="executive-report" element={<ExecutiveReport />} />
+                              <Route path="export-center" element={<ExportCenter />} />
                               <Route path="eip" element={<EIP />} />
                               <Route path="innovation" element={<InnovationLab />} />
                             </Routes>
@@ -188,6 +192,7 @@ function App() {
         </AppThemeProvider>
       </I18nextProvider>
     </HelmetProvider>
+    </ErrorBoundary>
   );
 }
 
