@@ -1,13 +1,37 @@
-[project]
-ref = "eixkvkst"
-url = "https://eixkvkst.supabase.co"
+# Supabase Configuration
+project_id = "logic-view-bright"
 
-[functions]
-# Replace the placeholder below with your SUPABASE_SERVICE_ROLE_KEY in your local copy.
-service_role_key = "YOUR_SERVICE_ROLE_KEY_HERE"[project]
-ref = "eixkvkst"
-url = "https://eixkvkst.supabase.co"
+[api]
+enabled = true
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
-[functions]
-# Replace the placeholder below with your SUPABASE_SERVICE_ROLE_KEY in your local copy.
-service_role_key = "YOUR_SERVICE_ROLE_KEY_HERE"
+[db]
+major_version = 17
+
+[realtime]
+enabled = true
+ip_version = "IPv4"
+
+[studio]
+enabled = true
+api_url = "http://127.0.0.1"
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:5173"
+additional_redirect_urls = ["https://localhost:5173", "https://logic-view-bright-main.vercel.app"]
+jwt_expiry = 3600
+enable_signup = true
+
+[edge_runtime]
+enabled = true
+
+[analytics]
+enabled = true
+backend = "postgres"
