@@ -33,7 +33,20 @@ if (!container) {
   const bodyMsg = document.createElement('div');
   bodyMsg.style.padding = '24px';
   bodyMsg.style.fontFamily = 'Inter, system-ui, Arial';
-  bodyMsg.innerHTML = '<h2 style="color:#333">Erro: elemento <code>#root</code> não encontrado</h2><p>Verifique o index.html ou o processo de build.</p>';
+  
+  const h2 = document.createElement('h2');
+  h2.style.color = '#333';
+  h2.textContent = 'Erro: elemento ';
+  const code = document.createElement('code');
+  code.textContent = '#root';
+  h2.appendChild(code);
+  h2.appendChild(document.createTextNode(' não encontrado'));
+  
+  const p = document.createElement('p');
+  p.textContent = 'Verifique o index.html ou o processo de build.';
+  
+  bodyMsg.appendChild(h2);
+  bodyMsg.appendChild(p);
   document.body.appendChild(bodyMsg);
   throw new Error('Root element not found');
 }
