@@ -56,6 +56,17 @@ npm run deploy:all       # Deploy completo
 npm run db:push          # Aplicar migrations
 ```
 
+## 🌿 Git: Branches em 5 Minutos
+
+- **Criar/listar branches:** `git branch` (lista) · `git branch feature/logistica-kpi` (cria)
+- **Trocar de branch:** `git switch feature/logistica-kpi` (ou `git checkout feature/logistica-kpi`)
+- **Criar e já trocar:** `git switch -c hotfix/corrige-login` (ou `git checkout -b hotfix/corrige-login`)
+- **Trazer main atualizada antes de trabalhar:** `git checkout main && git pull origin main`
+- **Merge seguro:** `git checkout main && git pull origin main && git merge --no-ff feature/logistica-kpi && git push origin main` (após atualizar a feature com `git fetch origin && git rebase origin/main`)
+- **Rebase para atualizar sua branch:** `git checkout feature/logistica-kpi && git fetch origin && git rebase origin/main`
+- **Resolver conflitos e continuar rebase:** ajustar arquivos, `git add .` e `git rebase --continue`
+- **Descartar rebase problemático:** `git rebase --abort`
+
 ## 🔐 Variáveis de Ambiente
 
 **Frontend** (.env.local):
