@@ -4,3 +4,6 @@ dist/
 .DS_Store
 .vercel
 .env*.local
+
+# Local development scripts (may contain secrets)
+scripts/
