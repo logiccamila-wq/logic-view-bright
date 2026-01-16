@@ -1,0 +1,12 @@
+[build]
+  command = "bun run build"
+  publish = "dist"
+
+[build.environment]
+  # Allow VITE_SUPABASE_ANON_KEY in build output - this is a public client key by design
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
