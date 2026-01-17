@@ -5,7 +5,9 @@ import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   build: {
+    target: 'es2017',
     sourcemap: 'hidden',
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
