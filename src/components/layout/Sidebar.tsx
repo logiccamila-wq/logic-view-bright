@@ -19,7 +19,8 @@ import {
   Settings,
   Download,
   TrendingUp,
-  Brain
+  Brain,
+  MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ export function Sidebar({ className }: SidebarProps) {
       items: [
         { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, module: "dashboard" },
         { href: "/control-tower", label: "Torre de Controle", icon: Shield, module: "control-tower" },
+        { href: "/live-tracking", label: "Rastreamento ao Vivo", icon: MapPin, module: "fleet" },
         { href: "/supergestor", label: "Supergestor IA", icon: Brain, module: "operations" },
       ]
     },
@@ -111,11 +113,11 @@ export function Sidebar({ className }: SidebarProps) {
       ]
     },
     {
-      title: "Configurações",
+      title: "Relatórios & Config",
       items: [
+        { href: "/reports", label: "Relatórios", icon: BarChart3, module: "reports" },
         { href: "/users", label: "Usuários", icon: Users, module: "users" },
         { href: "/permissions", label: "Permissões", icon: Shield, module: "settings" },
-        { href: "/reports", label: "Relatórios", icon: FileText, module: "reports" },
         { href: "/settings", label: "Configurações", icon: Settings, module: "settings" },
       ]
     },
