@@ -217,23 +217,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         const { data: userRoles } = await supabase.from("user_roles").select("*").eq("user_id", data.user.id);
 
-        let roles = normalizeRoles(
+        const roles = normalizeRoles(
           (userRoles || []).map((r: any) => {
             const v = r.role ?? r.role_name ?? r.name ?? r.slug ?? r.tipo ?? r.perfil;
             return typeof v === 'string' ? v : '';
           }).filter(Boolean)
         );
 
-        if (!roles.length) {
-          const e = (email || "").trim().toLowerCase();
-          if (e === "logiccamila@gmail.com") roles = ["admin"];
-          if (e === "logicdev@optilog.app") roles = ["admin"];
-          else if (e === "motorista.teste@optilog.app") roles = ["driver"];
-          else if (e === "mecanico.teste@optilog.app") roles = ["fleet_maintenance"];
-          setRoles(roles);
-        } else {
-          setRoles(roles);
-        }
+        setRoles(roles);
         
         // Mecânicos: apenas fleet_maintenance ou maintenance_assistant
         const onlyMechanic = roles.every(r => 
