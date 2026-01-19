@@ -1,7 +1,7 @@
 # 🚀 Logic View Bright - Plataforma Logística Unificada
 
 > **Status:** ✅ Sistema 100% Operacional em Produção  
-> **Deploy:** <https://logic-view-bright-main.vercel.app>  
+> **Deploy:** Cloudflare Pages  
 > **Domínio:** <https://xyzlogicflow.tech>
 
 ---
@@ -20,21 +20,21 @@ Contém:
 
 ---
 
-[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
+[![Deploy](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://pages.cloudflare.com)
 [![Backend](https://img.shields.io/badge/Backend-Supabase-green)](https://supabase.com)
 [![Framework](https://img.shields.io/badge/Framework-React%2018-blue)](https://react.dev)
 
 ## 📐 Arquitetura
 
 ```
-GitHub (Source) → Vercel (Frontend) + Supabase (Backend + DB) → xyzlogicflow.tech
+GitHub (Source) → Cloudflare Pages (Frontend) + Supabase (Backend + DB) → xyzlogicflow.tech
 ```
 
 ### Stack
 - **Frontend:** React 18 + TypeScript + TailwindCSS + Vite
 - **Backend:** Supabase Edge Functions (Deno)
 - **Database:** PostgreSQL (Supabase)
-- **Deploy:** Vercel (auto) + Supabase CLI
+- **Deploy:** Cloudflare Pages (auto) + Supabase CLI
 
 ## 🚀 Deploy Rápido
 
@@ -43,7 +43,7 @@ GitHub (Source) → Vercel (Frontend) + Supabase (Backend + DB) → xyzlogicflow
 ./deploy.sh
 
 # Ou manual
-git push origin main              # Frontend (Vercel auto-deploy)
+git push origin main              # Frontend (Cloudflare Pages auto-deploy)
 npm run deploy:functions          # Edge Functions (Supabase)
 ```
 
@@ -58,17 +58,21 @@ npm run db:push          # Aplicar migrations
 
 ## 🔐 Variáveis de Ambiente
 
-**Frontend** (.env.local):
+**Frontend** (Cloudflare Pages Dashboard):
 ```env
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJxxx...
+VITE_APP_URL=https://xyzlogicflow.tech
 ```
 
-**Supabase** (Dashboard → Settings → Edge Functions):
+**Backend** (Supabase Dashboard → Edge Functions):
 ```env
 SUPABASE_SERVICE_ROLE_KEY=xxx
-OPENAI_API_KEY=sk-xxx
+ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev
+OPENAI_API_KEY=sk-xxx (optional)
 ```
+
+**⚠️ Security:** Never add service role keys to Cloudflare Pages (frontend only)
 
 ## 📁 Estrutura
 
@@ -96,18 +100,19 @@ supabase/
 ## 🌐 URLs
 
 - **Produção:** https://xyzlogicflow.tech
-- **Vercel:** https://vercel.com/dashboard
-- **Supabase:** https://supabase.com/dashboard
+- **Cloudflare Pages:** https://logic-view-bright.pages.dev
+- **Cloudflare Dashboard:** https://dash.cloudflare.com
+- **Supabase Dashboard:** https://supabase.com/dashboard
 
 ## 📖 Documentação
 
-- [Deploy Completo](DEPLOY_SINGLE.md)
-- [Setup Usuários](SETUP_USUARIOS.md)
+- [Cloudflare Pages Deployment](CLOUDFLARE_PAGES_DEPLOYMENT.md) - Complete guide
+- [Deployment Guide](DEPLOYMENT.md) - General deployment info
 - [Innovation Roadmap](INNOVATION_ROADMAP.md)
 
 ---
 
-**⚠️ Arquitetura Unificada:** Este projeto usa APENAS Vercel + Supabase. Cloudflare e Netlify foram removidos.
+**⚠️ Deployment Platform:** This project uses Cloudflare Pages for frontend hosting. Vercel references have been removed.
     parserOptions: {
       project: ['./tsconfig.node.json', './tsconfig.app.json'],
       tsconfigRootDir: import.meta.dirname,
