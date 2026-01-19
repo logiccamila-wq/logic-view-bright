@@ -20,14 +20,16 @@ A forma mais rápida e fácil de popular todos os usuários é usar a edge funct
 
 **Opção A: Via Navegador**
 ```
-https://yssqhlogdqdjmqwuvnkv.supabase.co/functions/v1/seed-users
+https://YOUR_SUPABASE_URL.supabase.co/functions/v1/seed-users
 ```
 
 **Opção B: Via cURL**
 ```bash
-curl -X POST https://yssqhlogdqdjmqwuvnkv.supabase.co/functions/v1/seed-users \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlzc3FobG9nZHFkam1xd3V2bmt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MTE4NjksImV4cCI6MjA3ODQ4Nzg2OX0.nsZ9N1IU_O4BU-pPhzHsF16MGklNA86uhKNbVYtbUQY"
+curl -X POST https://YOUR_SUPABASE_URL.supabase.co/functions/v1/seed-users \
+  -H "Authorization: Bearer YOUR_SUPABASE_ANON_KEY"
 ```
+
+**⚠️ IMPORTANTE:** Replace `YOUR_SUPABASE_URL` and `YOUR_SUPABASE_ANON_KEY` with your actual values from Supabase Dashboard → Settings → API.
 
 A edge function irá:
 - ✅ Criar todos os 21 usuários automaticamente
