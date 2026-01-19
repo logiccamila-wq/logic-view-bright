@@ -4,3 +4,13 @@ dist/
 .DS_Store
 .vercel
 .env*.local
+
+# Wrangler build artifacts
+.wrangler/tmp/**
+
+# Sensitive files with secrets (removed from repo)
+CONFIGURAR_ENV_VARS_AGORA.md
+find-supabase-keys.sh
+scripts/update-camila-profile.cjs
+scripts/fix-camila-user.cjs
+scripts/check-schema.cjs
