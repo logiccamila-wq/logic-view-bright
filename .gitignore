@@ -6,7 +6,8 @@ dist/
 .env*.local
 
 # Wrangler build artifacts
-.wrangler/tmp/**
+.wrangler/
+wrangler-output/
 
 # Sensitive files with secrets (removed from repo)
 CONFIGURAR_ENV_VARS_AGORA.md
