@@ -1,21 +1,21 @@
 # Logic View Bright - Sistema Completo e Operacional 🚀
 
 **Status:** ✅ **100% FUNCIONAL**  
-**Data:** 06/01/2026  
+**Data:** 19/01/2026  
 **Versão:** 1.0.0 - Production Ready
 
 ---
 
 ## 🎯 Resumo Executivo
 
-Sistema completo de gestão logística com **frontend React**, **backend Supabase** e **deploy automatizado** via Vercel. Todas as funcionalidades principais testadas e validadas.
+Sistema completo de gestão logística com **frontend React**, **backend Supabase** e **deploy automatizado** via Cloudflare Pages. Todas as funcionalidades principais testadas e validadas.
 
 ### ✅ O Que Está Funcionando
 
 | Componente | Status | URL/Acesso |
 |------------|--------|------------|
-| **Deploy Produção** | ✅ ONLINE | <https://logic-view-bright-main.vercel.app> |
-| **Domínio Principal** | ✅ ONLINE | <https://xyzlogicflow.tech> |
+| **Deploy Produção** | ✅ ONLINE | <https://xyzlogicflow.tech> |
+| **Frontend (Cloudflare Pages)** | ✅ ONLINE | <https://logic-view-bright.pages.dev> |
 | **Backend Supabase** | ✅ ONLINE | <https://eixkvksttadhukucohda.supabase.co> |
 | **Autenticação** | ✅ OK | Login testado e funcionando |
 | **Build Local** | ✅ OK | Build em ~48s sem erros |
@@ -31,12 +31,12 @@ Sistema completo de gestão logística com **frontend React**, **backend Supabas
 - **Email:** logiccamila@gmail.com
 - **Senha:** Multi.13
 - **Role:** Admin
-- **URL de Login:** <https://logic-view-bright-main.vercel.app/login>
+- **URL de Login:** <https://xyzlogicflow.tech/login>
 
 ### URLs do Sistema
 
-- **Produção:** <https://logic-view-bright-main.vercel.app>
-- **Domínio Customizado:** <https://xyzlogicflow.tech>
+- **Produção:** <https://xyzlogicflow.tech>
+- **Cloudflare Pages:** <https://logic-view-bright.pages.dev>
 - **API Backend:** <https://eixkvksttadhukucohda.supabase.co>
 
 ---
@@ -52,7 +52,7 @@ Sistema completo de gestão logística com **frontend React**, **backend Supabas
                 │ (Auto Deploy on Push)
                 ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Vercel (Frontend Hosting)                              │
+│  Cloudflare Pages (Frontend Hosting)                    │
 │  - React 18 + Vite                                      │
 │  - TailwindCSS                                          │
 │  - Auto Deploy on Main Branch                          │
@@ -169,12 +169,17 @@ npm run preview
 
 ### Deploy
 
-O deploy é **automático** via Vercel:
+O deploy é **automático** via Cloudflare Pages:
 
 1. Faça commit das mudanças
 2. Push para branch `main`
-3. Vercel detecta e faz deploy automaticamente
+3. Cloudflare Pages detecta e faz deploy automaticamente
 4. Pronto! ✅
+
+**Deploy de Edge Functions:**
+```bash
+npm run deploy:functions
+```
 
 ---
 
@@ -278,11 +283,16 @@ node scripts/test-camila-login.cjs
 
 ### Variáveis de Ambiente
 
-Configuradas no Vercel Dashboard:
+Configuradas no Cloudflare Pages Dashboard:
 
 - `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-- Outras keys sensíveis (EmailJS, WhatsApp, etc.)
+- `VITE_SUPABASE_ANON_KEY` (safe for frontend)
+- `VITE_APP_URL`
+
+**⚠️ Backend variables (Supabase only):**
+- `SUPABASE_SERVICE_ROLE_KEY` - Never in frontend!
+- `ALLOWED_ORIGINS` - Must include Cloudflare Pages domain
+- AI/Integration keys (EmailJS, WhatsApp, etc.)
 
 ---
 
@@ -358,7 +368,7 @@ npm run build
 
 ### Links Úteis
 
-- **Vercel Dashboard:** <https://vercel.com/logiccamila-wq/logic-view-bright>
+- **Cloudflare Dashboard:** <https://dash.cloudflare.com>
 - **Supabase Dashboard:** <https://supabase.com/dashboard/project/eixkvkst>
 - **GitHub Repo:** <https://github.com/logiccamila-wq/logic-view-bright>
 
@@ -414,9 +424,9 @@ node scripts/create-test-users.cjs
 
 ## 📝 Changelog
 
-### v1.0.0 (06/01/2026)
+### v1.0.0 (19/01/2026)
 
-- ✅ Deploy completo no Vercel
+- ✅ Deploy completo no Cloudflare Pages
 - ✅ 100+ database migrations aplicadas
 - ✅ 39 Edge Functions deployadas
 - ✅ Sistema de autenticação funcionando
@@ -424,6 +434,7 @@ node scripts/create-test-users.cjs
 - ✅ Build otimizado (48s)
 - ✅ Domínio customizado configurado
 - ✅ Documentação completa
+- ✅ Migração de Vercel para Cloudflare Pages
 
 ---
 
@@ -442,6 +453,6 @@ node scripts/create-test-users.cjs
 
 ---
 
-**Última Atualização:** 06/01/2026  
+**Última Atualização:** 19/01/2026  
 **Mantenedor:** Logic Team  
 **Licença:** Proprietary

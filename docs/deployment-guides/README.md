@@ -1,85 +1,87 @@
-# 📚 Índice de Documentação - Logic View Bright
+# 📚 Deployment Documentation - Logic View Bright
 
-Esta pasta contém todos os guias e documentação relacionada ao deployment e configuração do sistema.
+⚠️ **IMPORTANT NOTICE (Updated 2026-01-19):**
 
----
+**This directory contains legacy Vercel deployment guides that are now OBSOLETE.**
 
-## 🎯 Documentos Principais
+The project has migrated from Vercel to **Cloudflare Pages**. Please refer to the updated documentation in the repository root:
 
-### Status e Finalizações
-- **CHECKLIST_FINALIZACAO.md** - Checklist completo de finalização do projeto
-- **LOGIN_SETUP.md** - Configuração de login e autenticação
-- **DEPLOY_SUCCESS.md** - Confirmação de deploy bem-sucedido
+## ✅ Current Deployment Documentation
 
-### Guias de Deploy
-- **DEPLOY_AGORA.md** - Guia rápido de deploy
-- **DEPLOY_SINGLE.md** - Deploy unificado Vercel + Supabase
-- **VERCEL_SETUP_COMPLETO.md** - Setup completo do Vercel
-
-### Configuração DNS e Domínio
-- **ACAO_DNS_VERCEL.md** - Ações para configurar DNS no Vercel
-- **DNS_README.md** - Documentação de DNS
-- **CONFIGURAR_DOMINIO_VERCEL.md** - Como configurar domínio customizado
-- **RESOLVER_DNS_AGORA.md** - Resolver problemas de DNS
-- **SOLUCAO_DNS.md** - Soluções para DNS
-
-### Guias Rápidos
-- **ACAO_AGORA.md** - Ações imediatas necessárias
-- **GUIA_RAPIDO_VERCEL.md** - Guia rápido Vercel
-- **QUICK_FIX.md** - Correções rápidas
-
-### Migrações e Correções
-- **MIGRAR_CLOUDFLARE_VERCEL.md** - Migração de Cloudflare para Vercel
-- **FIX_VERCEL_BLANK.md** - Correção de página em branco no Vercel
-
-### Usuários e Permissões
-- **SETUP_USUARIOS.md** - Setup de usuários do sistema
+- **[CLOUDFLARE_PAGES_DEPLOYMENT.md](../../CLOUDFLARE_PAGES_DEPLOYMENT.md)** - Complete Cloudflare Pages setup guide
+- **[DEPLOYMENT.md](../../DEPLOYMENT.md)** - General deployment guide
+- **[POST_DEPLOYMENT_CHECKLIST.md](../../POST_DEPLOYMENT_CHECKLIST.md)** - Post-deployment verification checklist
+- **[README.md](../../README.md)** - Quick start guide
+- **[README_FINAL.md](../../README_FINAL.md)** - Complete system documentation
 
 ---
 
-## 📖 Como Usar Esta Documentação
+## 🚫 Obsolete Files (Vercel-Specific)
 
-### Para Deploy Inicial
-1. Leia **DEPLOY_SINGLE.md** - guia unificado
-2. Siga **VERCEL_SETUP_COMPLETO.md** - configuração completa
-3. Configure DNS com **CONFIGURAR_DOMINIO_VERCEL.md**
-4. Valide com **CHECKLIST_FINALIZACAO.md**
+The following guides in this directory are **NO LONGER APPLICABLE** as they reference Vercel deployment:
 
-### Para Resolver Problemas
-1. DNS não funciona → **RESOLVER_DNS_AGORA.md** ou **SOLUCAO_DNS.md**
-2. Página em branco → **FIX_VERCEL_BLANK.md**
-3. Login não funciona → **LOGIN_SETUP.md**
-4. Ações rápidas → **QUICK_FIX.md**
+### Deploy Guides (Obsolete)
+- ~~DEPLOY_SINGLE.md~~ - Vercel deploy guide
+- ~~VERCEL_SETUP_COMPLETO.md~~ - Vercel setup
+- ~~GUIA_RAPIDO_VERCEL.md~~ - Vercel quick guide
+- ~~DEPLOY_AGORA.md~~ - Vercel deploy instructions
 
-### Para Manutenção
-1. Verificar status → **DEPLOY_SUCCESS.md**
-2. Ações pendentes → **ACAO_AGORA.md**
-3. Checklist completo → **CHECKLIST_FINALIZACAO.md**
+### DNS and Domain (Obsolete)
+- ~~ACAO_DNS_VERCEL.md~~ - Vercel DNS actions
+- ~~CONFIGURAR_DOMINIO_VERCEL.md~~ - Vercel domain config
+- ~~MIGRAR_CLOUDFLARE_VERCEL.md~~ - Migration to Vercel (now reversed!)
 
----
+### Troubleshooting (Obsolete)
+- ~~FIX_VERCEL_BLANK.md~~ - Vercel blank page fix
+- ~~QUICK_FIX.md~~ - Vercel quick fixes
+- ~~RESOLVER_DNS_AGORA.md~~ - Vercel DNS troubleshooting
+- ~~SOLUCAO_DNS.md~~ - Vercel DNS solutions
 
-## ✅ Status Atual
-
-**Projeto:** ✅ 100% FUNCIONAL  
-**Deploy:** ✅ Vercel em produção  
-**Backend:** ✅ Supabase operacional  
-**DNS:** ✅ Configurado  
-**Login:** ✅ Testado e funcionando  
-
-**Última Atualização:** 06/01/2026
+### Still Relevant
+- **LOGIN_SETUP.md** - Authentication setup (platform-agnostic)
+- **SETUP_USUARIOS.md** - User setup (platform-agnostic)
+- **CHECKLIST_FINALIZACAO.md** - May still be useful for general deployment steps
 
 ---
 
-## 📞 Links Úteis
+## 📖 Migration Guide
 
-- **Sistema em Produção:** <https://logic-view-bright-main.vercel.app>
-- **Domínio:** <https://xyzlogicflow.tech>
-- **Vercel Dashboard:** <https://vercel.com/logiccamila-wq/logic-view-bright>
+If you're migrating from Vercel to Cloudflare Pages:
+
+1. **Remove Vercel-specific configs** - Already done (vercel.json, .vercelignore removed)
+2. **Set up Cloudflare Pages** - Follow [CLOUDFLARE_PAGES_DEPLOYMENT.md](../../CLOUDFLARE_PAGES_DEPLOYMENT.md)
+3. **Update environment variables:**
+   - Copy from Vercel to Cloudflare Pages Dashboard
+   - Update `ALLOWED_ORIGINS` in Supabase to include Cloudflare Pages domain
+4. **Update DNS** - Point domain to Cloudflare Pages instead of Vercel
+5. **Deploy** - Push to main branch (Cloudflare Pages auto-deploys)
+
+---
+
+## ✅ Current Status
+
+**Project:** ✅ 100% FUNCTIONAL  
+**Frontend:** ✅ Cloudflare Pages  
+**Backend:** ✅ Supabase operational  
+**DNS:** ✅ Configured (Cloudflare)  
+**Login:** ✅ Tested and working  
+
+**Last Updated:** 19/01/2026
+
+---
+
+## 📞 Current Links
+
+- **Production Site:** <https://xyzlogicflow.tech>
+- **Cloudflare Pages:** <https://logic-view-bright.pages.dev>
+- **Cloudflare Dashboard:** <https://dash.cloudflare.com>
 - **Supabase Dashboard:** <https://supabase.com/dashboard/project/eixkvkst>
 - **GitHub Repo:** <https://github.com/logiccamila-wq/logic-view-bright>
 
 ---
 
-## 🎓 Nota
+## 🎓 Note
 
-Para documentação completa do sistema, consulte o **README_FINAL.md** na raiz do projeto.
+These legacy Vercel guides are kept for historical reference only. All new deployments and documentation updates should use Cloudflare Pages.
+
+For complete system documentation, see **[README_FINAL.md](../../README_FINAL.md)** in the project root.
