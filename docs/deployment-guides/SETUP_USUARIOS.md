@@ -25,8 +25,8 @@ https://yssqhlogdqdjmqwuvnkv.supabase.co/functions/v1/seed-users
 
 **Opção B: Via cURL**
 ```bash
-curl -X POST https://yssqhlogdqdjmqwuvnkv.supabase.co/functions/v1/seed-users \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlzc3FobG9nZHFkam1xd3V2bmt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MTE4NjksImV4cCI6MjA3ODQ4Nzg2OX0.nsZ9N1IU_O4BU-pPhzHsF16MGklNA86uhKNbVYtbUQY"
+curl -X POST https://YOUR-PROJECT.supabase.co/functions/v1/seed-users \
+  -H "Authorization: Bearer YOUR_ANON_KEY"
 ```
 
 A edge function irá:

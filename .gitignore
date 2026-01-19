@@ -10,7 +10,10 @@ dist/
 
 # Sensitive files with secrets (removed from repo)
 CONFIGURAR_ENV_VARS_AGORA.md
+RESOLVER_PROJETOS_DUPLICADOS.md
 find-supabase-keys.sh
 scripts/update-camila-profile.cjs
 scripts/fix-camila-user.cjs
 scripts/check-schema.cjs
+scripts/configure-vercel-env.sh
+scripts/test-camila-login.cjs
