@@ -56,9 +56,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Permissões por módulo
 const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
-  driver: ["dashboard", "fleet", "tms", "driver"],
-  finance: ["dashboard", "erp", "reports", "approvals", "control-tower", "finance", "documents"],
-  operations: ["dashboard", "operations", "tms", "fleet", "approvals", "control-tower", "documents"],
+  driver: ["dashboard", "fleet", "tms", "driver", "app-motorista"],
+  finance: ["dashboard", "erp", "reports", "approvals", "control-tower", "finance", "documents", "bank-reconciliation", "cost-monitoring", "consultoria-financeira-ia", "analise-tributaria"],
+  operations: ["dashboard", "operations", "tms", "fleet", "approvals", "control-tower", "documents", "supergestor", "drivers-management", "logistics-kpi", "blockchain-tracking", "ai-route-optimization", "app-motorista"],
   admin: [
     "dashboard",
     "wms",
@@ -88,10 +88,25 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
     "bank-reconciliation",
     "cost-monitoring",
     "permissions",
+    "supergestor",
+    "predictive-maintenance",
+    "drivers-management",
+    "supergestor-ai",
+    "blockchain-tracking",
+    "digital-twin",
+    "esg-dashboard",
+    "ai-route-optimization",
+    "cargo-marketplace",
+    "advanced-analytics",
+    "consultoria-financeira-ia",
+    "analise-tributaria",
+    "app-motorista",
+    "gestao-pops",
+    "auditoria-sassmaq",
   ],
-  commercial: ["dashboard", "tms", "crm"],
-  fleet_maintenance: ["fleet", "mechanic", "inventory", "documents", "approvals"],
-  maintenance_assistant: ["mechanic", "inventory"],
+  commercial: ["dashboard", "tms", "crm", "cargo-marketplace"],
+  fleet_maintenance: ["fleet", "mechanic", "inventory", "documents", "approvals", "predictive-maintenance", "gestao-pops", "auditoria-sassmaq"],
+  maintenance_assistant: ["mechanic", "inventory", "gestao-pops"],
   logistics_manager: [
     "dashboard",
     "tms",
@@ -102,6 +117,11 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
     "control-tower",
     "finance",
     "documents",
+    "supergestor",
+    "drivers-management",
+    "logistics-kpi",
+    "ai-route-optimization",
+    "app-motorista",
   ],
   maintenance_manager: [
     "dashboard",
@@ -112,6 +132,9 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
     "control-tower",
     "inventory",
     "documents",
+    "predictive-maintenance",
+    "gestao-pops",
+    "auditoria-sassmaq",
   ],
   super_consultant: [
     "dashboard",
@@ -120,6 +143,11 @@ const MODULE_PERMISSIONS: Record<AppRole, string[]> = {
     "developer",
     "finance",
     "documents",
+    "supergestor-ai",
+    "esg-dashboard",
+    "advanced-analytics",
+    "consultoria-financeira-ia",
+    "analise-tributaria",
   ],
 };
 
@@ -217,23 +245,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         const { data: userRoles } = await supabase.from("user_roles").select("*").eq("user_id", data.user.id);
 
-        let roles = normalizeRoles(
+        const roles = normalizeRoles(
           (userRoles || []).map((r: any) => {
             const v = r.role ?? r.role_name ?? r.name ?? r.slug ?? r.tipo ?? r.perfil;
             return typeof v === 'string' ? v : '';
           }).filter(Boolean)
         );
 
-        if (!roles.length) {
-          const e = (email || "").trim().toLowerCase();
-          if (e === "logiccamila@gmail.com") roles = ["admin"];
-          if (e === "logicdev@optilog.app") roles = ["admin"];
-          else if (e === "motorista.teste@optilog.app") roles = ["driver"];
-          else if (e === "mecanico.teste@optilog.app") roles = ["fleet_maintenance"];
-          setRoles(roles);
-        } else {
-          setRoles(roles);
-        }
+        setRoles(roles);
         
         // Mecânicos: apenas fleet_maintenance ou maintenance_assistant
         const onlyMechanic = roles.every(r => 

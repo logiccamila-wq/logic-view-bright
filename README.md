@@ -58,16 +58,55 @@ npm run db:push          # Aplicar migrations
 
 ## 🔐 Variáveis de Ambiente
 
-**Frontend** (.env.local):
+⚠️ **IMPORTANTE:** Nunca commite secrets no repositório. Configure as variáveis apenas nos dashboards de deploy.
+
+### Frontend (Vercel)
+
+Configure no [Vercel Dashboard](https://vercel.com/dashboard) → Settings → Environment Variables:
+
 ```env
-VITE_SUPABASE_URL=https://xxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJxxx...
+VITE_SUPABASE_URL=<your-supabase-url>
+VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 ```
 
-**Supabase** (Dashboard → Settings → Edge Functions):
+### Backend/Functions (Supabase)
+
+Configure no Supabase Dashboard → Settings → Edge Functions:
+
 ```env
-SUPABASE_SERVICE_ROLE_KEY=xxx
-OPENAI_API_KEY=sk-xxx
+SUPABASE_URL=<your-supabase-url>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.vercel.app
+```
+
+### Opcional (APIs Externas)
+
+```env
+VITE_EMAILJS_SERVICE_ID=<your-service-id>
+VITE_EMAILJS_TEMPLATE_ID=<your-template-id>
+VITE_EMAILJS_PUBLIC_KEY=<your-public-key>
+VITE_OPENROUTE_API_KEY=<your-openroute-key>
+VITE_TOMTOM_API_KEY=<your-tomtom-key>
+AI_PROVIDER_KEY=<your-ai-provider-key>
+AI_PROVIDER_MODEL=<your-model-name>
+AI_PROVIDER_ENDPOINT=<your-endpoint-url>
+```
+
+## 🚀 Deployment
+
+### Frontend
+- **Platform:** Vercel (auto-deploy via GitHub integration)
+- **Domain:** https://xyzlogicflow.tech
+- **Preview:** https://logic-view-bright.vercel.app
+
+### Backend/API
+- **Platform:** Supabase Edge Functions (Deno)
+- **Database:** PostgreSQL (Supabase)
+- **Note:** While the repo references Cloudflare for potential future API hosting, current production uses Supabase Edge Functions
+
+Para deploy manual de functions:
+```bash
+npm run deploy:functions
 ```
 
 ## 📁 Estrutura
