@@ -105,17 +105,29 @@ Configure these in Supabase Dashboard → Settings → Edge Functions:
 The `ALLOWED_ORIGINS` environment variable **MUST** include:
 1. Your production domain: `https://xyzlogicflow.tech`
 2. Your Cloudflare Pages domain: `https://logic-view-bright.pages.dev`
-3. Any preview/branch URLs if needed: `https://[branch].logic-view-bright.pages.dev`
+3. Any preview/branch URLs if needed (see security note below)
 
-Example:
+Example (minimal, recommended for production):
 ```
-ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev,https://*.logic-view-bright.pages.dev
+ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev
 ```
+
+Example (including preview branches):
+```
+ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev,https://dev.logic-view-bright.pages.dev,https://staging.logic-view-bright.pages.dev
+```
+
+**⚠️ Security Note on Wildcards:**
+While you can use `https://*.logic-view-bright.pages.dev` to allow all preview deployments, this is overly permissive. For production environments, it's more secure to:
+- List only specific preview domains you need (e.g., `dev`, `staging`)
+- Avoid wildcards that would allow any subdomain
+- Review and update ALLOWED_ORIGINS as needed rather than using a catch-all pattern
 
 **Why this is important:**
 - Edge Functions validate the origin of requests for security
 - Without proper CORS configuration, API calls will fail
 - Frontend will show CORS errors in the browser console
+- Too-permissive CORS settings can expose your API to unauthorized domains
 
 ### How to Set Supabase Environment Variables
 

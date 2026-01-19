@@ -60,12 +60,14 @@ Required environment variables for Supabase Edge Functions:
 **⚠️ CRITICAL: ALLOWED_ORIGINS must include your Cloudflare Pages domain(s):**
 - Production domain: `https://xyzlogicflow.tech`
 - Cloudflare Pages domain: `https://logic-view-bright.pages.dev`
-- Preview domains (optional): `https://*.logic-view-bright.pages.dev`
+- Preview domains: List specific ones needed (e.g., `dev`, `staging`)
 
-Example:
+Example (recommended):
 ```
 ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev
 ```
+
+**Security Note:** Avoid using wildcards like `https://*.logic-view-bright.pages.dev` in production as they're overly permissive. Instead, explicitly list only the preview domains you need.
 
 **Optional AI/Integration variables:**
 
