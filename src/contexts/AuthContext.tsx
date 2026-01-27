@@ -133,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Buscar roles do usuário
   const fetchUserRoles = async (userId: string) => {
     const isDev = import.meta.env.DEV;
+    
     if (isDev) console.log('🔐 [AuthContext] Buscando roles para user:', userId);
     
     try {
@@ -335,7 +336,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // 🔓 Fallback de desenvolvimento para admin (apenas em DEV)
     if (isDev && user?.email === adminOverrideEmail) {
-      if (isDev) console.log('🔓 [AuthContext] Admin override ativo para:', user.email);
+      console.log('🔓 [AuthContext] Admin override ativo para:', user.email);
       return true;
     }
 
