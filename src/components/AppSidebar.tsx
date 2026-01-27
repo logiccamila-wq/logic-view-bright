@@ -49,6 +49,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
@@ -102,7 +104,7 @@ const modulesItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { canAccessModule, signOut, user, hasRole } = useAuth();
+  const { canAccessModule, signOut, user, hasRole, loading } = useAuth();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
@@ -121,6 +123,38 @@ export function AppSidebar() {
     : mainItems.filter(item => canAccessModule(item.module));
   const filteredManagementItems = isOnlyDriver ? [] : managementItems.filter(item => canAccessModule(item.module));
   const filteredModulesItems = isOnlyDriver ? [] : modulesItems.filter(item => canAccessModule(item.module));
+
+  // 🔄 Mostrar loading state
+  if (loading) {
+    return (
+      <Sidebar className={collapsed ? "w-14" : "w-64"}>
+        <SidebarContent className="bg-sidebar border-r border-border">
+          <div className="p-4 border-b border-border flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary/10 p-1.5 rounded-lg">
+                <Zap className="h-6 w-6 text-primary" />
+              </div>
+              {!collapsed && (
+                <span className="font-bold text-lg text-foreground">XYZLogicFlow</span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
+
+  // Log de debug
+  console.log('🎨 [AppSidebar] Renderizando com:', {
+    user: user?.email,
+    loading,
+    filteredMainItems: filteredMainItems.length,
+    filteredManagementItems: filteredManagementItems.length,
+    filteredModulesItems: filteredModulesItems.length
+  });
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
@@ -193,7 +227,7 @@ export function AppSidebar() {
         )}
 
         {/* Módulos Integrados */}
-        {filteredModulesItems.length > 0 && (
+        {filteredModulesItems.length > 0 ? (
           <SidebarGroup className="mt-4">
             <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
               Módulos
@@ -218,6 +252,15 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+        ) : !collapsed && !loading && (
+          <div className="px-4 py-2 text-xs text-muted-foreground">
+            ⚠️ Nenhum módulo disponível.
+            {user?.email && (
+              <div className="mt-1">
+                Email: {user.email}
+              </div>
+            )}
+          </div>
         )}
 
         {/* User info and Logout */}
@@ -226,6 +269,29 @@ export function AppSidebar() {
             <div className="text-xs text-muted-foreground truncate px-2">
               {user.user_metadata?.name || user.user_metadata?.display_name || user.email}
             </div>
+          )}
+          {user && !collapsed && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={async () => {
+                toast.info("Recarregando permissões...");
+                if (user?.id) {
+                  // Força reload das roles
+                  const { data } = await supabase
+                    .from("user_roles")
+                    .select("*")
+                    .eq("user_id", user.id);
+                  
+                  console.log('🔄 Permissões recarregadas:', data);
+                  toast.success("Permissões atualizadas!");
+                  window.location.reload();
+                }
+              }}
+            >
+              🔄 Recarregar Permissões
+            </Button>
           )}
           <Button
             variant="ghost"
