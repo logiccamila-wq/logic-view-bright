@@ -1,1 +1,3 @@
-/* /index.html 200
+# SPA fallback for client-side routing
+# Cloudflare Pages handles this automatically, so this file can be empty or removed
+# If you need custom redirects, add them here following Cloudflare Pages syntax
