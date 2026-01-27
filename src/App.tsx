@@ -13,7 +13,8 @@ import { SkeletonDashboard, SkeletonPage } from "@/components/skeletons";
 import { AccessibilityAnnouncer } from "@/components/accessibility";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-const LandingPage = lazy(() => import("@/pages/ProfessionalLandingPage"));
+// Updated to use unified landing page - legacy versions in /pages/landing-legacy/
+const LandingPage = lazy(() => import("@/pages/UnifiedLandingPage"));
 const Dashboard = lazy(() => import("@/pages/ModernDashboard"));
 const Login = lazy(() => import("@/pages/Login"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));

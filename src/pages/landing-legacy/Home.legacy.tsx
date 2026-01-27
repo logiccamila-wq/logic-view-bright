@@ -1,3 +1,7 @@
+// Legacy landing page - Mantido para referência histórica
+// Nova versão unificada em: /src/pages/UnifiedLandingPage.tsx
+// Data de arquivamento: 2026-01-27
+
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Truck, Shield, Zap, ArrowRight, Droplets, Pill } from "lucide-react";

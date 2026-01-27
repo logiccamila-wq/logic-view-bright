@@ -1,3 +1,7 @@
+// Legacy landing page - Mantido para referência histórica
+// Nova versão unificada em: /src/pages/UnifiedLandingPage.tsx
+// Data de arquivamento: 2026-01-27
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
