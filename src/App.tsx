@@ -92,6 +92,7 @@ const AnaliseTributaria = lazy(() => import("@/pages/AnaliseTributaria"));
 const AppMotorista = lazy(() => import("@/pages/AppMotorista"));
 const GestaoProcessosOperacionais = lazy(() => import("@/pages/GestaoProcessosOperacionais"));
 const AuditoriaSASSMAQ = lazy(() => import("@/pages/AuditoriaSASSMAQ"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 function App() {
   return (
@@ -203,6 +204,8 @@ function App() {
                               <Route path="app-motorista" element={<AppMotorista />} />
                               <Route path="gestao-pops" element={<GestaoProcessosOperacionais />} />
                               <Route path="auditoria-sassmaq" element={<AuditoriaSASSMAQ />} />
+                              {/* 404 Fallback */}
+                              <Route path="*" element={<NotFound />} />
                             </Routes>
                           </Suspense>
                         </Layout>

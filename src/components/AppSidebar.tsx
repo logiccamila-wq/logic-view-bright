@@ -122,6 +122,15 @@ export function AppSidebar() {
   const filteredManagementItems = isOnlyDriver ? [] : managementItems.filter(item => canAccessModule(item.module));
   const filteredModulesItems = isOnlyDriver ? [] : modulesItems.filter(item => canAccessModule(item.module));
 
+  // Debug: Log filtered menu counts
+  console.log('[AppSidebar] Filtered menu items:', {
+    isOnlyDriver,
+    mainItems: filteredMainItems.length,
+    managementItems: filteredManagementItems.length,
+    modulesItems: filteredModulesItems.length,
+    total: filteredMainItems.length + filteredManagementItems.length + filteredModulesItems.length
+  });
+
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
       <SidebarContent className="bg-sidebar border-r border-border">
