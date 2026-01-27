@@ -43,16 +43,16 @@ function normalizeRoles(rs: string[]): AppRole[] {
     .filter(Boolean) as AppRole[];
 }
 
-  interface AuthContextType {
-    user: User | null;
-    session: Session | null;
-    roles: AppRole[];
-    rolesReady: boolean;
-    loading: boolean;
-    signIn: (email: string, password: string) => Promise<void>;
-    signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<void>;
-    signOut: () => Promise<void>;
-    hasRole: (role: AppRole) => boolean;
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  roles: AppRole[];
+  rolesReady: boolean;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<void>;
+  signOut: () => Promise<void>;
+  hasRole: (role: AppRole) => boolean;
   canAccessModule: (module: string) => boolean;
 }
 
@@ -320,10 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const canAccessModule = (module: string) => {
-    // Enquanto carregando ou sem roles já processadas, não bloquear a UI
-    if (loading || !rolesReady) return true;
     if (roles.includes("admin")) return true;
-
     return roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
   };
 
