@@ -47,7 +47,7 @@ interface MenuCategory {
 export function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const { canAccessModule } = useAuth();
+  const { canAccessModule, loading, rolesReady } = useAuth();
 
   const menuCategories: MenuCategory[] = [
     {
@@ -144,7 +144,9 @@ export function Sidebar({ className }: SidebarProps) {
           <ScrollArea className="h-[calc(100vh-8rem)] px-1">
             <div className="space-y-4">
               {menuCategories.map((category, idx) => {
-                const visibleItems = category.items.filter((item) => !item.module || canAccessModule(item.module));
+                 const visibleItems = category.items.filter((item) => 
+                   !rolesReady || loading ? true : !item.module || canAccessModule(item.module)
+                 );
                 
                 if (visibleItems.length === 0) return null;
                 
