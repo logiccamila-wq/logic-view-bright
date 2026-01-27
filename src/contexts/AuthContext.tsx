@@ -146,7 +146,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const v = r.role ?? r.role_name ?? r.name ?? r.slug ?? r.tipo ?? r.perfil;
         return typeof v === 'string' ? v : '';
       }).filter(Boolean);
-      setRoles(normalizeRoles(extracted));
+      const normalizedRoles = normalizeRoles(extracted);
+      console.log('[AuthContext] User roles loaded:', { userId, rawRoles: extracted, normalizedRoles });
+      setRoles(normalizedRoles);
     } catch (error) {
       console.error("Error fetching roles:", error);
       setRoles([]);
@@ -307,9 +309,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const canAccessModule = (module: string) => {
-    if (roles.includes("admin")) return true;
+    if (roles.includes("admin")) {
+      console.log(`[AuthContext] canAccessModule("${module}"): true (admin)`);
+      return true;
+    }
 
-    return roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
+    const hasAccess = roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
+    console.log(`[AuthContext] canAccessModule("${module}"): ${hasAccess} (roles: ${roles.join(', ')})`);
+    return hasAccess;
   };
 
   return (

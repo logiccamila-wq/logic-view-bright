@@ -46,9 +46,13 @@ interface MenuCategory {
 
 export function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
+  // FIXED: Sidebar now expanded by default (was false, causing hidden sidebar issue)
   const [collapsed, setCollapsed] = useState(false);
   const { canAccessModule } = useAuth();
 
+  // Debug: Log accessible modules count on render
+  console.log('[Sidebar] Rendering sidebar, collapsed:', collapsed);
+  
   const menuCategories: MenuCategory[] = [
     {
       title: "Principal",
@@ -146,6 +150,9 @@ export function Sidebar({ className }: SidebarProps) {
               {menuCategories.map((category, idx) => {
                 const visibleItems = category.items.filter((item) => !item.module || canAccessModule(item.module));
                 
+                // Debug: Log filtered items per category
+                console.log(`[Sidebar] Category "${category.title}": ${visibleItems.length}/${category.items.length} items visible`);
+                
                 if (visibleItems.length === 0) return null;
                 
                 return (
@@ -177,6 +184,20 @@ export function Sidebar({ className }: SidebarProps) {
                   </div>
                 );
               })}
+              
+              {/* Show message if no modules available */}
+              {!collapsed && menuCategories.every(cat => 
+                cat.items.filter(item => !item.module || canAccessModule(item.module)).length === 0
+              ) && (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Sem módulos disponíveis.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Entre em contato com o administrador.
+                  </p>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
