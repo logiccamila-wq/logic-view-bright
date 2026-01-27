@@ -283,10 +283,18 @@ export function AppSidebar() {
                 toast.info("Recarregando permissões...");
                 if (user?.id) {
                   // Força reload das roles
-                  const { data } = await supabase
+                  const { data, error } = await supabase
                     .from("user_roles")
                     .select("*")
                     .eq("user_id", user.id);
+                  
+                  if (error) {
+                    if (isDev) {
+                      console.error("❌ Erro ao recarregar permissões:", error);
+                    }
+                    toast.error("Falha ao recarregar permissões. Tente novamente.");
+                    return;
+                  }
                   
                   if (isDev) console.log('🔄 Permissões recarregadas:', data);
                   toast.success("Permissões atualizadas!");

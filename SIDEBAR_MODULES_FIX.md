@@ -251,76 +251,54 @@ Adicionado alerta quando nenhum módulo for encontrado:
 
 **Arquivo:** `supabase/migrations/20260127_diagnostic_roles.sql`
 
-Criada migration para verificar e corrigir roles:
+**ATUALIZADO**: Esta migration foi convertida em NO-OP por questões de segurança.
 
+A migration original continha lógica que automaticamente concedia permissões de admin para um email específico hardcoded. Por questões de segurança, isso foi removido e a migration agora é apenas um placeholder que mantém o histórico de migrations intacto.
+
+**Nova migration (segura):**
 ```sql
--- Diagnostic: Verificar roles do usuário logiccamila@gmail.com
+-- Migration 20260127_diagnostic_roles
+-- 
+-- This migration provides diagnostic utilities for troubleshooting user roles
+-- without automatically granting privileges. It is a NO-OP migration that keeps
+-- the migration history intact.
+--
+-- IMPORTANT: This migration does NOT automatically assign roles to any users.
+-- Admin role assignment should be managed through standard provisioning flows,
+-- not hardcoded in migrations.
+
 DO $$
-DECLARE
-  user_record RECORD;
-  role_count INT;
 BEGIN
-  -- Buscar usuário
-  SELECT id, email, email_confirmed_at
-  INTO user_record
-  FROM auth.users
-  WHERE email = 'logiccamila@gmail.com';
-
-  IF user_record.id IS NULL THEN
-    RAISE NOTICE 'ERRO: Usuário logiccamila@gmail.com não encontrado';
-    RETURN;
-  END IF;
-
-  RAISE NOTICE 'Usuário encontrado: ID=%, Email=%', user_record.id, user_record.email;
-
-  -- Verificar roles
-  SELECT COUNT(*) INTO role_count
-  FROM user_roles
-  WHERE user_id = user_record.id;
-
-  RAISE NOTICE 'Total de roles: %', role_count;
-
-  -- Mostrar roles existentes
-  FOR role_record IN 
-    SELECT role FROM user_roles WHERE user_id = user_record.id
-  LOOP
-    RAISE NOTICE 'Role existente: %', role_record.role;
-  END LOOP;
-
-  -- Se não tiver role admin, adicionar
-  IF NOT EXISTS (
-    SELECT 1 FROM user_roles 
-    WHERE user_id = user_record.id AND role = 'admin'
-  ) THEN
-    INSERT INTO user_roles (user_id, role)
-    VALUES (user_record.id, 'admin');
-    RAISE NOTICE 'Role ADMIN adicionada!';
-  ELSE
-    RAISE NOTICE 'Role ADMIN já existe';
-  END IF;
+  RAISE NOTICE 'Migration 20260127_diagnostic_roles completed successfully.';
+  RAISE NOTICE 'This migration does not modify any data.';
+  RAISE NOTICE 'For admin role diagnostics, use scripts/diagnose-user-roles.sql manually.';
 END $$;
-
--- Verificar resultado final
-SELECT 
-  u.email,
-  ur.role,
-  ur.created_at
-FROM auth.users u
-JOIN user_roles ur ON u.id = ur.user_id
-WHERE u.email = 'logiccamila@gmail.com';
 ```
 
+**Script de diagnóstico separado:** `scripts/diagnose-user-roles.sql`
+
+Para diagnóstico manual de roles de usuários, foi criado um script separado que pode ser executado manualmente no ambiente desejado:
+
+- ✅ Não faz parte das migrations automáticas
+- ✅ Requer execução manual intencional
+- ✅ Permite parametrização do email do usuário
+- ✅ Apenas mostra informações, não modifica dados
+- ✅ Fornece instruções para atribuição manual de roles se necessário
+
 **Benefícios:**
-- ✅ Verifica se usuário existe
-- ✅ Lista todas as roles existentes
-- ✅ Adiciona role admin se não existir
-- ✅ Mostra resultado final
+- ✅ Seguro: não faz alterações automáticas no banco
+- ✅ Diagnóstico detalhado de usuários e roles
+- ✅ Instruções claras para atribuição manual de permissões
+- ✅ Pode ser executado em qualquer ambiente conforme necessário
+
+**Localização:** `scripts/diagnose-user-roles.sql`
 
 ## 📋 Arquivos Modificados
 
 1. ✅ `src/contexts/AuthContext.tsx` - Debug logs + fallback admin
-2. ✅ `src/components/AppSidebar.tsx` - Loading state + debug UI + botão reload
-3. ✅ `supabase/migrations/20260127_diagnostic_roles.sql` - Script de diagnóstico
+2. ✅ `src/components/AppSidebar.tsx` - Loading state + debug UI + botão reload (com tratamento de erros)
+3. ✅ `supabase/migrations/20260127_diagnostic_roles.sql` - Migration NO-OP (segura)
+4. ✅ `scripts/diagnose-user-roles.sql` - Script de diagnóstico manual (novo)
 
 ## 🧪 Como Testar
 
