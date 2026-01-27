@@ -82,56 +82,56 @@ export default function UnifiedLandingPage() {
       description:
         "Gestão completa de transporte com rastreamento real-time, otimização de rotas e emissão automática de CTe/MDFe",
       icon: Truck,
-      gradient: "from-blue-500 to-cyan-500",
+      colorScheme: "secondary" as const,
     },
     {
       title: "WMS Inteligente",
       description:
         "Controle total do armazém com picking otimizado, inventário automático e endereçamento dinâmico",
       icon: Warehouse,
-      gradient: "from-purple-500 to-pink-500",
+      colorScheme: "primary" as const,
     },
     {
       title: "ERP Financeiro",
       description:
         "Gestão financeira completa com DRE, fluxo de caixa, contas a pagar/receber e conciliação bancária",
       icon: Calculator,
-      gradient: "from-green-500 to-emerald-500",
+      colorScheme: "accent" as const,
     },
     {
       title: "CRM Integrado",
       description:
         "Gestão de clientes, funil de vendas, propostas comerciais e histórico completo de interações",
       icon: Users,
-      gradient: "from-orange-500 to-red-500",
+      colorScheme: "warning" as const,
     },
     {
       title: "Control Tower",
       description:
         "Torre de controle logística com visibilidade total da operação em tempo real",
       icon: Activity,
-      gradient: "from-red-500 to-rose-500",
+      colorScheme: "warning" as const,
     },
     {
       title: "IA & Machine Learning",
       description:
         "Otimização automática de rotas, previsão de demanda e manutenção preditiva",
       icon: Zap,
-      gradient: "from-yellow-500 to-orange-500",
+      colorScheme: "warning" as const,
     },
     {
       title: "Blockchain Tracking",
       description:
         "Rastreabilidade total com blockchain para segurança e transparência nas operações",
       icon: Shield,
-      gradient: "from-cyan-500 to-blue-500",
+      colorScheme: "secondary" as const,
     },
     {
       title: "IoT & Telemetria",
       description:
         "Telemetria veicular, sensores IoT e monitoramento remoto de ativos",
       icon: Cpu,
-      gradient: "from-pink-500 to-purple-500",
+      colorScheme: "primary" as const,
     },
   ];
 
@@ -574,7 +574,7 @@ export default function UnifiedLandingPage() {
                   title={feature.title}
                   description={feature.description}
                   icon={feature.icon}
-                  colorScheme={feature.gradient as "primary" | "secondary" | "accent" | "warning"}
+                  colorScheme={feature.colorScheme}
                   gradient={true}
                 />
               ))}
