@@ -26,11 +26,12 @@ Os módulos (WMS, TMS, OMS, SCM, CRM, ERP, etc.) não apareciam na coluna da esq
 
 **Arquivo:** `src/contexts/AuthContext.tsx`
 
-Adicionados logs detalhados para diagnóstico:
+Adicionados logs detalhados para diagnóstico **com controle de ambiente**:
 
 ```typescript
 const fetchUserRoles = async (userId: string) => {
-  console.log('🔐 [AuthContext] Buscando roles para user:', userId);
+  const isDev = import.meta.env.DEV;
+  if (isDev) console.log('🔐 [AuthContext] Buscando roles para user:', userId);
   
   try {
     const { data, error } = await supabase
@@ -38,24 +39,28 @@ const fetchUserRoles = async (userId: string) => {
       .select("*")
       .eq("user_id", userId);
 
-    console.log('🔐 [AuthContext] Resultado da query:', { 
-      data, 
-      error,
-      userId 
-    });
+    if (isDev) {
+      console.log('🔐 [AuthContext] Resultado da query:', { 
+        data, 
+        error,
+        userId 
+      });
+    }
 
     if (error) {
-      console.error('❌ [AuthContext] Erro ao buscar roles:', error);
+      if (isDev) console.error('❌ [AuthContext] Erro ao buscar roles:', error);
       // ...
     }
 
     const normalized = normalizeRoles(extracted);
     
-    console.log('🔐 [AuthContext] Roles processadas:', {
-      raw: extracted,
-      normalized,
-      userId
-    });
+    if (isDev) {
+      console.log('🔐 [AuthContext] Roles processadas:', {
+        raw: extracted,
+        normalized,
+        userId
+      });
+    }
     
     // ...
   }
@@ -63,48 +68,58 @@ const fetchUserRoles = async (userId: string) => {
 ```
 
 **Benefícios:**
-- ✅ Visibilidade completa do processo de autenticação
+- ✅ Visibilidade completa do processo de autenticação **em desenvolvimento**
+- ✅ **Logs automaticamente desabilitados em produção** (sem overhead de performance)
 - ✅ Logs identificam exatamente onde o problema ocorre
-- ✅ Facilita debug em produção
+- ✅ Facilita debug sem comprometer segurança ou performance em produção
 
 ### Fix 2: Fallback Admin para Desenvolvimento ✅
 
 **Arquivo:** `src/contexts/AuthContext.tsx`
 
-Adicionada verificação hardcoded para email específico:
+Adicionada verificação para email específico **com controle de ambiente**:
 
 ```typescript
 const canAccessModule = (module: string) => {
-  // 🔓 Fallback de desenvolvimento para admin
-  if (user?.email === 'logiccamila@gmail.com') {
-    console.log('🔓 [AuthContext] Admin override ativo para:', user.email);
+  const isDev = import.meta.env.DEV;
+  const adminOverrideEmail = import.meta.env.VITE_ADMIN_OVERRIDE_EMAIL || 'logiccamila@gmail.com';
+  
+  // 🔓 Fallback de desenvolvimento para admin (apenas em DEV)
+  if (isDev && user?.email === adminOverrideEmail) {
+    if (isDev) console.log('🔓 [AuthContext] Admin override ativo para:', user.email);
     return true;
   }
 
-  console.log('🔐 [AuthContext] Verificando acesso ao módulo:', {
-    module,
-    roles,
-    hasAdmin: roles.includes("admin")
-  });
+  if (isDev) {
+    console.log('🔐 [AuthContext] Verificando acesso ao módulo:', {
+      module,
+      roles,
+      hasAdmin: roles.includes("admin")
+    });
+  }
 
   if (roles.includes("admin")) return true;
 
   const hasAccess = roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
   
-  console.log('🔐 [AuthContext] Resultado da verificação:', {
-    module,
-    hasAccess,
-    matchingRoles: roles.filter(role => MODULE_PERMISSIONS[role]?.includes(module))
-  });
+  if (isDev) {
+    console.log('🔐 [AuthContext] Resultado da verificação:', {
+      module,
+      hasAccess,
+      matchingRoles: roles.filter(role => MODULE_PERMISSIONS[role]?.includes(module))
+    });
+  }
 
   return hasAccess;
 };
 ```
 
 **Benefícios:**
-- ✅ Usuário `logiccamila@gmail.com` sempre tem acesso admin
-- ✅ Bypass de problemas de configuração de roles no DB
-- ✅ Logs detalhados para cada verificação de permissão
+- ✅ Usuário especificado sempre tem acesso admin **apenas em desenvolvimento**
+- ✅ **Seguro em produção** - override desabilitado automaticamente
+- ✅ Configurável via variável de ambiente `VITE_ADMIN_OVERRIDE_EMAIL`
+- ✅ Bypass de problemas de configuração de roles no DB durante desenvolvimento
+- ✅ Logs detalhados para cada verificação de permissão (apenas em dev)
 
 ### Fix 3: Loading State no Sidebar ✅
 
@@ -358,9 +373,9 @@ Se necessário reverter:
 - ✅ **Self-service:** Botão de reload permite usuário resolver problemas sozinho
 
 ### Considerações
-- ⚠️ Logs podem adicionar ruído no console (podem ser reduzidos/removidos depois)
-- ⚠️ Fallback admin é hardcoded (deve ser usado apenas em desenvolvimento/staging)
-- ⚠️ Botão de reload recarrega a página inteira (poderia ser otimizado)
+- ⚠️ ~~Logs podem adicionar ruído no console~~ ✅ **Resolvido:** Logs apenas em desenvolvimento
+- ⚠️ ~~Fallback admin é hardcoded~~ ✅ **Resolvido:** Apenas em dev + configurável via env var
+- ⚠️ Botão de reload recarrega a página inteira (poderia ser otimizado no futuro)
 
 ## 🎯 Próximos Passos
 

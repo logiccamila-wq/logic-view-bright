@@ -132,20 +132,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Buscar roles do usuário
   const fetchUserRoles = async (userId: string) => {
-    console.log('🔐 [AuthContext] Buscando roles para user:', userId);
+    const isDev = import.meta.env.DEV;
+    if (isDev) console.log('🔐 [AuthContext] Buscando roles para user:', userId);
     
     try {
       const { data, error } = await supabase.from("user_roles").select("*").eq("user_id", userId);
 
-      console.log('🔐 [AuthContext] Resultado da query:', { 
-        data, 
-        error,
-        userId 
-      });
+      if (isDev) {
+        console.log('🔐 [AuthContext] Resultado da query:', { 
+          data, 
+          error,
+          userId 
+        });
+      }
 
       if (error) {
         // If table doesn't exist or other error, log but don't crash, fallback to empty roles
-        console.error('❌ [AuthContext] Erro ao buscar roles:', error);
+        if (isDev) console.error('❌ [AuthContext] Erro ao buscar roles:', error);
         console.warn("Error fetching roles (table might be missing):", error);
         setRoles([]);
         return;
@@ -158,11 +161,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const normalized = normalizeRoles(extracted);
       
-      console.log('🔐 [AuthContext] Roles processadas:', {
-        raw: extracted,
-        normalized,
-        userId
-      });
+      if (isDev) {
+        console.log('🔐 [AuthContext] Roles processadas:', {
+          raw: extracted,
+          normalized,
+          userId
+        });
+      }
 
       setRoles(normalized);
     } catch (error) {
@@ -325,27 +330,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const canAccessModule = (module: string) => {
-    // 🔓 Fallback de desenvolvimento para admin
-    if (user?.email === 'logiccamila@gmail.com') {
-      console.log('🔓 [AuthContext] Admin override ativo para:', user.email);
+    const isDev = import.meta.env.DEV;
+    const adminOverrideEmail = import.meta.env.VITE_ADMIN_OVERRIDE_EMAIL || 'logiccamila@gmail.com';
+    
+    // 🔓 Fallback de desenvolvimento para admin (apenas em DEV)
+    if (isDev && user?.email === adminOverrideEmail) {
+      if (isDev) console.log('🔓 [AuthContext] Admin override ativo para:', user.email);
       return true;
     }
 
-    console.log('🔐 [AuthContext] Verificando acesso ao módulo:', {
-      module,
-      roles,
-      hasAdmin: roles.includes("admin")
-    });
+    if (isDev) {
+      console.log('🔐 [AuthContext] Verificando acesso ao módulo:', {
+        module,
+        roles,
+        hasAdmin: roles.includes("admin")
+      });
+    }
 
     if (roles.includes("admin")) return true;
 
     const hasAccess = roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
     
-    console.log('🔐 [AuthContext] Resultado da verificação:', {
-      module,
-      hasAccess,
-      matchingRoles: roles.filter(role => MODULE_PERMISSIONS[role]?.includes(module))
-    });
+    if (isDev) {
+      console.log('🔐 [AuthContext] Resultado da verificação:', {
+        module,
+        hasAccess,
+        matchingRoles: roles.filter(role => MODULE_PERMISSIONS[role]?.includes(module))
+      });
+    }
 
     return hasAccess;
   };

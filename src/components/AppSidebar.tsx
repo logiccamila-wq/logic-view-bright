@@ -148,13 +148,16 @@ export function AppSidebar() {
   }
 
   // Log de debug
-  console.log('🎨 [AppSidebar] Renderizando com:', {
-    user: user?.email,
-    loading,
-    filteredMainItems: filteredMainItems.length,
-    filteredManagementItems: filteredManagementItems.length,
-    filteredModulesItems: filteredModulesItems.length
-  });
+  const isDev = import.meta.env.DEV;
+  if (isDev) {
+    console.log('🎨 [AppSidebar] Renderizando com:', {
+      user: user?.email,
+      loading,
+      filteredMainItems: filteredMainItems.length,
+      filteredManagementItems: filteredManagementItems.length,
+      filteredModulesItems: filteredModulesItems.length
+    });
+  }
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"}>
@@ -276,6 +279,7 @@ export function AppSidebar() {
               size="sm"
               className="w-full justify-start text-xs"
               onClick={async () => {
+                const isDev = import.meta.env.DEV;
                 toast.info("Recarregando permissões...");
                 if (user?.id) {
                   // Força reload das roles
@@ -284,7 +288,7 @@ export function AppSidebar() {
                     .select("*")
                     .eq("user_id", user.id);
                   
-                  console.log('🔄 Permissões recarregadas:', data);
+                  if (isDev) console.log('🔄 Permissões recarregadas:', data);
                   toast.success("Permissões atualizadas!");
                   window.location.reload();
                 }
