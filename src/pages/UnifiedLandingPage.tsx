@@ -39,6 +39,7 @@ import { FAQAccordion } from "@/components/landing/FAQAccordion";
 import { IntegrationGrid } from "@/components/landing/IntegrationGrid";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PRICING } from "@/config/pricing";
 
 export default function UnifiedLandingPage() {
   const navigate = useNavigate();
@@ -191,10 +192,10 @@ export default function UnifiedLandingPage() {
 
   const pricingPlans = [
     {
-      planName: "Starter",
+      planName: PRICING.starter.label,
       price: {
-        monthly: 497,
-        annual: 397 * 12,
+        monthly: PRICING.starter.monthly,
+        annual: PRICING.starter.annual,
       },
       description: "Perfeito para pequenas empresas começando a digitalização",
       features: [
@@ -209,10 +210,10 @@ export default function UnifiedLandingPage() {
       popular: false,
     },
     {
-      planName: "Professional",
+      planName: PRICING.professional.label,
       price: {
-        monthly: 997,
-        annual: 797 * 12,
+        monthly: PRICING.professional.monthly,
+        annual: PRICING.professional.annual,
       },
       description: "Para empresas em crescimento que precisam de mais recursos",
       features: [
@@ -229,10 +230,10 @@ export default function UnifiedLandingPage() {
       popular: true,
     },
     {
-      planName: "Enterprise",
+      planName: PRICING.enterprise.label,
       price: {
-        monthly: 9999,
-        annual: 99999,
+        monthly: PRICING.enterprise.monthly,
+        annual: PRICING.enterprise.annual,
       },
       description: "Solução completa para grandes operações logísticas",
       features: [
@@ -1031,6 +1032,7 @@ export default function UnifiedLandingPage() {
                     <Truck className="h-5 w-5 text-white" />
                   </div>
                   <div>
+                    {/* NOTE: Copyright year is set at build time. Update during annual releases. */}
                     <p className="text-sm text-gray-400">
                       © {new Date().getFullYear()} XYZLogicFlow. Todos os direitos reservados.
                     </p>

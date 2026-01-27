@@ -14,17 +14,14 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Check } from "lucide-react";
+import { getPlanOptions } from "@/config/pricing";
 
 interface LeadFormProps {
   onSuccess?: () => void;
   plans?: Array<{ value: string; label: string }>;
 }
 
-const defaultPlans = [
-  { value: "starter", label: "Starter - R$ 997/mês" },
-  { value: "professional", label: "Professional - R$ 2.497/mês" },
-  { value: "enterprise", label: "Enterprise - R$ 4.997/mês" },
-];
+const defaultPlans = getPlanOptions("monthly");
 
 /**
  * Enhanced lead capture form with domain preview
