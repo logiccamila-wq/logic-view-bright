@@ -152,7 +152,9 @@ export function DocumentImporter({
           return newFiles;
         });
 
-        // Create document record in database (cast as any to avoid type issues with dynamic document_type)
+        // Create document record in database
+        // Note: Using 'as any' here because document_type can be dynamic
+        // and the Supabase generated types expect a specific enum
         await supabase.from('vehicle_documents').insert({
           vehicle_plate: vehiclePlate,
           document_type: documentType,

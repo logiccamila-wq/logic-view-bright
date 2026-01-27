@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
  * Document validation and utility functions
  */
 
+// Constants
+const VEHICLE_PLATE_REGEX = /^[A-Z]{3}-?\d{4}$/;
+
 export interface DocumentValidation {
   isValid: boolean;
   errors: string[];
@@ -58,7 +61,7 @@ export function validateDocument(data: {
   // Required fields
   if (!data.vehicle_plate) {
     errors.push('Placa do veículo é obrigatória');
-  } else if (!/^[A-Z]{3}-?\d{4}$/.test(data.vehicle_plate.replace(/[^A-Z0-9]/gi, '').toUpperCase())) {
+  } else if (!VEHICLE_PLATE_REGEX.test(data.vehicle_plate.replace(/[^A-Z0-9]/gi, '').toUpperCase())) {
     errors.push('Placa do veículo inválida (formato esperado: ABC-1234)');
   }
 

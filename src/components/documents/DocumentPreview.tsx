@@ -380,14 +380,19 @@ export function DocumentPreview({
 }
 
 // Helper functions
+
+// File type constants
+const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+const PDF_EXTENSION = 'pdf';
+
 function getFileType(filename: string): 'image' | 'pdf' | 'document' {
   const ext = filename.toLowerCase().split('.').pop() || '';
   
-  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) {
+  if (IMAGE_EXTENSIONS.includes(ext)) {
     return 'image';
   }
   
-  if (ext === 'pdf') {
+  if (ext === PDF_EXTENSION) {
     return 'pdf';
   }
   
