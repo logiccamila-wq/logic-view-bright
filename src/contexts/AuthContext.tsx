@@ -307,6 +307,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const canAccessModule = (module: string) => {
+    if (loading) return true;
+    if (roles.length === 0) return true;
     if (roles.includes("admin")) return true;
 
     return roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
