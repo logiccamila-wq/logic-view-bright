@@ -17,6 +17,11 @@
    - Cloudflare + Supabase
    - Sem confusão!
 
+3. **[SOBRE_INTEGRACAO.md](../SOBRE_INTEGRACAO.md)** ⭐ **INTEGRAÇÃO ODOO (RESUMO)**
+   - O que é a integração Odoo
+   - Como configurar em 3 passos
+   - Português e direto ao ponto
+
 ### Para Desenvolvimento
 3. **[README.md](../README.md)**
    - Documentação técnica original
@@ -52,7 +57,9 @@
 
 | Documento | Descrição | Quando Usar |
 |-----------|-----------|-------------|
-| **[IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md)** | Implementação Odoo | Integração com Odoo |
+| **[SOBRE_INTEGRACAO.md](../SOBRE_INTEGRACAO.md)** | Resumo rápido da integração Odoo | Configuração rápida |
+| **[INTEGRACAO_ODOO.md](../INTEGRACAO_ODOO.md)** | Guia completo da integração Odoo | Detalhes completos |
+| **[IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md)** | Documentação técnica da implementação | Desenvolvimento |
 
 ---
 
@@ -123,7 +130,8 @@ Documentos históricos movidos para `docs/archive/`:
 → [CLOUDFLARE_PAGES_DEPLOYMENT.md](../CLOUDFLARE_PAGES_DEPLOYMENT.md) seção Troubleshooting
 
 ### "Como integrar com Odoo?"
-→ [IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md)
+→ [SOBRE_INTEGRACAO.md](../SOBRE_INTEGRACAO.md) (resumo rápido)  
+→ [INTEGRACAO_ODOO.md](../INTEGRACAO_ODOO.md) (guia completo)
 
 ### "O que fazer após deploy?"
 → [essential/POST_DEPLOYMENT_CHECKLIST.md](essential/POST_DEPLOYMENT_CHECKLIST.md)
