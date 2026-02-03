@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Building2, 
@@ -6,7 +7,10 @@ import {
   Users, 
   TrendingUp,
   Loader2,
-  Wallet
+  Wallet,
+  Download,
+  Upload,
+  RefreshCw
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { RevenueAnalysis } from "@/components/revenue/RevenueAnalysis";
@@ -66,11 +70,27 @@ const ERP = () => {
 
   return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">ERP - Enterprise Resource Planning</h1>
-          <p className="text-muted-foreground mt-2">
-            Sistema Integrado de Gestão Empresarial
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">ERP - Enterprise Resource Planning</h1>
+            <p className="text-muted-foreground mt-2">
+              Sistema Integrado de Gestão Empresarial
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button variant="outline" size="sm">
+              <Upload className="mr-2 h-4 w-4" />
+              Importar
+            </Button>
+            <Button variant="default" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sincronizar Odoo
+            </Button>
+          </div>
         </div>
 
         {/* KPIs */}
