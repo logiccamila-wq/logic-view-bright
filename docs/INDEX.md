@@ -57,6 +57,7 @@
 
 | Documento | Descrição | Quando Usar |
 |-----------|-----------|-------------|
+| **[COMO_OBTER_API_KEY_ODOO.md](../COMO_OBTER_API_KEY_ODOO.md)** | Guia visual passo a passo | Primeira configuração |
 | **[SOBRE_INTEGRACAO.md](../SOBRE_INTEGRACAO.md)** | Resumo rápido da integração Odoo | Configuração rápida |
 | **[INTEGRACAO_ODOO.md](../INTEGRACAO_ODOO.md)** | Guia completo da integração Odoo | Detalhes completos |
 | **[IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md)** | Documentação técnica da implementação | Desenvolvimento |
@@ -130,8 +131,12 @@ Documentos históricos movidos para `docs/archive/`:
 → [CLOUDFLARE_PAGES_DEPLOYMENT.md](../CLOUDFLARE_PAGES_DEPLOYMENT.md) seção Troubleshooting
 
 ### "Como integrar com Odoo?"
+→ [COMO_OBTER_API_KEY_ODOO.md](../COMO_OBTER_API_KEY_ODOO.md) (como obter API Key)  
 → [SOBRE_INTEGRACAO.md](../SOBRE_INTEGRACAO.md) (resumo rápido)  
 → [INTEGRACAO_ODOO.md](../INTEGRACAO_ODOO.md) (guia completo)
+
+### "Onde encontro Developer API Keys?"
+→ [COMO_OBTER_API_KEY_ODOO.md](../COMO_OBTER_API_KEY_ODOO.md)
 
 ### "O que fazer após deploy?"
 → [essential/POST_DEPLOYMENT_CHECKLIST.md](essential/POST_DEPLOYMENT_CHECKLIST.md)
