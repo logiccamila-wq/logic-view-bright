@@ -222,6 +222,15 @@ Odoo ERP (xyzlogicflow.odoo.com)
 - [ ] Cross-browser testing
 - [ ] Mobile responsiveness
 
+## ⚠️ Known Limitations (UI Placeholders)
+
+The following UI elements are **placeholders** for future implementation:
+- **Export buttons**: Currently non-functional, require CSV/Excel export implementation
+- **Import buttons**: Currently non-functional, require file upload and parsing
+- **Sync Odoo buttons** (on modules): Visual placeholders, sync currently works via Settings page
+
+**Recommendation**: Implement these handlers in a future PR or disable buttons with tooltips indicating "Coming Soon".
+
 ## 🚀 Deployment Steps
 
 1. **Build application**:
@@ -247,14 +256,16 @@ Odoo ERP (xyzlogicflow.odoo.com)
 ## 📝 Future Enhancements
 
 ### Potential Additions
-1. **Bi-directional sync**: Push data from app to Odoo
-2. **Real-time webhooks**: Instant updates from Odoo
-3. **Advanced filtering**: More granular sync controls
-4. **Batch operations**: Bulk create/update
-5. **Conflict resolution**: Handle data conflicts
-6. **Audit logs**: Track all sync operations
-7. **Custom field mapping**: Map custom Odoo fields
-8. **Multi-company support**: Handle multiple Odoo companies
+1. **Export/Import handlers**: Implement CSV/Excel export and file upload
+2. **Module-level sync**: Connect toolbar "Sync Odoo" buttons to sync logic
+3. **Bi-directional sync**: Push data from app to Odoo
+4. **Real-time webhooks**: Instant updates from Odoo
+5. **Advanced filtering**: More granular sync controls
+6. **Batch operations**: Bulk create/update
+7. **Conflict resolution**: Handle data conflicts
+8. **Audit logs**: Track all sync operations
+9. **Custom field mapping**: Map custom Odoo fields
+10. **Multi-company support**: Handle multiple Odoo companies
 
 ### Module-Specific Features
 1. **WMS**: Stock transfer integration
