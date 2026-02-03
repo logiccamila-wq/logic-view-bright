@@ -1,7 +1,21 @@
+# Environment variables
 .env*
-node_modules/
-dist/
-.DS_Store
-.vercel
 .env*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# OS files
+.DS_Store
+
+# Deployment platforms (keep configs but ignore build artifacts)
+.vercel
+.netlify
 .wrangler/tmp/**
+.wrangler/state/**
+
+# Editor
+.vscode/settings.json
