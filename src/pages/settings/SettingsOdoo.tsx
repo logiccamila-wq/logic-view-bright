@@ -58,7 +58,10 @@ export default function SettingsOdoo() {
       }
 
       if (data?.config) {
-        setConfig({ ...config, ...data.config });
+        setConfig(prev => ({
+          ...prev,
+          ...(data.config || {}),
+        }));
         setConnectionStatus(data.is_active ? 'connected' : 'disconnected');
         if (data.last_sync_at) {
           setLastSync(new Date(data.last_sync_at));
@@ -403,12 +406,12 @@ export default function SettingsOdoo() {
           <p>
             <strong>Documentação Odoo:</strong>{' '}
             <a 
-              href="https://www.odoo.com/documentation/16.0/developer/api/external_api.html" 
+              href="https://www.odoo.com/documentation/18.0/developer/api/external_api.html" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              API Externa
+              API Externa (v18.0)
             </a>
           </p>
           <p>

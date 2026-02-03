@@ -94,10 +94,9 @@ export class OdooClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Cookie: `session_id=${this.sessionId}`,
       },
       body: JSON.stringify(request),
-      credentials: 'include',
+      credentials: 'include', // Browser will handle cookies automatically
     });
 
     if (!response.ok) {

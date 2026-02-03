@@ -111,9 +111,13 @@ serve(async (req) => {
 
     // Sync Products
     if (config.syncProducts) {
+      // Fetch products in batches to avoid timeout
+      // Limiting to 500 products per sync for performance
       const products = await callOdoo("product.product", "search_read", [
-        {},
+        { active: true }, // Only active products
         ["id", "name", "default_code", "list_price", "qty_available", "categ_id", "type"],
+        0, // offset
+        500, // limit
       ]);
 
       // Store products in a custom table (you'll need to create this table)
@@ -137,14 +141,21 @@ serve(async (req) => {
 
     // Sync Orders
     if (config.syncOrders) {
+      // Fetch orders from last 90 days to avoid timeout
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      const dateFilter = ninetyDaysAgo.toISOString().split('T')[0];
+      
       const orders = await callOdoo("sale.order", "search_read", [
-        {},
+        { date_order: [">=", dateFilter] },
         ["id", "name", "partner_id", "date_order", "amount_total", "state"],
+        0, // offset
+        500, // limit
       ]);
 
       ordersCount = orders.length;
       
-      console.log(`Synced ${ordersCount} orders from Odoo`);
+      console.log(`Synced ${ordersCount} orders from Odoo (last 90 days)`);
     }
 
     // Update last sync time
