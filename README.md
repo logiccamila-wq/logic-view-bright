@@ -1,8 +1,26 @@
 # 🚀 Logic View Bright - Plataforma Logística Unificada
 
 > **Status:** ✅ Sistema 100% Operacional em Produção  
-> **Deploy:** Cloudflare Pages  
+> **Deploy:** Cloudflare Pages (Simplificado)  
 > **Domínio:** <https://xyzlogicflow.tech>
+
+---
+
+## ⚡ REPOSITÓRIO LIMPO E SIMPLIFICADO
+
+Este repositório foi **limpo e organizado** em 03/02/2026:
+
+- ❌ Removido: Netlify (não usado)
+- ❌ Removido: Configurações redundantes
+- ✅ Mantido: Cloudflare Pages (principal)
+- ✅ Mantido: Supabase (backend)
+- ✅ Mantido: Vercel (backup/alternativa)
+- 📚 Organizado: Documentação em `docs/`
+
+**👉 COMECE AQUI:**
+- **[LEIA-ME.md](./LEIA-ME.md)** - Guia rápido em português ⭐
+- **[DEPLOYMENT_STRATEGY.md](./DEPLOYMENT_STRATEGY.md)** - Deploy simplificado ⭐
+- **[docs/INDEX.md](./docs/INDEX.md)** - Índice de toda documentação
 
 ---
 
