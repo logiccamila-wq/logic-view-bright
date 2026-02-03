@@ -28,6 +28,15 @@ A integração permite que o **Logic View Bright** converse automaticamente com 
 
 ## 🚀 Como Usar (3 Passos)
 
+### Passo 0: Obter Chave API do Odoo.com (Primeiro!)
+
+**Antes de configurar, você precisa de uma API Key:**
+
+1. Acesse: https://www.odoo.com/my/security
+2. Na seção **"Developer API Keys"**, clique em **"New API Key"**
+3. Dê um nome (ex: "Logic View Bright")
+4. Copie a chave gerada (mostrada apenas uma vez!)
+
 ### Passo 1: Configurar
 ```
 1. Ir em https://xyzlogicflow.tech/settings/odoo
@@ -35,7 +44,7 @@ A integração permite que o **Logic View Bright** converse automaticamente com 
    - URL: https://xyzlogicflow.odoo.com
    - Database: xyzlogicflow
    - Usuário: seu@email.com
-   - Senha: ********
+   - API Key: [cole aqui a chave do Passo 0]
 3. Clicar em "Salvar Configuração"
 ```
 
@@ -89,10 +98,15 @@ A integração permite que o **Logic View Bright** converse automaticamente com 
 
 ## 🔐 Segurança
 
-- ✅ Senhas NÃO ficam no navegador
+- ✅ Use API Key (não senha!)
+- ✅ API Keys ficam apenas no backend
 - ✅ Conexão segura (HTTPS)
-- ✅ Dados armazenados no Supabase
-- ✅ Apenas você vê suas credenciais
+- ✅ Pode revogar a qualquer momento
+
+**Onde criar API Key:**
+- Acesse: https://www.odoo.com/my/security
+- Seção: Developer API Keys
+- Clique: New API Key
 
 ---
 
@@ -112,8 +126,9 @@ A integração permite que o **Logic View Bright** converse automaticamente com 
 ### "Falha na conexão"
 ➡️ Verifique:
 - URL está correta? (sem `/web` no final)
-- Senha está correta?
+- API Key está correta? (copie novamente)
 - Nome do database está certo?
+- Criou a API Key em: https://www.odoo.com/my/security?
 
 ### "Dados não aparecem"
 ➡️ Verifique:

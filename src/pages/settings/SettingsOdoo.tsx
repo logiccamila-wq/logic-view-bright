@@ -238,6 +238,35 @@ export default function SettingsOdoo() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Help Alert for API Credentials */}
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>📍 Onde obter as credenciais do Odoo.com:</strong>
+              <br />
+              1. Acesse seu Odoo.com e faça login
+              <br />
+              2. Vá em <strong>Configurações → Usuários & Empresas → Usuários</strong>
+              <br />
+              3. Clique no seu usuário → Aba <strong>"Preferências"</strong>
+              <br />
+              4. Role até <strong>"Account Security"</strong> → Seção <strong>"API Keys"</strong>
+              <br />
+              5. Clique em <strong>"New API Key"</strong>, dê um nome (ex: "Logic View Bright") e copie a chave
+              <br />
+              <br />
+              <strong>🔗 Acesso direto:</strong>{' '}
+              <a 
+                href="https://www.odoo.com/my/home" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Odoo.com → My Account → API Keys
+              </a>
+            </AlertDescription>
+          </Alert>
+
           <div className="space-y-2">
             <Label htmlFor="url">URL do Odoo</Label>
             <Input
@@ -259,6 +288,9 @@ export default function SettingsOdoo() {
               onChange={(e) => setConfig({ ...config, database: e.target.value })}
               placeholder="xyzlogicflow"
             />
+            <p className="text-xs text-muted-foreground">
+              Nome da sua base de dados Odoo (geralmente o mesmo do subdomínio)
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -270,10 +302,13 @@ export default function SettingsOdoo() {
               onChange={(e) => setConfig({ ...config, username: e.target.value })}
               placeholder="admin@xyzlogicflow.com"
             />
+            <p className="text-xs text-muted-foreground">
+              E-mail que você usa para fazer login no Odoo
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="apiKey">Senha / API Key</Label>
+            <Label htmlFor="apiKey">Chave API do Odoo.com</Label>
             <Input
               id="apiKey"
               type="password"
@@ -282,7 +317,9 @@ export default function SettingsOdoo() {
               placeholder="••••••••"
             />
             <p className="text-xs text-muted-foreground">
-              Use API Key para maior segurança (Settings → Users → API Keys no Odoo)
+              <strong>⚠️ Use API Key, não sua senha!</strong> A API Key é mais segura e pode ser revogada a qualquer momento.
+              <br />
+              Onde criar: <strong>Odoo.com → Minha Conta → Preferências → Account Security → API Keys</strong>
             </p>
           </div>
 
@@ -402,32 +439,79 @@ export default function SettingsOdoo() {
         <CardHeader>
           <CardTitle>Precisa de Ajuda?</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            <strong>Documentação Odoo:</strong>{' '}
-            <a 
-              href="https://www.odoo.com/documentation/18.0/developer/api/external_api.html" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              API Externa (v18.0)
-            </a>
-          </p>
-          <p>
-            <strong>Sua Instância:</strong>{' '}
-            <a 
-              href={config.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              {config.url}
-            </a>
-          </p>
-          <p>
-            Para criar uma API Key no Odoo: Configurações → Usuários → Seu Usuário → Preferências → API Keys
-          </p>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium">🔑 Como obter Chave API do Odoo.com</h4>
+            <ol className="text-sm text-muted-foreground list-decimal list-inside space-y-1">
+              <li>Acesse <a href="https://www.odoo.com/my/home" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">odoo.com/my/home</a> e faça login</li>
+              <li>Clique no seu nome (canto superior direito) → <strong>"My Account"</strong></li>
+              <li>Vá na aba <strong>"Account Security"</strong></li>
+              <li>Na seção <strong>"Developer API Keys"</strong>, clique em <strong>"New API Key"</strong></li>
+              <li>Dê um nome para a chave (ex: "Logic View Bright")</li>
+              <li>Copie a chave gerada e cole no campo "Chave API" acima</li>
+            </ol>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <h4 className="font-medium">📚 Documentação Útil</h4>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p>
+                <strong>Documentação Odoo:</strong>{' '}
+                <a 
+                  href="https://www.odoo.com/documentation/18.0/developer/api/external_api.html" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  API Externa (v18.0)
+                </a>
+              </p>
+              <p>
+                <strong>Sua Instância:</strong>{' '}
+                <a 
+                  href={config.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {config.url}
+                </a>
+              </p>
+              <p>
+                <strong>Gerenciar API Keys:</strong>{' '}
+                <a 
+                  href="https://www.odoo.com/my/security" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Connection & Security Page
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <h4 className="font-medium">⚠️ Importante: Diferença entre Senha e API Key</h4>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p><strong>✅ Use API Key (recomendado):</strong></p>
+              <ul className="list-disc list-inside ml-4">
+                <li>Mais segura - não expõe sua senha</li>
+                <li>Pode ser revogada sem mudar sua senha</li>
+                <li>Permite rastrear uso da API</li>
+                <li>Criada em: Account Security → Developer API Keys</li>
+              </ul>
+              <p className="mt-2"><strong>❌ Evite usar senha:</strong></p>
+              <ul className="list-disc list-inside ml-4">
+                <li>Menos segura - expõe credencial principal</li>
+                <li>Se comprometida, precisa trocar senha em tudo</li>
+              </ul>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

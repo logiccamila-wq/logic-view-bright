@@ -58,18 +58,82 @@ A integração Odoo permite que o sistema **Logic View Bright** sincronize dados
 
 ### 2️⃣ Preencher as Credenciais
 
-Você verá um formulário com os seguintes campos:
+#### 🔑 Como Obter Credenciais do Odoo.com
 
-| Campo | O Que Colocar | Exemplo |
-|-------|---------------|---------|
-| **URL do Odoo** | Endereço do seu Odoo | `https://xyzlogicflow.odoo.com` |
-| **Nome do Banco** | Nome do database | `xyzlogicflow` |
-| **Usuário** | Seu email/login | `admin@xyzlogicflow.com` |
-| **API Key / Senha** | Senha do Odoo | `********` |
+**IMPORTANTE:** Antes de preencher o formulário, você precisa obter suas credenciais do Odoo.com.
 
-**💡 Dica:** Para maior segurança, use uma **API Key** em vez da senha:
-- No Odoo: Configurações → Usuários → Seu Usuário → Preferências → API Keys
-- Crie uma nova API Key e use ela aqui
+##### Passo a Passo para Obter a Chave API:
+
+1. **Acesse o Odoo.com**
+   - Vá para: https://www.odoo.com/my/home
+   - Faça login com seu usuário e senha
+
+2. **Acesse sua Conta**
+   - Clique no seu nome no canto superior direito
+   - Selecione **"My Account"** (Minha Conta)
+
+3. **Vá para Account Security**
+   - Clique na aba **"Account Security"** (Segurança da Conta)
+   - Ou acesse diretamente: https://www.odoo.com/my/security
+
+4. **Encontre a seção Developer API Keys**
+   - Role a página até encontrar **"Developer API Keys"** (Chaves API do Desenvolvedor)
+   - Esta é a seção oficial para gerenciar suas chaves de API
+
+5. **Crie uma Nova API Key**
+   - Clique no botão **"New API Key"** (Nova Chave API)
+   - Digite um nome descritivo, por exemplo: "Logic View Bright Integration"
+   - Clique em **"Generate Key"** (Gerar Chave)
+
+6. **Copie a Chave**
+   - ⚠️ **ATENÇÃO:** A chave será exibida apenas UMA vez!
+   - Copie a chave gerada imediatamente
+   - Guarde em local seguro (você vai colar no formulário abaixo)
+
+##### Informações Necessárias:
+
+Agora que você tem a API Key, preencha o formulário com os seguintes dados:
+
+| Campo | O Que Colocar | Exemplo | Onde Encontrar |
+|-------|---------------|---------|----------------|
+| **URL do Odoo** | Endereço da sua instância | `https://xyzlogicflow.odoo.com` | URL que você usa para acessar seu Odoo |
+| **Nome do Banco** | Nome do database | `xyzlogicflow` | Geralmente é o mesmo do subdomínio (parte antes de .odoo.com) |
+| **Usuário** | Seu email/login | `admin@xyzlogicflow.com` | E-mail que você usa para fazer login no Odoo |
+| **Chave API** | API Key gerada | `abc123xyz...` | Copiada no passo 6 acima |
+
+**💡 Dica de Segurança:** 
+- ✅ **USE** API Key (mais seguro, pode ser revogada)
+- ❌ **NÃO USE** sua senha diretamente (menos seguro)
+
+#### 📝 Preenchendo o Formulário
+
+Você verá um formulário na página `/settings/odoo` com estes campos:
+
+```
+┌─────────────────────────────────────────┐
+│ URL do Odoo                             │
+│ https://xyzlogicflow.odoo.com           │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ Nome do Banco de Dados                  │
+│ xyzlogicflow                            │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ Usuário / E-mail                        │
+│ admin@xyzlogicflow.com                  │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ Chave API do Odoo.com                   │
+│ ••••••••••••••••                        │
+└─────────────────────────────────────────┘
+
+[Salvar Configuração]  [Testar Conexão]
+```
+
+**Clique em "Salvar Configuração"** após preencher todos os campos.
 
 ### 3️⃣ Testar a Conexão
 
@@ -294,18 +358,78 @@ Em uma próxima versão, os botões nos módulos farão sincronização específ
 
 ### ✅ Boas Práticas Implementadas
 
-- **Credenciais seguras:** Senhas armazenadas apenas no backend (Supabase)
+- **Credenciais seguras:** Senhas e API Keys armazenadas apenas no backend (Supabase)
 - **NUNCA** no frontend (JavaScript do navegador)
 - **Session management:** Cookies gerenciados automaticamente
 - **CORS configurado:** Apenas origens autorizadas
 - **API Key recomendada:** Mais seguro que senha
 
+### 🔑 Gerenciamento de API Keys no Odoo.com
+
+#### Onde Gerenciar
+
+As chaves API do Odoo.com são gerenciadas na **seção Developer API Keys** da sua página **Connection & Security** (Conexão & Segurança).
+
+**Acesso direto:** https://www.odoo.com/my/security
+
+#### Como Criar uma Nova API Key
+
+1. Acesse https://www.odoo.com/my/security
+2. Role até a seção **"Developer API Keys"**
+3. Clique em **"New API Key"**
+4. Insira um nome descritivo (ex: "Logic View Bright", "Integração TMS", etc.)
+5. Clique em **"Generate Key"**
+6. **Copie a chave imediatamente** - ela só será mostrada uma vez!
+7. Cole a chave no campo "Chave API" do Logic View Bright
+
+#### Como Revogar uma API Key
+
+Se você suspeitar que uma chave foi comprometida:
+
+1. Acesse https://www.odoo.com/my/security
+2. Na lista de API Keys ativas, encontre a chave comprometida
+3. Clique em **"Revoke"** ao lado da chave
+4. Confirme a revogação
+5. Crie uma nova chave e atualize no Logic View Bright
+
+#### Vantagens da API Key vs Senha
+
+| Aspecto | API Key ✅ | Senha ❌ |
+|---------|-----------|----------|
+| **Segurança** | Específica para API, não dá acesso ao painel | Credencial principal, acesso total |
+| **Revogação** | Pode revogar sem afetar login | Precisa trocar senha em tudo |
+| **Rastreamento** | Odoo rastreia uso por API Key | Difícil rastrear uso |
+| **Múltiplas** | Pode criar várias para diferentes apps | Uma senha para tudo |
+| **Recomendação** | ✅ USAR SEMPRE | ❌ Evitar para integrações |
+
 ### ⚠️ O Que NUNCA Fazer
 
 - ❌ Commitar credenciais no git
 - ❌ Compartilhar API Key publicamente
-- ❌ Usar senha de administrador (crie um usuário específico)
+- ❌ Usar senha de administrador (crie um usuário específico para API)
 - ❌ Expor credenciais no frontend
+- ❌ Usar a mesma API Key em múltiplos ambientes (dev/prod)
+
+### 🛡️ Dicas de Segurança
+
+1. **Use API Keys específicas por ambiente**
+   - Uma chave para desenvolvimento
+   - Outra chave para produção
+   - Facilita revogação em caso de problemas
+
+2. **Nomeie suas chaves descritivamente**
+   - ✅ "Logic View Bright - Produção"
+   - ✅ "TMS Integration - Dev"
+   - ❌ "API Key 1"
+
+3. **Revise periodicamente**
+   - Acesse https://www.odoo.com/my/security mensalmente
+   - Revogue chaves não utilizadas
+   - Recrie chaves antigas (rotação de credenciais)
+
+4. **Monitore o uso**
+   - Odoo.com mostra última vez que cada chave foi usada
+   - Revogue chaves sem uso há muito tempo
 
 ---
 
