@@ -1,10 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Truck, 
   Clock,
   DollarSign,
   Package,
+  Download,
+  Upload,
+  RefreshCw
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { CTEManagement } from "@/components/tms/CTEManagement";
@@ -19,11 +23,27 @@ import { CostEstimator } from "@/components/tms/CostEstimator";
 const TMS = () => {
   return (
       <div className="space-y-8">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">TMS - Transport Management</h1>
-          <p className="text-base text-muted-foreground">
-            Sistema de Gestão de Transportes e Logística
-          </p>
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">TMS - Transport Management</h1>
+            <p className="text-base text-muted-foreground">
+              Sistema de Gestão de Transportes e Logística
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button variant="outline" size="sm">
+              <Upload className="mr-2 h-4 w-4" />
+              Importar
+            </Button>
+            <Button variant="default" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sincronizar Odoo
+            </Button>
+          </div>
         </div>
 
         {/* KPIs */}

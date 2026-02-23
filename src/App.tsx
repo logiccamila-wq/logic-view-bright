@@ -23,6 +23,7 @@ const SettingsBranding = lazy(() => import("@/pages/settings/SettingsBranding"))
 const SettingsLanguage = lazy(() => import("@/pages/settings/SettingsLanguage"));
 const SettingsDomain = lazy(() => import("@/pages/settings/SettingsDomain"));
 const SettingsModules = lazy(() => import("@/pages/settings/SettingsModules"));
+const SettingsOdoo = lazy(() => import("@/pages/settings/SettingsOdoo"));
 const ModuleMarketplace = lazy(() => import("@/pages/ModuleMarketplace"));
 const ModulePage = lazy(() => import("@/pages/Module"));
 const OnboardingFlow = lazy(() => import("@/pages/OnboardingFlow"));
@@ -131,6 +132,7 @@ function App() {
                                 <Route path="language" element={<SettingsLanguage />} />
                                 <Route path="domain" element={<SettingsDomain />} />
                                 <Route path="modules" element={<SettingsModules />} />
+                                <Route path="odoo" element={<SettingsOdoo />} />
                               </Route>
                               <Route path="marketplace" element={<ModuleMarketplace />} />
                               <Route path="module/:slug" element={<ModulePage />} />

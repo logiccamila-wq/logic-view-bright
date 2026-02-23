@@ -9,7 +9,10 @@ import {
   CheckCircle,
   Users,
   BarChart3,
-  Plus
+  Plus,
+  Download,
+  Upload,
+  RefreshCw
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import {
@@ -38,11 +41,27 @@ const SCM = () => {
 
   return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">SCM - Supply Chain Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestão da Cadeia de Suprimentos e Fornecedores
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">SCM - Supply Chain Management</h1>
+            <p className="text-muted-foreground mt-2">
+              Gestão da Cadeia de Suprimentos e Fornecedores
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button variant="outline" size="sm">
+              <Upload className="mr-2 h-4 w-4" />
+              Importar
+            </Button>
+            <Button variant="default" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sincronizar Odoo
+            </Button>
+          </div>
         </div>
 
         {/* KPIs */}

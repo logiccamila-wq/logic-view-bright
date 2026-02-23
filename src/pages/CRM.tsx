@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, Plus, Search, TrendingUp, FileText, AlertCircle } from "lucide-react";
+import { Users, Plus, Search, TrendingUp, FileText, AlertCircle, Download, Upload, RefreshCw } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,14 +101,24 @@ const CRM = () => {
               Gestão Inteligente de Relacionamento com Clientes
             </p>
           </div>
-          <Button
-            onClick={handleImportFromCTE}
-            variant="outline"
-            className="gap-2 shadow-sm"
-          >
-            <FileText className="w-4 h-4" />
-            Importar de CTEs
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleImportFromCTE}
+              variant="outline"
+              size="sm"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Importar de CTEs
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button variant="default" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sincronizar Odoo
+            </Button>
+          </div>
         </div>
 
         {/* KPIs */}
