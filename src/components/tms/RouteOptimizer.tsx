@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTomTom } from '@/hooks/useTomTom';
-import dynamic from 'next/dynamic';
 import { MapPin, Plus, Trash2, Navigation, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Dynamic import for RouteMap to avoid SSR issues with Leaflet
-const RouteMap = dynamic(() => import('./RouteMap').then(mod => ({ default: mod.RouteMap })), {
-  ssr: false,
-  loading: () => <div className="w-full h-64 flex items-center justify-center bg-slate-100 rounded-lg animate-pulse"><MapPin className="h-8 w-8 text-muted-foreground" /></div>
-});
+// Lazy import for RouteMap to avoid SSR issues with Leaflet (works with both Vite and Next.js)
+const RouteMap = lazy(() => import('./RouteMap').then(mod => ({ default: mod.RouteMap })));
+
+const RouteMapFallback = () => (
+  <div className="w-full h-64 flex items-center justify-center bg-slate-100 rounded-lg animate-pulse">
+    <MapPin className="h-8 w-8 text-muted-foreground" />
+  </div>
+);
 
 interface RoutePoint {
   lat: number;
@@ -297,7 +299,9 @@ export function RouteOptimizer() {
 
       {/* Mapa */}
       <div className="lg:col-span-2">
-        <RouteMap points={routePoints} routeGeometry={routeGeometry} />
+        <Suspense fallback={<RouteMapFallback />}>
+          <RouteMap points={routePoints} routeGeometry={routeGeometry} />
+        </Suspense>
       </div>
     </div>
   );
