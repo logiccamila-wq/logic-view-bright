@@ -11,8 +11,9 @@ build/
 .vercel
 
 # Environment Variables
-.env*.local
 .env
+.env.*
+!.env.example
 .envrc
 .npmrc
 
