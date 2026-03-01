@@ -2,9 +2,25 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const rawKeyAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-const rawKeyPub = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+// Support both Vite (import.meta.env) and Next.js (process.env) environments
+// Vite variables are checked first to maintain compatibility with the original Vite-based setup
+// Next.js variables are used as fallback for server-side rendering compatibility
+const getEnvVar = (viteKey: string, nextKey: string): string | undefined => {
+  // Try Vite style first (import.meta.env) for client-side compatibility
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const viteValue = import.meta.env[viteKey] as string | undefined;
+    if (viteValue) return viteValue;
+  }
+  // Fall back to Next.js style (process.env) for SSR compatibility
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[nextKey];
+  }
+  return undefined;
+};
+
+const rawUrl = getEnvVar('VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL');
+const rawKeyAnon = getEnvVar('VITE_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY');
+const rawKeyPub = getEnvVar('VITE_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
 const rawKey = rawKeyPub ?? rawKeyAnon;
 
 // Sanitize and validate envs to prevent common issues (backticks, spaces, placeholders)

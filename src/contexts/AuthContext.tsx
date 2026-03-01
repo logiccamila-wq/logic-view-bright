@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { toast } from "sonner";
 
 type AppRole =
@@ -128,7 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const router = useRouter();
+  
+  // Navigation function using Next.js router
+  const navigate = (path: string) => router.push(path);
 
   // Buscar roles do usuário
   const fetchUserRoles = async (userId: string) => {
