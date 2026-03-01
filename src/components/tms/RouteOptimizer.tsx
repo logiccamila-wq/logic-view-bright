@@ -4,9 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTomTom } from '@/hooks/useTomTom';
-import { RouteMap } from './RouteMap';
+import dynamic from 'next/dynamic';
 import { MapPin, Plus, Trash2, Navigation, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Dynamic import for RouteMap to avoid SSR issues with Leaflet
+const RouteMap = dynamic(
+  () => import('./RouteMap').then(mod => mod.RouteMap),
+  { ssr: false }
+);
 
 interface RoutePoint {
   lat: number;

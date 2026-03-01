@@ -18,6 +18,9 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: false,  // Desativar strict mode temporariamente
 
+  // Exclude src/pages from Next.js Pages Router - use app directory instead
+  pageExtensions: ['page.tsx', 'page.ts', 'page.jsx', 'page.js'],
+
   experimental: {
     // Permitir resolver ESM externos em modo "loose" para escolher entradas de browser
     esmExternals: 'loose',
@@ -60,7 +63,7 @@ const nextConfig = {
     };
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      '@': '.',
+      '@': './src',
     };
 
     if (!isServer) {
