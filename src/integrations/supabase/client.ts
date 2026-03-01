@@ -3,15 +3,17 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 // Support both Vite (import.meta.env) and Next.js (process.env) environments
+// Vite variables are checked first to maintain compatibility with the original Vite-based setup
+// Next.js variables are used as fallback for server-side rendering compatibility
 const getEnvVar = (viteKey: string, nextKey: string): string | undefined => {
-  // Try Next.js style first (process.env)
-  if (typeof process !== 'undefined' && process.env) {
-    const nextValue = process.env[nextKey];
-    if (nextValue) return nextValue;
-  }
-  // Fall back to Vite style (import.meta.env)
+  // Try Vite style first (import.meta.env) for client-side compatibility
   if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env[viteKey] as string | undefined;
+    const viteValue = import.meta.env[viteKey] as string | undefined;
+    if (viteValue) return viteValue;
+  }
+  // Fall back to Next.js style (process.env) for SSR compatibility
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[nextKey];
   }
   return undefined;
 };

@@ -1,22 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useRouter as useNextRouter } from "next/router";
+import { useRouter } from "next/router";
 import { toast } from "sonner";
-
-// Navigation helper that works in both React Router and Next.js
-const useNavigation = () => {
-  // Try Next.js router first
-  try {
-    const nextRouter = useNextRouter();
-    return (path: string) => nextRouter.push(path);
-  } catch {
-    // Fallback for non-Next.js environments
-    return (path: string) => {
-      window.location.href = path;
-    };
-  }
-};
 
 type AppRole =
   | "admin"
@@ -142,7 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigation();
+  const router = useRouter();
+  
+  // Navigation function using Next.js router
+  const navigate = (path: string) => router.push(path);
 
   // Buscar roles do usuário
   const fetchUserRoles = async (userId: string) => {
