@@ -1,3 +1,12 @@
-supabase/functions/**
-vehicles-docs.ts
-tailwind.config.ts
+node_modules/
+.next/
+out/
+build/
+dist/
+playwright-report/
+test-results/
+public/workbox-*.js
+public/sw.js
+public/sw.workbox.js
+*.min.js
+*.bundle.js

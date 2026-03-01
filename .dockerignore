@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+build
+.git
+.github
+npm-debug.log
+Dockerfile
+frontend/Notion Setup 4.21.0.exe

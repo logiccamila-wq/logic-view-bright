@@ -1,0 +1,60 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "ignorePatterns": [
+    "node_modules/**",
+    ".next/**",
+    "out/**",
+    "build/**",
+    "dist/**",
+    "playwright-report/**",
+    "test-results/**",
+    "public/workbox-*.js",
+    "public/sw*.js"
+  ],
+  "rules": {
+    "semi": ["warn", "always"],
+    "quotes": ["warn", "single"],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-require-imports": "warn",
+    "@typescript-eslint/no-this-alias": "warn",
+    "@typescript-eslint/no-unused-expressions": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/rules-of-hooks": "warn",
+    "no-empty": "warn",
+    "no-case-declarations": "warn",
+    "no-undef": "warn",
+    "no-empty-pattern": "warn",
+    "react/no-unescaped-entities": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.test.ts", "*.test.tsx"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "react-hooks/exhaustive-deps": "off"
+      }
+    },
+    {
+      "files": ["scripts/**/*.js", "scripts/**/*.mjs"],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off",
+        "no-undef": "off"
+      }
+    },
+    {
+      "files": ["*.config.js", "*.config.mjs", "*.config.cjs"],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off",
+        "no-undef": "off"
+      }
+    }
+  ]
+}

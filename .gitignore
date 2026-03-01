@@ -1,7 +1,44 @@
-.env*
+# Dependencies
 node_modules/
+
+# Next.js build output
+.next/
+out/
 dist/
-.DS_Store
+build/
+
+# Vercel
 .vercel
+
+# Environment Variables
 .env*.local
-.wrangler/tmp/**
+.env
+.envrc
+.npmrc
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Test/coverage outputs
+coverage/
+playwright-report/
+test-results/
+
+# Turborepo/monorepo caches
+.turbo/
+
+# Ignore nested snapshot folder (legacy duplicate)
+optilog.app/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+_ci_build_artifacts/
