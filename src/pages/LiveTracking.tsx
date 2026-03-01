@@ -14,7 +14,13 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useVehicleTracking } from "@/hooks/useVehicleTracking";
-import { LiveMap } from "@/components/maps/LiveMap";
+import dynamic from "next/dynamic";
+
+// Dynamic import for LiveMap to avoid SSR issues with Leaflet
+const LiveMap = dynamic(() => import("@/components/maps/LiveMap").then(mod => ({ default: mod.LiveMap })), {
+  ssr: false,
+  loading: () => <div className="w-full h-full flex items-center justify-center bg-slate-800"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>
+});
 
 const LiveTracking = () => {
   const { vehicles: trackedVehicles, loading } = useVehicleTracking();

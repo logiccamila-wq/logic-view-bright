@@ -60,13 +60,14 @@ const nextConfig = {
     };
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      '@': '.',
+      '@': require('path').resolve(__dirname, 'src'),
     };
 
     if (!isServer) {
       // Bloquear undici no client (alias para stub) e evitar parsing de código Node-only
       config.resolve.alias = {
         ...(config.resolve.alias || {}),
+        '@': require('path').resolve(__dirname, 'src'),
         undici: require.resolve('./lib/undici-stub.js'),
         '@undici/web': require.resolve('./lib/undici-stub.js'),
         '@undici/*': require.resolve('./lib/undici-stub.js'),
