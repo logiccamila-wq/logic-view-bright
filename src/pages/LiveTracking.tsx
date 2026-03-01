@@ -12,9 +12,17 @@ import {
   Clock,
   AlertTriangle
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useVehicleTracking } from "@/hooks/useVehicleTracking";
-import { LiveMap } from "@/components/maps/LiveMap";
+
+// Lazy import for LiveMap to avoid SSR issues with Leaflet (works with both Vite and Next.js)
+const LiveMap = lazy(() => import("@/components/maps/LiveMap").then(mod => ({ default: mod.LiveMap })));
+
+const LiveMapFallback = () => (
+  <div className="w-full h-full flex items-center justify-center bg-slate-800">
+    <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 const LiveTracking = () => {
   const { vehicles: trackedVehicles, loading } = useVehicleTracking();
@@ -206,19 +214,21 @@ const LiveTracking = () => {
             </Button>
 
             {/* LiveMap Component */}
-            <LiveMap 
-              vehicles={trackedVehicles.map(v => ({
-                id: v.id,
-                vehicle_plate: v.vehicle_plate,
-                latitude: v.latitude,
-                longitude: v.longitude,
-                speed: v.speed,
-                heading: v.heading,
-                status: v.status
-              }))} 
-              selectedVehicle={selectedVehicleId}
-              onVehicleClick={setSelectedVehicleId}
-            />
+            <Suspense fallback={<LiveMapFallback />}>
+              <LiveMap 
+                vehicles={trackedVehicles.map(v => ({
+                  id: v.id,
+                  vehicle_plate: v.vehicle_plate,
+                  latitude: v.latitude,
+                  longitude: v.longitude,
+                  speed: v.speed,
+                  heading: v.heading,
+                  status: v.status
+                }))} 
+                selectedVehicle={selectedVehicleId}
+                onVehicleClick={setSelectedVehicleId}
+              />
+            </Suspense>
           </div>
         </main>
 
