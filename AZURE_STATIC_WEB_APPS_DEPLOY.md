@@ -1,5 +1,8 @@
 # Azure Static Web Apps – Deployment Guide
 
+> ⚠️ **This guide describes an optional, non-standard deployment path.**  
+> The **recommended production stack** is **Vercel (frontend) + Supabase (backend)**. See [DEPLOYMENT.md](./DEPLOYMENT.md) for the standard guide.
+
 This document describes how to deploy this Vite + React + TypeScript project to [Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/).
 
 ## Build configuration

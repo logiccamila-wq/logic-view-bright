@@ -8,14 +8,14 @@
 
 ## 🎯 Resumo Executivo
 
-Sistema completo de gestão logística com **frontend React**, **backend Supabase** e **deploy automatizado** via Cloudflare Pages. Todas as funcionalidades principais testadas e validadas.
+Sistema completo de gestão logística com **frontend React**, **backend Supabase** e **deploy automatizado** via Vercel. Todas as funcionalidades principais testadas e validadas.
 
 ### ✅ O Que Está Funcionando
 
 | Componente | Status | URL/Acesso |
 |------------|--------|------------|
 | **Deploy Produção** | ✅ ONLINE | <https://xyzlogicflow.tech> |
-| **Frontend (Cloudflare Pages)** | ✅ ONLINE | <https://logic-view-bright.pages.dev> |
+| **Frontend (Vercel)** | ✅ ONLINE | <https://xyzlogicflow.tech> |
 | **Backend Supabase** | ✅ ONLINE | <https://eixkvksttadhukucohda.supabase.co> |
 | **Autenticação** | ✅ OK | Login testado e funcionando |
 | **Build Local** | ✅ OK | Build em ~48s sem erros |
@@ -36,7 +36,7 @@ Sistema completo de gestão logística com **frontend React**, **backend Supabas
 ### URLs do Sistema
 
 - **Produção:** <https://xyzlogicflow.tech>
-- **Cloudflare Pages:** <https://logic-view-bright.pages.dev>
+- **Vercel:** <https://logic-view-bright.vercel.app>
 - **API Backend:** <https://eixkvksttadhukucohda.supabase.co>
 
 ---
@@ -52,7 +52,7 @@ Sistema completo de gestão logística com **frontend React**, **backend Supabas
                 │ (Auto Deploy on Push)
                 ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Cloudflare Pages (Frontend Hosting)                    │
+│  Vercel (Frontend Hosting)                              │
 │  - React 18 + Vite                                      │
 │  - TailwindCSS                                          │
 │  - Auto Deploy on Main Branch                          │
@@ -169,11 +169,11 @@ npm run preview
 
 ### Deploy
 
-O deploy é **automático** via Cloudflare Pages:
+O deploy é **automático** via Vercel:
 
 1. Faça commit das mudanças
 2. Push para branch `main`
-3. Cloudflare Pages detecta e faz deploy automaticamente
+3. Vercel detecta e faz deploy automaticamente
 4. Pronto! ✅
 
 **Deploy de Edge Functions:**
@@ -283,15 +283,16 @@ node scripts/test-camila-login.cjs
 
 ### Variáveis de Ambiente
 
-Configuradas no Cloudflare Pages Dashboard:
+**Client-side** — configuradas no [Vercel Dashboard](https://vercel.com/logiccamila-wq/logic-view-bright/settings/environment-variables):
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY` (safe for frontend)
-- `VITE_APP_URL`
+- `VITE_SUPABASE_URL` — URL do projeto Supabase (safe for frontend)
+- `VITE_SUPABASE_ANON_KEY` — chave anon/pública Supabase (safe for frontend)
+- `VITE_APP_URL` — URL pública da aplicação
 
-**⚠️ Backend variables (Supabase only):**
-- `SUPABASE_SERVICE_ROLE_KEY` - Never in frontend!
-- `ALLOWED_ORIGINS` - Must include Cloudflare Pages domain
+**Server-side** — configuradas no Supabase Dashboard → Settings → Edge Functions:
+
+- `SUPABASE_SERVICE_ROLE_KEY` — **nunca no frontend!** (bypasses RLS)
+- `ALLOWED_ORIGINS` — deve incluir o domínio Vercel
 - AI/Integration keys (EmailJS, WhatsApp, etc.)
 
 ---
