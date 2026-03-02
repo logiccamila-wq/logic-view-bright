@@ -18,4 +18,14 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  // When TEST_BASE_URL is not provided, start a local Next.js server automatically.
+  // Requires the app to have been built first (npm run build).
+  webServer: process.env.TEST_BASE_URL
+    ? undefined
+    : {
+        command: 'npx next start',
+        url: 'http://localhost:3000',
+        reuseExistingServer: !process.env.CI,
+        timeout: 60_000,
+      },
 });

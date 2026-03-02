@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+    env:
+      TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
 
     steps:
       - name: Checkout code
@@ -29,10 +31,16 @@ jobs:
       - name: Install Playwright browsers and system dependencies
         run: npx playwright install --with-deps chromium
 
+      - name: Build application (for local E2E server)
+        # Only needed when TEST_BASE_URL is not provided (i.e., testing against a local server)
+        if: ${{ !env.TEST_BASE_URL }}
+        run: npm run build
+        env:
+          CI: true
+
       - name: Run Playwright E2E tests
         run: npx playwright test
         env:
-          TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
           TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
           TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

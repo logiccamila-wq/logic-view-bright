@@ -3,12 +3,14 @@ import { supabaseLogin, uiLogin } from './fixtures/auth';
 
 /**
  * Update this list with the actual module routes in the application.
+ * Routes come from src/modules/registry.ts — keep this list in sync.
  * Each path will be visited after programmatic login to assert it is accessible.
  */
 const MODULE_PATHS = [
   '/dashboard',
-  '/documents',
-  '/tracking',
+  '/drivers-management',
+  '/approvals',
+  '/logistics-kpi',
   '/reports',
 ];
 

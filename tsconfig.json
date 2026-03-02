@@ -24,7 +24,6 @@
     "forceConsistentCasingInFileNames": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "suppressImplicitAnyIndexErrors": true,
     "noImplicitAny": false,
     "plugins": [
       {
