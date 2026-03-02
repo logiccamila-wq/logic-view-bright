@@ -4,79 +4,79 @@ This guide explains how to deploy the Logic View Bright application to productio
 
 ## Architecture Overview
 
+The **recommended production stack** is **Vercel (frontend) + Supabase (backend/DB) + GitHub (CI/CD)**:
+
 ```
-GitHub (Source) → Cloudflare Pages (Frontend) → xyzlogicflow.tech
-                ↘ Supabase (Backend + Database)
+GitHub (Source) → Vercel (Frontend) → xyzlogicflow.tech
+               ↘ Supabase (Backend + Database)
 ```
 
-- **Frontend**: Deployed on Cloudflare Pages with auto-deployment from GitHub main branch
-- **Backend**: Supabase Edge Functions deployed manually via Supabase CLI
+- **Frontend**: Vercel — auto-deployment from GitHub `main` branch
+- **Backend**: Supabase Edge Functions deployed via Supabase CLI
 - **Database**: PostgreSQL hosted on Supabase
-- **DNS**: Cloudflare manages domain (xyzlogicflow.tech)
-- **Domain**: xyzlogicflow.tech points to Cloudflare Pages deployment
+- **CI/CD**: GitHub Actions (`.github/workflows/deploy-vercel.yml`)
+- **Domain**: xyzlogicflow.tech → Vercel
 
-> **📖 For detailed Cloudflare Pages deployment instructions, see [CLOUDFLARE_PAGES_DEPLOYMENT.md](./CLOUDFLARE_PAGES_DEPLOYMENT.md)**
+> **📖 For step-by-step Vercel setup, see [docs/deployment-guides/DEPLOY_SINGLE.md](./docs/deployment-guides/DEPLOY_SINGLE.md)**
+
+> ⚠️ **Azure Static Web Apps** is a non-standard alternative. See [AZURE_STATIC_WEB_APPS_DEPLOY.md](./AZURE_STATIC_WEB_APPS_DEPLOY.md) for details, but it is **not the recommended path**.
 
 ## Environment Variables
 
-### Frontend (Cloudflare Pages)
+Variables are split into two scopes: **client-side** (safe to expose) and **server-side** (must stay secret).
 
-Required environment variables for Cloudflare Pages deployment:
+### Client-side (Vercel — `VITE_` prefix, public)
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `VITE_SUPABASE_URL` | Supabase project URL | `https://xxxxx.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous/public key | `eyJhbG...` |
-| `VITE_APP_URL` | Your application URL | `https://xyzlogicflow.tech` |
+Set these in [Vercel Dashboard → Settings → Environment Variables](https://vercel.com/logiccamila-wq/logic-view-bright/settings/environment-variables).
 
-**⚠️ SECURITY WARNING:** 
-- **NEVER** add `SUPABASE_SERVICE_ROLE_KEY` to Cloudflare Pages
-- **NEVER** add `SUPABASE_JWT_SECRET` to Cloudflare Pages
-- Frontend environment variables are public - only use safe values
-- Backend secrets must be configured in Supabase Edge Functions only
+| Variable | Description | Scope |
+|----------|-------------|-------|
+| `VITE_SUPABASE_URL` | Supabase project URL (`https://xxx.supabase.co`) | Production · Preview · Development |
+| `VITE_SUPABASE_ANON_KEY` | Supabase **anon/public** key | Production · Preview · Development |
+| `VITE_APP_URL` | Public URL of the app (`https://xyzlogicflow.tech`) | Production |
+| `VITE_EMAILJS_SERVICE_ID` | EmailJS service ID | Production · Preview |
+| `VITE_EMAILJS_TEMPLATE_ID` | EmailJS template ID | Production · Preview |
+| `VITE_EMAILJS_PUBLIC_KEY` | EmailJS public key | Production · Preview |
+| `VITE_OPENROUTE_API_KEY` | OpenRouteService API key | Production · Preview |
+| `VITE_TOMTOM_API_KEY` | TomTom API key | Production · Preview |
 
-**How to set in Cloudflare Pages:**
+> **`VITE_SUPABASE_ANON_KEY`** is the same key as the *anon / publishable* key in the Supabase dashboard. It is safe to include in frontend bundles; Row-Level Security (RLS) policies protect the data.
 
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Navigate to **Workers & Pages** → **Pages**
-3. Select your project: `logic-view-bright`
-4. Go to **Settings → Environment Variables**
-5. Click **Add variable**
-6. Set the **Variable name** and **Value**
-7. Select environments: ✅ Production, ✅ Preview
-8. Click **Save**
-9. Redeploy the application
+**⚠️ SECURITY — NEVER add these to Vercel (or any frontend host):**
+- ❌ `SUPABASE_SERVICE_ROLE_KEY` — bypasses RLS, backend only
+- ❌ `SUPABASE_JWT_SECRET` — backend only
+- ❌ Any AI provider secret keys (`AI_PROVIDER_KEY`, `OPENAI_API_KEY`, etc.)
 
-### Backend (Supabase Edge Functions)
+All `VITE_` variables are embedded in the client bundle and visible to end users.
 
-Required environment variables for Supabase Edge Functions:
+**How to set in Vercel:**
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `SUPABASE_URL` | Supabase project URL | `https://xxxxx.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret) | `eyJhbG...` |
-| `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins | `https://xyzlogicflow.tech,https://logic-view-bright.pages.dev` |
+1. Go to [Vercel Dashboard](https://vercel.com/logiccamila-wq/logic-view-bright/settings/environment-variables)
+2. Click **Add New**
+3. Enter the **Name** and **Value**
+4. Select the target environments: ✅ Production, ✅ Preview, ✅ Development
+5. Click **Save**
+6. Redeploy the application
 
-**⚠️ CRITICAL: ALLOWED_ORIGINS must include your Cloudflare Pages domain(s):**
-- Production domain: `https://xyzlogicflow.tech`
-- Cloudflare Pages domain: `https://logic-view-bright.pages.dev`
-- Preview domains: List specific ones needed (e.g., `dev`, `staging`)
+### Server-side (Supabase Edge Functions — no `VITE_` prefix, secret)
 
-Example (recommended):
-```
-ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev
-```
-
-**Security Note:** Avoid using wildcards like `https://*.logic-view-bright.pages.dev` in production as they're overly permissive. Instead, explicitly list only the preview domains you need.
-
-**Optional AI/Integration variables:**
+Set these in [Supabase Dashboard → Settings → Edge Functions](https://supabase.com/dashboard/project/_/settings/functions).
 
 | Variable | Description |
 |----------|-------------|
-| `AI_PROVIDER_KEY` | API key for AI provider (e.g., OpenAI) |
-| `AI_PROVIDER_MODEL` | AI model to use |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase **service role** key — bypasses RLS, keep secret |
+| `SUPABASE_JWT_SECRET` | JWT secret for token verification |
+| `ALLOWED_ORIGINS` | Comma-separated allowed CORS origins (e.g. `https://xyzlogicflow.tech`) |
+| `AI_PROVIDER_KEY` | API key for the AI provider (e.g. OpenAI) |
+| `AI_PROVIDER_MODEL` | AI model identifier |
 | `AI_PROVIDER_ENDPOINT` | AI provider endpoint URL |
-| `OPENAI_API_KEY` | OpenAI API key (if using OpenAI) |
+| `OPENAI_API_KEY` | OpenAI API key (if using OpenAI directly) |
+
+**⚠️ CRITICAL — `ALLOWED_ORIGINS` must include all frontend domains:**
+
+```
+ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.vercel.app
+```
 
 **How to set in Supabase:**
 
@@ -86,16 +86,6 @@ ALLOWED_ORIGINS=https://xyzlogicflow.tech,https://logic-view-bright.pages.dev
 4. Under **Environment Variables**, click **Add Variable**
 5. Set the **Name** and **Value**
 6. Click **Save**
-
-### ⚠️ Do NOT set these in Cloudflare Pages
-
-The following variables should **NEVER** be set in Cloudflare Pages (frontend):
-- ❌ `SUPABASE_SERVICE_ROLE_KEY` (backend only)
-- ❌ `SUPABASE_JWT_SECRET` (not needed)
-- ❌ Any AI provider keys (backend only)
-- ❌ Any other sensitive secrets
-
-Cloudflare Pages is a frontend-only hosting platform. All environment variables set there are public and included in the client bundle.
 
 ## 🔒 Security Notice: Key Rotation Required
 
@@ -113,7 +103,6 @@ Cloudflare Pages is a frontend-only hosting platform. All environment variables 
 6. Update environment variables in:
    - Vercel (for `VITE_SUPABASE_ANON_KEY`)
    - Supabase Edge Functions (for `SUPABASE_SERVICE_ROLE_KEY`)
-   - Cloudflare Workers if applicable
 7. Redeploy frontend and backend
 
 ### Security Best Practices
@@ -129,39 +118,35 @@ Cloudflare Pages is a frontend-only hosting platform. All environment variables 
 
 ## Deployment Steps
 
-### 1. Frontend Deployment (Cloudflare Pages)
+### 1. Frontend Deployment (Vercel)
 
-Cloudflare Pages is configured for automatic deployment from GitHub.
+Vercel is configured for automatic deployment from GitHub.
 
 **Automatic:**
 ```bash
 git push origin main
 ```
 
-Cloudflare Pages will automatically:
+Vercel will automatically:
 - Detect the push to main branch
-- Run `npm install`
-- Run `npm run build`
-- Deploy the `dist` folder to production
+- Run `npm install && npm run build`
+- Deploy the output to production
 - Update xyzlogicflow.tech (via custom domain)
 
 **Manual Setup (First Time):**
 
-If setting up Cloudflare Pages for the first time:
-
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Navigate to **Workers & Pages** → **Pages**
-3. Click **Create a project** → **Connect to Git**
-4. Select repository: `logiccamila-wq/logic-view-bright`
-5. Configure build settings:
+1. Go to [Vercel Dashboard](https://vercel.com/new)
+2. Click **Add New… → Project**
+3. Import repository: `logiccamila-wq/logic-view-bright`
+4. Configure build settings:
+   - **Framework Preset**: Vite
    - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Framework preset**: Vite
+   - **Output directory**: `dist`
    - **Node.js version**: 18 or 20
-6. Set environment variables (see above)
-7. Click **Save and Deploy**
+5. Set environment variables (see above)
+6. Click **Deploy**
 
-For detailed instructions, see [CLOUDFLARE_PAGES_DEPLOYMENT.md](./CLOUDFLARE_PAGES_DEPLOYMENT.md)
+For step-by-step instructions, see [docs/deployment-guides/DEPLOY_SINGLE.md](./docs/deployment-guides/DEPLOY_SINGLE.md)
 
 ### 2. Backend Deployment (Supabase Edge Functions)
 
@@ -201,49 +186,25 @@ supabase db push
 For a complete deployment (frontend + backend):
 
 ```bash
-# Automated approach (backend only, frontend auto-deploys)
+# Automated approach (backend only, frontend auto-deploys via Vercel)
 ./deploy.sh
 
 # Or manual steps
 npm run build                # Build frontend locally (optional, for testing)
-git push origin main         # Push to GitHub (triggers Cloudflare Pages deploy)
+git push origin main         # Push to GitHub (triggers Vercel deploy)
 npm run deploy:functions     # Deploy Edge Functions to Supabase
 ```
 
 ## Domain Configuration
 
-### Cloudflare DNS and Pages Custom Domain
+### Custom Domain on Vercel
 
-The domain `xyzlogicflow.tech` is managed by Cloudflare and should point to Cloudflare Pages:
+The domain `xyzlogicflow.tech` should point to Vercel:
 
-**Method 1: Automatic (Recommended)**
-
-If your domain is already in Cloudflare:
-1. In Cloudflare Pages project settings, go to **Custom domains**
-2. Click **Set up a custom domain**
-3. Enter `xyzlogicflow.tech`
-4. Cloudflare automatically configures DNS records
-5. SSL certificate is provisioned automatically
-
-**Method 2: Manual DNS Configuration**
-
-If needed, verify/set these DNS records in Cloudflare:
-1. **Cloudflare Dashboard** → DNS → Records
-2. Add/verify CNAME record:
-   - **Type**: `CNAME`
-   - **Name**: `@` (or `xyzlogicflow.tech`)
-   - **Target**: `logic-view-bright.pages.dev`
-   - **Proxy status**: Proxied (orange cloud)
-3. Optional: Add `www` subdomain:
-   - **Type**: `CNAME`
-   - **Name**: `www`
-   - **Target**: `logic-view-bright.pages.dev`
-   - **Proxy status**: Proxied
-
-**SSL/TLS Settings:**
-- Go to Cloudflare Dashboard → SSL/TLS
-- Set encryption mode to **Full** or **Full (strict)**
-- Cloudflare Pages automatically provides SSL certificates
+1. In [Vercel Dashboard](https://vercel.com/logiccamila-wq/logic-view-bright/settings/domains), click **Add Domain**
+2. Enter `xyzlogicflow.tech` (and `www.xyzlogicflow.tech`)
+3. Follow the DNS instructions shown by Vercel (CNAME or A record)
+4. SSL certificate is provisioned automatically
 
 ## Verification
 
@@ -278,12 +239,12 @@ Or manually test:
 ### Frontend Issues
 
 **Blank page / White screen:**
-- Check environment variables in Cloudflare Pages
+- Check environment variables in Vercel Dashboard
 - Ensure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set
-- Redeploy after setting variables (Deployments → Retry deployment)
+- Redeploy after setting variables (Deployments → Redeploy)
 
 **Build failures:**
-- Check Cloudflare Pages deployment logs (Pages → Deployments → View build)
+- Check Vercel deployment logs (Deployments → View build)
 - Run `npm run build` locally to reproduce
 - Fix TypeScript errors if any
 - Ensure all dependencies are in `package.json`
@@ -308,7 +269,7 @@ If you see CORS errors in browser console:
 1. Update `ALLOWED_ORIGINS` in Supabase Edge Functions environment variables
 2. Include all frontend URLs:
    ```
-   https://xyzlogicflow.tech,https://logic-view-bright.pages.dev,https://*.logic-view-bright.pages.dev
+   https://xyzlogicflow.tech,https://logic-view-bright.vercel.app
    ```
 3. Redeploy affected Edge Functions:
    ```bash
@@ -317,27 +278,25 @@ If you see CORS errors in browser console:
 
 **Common CORS error messages:**
 ```
-Access to fetch at 'https://xxxxx.supabase.co/...' from origin 'https://xyzlogicflow.tech' 
+Access to fetch at 'https://xxxxx.supabase.co/...' from origin 'https://xyzlogicflow.tech'
 has been blocked by CORS policy
 ```
 
-**Solution:** The backend `ALLOWED_ORIGINS` must include your Cloudflare Pages domain.
+**Solution:** The backend `ALLOWED_ORIGINS` must include your Vercel deployment domain.
 
 ## Monitoring
 
-- **Cloudflare Pages**: Deployment logs and analytics at https://dash.cloudflare.com
-- **Cloudflare Analytics**: Web Analytics for traffic and performance
+- **Vercel**: Deployment logs and analytics at https://vercel.com/logiccamila-wq/logic-view-bright
 - **Supabase**: Database and function logs at https://supabase.com/dashboard
 
 ## Rollback
 
 If deployment fails:
 
-**Cloudflare Pages:**
-1. Go to Pages → Deployments
+**Vercel:**
+1. Go to [Vercel Deployments](https://vercel.com/logiccamila-wq/logic-view-bright/deployments)
 2. Find the last working deployment
-3. Click **...** → **Rollback to this deployment**
-4. Confirm rollback
+3. Click **...** → **Promote to Production**
 
 **Supabase Edge Functions:**
 1. Revert code changes
@@ -352,5 +311,5 @@ For issues or questions:
 
 ---
 
-**Last Updated**: 2026-01-19  
+**Last Updated**: 2026-03-01  
 **Maintained by**: Logic View Bright Team
