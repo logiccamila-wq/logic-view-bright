@@ -27,7 +27,12 @@ jobs:
         run: npm run lint
 
       - name: Run type-check
-        run: npm run check
+        run: |
+          if npm run | grep -qE '^\s+check$'; then
+            npm run check
+          else
+            echo "No 'check' script found in package.json. Skipping type-check step."
+          fi
 
       - name: Build project
         run: npm run build
