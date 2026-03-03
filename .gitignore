@@ -43,3 +43,16 @@ yarn-error.log*
 
 # Build artifacts
 _ci_build_artifacts/
+
+# Repository hygiene (uploaded artifacts)
+*.zip
+*.xlsx
+*.xls
+*.csv
+*.7z
+*.rar
+
+# Legacy platform folders not used in production
+.netlify/
+.wrangler/
+.trae/
