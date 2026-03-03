@@ -43,3 +43,16 @@ yarn-error.log*
 
 # Build artifacts
 _ci_build_artifacts/
+
+# Uploaded support artifacts (must stay out of main)
+*.zip
+*.7z
+*.rar
+*.xlsx
+*.xls
+*.csv
+
+# Legacy cloud/tooling folders not used in primary production flow
+.netlify/
+.wrangler/
+.trae/
