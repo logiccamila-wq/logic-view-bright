@@ -1,0 +1,19 @@
+fetch('https://xyzlogicflow.pages.dev/api/create-user', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: '12765894418@ejgtransporte.com.br',
+    password: '12765894418',
+    full_name: 'Ruan',
+    roles: ['driver']
+  })
+}).then(r => r.json()).then(console.log).catch(console.error);fetch('https://xyzlogicflow.pages.dev/api/create-user', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: '12765894418@ejgtransporte.com.br',
+    password: '12765894418',
+    full_name: 'Ruan',
+    roles: ['driver']
+  })
+}).then(r => r.json()).then(console.log).catch(console.error);

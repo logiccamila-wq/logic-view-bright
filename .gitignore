@@ -1,87 +1,59 @@
-# Ignore local environment files
-.env
-# ========== .NET ========== #
-## Build results
-bin/
-obj/
-[Bb]uild/
-[Ll]ogs/
-*.log
-## User-specific files
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
-*.vsp
-*.vspx
-*.vspscc
-## Rider / VS Code / Visual Studio
-.idea/
-.vscode/
-.vs/
-## NuGet packages
-*.nupkg
-packages/
-*.snupkg
-project.lock.json
-project.assets.json
-## Dotnet tools
-.tools/
-# ========== Java ========== #
-## Compiled class files
-*.class
-## Logs
-*.log
-## Maven
-target/
-## Gradle
-.gradle/
-build/
-## Eclipse
-.project
-.classpath
-.settings/
-.loadpath
-## IntelliJ IDEA
-*.iml
-*.ipr
-*.iws
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
 out/
-.idea/
-# ========== Python ========== #
-## Byte-compiled / cache
-__pycache__/
-*.py[cod]
-*$py.class
-## Virtual environment
-env/
-venv/
-ENV/
-.venv/
-.env*
-## PyInstaller
-*.spec
 dist/
 build/
-## Jupyter Notebook
-.ipynb_checkpoints/
-## Misc
+
+# Vercel
+.vercel
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+.envrc
+.npmrc
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Test/coverage outputs
+coverage/
+playwright-report/
+test-results/
+
+# Turborepo/monorepo caches
+.turbo/
+
+# Ignore nested snapshot folder (legacy duplicate)
+optilog.app/
+
+# Logs
 *.log
-*.pot
-*.pyc
-.DS_Store
-*.sqlite3
-# ========== General ========== #
-## OS generated
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-.DS_Store
-*.swp
-*.swo
-*.bak
-*.tmp
-*.old
-## Node (just in case mixed project)
-node_modules/
-# End
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+_ci_build_artifacts/
+
+# Uploaded support artifacts (must stay out of main)
+*.zip
+*.7z
+*.rar
+*.xlsx
+*.xls
+*.csv
+
+# Legacy cloud/tooling folders not used in primary production flow
+.netlify/
+.wrangler/
+.trae/
+>>>>>>> 81e290ed9b2d19a98f5695288cb17f3de54eb86e

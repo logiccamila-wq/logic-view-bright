@@ -1,0 +1,149 @@
+/**
+ * Firestore Security Rules for Optilog App
+ *
+ * Filosofia:
+ * - Modelo de propriedade por usuário para dados privados (userId = UID).
+ * - Leitura pública apenas para coleções específicas (ex.: posts publicados, shipments).
+ * - Escrita sempre restrita ao proprietário/autenticado.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Utilitários
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource.data.userId == userId;
+    }
+
+    function isCreatingOwnedDocument(userId) {
+      return isSignedIn() && request.auth.uid == userId && request.resource.data.userId == userId;
+    }
+
+    // Perfil de usuário
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // proteger listagem
+      allow create: if isCreatingOwnedDocument(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    // Subcoleções privadas do usuário (ex.: tpms_readings, settings, etc.)
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Posts: leitura pública apenas se publicado; escrita pelo autor
+    match /posts/{postId} {
+      allow read: if resource.data.is_published == true;
+      allow create: if isSignedIn() && request.resource.data.author_id == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.author_id == request.auth.uid;
+    }
+
+    // Shipments: leitura pública, escrita por proprietário
+    match /shipments/{shipmentId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Coleções privadas comuns com ownership (ex.: jobPositions, candidates, veiculos, pneus, ordensServico, motoristas, agregados)
+    match /jobPositions/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /candidates/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /veiculos/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /pneus/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /ordensServico/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /motoristas/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /agregados/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // Financeiro (exemplos): todos privados por ownership
+    match /contracts/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /invoices/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /payables/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /receivables/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    match /transactions/{docId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // Padrão: negar tudo que não foi especificado
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

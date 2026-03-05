@@ -1,0 +1,12 @@
+# apphosting.yaml - variáveis de ambiente para App Hosting / Cloud Run style
+runConfig:
+  env:
+    # Stack Auth Configuration (substituiu Firebase)
+    - variable: NEXT_PUBLIC_STACK_AUTH_PROJECT_ID
+      value: "b0e4c9fa-4c2f-4870-a244-782996d4b593"
+    - variable: NEXT_PUBLIC_STACK_AUTH_JWKS_URL
+      value: "https://api.stack-auth.com/api/v1/auth/jwks"
+    - variable: NEXT_PUBLIC_DISABLE_FIREBASE
+      value: "1"
+    - variable: OPENAI_API_KEY
+      value: "COLOQUE_OPENAI_API_KEY_AQUI" # recomendado usar Secret Manager / Console em produção

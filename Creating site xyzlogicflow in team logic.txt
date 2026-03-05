@@ -1,0 +1,6 @@
+Creating site xyzlogicflow in team logiccamila-wq...
+Site Created!
+
+Admin URL: https://app.netlify.com/sites/xyzlogicflow
+URL:       https://xyzlogicflow.netlify.app
+Site ID:   abcdef12-3456-7890-abcd-ef1234567890
