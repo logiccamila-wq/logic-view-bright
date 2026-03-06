@@ -447,6 +447,13 @@ export default function UnifiedLandingPage() {
                   Login
                 </Button>
                 <Button
+                  variant="outline"
+                  onClick={() => navigate("/marketplace")}
+                  className="border-gray-600 text-gray-100 hover:bg-gray-800"
+                >
+                  Marketplace
+                </Button>
+                <Button
                   onClick={() => scrollToSection("contact")}
                   className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
                 >
@@ -495,6 +502,13 @@ export default function UnifiedLandingPage() {
                     Login
                   </Button>
                   <Button
+                    variant="ghost"
+                    onClick={() => navigate("/marketplace")}
+                    className="w-full justify-start text-gray-300"
+                  >
+                    Marketplace
+                  </Button>
+                  <Button
                     onClick={() => scrollToSection("contact")}
                     className="w-full bg-gradient-to-r from-blue-500 to-purple-500"
                   >
@@ -518,8 +532,8 @@ export default function UnifiedLandingPage() {
                 onClick: () => scrollToSection("contact"),
               }}
               secondaryCTA={{
-                text: "Ver Demo ao Vivo",
-                onClick: () => scrollToSection("modules"),
+                text: "Entrar no Marketplace",
+                onClick: () => navigate("/marketplace"),
               }}
               trustBadges={[
                 { icon: <Shield className="w-4 h-4" />, text: "LGPD Compliant" },

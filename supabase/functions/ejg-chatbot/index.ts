@@ -112,17 +112,22 @@ REGRAS:
 
 IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações específicas quando necessário.`;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurada");
+    const azureEndpoint = Deno.env.get("AZURE_OPENAI_ENDPOINT") ?? "";
+    const azureApiKey = Deno.env.get("AZURE_OPENAI_API_KEY") ?? "";
+    const azureDeployment = Deno.env.get("AZURE_OPENAI_DEPLOYMENT") ?? "";
+    const azureApiVersion = Deno.env.get("AZURE_OPENAI_API_VERSION") ?? "2024-10-21";
+    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
+      throw new Error("AZURE_OPENAI_* não configurado");
+    }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const baseUrl = azureEndpoint.replace(/\/$/, "");
+    const response = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "api-key": azureApiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
@@ -163,7 +168,7 @@ IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações es
         sender_id: userId,
         message: aiMessage,
         message_type: "text",
-        metadata: { model: "google/gemini-2.5-flash" },
+        metadata: { provider: "azure-openai", deployment: azureDeployment },
       });
 
     return new Response(JSON.stringify({ message: aiMessage }), {

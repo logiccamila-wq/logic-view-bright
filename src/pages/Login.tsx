@@ -44,7 +44,7 @@ const Login = () => {
     
     // Validação obrigatória
     if (!email.trim()) {
-      toast.error('Por favor, informe o email');
+      toast.error('Por favor, informe email ou usuario');
       return;
     }
     
@@ -149,14 +149,15 @@ const Login = () => {
           ) : (
             <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className={!isAlb ? 'text-white' : ''}>E-mail *</Label>
+                <Label htmlFor="email" className={!isAlb ? 'text-white' : ''}>E-mail ou usuario *</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="seu@email.com"
+                  type="text"
+                  placeholder="seu@email.com, demo ou admin"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="username"
                   disabled={loading}
                 />
               </div>
@@ -191,6 +192,11 @@ const Login = () => {
                 <Lock className="w-3 h-3" />
                 Seus dados estão protegidos por criptografia de ponta a ponta.
               </p>
+              {!resetMode && (
+                <p className="text-center text-xs text-white/70">
+                  Acesso rapido: <strong>demo</strong> / <strong>demo123</strong> ou <strong>admin</strong> / <strong>admin123</strong>
+                </p>
+              )}
           </form>
           )}
         </CardContent>

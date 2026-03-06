@@ -1,0 +1,12 @@
+{
+  "name": "logic-view-bright-azure-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Azure Functions runtime API for Logic View Bright",
+  "main": "runtime/index.js",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
+  }
+}

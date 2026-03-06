@@ -8,7 +8,14 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif,ico}", "/css/*", "/js/*", "/api/*", "/_next/*", "/assets/*"]
+    "exclude": [
+      "/images/*.{png,jpg,gif,ico}",
+      "/css/*",
+      "/js/*",
+      "/api/*",
+      "/_next/*",
+      "/assets/*"
+    ]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",

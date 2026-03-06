@@ -111,6 +111,7 @@ function App() {
                   }>
                     <Routes>
                       <Route path="/" element={<LandingPage />} />
+                      <Route path="/dashboard.html" element={<LandingPage />} />
                       <Route path="/onboarding" element={<OnboardingFlow />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/reset-password" element={<ResetPassword />} />

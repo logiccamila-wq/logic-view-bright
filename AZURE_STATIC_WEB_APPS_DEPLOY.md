@@ -1,8 +1,5 @@
 # Azure Static Web Apps – Deployment Guide
 
-> ⚠️ **This guide describes an optional, non-standard deployment path.**  
-> The **recommended production stack** is **Vercel (frontend) + Supabase (backend)**. See [DEPLOYMENT.md](./DEPLOYMENT.md) for the standard guide.
-
 This document describes how to deploy this Vite + React + TypeScript project to [Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/).
 
 ## Build configuration
@@ -10,7 +7,7 @@ This document describes how to deploy this Vite + React + TypeScript project to 
 | Setting | Value |
 |---|---|
 | **app_location** | `/` |
-| **api_location** | *(leave blank — no Azure Functions API)* |
+| **api_location** | `api` |
 | **output_location** | `dist` |
 | **build command** | `npm ci && npm run build:azure` |
 
@@ -48,8 +45,7 @@ For Azure SWA, add the following variables in the portal under **Configuration �
 
 | Variable | Description |
 |---|---|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anonymous (public) key |
+| `VITE_API_BASE_URL` | Base URL for Azure Functions APIs |
 | `VITE_APP_URL` | The public URL of the deployed app |
 
 > **Never commit real secrets.** The `.env` and `.env.*` files (except `.env.example`) are gitignored.
@@ -89,7 +85,7 @@ The project includes multiple build scripts for different deployment targets:
 
 | Script | Description |
 |---|---|
-| `npm run build` | Next.js production build (for Vercel) |
+| `npm run build` | Azure-oriented production build |
 | `npm run build:vite` | Vite production build |
 | `npm run build:azure` | Vite build with `dist` output for Azure SWA |
 | `npm run dev:vite` | Vite development server |

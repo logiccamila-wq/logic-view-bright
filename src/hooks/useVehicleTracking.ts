@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { supabase, type RealtimeChannel } from '@/integrations/supabase/client';
 
 interface VehiclePosition {
   id: string;

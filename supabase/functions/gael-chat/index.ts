@@ -25,9 +25,14 @@ serve(async (req) => {
     const body = await req.json();
     const validated = requestSchema.parse(body);
     const { messages, dashboardData } = validated;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const azureEndpoint = Deno.env.get("AZURE_OPENAI_ENDPOINT") ?? "";
+    const azureApiKey = Deno.env.get("AZURE_OPENAI_API_KEY") ?? "";
+    const azureDeployment = Deno.env.get("AZURE_OPENAI_DEPLOYMENT") ?? "";
+    const azureApiVersion = Deno.env.get("AZURE_OPENAI_API_VERSION") ?? "2024-10-21";
+
+    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
+      throw new Error("AZURE_OPENAI_* is not configured");
+    }
 
     // System prompt com contexto do dashboard
     const systemPrompt = `Você é Gael, uma consultora de IA especializada em logística e gestão empresarial para a OptiLog.
@@ -69,14 +74,14 @@ IMPORTANTE:
 - Use linguagem executiva e profissional
 - Quando não tiver dados, seja transparente sobre limitações`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const baseUrl = azureEndpoint.replace(/\/$/, "");
+    const response = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "api-key": azureApiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
@@ -96,7 +101,7 @@ IMPORTANTE:
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Créditos insuficientes. Adicione créditos ao workspace Lovable AI." }),
+          JSON.stringify({ error: "Créditos/limite insuficientes no Azure OpenAI." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

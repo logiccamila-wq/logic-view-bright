@@ -109,20 +109,23 @@ serve(async (req) => {
       }
     }
 
-    // Chamar Lovable AI para análise preditiva
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY não configurada')
+    // Chamar Azure OpenAI para análise preditiva
+    const azureEndpoint = Deno.env.get('AZURE_OPENAI_ENDPOINT') ?? ''
+    const azureApiKey = Deno.env.get('AZURE_OPENAI_API_KEY') ?? ''
+    const azureDeployment = Deno.env.get('AZURE_OPENAI_DEPLOYMENT') ?? ''
+    const azureApiVersion = Deno.env.get('AZURE_OPENAI_API_VERSION') ?? '2024-10-21'
+    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
+      throw new Error('AZURE_OPENAI_* não configurado')
     }
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const baseUrl = azureEndpoint.replace(/\/$/, '')
+    const aiResponse = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'api-key': azureApiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
@@ -188,7 +191,7 @@ Gere previsões realistas considerando os padrões históricos e sazonalidade.`
       }
       if (aiResponse.status === 402) {
         return new Response(
-          JSON.stringify({ error: 'Créditos insuficientes. Adicione créditos ao seu workspace Lovable.' }),
+          JSON.stringify({ error: 'Créditos/limite insuficientes no Azure OpenAI.' }),
           {
             status: 402,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -196,7 +199,7 @@ Gere previsões realistas considerando os padrões históricos e sazonalidade.`
         )
       }
       const errorText = await aiResponse.text()
-      console.error('Erro na API Lovable AI:', aiResponse.status, errorText)
+      console.error('Erro na API Azure OpenAI:', aiResponse.status, errorText)
       throw new Error('Erro ao gerar previsão')
     }
 

@@ -1,83 +1,17 @@
-# 🚀 GUIA COMPLETO DE DEPLOY - OPTILOG.APP
-**GO LIVE: 28/10/2025 às 14:00**
+## Documento Legado
 
----
+Este arquivo esta arquivado e nao representa mais o fluxo oficial de deploy.
 
-## ✅ PRÉ-REQUISITOS
+Use os guias Azure-only:
 
-### **1. Contas Necessárias:**
-- ✅ Conta Vercel (vercel.com)
-- ✅ Conta Neon (neon.tech) - PostgreSQL
-- ✅ Repositório GitHub conectado
-- ✅ Domínio configurado (opcional)
+- `DEPLOYMENT.md`
+- `AZURE_STATIC_WEB_APPS_DEPLOY.md`
+- `GO_LIVE_CHECKLIST.md`
+- `POST_DEPLOYMENT_CHECKLIST.md`
 
-### **2. Ferramentas Locais:**
-```bash
-node --version  # v18.x ou superior
-npm --version   # v9.x ou superior
-git --version   # Qualquer versão recente
-```
+Dominio oficial de producao:
 
----
-
-## 📦 PASSO 1: PREPARAR BANCO DE DADOS (NEON)
-
-### **1.1 Criar Database no Neon:**
-1. Acesse: https://console.neon.tech
-2. Criar novo projeto: `optilog-production`
-3. Região: `AWS - São Paulo (sa-east-1)` (mais próximo do Brasil)
-4. Copiar connection strings:
-   - **Pooler (padrão):** `postgresql://user:pass@pooler.region.neon.tech/optilog?sslmode=require`
-   - **Direct:** `postgresql://user:pass@direct.region.neon.tech/optilog?sslmode=require`
-
-### **1.2 Executar Scripts de Criação:**
-```bash
-# Conectar ao Neon via psql
-psql "postgresql://user:pass@pooler.region.neon.tech/optilog?sslmode=require"
-
-# Executar scripts na ordem:
-\i backend/scripts/create_base_registers_tables.sql
-\i backend/scripts/create_fleet_management_tables.sql
-\i backend/scripts/db_setup.sql
-
-# Verificar tabelas criadas:
-\dt
-
-# Sair:
-\q
-```
-
-### **1.3 Seed Data (Opcional - Dados de Teste):**
-```sql
--- Inserir empresa demo
-INSERT INTO companies (name, document, email, phone) 
-VALUES ('EJG Evolução em Transporte Ltda.', '44.185.912/0001-50', 'contato@ejg.com.br', '(11) 99999-9999');
-
--- Inserir usuário admin
-INSERT INTO users (name, email, password_hash, role, company_id) 
-VALUES ('Admin', 'admin@ejg.com.br', '$2b$10$...', 'admin', 1);
-```
-
----
-
-## ⚙️ PASSO 2: CONFIGURAR VARIÁVEIS DE AMBIENTE
-
-### **2.1 Variáveis Obrigatórias no Vercel:**
-
-Acesse: https://vercel.com/seu-usuario/optilog-app/settings/environment-variables
-
-```bash
-# DATABASE (Neon)
-DATABASE_URL=postgresql://user:pass@pooler.region.neon.tech/optilog?sslmode=require
-DATABASE_URL_UNPOOLED=postgresql://user:pass@direct.region.neon.tech/optilog?sslmode=require
-
-# AUTENTICAÇÃO
-JWT_SECRET=sua_chave_secreta_super_segura_aqui_minimo_32_caracteres
-NEXTAUTH_SECRET=outra_chave_secreta_para_nextauth_tambem_32_chars
-NEXTAUTH_URL=https://optilog.app
-
-# API URLs
-NEXT_PUBLIC_API_URL=https://optilog.app
+- `https://www.xyzlogicflow.com.br`
 NEXT_PUBLIC_WS_URL=wss://optilog.app
 
 # NEON DATA API (Opcional - apenas se usar Data API)

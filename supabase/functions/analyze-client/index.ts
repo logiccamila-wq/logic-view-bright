@@ -13,16 +13,15 @@ serve(async (req) => {
 
   try {
     const { clientCnpj } = await req.json();
-    
+
     if (!clientCnpj) {
-      throw new Error("CNPJ do cliente é obrigatório");
+      throw new Error("CNPJ do cliente e obrigatorio");
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Buscar dados do cliente
     const { data: client, error: clientError } = await supabase
       .from('clients')
       .select('*')
@@ -31,7 +30,6 @@ serve(async (req) => {
 
     if (clientError) throw clientError;
 
-    // Buscar CTEs do cliente
     const { data: ctes, error: ctesError } = await supabase
       .from('cte')
       .select('*')
@@ -41,7 +39,6 @@ serve(async (req) => {
 
     if (ctesError) throw ctesError;
 
-    // Buscar análise financeira
     const { data: financialAnalysis, error: analysisError } = await supabase
       .from('client_financial_analysis')
       .select('*')
@@ -52,65 +49,66 @@ serve(async (req) => {
 
     if (analysisError) throw analysisError;
 
-    // Preparar dados para análise
     const totalCtes = ctes?.length || 0;
     const totalReceita = ctes?.reduce((sum, cte) => sum + Number(cte.valor_total), 0) || 0;
     const mediaMensal = financialAnalysis?.reduce((sum, fa) => sum + Number(fa.receita_total), 0) / (financialAnalysis?.length || 1) || 0;
     const ticketMedio = totalCtes > 0 ? totalReceita / totalCtes : 0;
-    
-    const ctesAtrasados = ctes?.filter(cte => 
-      cte.status_pagamento === 'pendente' && 
-      cte.data_vencimento && 
+
+    const ctesAtrasados = ctes?.filter(cte =>
+      cte.status_pagamento === 'pendente' &&
+      cte.data_vencimento &&
       new Date(cte.data_vencimento) < new Date()
     ).length || 0;
 
     const inadimplente = financialAnalysis?.[0]?.inadimplente || false;
     const scoreCliente = financialAnalysis?.[0]?.score_cliente || 100;
 
-    // Chamar Lovable AI para análise
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY não configurado");
+    const azureEndpoint = Deno.env.get("AZURE_OPENAI_ENDPOINT") ?? "";
+    const azureApiKey = Deno.env.get("AZURE_OPENAI_API_KEY") ?? "";
+    const azureDeployment = Deno.env.get("AZURE_OPENAI_DEPLOYMENT") ?? "";
+    const azureApiVersion = Deno.env.get("AZURE_OPENAI_API_VERSION") ?? "2024-10-21";
+    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
+      throw new Error("AZURE_OPENAI_* nao configurado");
     }
 
-    const systemPrompt = `Você é um analista financeiro especializado em logística e transportes. Analise os dados do cliente e forneça:
-1. Análise Preditiva: Previsão de receita para próximos 3 meses
-2. Análise Comparativa: Comparação com médias do setor
-3. Análise Fiscal: Oportunidades de economia em impostos
-4. Recomendações: Ações específicas para melhorar a relação comercial
+    const systemPrompt = `Voce e um analista financeiro especializado em logistica e transportes. Analise os dados do cliente e forneca:
+1. Analise Preditiva: Previsao de receita para proximos 3 meses
+2. Analise Comparativa: Comparacao com medias do setor
+3. Analise Fiscal: Oportunidades de economia em impostos
+4. Recomendacoes: Acoes especificas para melhorar a relacao comercial
 
-Seja objetivo, específico e baseado em dados.`;
+Seja objetivo, especifico e baseado em dados.`;
 
     const userPrompt = `Analise este cliente de transportes:
 
 Cliente: ${client.razao_social} (${client.cnpj})
-Condição de Pagamento: ${client.condicao_pagamento}
-Limite de Crédito: R$ ${client.limite_credito}
+Condicao de Pagamento: ${client.condicao_pagamento}
+Limite de Credito: R$ ${client.limite_credito}
 
 Dados Financeiros:
 - Total de CT-es: ${totalCtes}
 - Receita Total: R$ ${totalReceita.toFixed(2)}
-- Média Mensal: R$ ${mediaMensal.toFixed(2)}
-- Ticket Médio: R$ ${ticketMedio.toFixed(2)}
+- Media Mensal: R$ ${mediaMensal.toFixed(2)}
+- Ticket Medio: R$ ${ticketMedio.toFixed(2)}
 - CT-es Atrasados: ${ctesAtrasados}
 - Status: ${inadimplente ? 'Inadimplente' : 'Adimplente'}
 - Score: ${scoreCliente}/100
 
-Histórico (últimos 12 meses):
-${financialAnalysis?.map(fa => 
+Historico (ultimos 12 meses):
+${financialAnalysis?.map(fa =>
   `${fa.periodo_mes}/${fa.periodo_ano}: R$ ${Number(fa.receita_total).toFixed(2)} (${fa.total_ctes} CT-es)`
 ).join('\n')}
 
-Forneça análise completa com números específicos.`;
+Forneca analise completa com numeros especificos.`;
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const baseUrl = azureEndpoint.replace(/\/$/, "");
+    const aiResponse = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "api-key": azureApiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
@@ -121,14 +119,14 @@ Forneça análise completa com números específicos.`;
 
     if (!aiResponse.ok) {
       if (aiResponse.status === 429) {
-        throw new Error("Limite de requisições excedido. Tente novamente em alguns instantes.");
+        throw new Error("Limite de requisicoes excedido. Tente novamente em alguns instantes.");
       }
       if (aiResponse.status === 402) {
-        throw new Error("Créditos insuficientes. Adicione créditos ao seu workspace.");
+        throw new Error("Creditos/limite insuficientes no Azure OpenAI.");
       }
       const errorText = await aiResponse.text();
       console.error("Erro na API de IA:", aiResponse.status, errorText);
-      throw new Error("Erro ao gerar análise com IA");
+      throw new Error("Erro ao gerar analise com IA");
     }
 
     const aiData = await aiResponse.json();
@@ -158,7 +156,7 @@ Forneça análise completa com números específicos.`;
     );
 
   } catch (error: any) {
-    console.error("Erro na análise:", error);
+    console.error("Erro na analise:", error);
     return new Response(
       JSON.stringify({
         success: false,
