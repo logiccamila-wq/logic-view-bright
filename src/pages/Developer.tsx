@@ -30,7 +30,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle as AlertIcon } from "lucide-react";
 import { toast } from "sonner";
 
 function safeJson(r: Response) {
@@ -484,13 +483,13 @@ const Developer = () => {
                   <div className="space-y-2">
                     <div className="text-sm text-muted-foreground">URL</div>
                     <div className="font-mono break-all bg-muted/30 p-2 rounded">
-                      {import.meta.env.VITE_SUPABASE_URL || 'N/A'}
+                      {import.meta.env.VITE_SUPABASE_URL ? '(configurado)' : 'N/A'}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="text-sm text-muted-foreground">Publishable Key (anon)</div>
                     <div className="font-mono break-all bg-muted/30 p-2 rounded">
-                      {(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').slice(0, 16)}…
+                      {import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? '(configurado)' : 'N/A'}
                     </div>
                   </div>
                 </div>
@@ -513,25 +512,19 @@ const Developer = () => {
                       size="sm"
                       onClick={async () => {
                         try {
-                          const url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-                          const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
-
-                          const res = await fetch(`${url}/auth/v1/settings`, {
-                            headers: {
-                              apikey: key,
-                              Authorization: `Bearer ${key}`
-                            }
+                          const res = await fetch(`/api/runtime/auth/session`, {
+                            method: 'GET',
                           });
 
                           if (res.ok) {
                             const json = await safeJson(res);
-                            alert(`Auth Settings OK. Providers: ${Object.keys(json).join(', ')}`);
+                            alert(`Auth Runtime OK. Sessão: ${json?.data?.session ? 'ativa' : 'sem sessão'}`);
                           } else {
                             const text = await res.text();
-                            alert(`Auth Settings falhou (${res.status}). Resposta: ${text}`);
+                            alert(`Auth Runtime falhou (${res.status}). Resposta: ${text}`);
                           }
                         } catch (e: any) {
-                          alert(`Erro ao testar Auth Settings: ${e?.message || e}`);
+                          alert(`Erro ao testar Auth Runtime: ${e?.message || e}`);
                         }
                       }}
                     >
@@ -551,54 +544,16 @@ const Developer = () => {
 };
 
 function Diagnostics() {
-  // Decode token payload to show ref and role
-  const url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-  const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
-
-  let projectRef = '';
-  let tokenRef = '';
-  let role = '';
-  let tokenValid = false;
-  let mismatch = false;
-
-  try {
-    const host = new URL(url).host;
-    projectRef = host.split('.supabase.co')[0] || '';
-  } catch {}
-
-  try {
-    const parts = key.split('.');
-    if (parts.length === 3) {
-      const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-      const padded = payloadBase64 + '='.repeat((4 - (payloadBase64.length % 4)) % 4);
-      const payloadJson = JSON.parse(atob(padded));
-      tokenRef = payloadJson?.ref || '';
-      role = payloadJson?.role || '';
-      tokenValid = !!tokenRef;
-    }
-  } catch {}
-
-  mismatch = !!projectRef && !!tokenRef && projectRef !== tokenRef;
-
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Info label="Project Ref" value={projectRef || 'N/A'} />
-        <Info label="Token Ref" value={tokenRef || 'N/A'} />
-        <Info label="Role" value={role || 'N/A'} />
-      </div>
       <div className="flex items-center gap-2 text-sm">
-        {mismatch ? (
-          <span className="text-red-600 flex items-center gap-1"><AlertIcon className="w-4 h-4" /> Mismatch: a chave pertence ao projeto {tokenRef}, mas a URL aponta para {projectRef}.</span>
-        ) : (
-          <span className="text-green-700 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Chave e URL parecem consistentes.</span>
-        )}
+        <span className="text-green-700 flex items-center gap-1">
+          <CheckCircle className="w-4 h-4" /> Aplicação configurada via Azure Runtime API. Variáveis VITE_SUPABASE_* podem ser necessárias para integrações legadas com Supabase.
+        </span>
       </div>
-      {!tokenValid && (
-        <div className="text-yellow-700 text-sm flex items-center gap-1">
-          <AlertIcon className="w-4 h-4" /> Não foi possível decodificar a chave. Verifique se é uma publishable/anon key válida.
-        </div>
-      )}
+      <div className="text-xs text-muted-foreground">
+        As credenciais Supabase estão configuradas como variáveis de ambiente e não são expostas no bundle de produção.
+      </div>
     </div>
   );
 }
