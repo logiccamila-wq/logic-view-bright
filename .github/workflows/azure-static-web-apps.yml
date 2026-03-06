@@ -14,6 +14,7 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    environment: AZURE_STATIC_WEB_APPS_API_TOKEN
     permissions:
       contents: read
       pull-requests: write
@@ -55,6 +56,7 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job
+    environment: AZURE_STATIC_WEB_APPS_API_TOKEN
     permissions:
       contents: read
     steps:
