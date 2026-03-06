@@ -19,11 +19,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, UserPlus, Eye, Edit, MapPin, Clock, TrendingUp } from "lucide-react";
+import { Search, UserPlus, Eye, Edit, Trash2, MapPin, Clock, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DriverDialog } from "@/components/driver/DriverDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Driver {
   id: string;
@@ -54,6 +64,8 @@ const DriversManagement = () => {
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isNewDriverDialogOpen, setIsNewDriverDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [driverToDelete, setDriverToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadDrivers();
@@ -126,6 +138,35 @@ const DriversManagement = () => {
   const handleViewDetails = async (driver: Driver) => {
     setSelectedDriver(driver);
     await loadTripHistory(driver.id);
+  };
+
+  const handleEditDriver = (driver: Driver) => {
+    setSelectedDriver(driver);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteDriver = (id: string) => {
+    setDriverToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteDriver = async () => {
+    if (!driverToDelete) return;
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ status: "inativo" } as any)
+        .eq("id", driverToDelete);
+      if (error) throw error;
+      toast.success("Motorista desativado com sucesso!");
+      loadDrivers();
+    } catch (error) {
+      console.error("Erro ao remover motorista:", error);
+      toast.error("Erro ao remover motorista");
+    } finally {
+      setDeleteDialogOpen(false);
+      setDriverToDelete(null);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -378,8 +419,11 @@ const DriversManagement = () => {
                             </DialogContent>
                           </Dialog>
                           
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => handleEditDriver(driver)}>
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteDriver(driver.id)}>
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -407,6 +451,23 @@ const DriversManagement = () => {
           setSelectedDriver(null);
         }}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover este motorista? Esta ação irá desativar o acesso do motorista ao sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteDriver} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
