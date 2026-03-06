@@ -5,11 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 export interface OmsOrder {
   id: string;
   order_number: string;
-  client_name: string;
-  client_id: string;
+  customer_name: string;
+  customer_document: string;
   order_date: string;
   delivery_date: string;
-  items_count: number;
+  origin: string;
+  destination: string;
+  priority: string;
+  items_description: string;
   total_value: number;
   status: string;
   payment_status: string;

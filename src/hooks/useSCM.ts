@@ -6,11 +6,13 @@ export interface ScmSupplier {
   id: string;
   code: string;
   name: string;
-  cnpj: string;
+  document: string;
   category: string;
   contact_name: string;
-  contact_email: string;
-  contact_phone: string;
+  email: string;
+  phone: string;
+  address: string;
+  rating: number;
   lead_time_days: number;
   reliability_pct: number;
   orders_month: number;
