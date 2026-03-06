@@ -44,33 +44,7 @@ export function AnimatedHero({
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 opacity-10 dark:opacity-20" />
       
-      {/* Particle Background */}
-      <div className="absolute inset-0 opacity-20">
-        {[...Array(20)].map((_, i) => {
-          const randomX = Math.random() * 100;
-          const randomY1 = Math.random() * 100;
-          const randomY2 = Math.random() * 100;
-          return (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-white rounded-full"
-              style={{
-                left: `${randomX}%`,
-                top: `${randomY1}%`,
-              }}
-              animate={{
-                y: [`0%`, `${randomY2}vh`],
-                opacity: [0.2, 0.8, 0.2],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 10,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-          );
-        })}
-      </div>
+      {/* Particles handled by parent */}
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -97,7 +71,7 @@ export function AnimatedHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent dark:from-indigo-400 dark:via-purple-400 dark:to-cyan-400"
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
           >
             {headline}
           </motion.h1>
@@ -107,7 +81,7 @@ export function AnimatedHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto"
+            className="text-xl sm:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto"
           >
             {subheadline}
           </motion.p>
@@ -149,9 +123,9 @@ export function AnimatedHero({
             {trustBadges.map((badge, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-400"
+                className="flex items-center gap-2 text-gray-400"
               >
-                <div className="text-indigo-600 dark:text-indigo-400">
+                <div className="text-indigo-400">
                   {badge.icon}
                 </div>
                 <span className="text-sm font-medium">{badge.text}</span>

@@ -16,6 +16,9 @@ function normalizeLoginIdentifier(raw) {
   const value = String(raw || "").toLowerCase().trim();
   if (value === "demo") return DEMO_EMAIL;
   if (value === "admin") return ADMIN_EMAIL;
+  // CPF puro (só dígitos, 11 chars) → email baseado no CPF
+  const digits = value.replace(/[.\-\/]/g, "");
+  if (/^\d{11}$/.test(digits)) return `${digits}@ejgtransporte.com.br`;
   return value;
 }
 
