@@ -87,7 +87,7 @@ export function CostAlertsConfig() {
 
       if (error) throw error;
       
-      const uniquePlates = [...new Set(data?.map((o) => o.vehicle_plate) || [])];
+      const uniquePlates = [...new Set(data?.map((o) => o.vehicle_plate) || [])] as string[];
       setVehicles(uniquePlates.sort());
     } catch (error) {
       console.error('Error loading vehicles:', error);
