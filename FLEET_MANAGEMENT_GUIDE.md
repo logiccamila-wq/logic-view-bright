@@ -78,7 +78,7 @@ O Sistema de Gestão de Frota do OPTILOG é uma solução completa para gerencia
 └─────────────────────┬───────────────────────┘
                       │
 ┌─────────────────────┴───────────────────────┐
-│      Database (PostgreSQL via Neon)         │
+│      Database (Azure Database for PostgreSQL)         │
 │   ┌──────────────────────────────────────┐ │
 │   │  equipamentos_frota                  │ │
 │   │  inspecoes_equipamentos              │ │
@@ -243,7 +243,7 @@ GET    /api/alertas-inspecoes/pendentes/notificacao  # Pendentes
 ### Pré-requisitos
 
 - Node.js >= 18.0.0
-- PostgreSQL (ou conta no Neon)
+- PostgreSQL (ou conta no Azure PostgreSQL)
 - Git
 
 ### Passo a Passo

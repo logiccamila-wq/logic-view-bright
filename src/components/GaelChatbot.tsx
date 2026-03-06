@@ -35,14 +35,16 @@ const GaelChatbot: React.FC<GaelChatbotProps> = ({ dashboardData }) => {
   }, [messages]);
 
   const streamChat = async (userMessages: Message[]) => {
-    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gael-chat`;
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+    const CHAT_URL = `${API_BASE}/gael-chat`;
     
     try {
+      const token = localStorage.getItem('azure_session_token') || '';
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ 
           messages: userMessages,

@@ -1,4 +1,4 @@
-# Supabase Configuration
+# Database Configuration (SQL migrations stored here for PostgreSQL compatibility)
 project_id = "logic-view-bright"
 
 [api]
@@ -25,7 +25,7 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 site_url = "http://127.0.0.1:5173"
-additional_redirect_urls = ["https://localhost:5173", "https://logic-view-bright-main.vercel.app"]
+additional_redirect_urls = ["https://localhost:5173", "https://www.xyzlogicflow.com.br"]
 jwt_expiry = 3600
 enable_signup = true
 

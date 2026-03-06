@@ -61,8 +61,8 @@ Transportadoras brasileiras enfrentam:
 **Stack Moderno:**
 - Frontend: **Next.js 14** (App Router, React Server Components)
 - Backend: **Node.js + Express** (API REST)
-- Database: **PostgreSQL** (Neon serverless)
-- Deploy: **Vercel Edge** (CDN global, auto-scaling)
+- Database: **PostgreSQL** (Azure Database for PostgreSQL)
+- Deploy: **Azure Static Web Apps** (CDN global, auto-scaling)
 - Real-time: **Socket.io** (rastreamento ao vivo)
 
 **Integrações:**
@@ -171,14 +171,14 @@ Transportadoras brasileiras enfrentam:
 - Criptografia AES-256 (dados sensíveis)
 - SSL/TLS (comunicação)
 - Rate limiting (proteção DDoS)
-- Backup automático diário (Neon)
+- Backup automático diário (Azure PostgreSQL)
 
 ### **PERFORMANCE:**
 
 - **Load Time:** < 2s (primeira carga)
 - **Time to Interactive:** < 3s
 - **API Response:** < 200ms
-- **Uptime:** 99.9% SLA (Vercel + Neon)
+- **Uptime:** 99.9% SLA (Azure Static Web Apps + Azure PostgreSQL)
 - **Escalabilidade:** Auto-scaling (serverless)
 
 ### **COMPLIANCE:**

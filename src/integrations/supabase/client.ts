@@ -1,4 +1,5 @@
-// Azure runtime client that preserves the supabase-like API surface used by the app.
+// Azure runtime client — maintains a compatible API surface used by 80+ app files.
+// The "supabase" naming is kept solely to avoid a massive import refactor.
 
 type AnyObj = Record<string, any>;
 

@@ -455,7 +455,7 @@ Implementação completa do sistema integrado conforme solicitação da Camila (
 **Cliente**: Camila (LogicFlow / EJG Transportes)  
 **Email**: logiccamila@gmail.com / camila.etseral@gmail.com  
 **Repositório**: logiccamila-wq/optilog.app  
-**Deploy**: Vercel (optilog-app-logiccamila-wqs-projects.vercel.app)  
+**Deploy**: Azure Static Web Apps (www.xyzlogicflow.com.br)  
 
 ---
 

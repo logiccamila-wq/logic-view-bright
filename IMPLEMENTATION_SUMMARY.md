@@ -99,7 +99,7 @@ Implementação bem-sucedida de um **sistema completo de gestão de frota** para
 **Mudanças**:
 - Importação dos 3 novos routers
 - Registro em `/equipamentos`, `/inspecoes`, `/alertas-inspecoes`
-- Integração com Neon database
+- Integração com Azure PostgreSQL
 
 ---
 
@@ -427,12 +427,12 @@ Implementação bem-sucedida de um **sistema completo de gestão de frota** para
 │  └──────────────┴──────────────┴──────────────┘  │
 │                                                    │
 │  ┌─────────────────────────────────────────────┐  │
-│  │     Neon Database Client Wrapper            │  │
+│  │     Azure PostgreSQL Client Wrapper            │  │
 │  └─────────────────────────────────────────────┘  │
 └─────────────────┬──────────────────────────────────┘
-                  │ SQL (Neon Protocol)
+                  │ SQL (PostgreSQL Protocol)
 ┌─────────────────┴──────────────────────────────────┐
-│       Database (PostgreSQL via Neon)               │
+│       Database (Azure Database for PostgreSQL)               │
 │                                                    │
 │  ┌─────────────────────────────────────────────┐  │
 │  │  equipamentos_frota (13 campos)             │  │
@@ -576,7 +576,7 @@ $$;
 - ✅ **Error handling**: Erros não expõem detalhes do sistema
 - ✅ **CORS configurado**: Apenas origens permitidas
 - ✅ **Secrets em ENV**: Nenhuma credencial no código
-- ✅ **HTTPS obrigatório**: Em produção (Vercel)
+- ✅ **HTTPS obrigatório**: Em produção (Azure)
 - ✅ **Rate limiting**: Preparado para implementação
 
 **Recomendações para produção**:
@@ -687,8 +687,8 @@ $$;
 ### Curto Prazo (1-2 semanas)
 
 1. **Deploy em Produção**
-   - [ ] Configurar DATABASE_URL no Vercel
-   - [ ] Executar migrations no Neon
+   - [ ] Configurar DATABASE_URL no Azure
+   - [ ] Executar migrations no Azure PostgreSQL
    - [ ] Testar todas as APIs
    - [ ] Validar frontend
 
@@ -756,7 +756,7 @@ $$;
 
 ### Links
 - **GitHub**: https://github.com/logiccamila-wq/optilog.app
-- **Vercel**: https://optilog.app
+- **Azure Static Web Apps**: https://www.xyzlogicflow.com.br
 - **Documentação**: https://docs.optilog.app (preparado)
 
 ### Suporte

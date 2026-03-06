@@ -4,7 +4,7 @@
 - [ ] Revisar queries SQL para uso de índices e evitar N+1
 - [ ] Adicionar logs de performance (tempo de resposta, queries lentas)
 - [ ] Implementar cache para endpoints críticos
-- [ ] Monitorar conexões e uso de CPU/memória (Vercel/Neon dashboards)
+- [ ] Monitorar conexões e uso de CPU/memória (Azure Portal dashboards)
 - [ ] Testar endpoints com carga (k6, autocannon, etc.)
 
 ## Frontend
@@ -15,8 +15,8 @@
 - [ ] Testar responsividade e acessibilidade
 
 ## Monitoramento
-- [ ] Configurar alertas de erro (Vercel, Sentry, etc.)
-- [ ] Monitorar logs em tempo real (Vercel/Neon)
+- [ ] Configurar alertas de erro (Azure Monitor, Application Insights)
+- [ ] Monitorar logs em tempo real (Azure Monitor / Azure PostgreSQL)
 - [ ] Validar métricas reais de uso e performance semanalmente
 
 ---

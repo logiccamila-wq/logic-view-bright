@@ -20,7 +20,7 @@ Utilize este checklist para garantir que todos os critérios de sucesso do go-li
 ## Observações Gerais
 - [ ] Documentação compartilhada com a equipe
 - [ ] Suporte disponível (chat, telefone)
-- [ ] Monitoramento ativo (Vercel, Neon, Analytics)
+- [ ] Monitoramento ativo (Azure Portal, Analytics)
 
 ---
 Preencha este checklist após o go-live e envie para o responsável pelo projeto.

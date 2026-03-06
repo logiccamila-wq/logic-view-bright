@@ -110,8 +110,8 @@
 
 **Stack:**
 - Frontend: Next.js + MUI + React Hook Form
-- Backend: Node.js + Neon PostgreSQL
-- Storage: Vercel Blob (fotos/anexos)
+- Backend: Node.js + Azure Database for PostgreSQL
+- Storage: Azure Blob Storage (fotos/anexos)
 - Assinatura: react-signature-canvas
 
 **Schema:**
@@ -175,7 +175,7 @@ CREATE TABLE os_attachments (
 - Frontend: Next.js + drag-and-drop (react-dropzone)
 - OCR: Tesseract.js ou Google Vision API
 - Validação: API SEFAZ
-- Storage: Vercel Blob
+- Storage: Azure Blob Storage
 
 **Schema:**
 ```sql
@@ -395,8 +395,8 @@ CREATE TABLE bank_transactions (
 ### Tecnologias
 - Next.js 14 (App Router)
 - MUI v6
-- Neon PostgreSQL
-- Vercel (deploy)
+- Azure Database for PostgreSQL
+- Azure Static Web Apps (deploy)
 - OpenAI + Gemini (IA)
 - Google OR-Tools (roteirização)
 - TensorFlow.js (ML)

@@ -8,7 +8,12 @@
 - Domínio principal: `www.xyzlogicflow.com.br`
 
 ## 2. Pré-Go-Live
-- [ ] Validar DNS no Azure para `www.xyzlogicflow.com.br`
+- [x] Domínio `xyzlogicflow.com.br` ativo (validade: 2027-02-23, renovação automática)
+- [x] DNS apontando para Azure DNS:
+  - `ns1-07.azure-dns.com`
+  - `ns2-07.azure-dns.net`
+  - `ns3-07.azure-dns.org`
+  - `ns4-07.azure-dns.info`
 - [ ] Certificado TLS ativo e renovação automática habilitada
 - [ ] Variáveis em SWA configuradas:
 - [ ] `VITE_APP_URL=https://www.xyzlogicflow.com.br`

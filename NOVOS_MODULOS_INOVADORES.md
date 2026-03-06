@@ -231,8 +231,8 @@
 - Stream processing em tempo real
 
 ### Cloud & Infrastructure
-- Supabase (PostgreSQL, Edge Functions)
-- Vercel (CDN global)
+- Azure (PostgreSQL, Functions)
+- Azure Static Web Apps
 - Multi-cloud ready
 - Auto-scaling
 

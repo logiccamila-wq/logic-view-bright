@@ -304,7 +304,7 @@ Desktop: 3-4 colunas
 - [x] Métricas laterais
 - [x] Barras de progresso
 - [x] Timeline de ações
-- [x] Integração com dados reais (Supabase)
+- [x] Integração com dados reais (Azure)
 
 ### Componentes
 - [x] ModernCard
@@ -394,7 +394,7 @@ Desktop: 3-4 colunas
 ## 🔗 Referências de Design
 
 **Inspirações:**
-- Vercel.com - Landing page clean
+- Azure Portal - Landing page clean
 - Stripe.com - Dashboard moderno
 - Linear.app - UI minimalista
 - Notion.so - Componentes flexíveis
@@ -556,13 +556,13 @@ O sistema está pronto para deploy:
 # Build (já testado)
 npm run build
 
-# Deploy Vercel (automático via git push)
+# Deploy Azure (automático via git push)
 git add .
 git commit -m "feat: Modernização completa UI/UX"
 git push origin main
 
 # Ou manual
-vercel --prod
+az staticwebapp deploy
 ```
 
 **URLs:**

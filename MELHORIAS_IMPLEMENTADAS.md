@@ -68,7 +68,7 @@ Visão consolidada de todos os módulos:
 📝 **Documentação de variáveis de ambiente**
 
 Incluindo:
-- Configuração Supabase (URL, Keys)
+- Configuração Azure (API URL, JWT)
 - AI Provider (OpenAI, modelos, limites)
 - APIs Externas (TomTom, OpenRoute, EmailJS, WhatsApp)
 - Brasil API (CTe, MDFe, NF-e)

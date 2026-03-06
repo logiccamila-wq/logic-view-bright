@@ -81,9 +81,9 @@
 
 ### Tecnologia de Ponta
 - **Frontend**: Next.js 14 + React + TypeScript
-- **Backend**: Node.js + Express + PostgreSQL (Neon)
+- **Backend**: Node.js + Express + Azure Database for PostgreSQL
 - **IA/ML**: TensorFlow.js + Python
-- **Deploy**: Vercel + AWS
+- **Deploy**: Azure Static Web Apps
 - **Mobile**: React Native (roadmap)
 
 ---
@@ -254,7 +254,7 @@
 - Campanhas pagas (Google/LinkedIn)
 
 **20% - Operações** (R$ 100K)
-- Infraestrutura (AWS/Vercel)
+- Infraestrutura (Azure)
 - Ferramentas e licenças
 - Legal e contabilidade
 - Suporte ao cliente

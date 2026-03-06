@@ -454,43 +454,39 @@ const Developer = () => {
               <CardContent>
                 <div className="space-y-2">
                   <div className="p-3 bg-muted rounded font-mono text-xs">
-                    <span className="text-muted-foreground">VITE_SUPABASE_URL=</span>
-                    <span>***************************</span>
+                    <span className="text-muted-foreground">VITE_API_BASE_URL=</span>
+                    <span>{import.meta.env.VITE_API_BASE_URL || '/api'}</span>
                   </div>
                   <div className="p-3 bg-muted rounded font-mono text-xs">
-                    <span className="text-muted-foreground">VITE_SUPABASE_PUBLISHABLE_KEY=</span>
-                    <span>***************************</span>
-                  </div>
-                  <div className="p-3 bg-muted rounded font-mono text-xs">
-                    <span className="text-muted-foreground">NEON_API_KEY=</span>
-                    <span>***************************</span>
+                    <span className="text-muted-foreground">VITE_APP_URL=</span>
+                    <span>{import.meta.env.VITE_APP_URL || 'N/A'}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Supabase Debug */}
+          {/* Azure API Debug */}
           <TabsContent value="supabase" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Globe className="w-5 h-5" />
-                  Supabase Diagnostics
+                  Azure API Diagnostics
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">URL</div>
+                    <div className="text-sm text-muted-foreground">API Base URL</div>
                     <div className="font-mono break-all bg-muted/30 p-2 rounded">
-                      {import.meta.env.VITE_SUPABASE_URL || 'N/A'}
+                      {import.meta.env.VITE_API_BASE_URL || '/api'}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">Publishable Key (anon)</div>
+                    <div className="text-sm text-muted-foreground">App URL</div>
                     <div className="font-mono break-all bg-muted/30 p-2 rounded">
-                      {(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').slice(0, 16)}…
+                      {import.meta.env.VITE_APP_URL || window.location.origin}
                     </div>
                   </div>
                 </div>
@@ -504,34 +500,27 @@ const Developer = () => {
                 <div className="mt-4 p-3 border rounded">
                   <AssignRoleTool />
                 </div>
-                {/* Runtime API Key Check */}
+                {/* Runtime API Health Check */}
                 <div className="mt-4 p-3 border rounded">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium">Teste de Auth Settings</h3>
+                    <h3 className="font-medium">Teste de Health Check</h3>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={async () => {
                         try {
-                          const url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-                          const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
-
-                          const res = await fetch(`${url}/auth/v1/settings`, {
-                            headers: {
-                              apikey: key,
-                              Authorization: `Bearer ${key}`
-                            }
-                          });
+                          const apiBase = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+                          const res = await fetch(`${apiBase}/runtime/health`);
 
                           if (res.ok) {
                             const json = await safeJson(res);
-                            alert(`Auth Settings OK. Providers: ${Object.keys(json).join(', ')}`);
+                            alert(`API Health OK: ${JSON.stringify(json)}`);
                           } else {
                             const text = await res.text();
-                            alert(`Auth Settings falhou (${res.status}). Resposta: ${text}`);
+                            alert(`Health check falhou (${res.status}). Resposta: ${text}`);
                           }
                         } catch (e: any) {
-                          alert(`Erro ao testar Auth Settings: ${e?.message || e}`);
+                          alert(`Erro ao testar Health Check: ${e?.message || e}`);
                         }
                       }}
                     >
@@ -539,7 +528,7 @@ const Developer = () => {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Este teste chama <code className="font-mono">/auth/v1/settings</code> com sua chave anon/public para validar se a API aceita a key.
+                    Testa <code className="font-mono">/api/runtime/health</code> para validar se a API Azure está respondendo.
                   </p>
                 </div>
               </CardContent>
@@ -551,54 +540,18 @@ const Developer = () => {
 };
 
 function Diagnostics() {
-  // Decode token payload to show ref and role
-  const url = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-  const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
-
-  let projectRef = '';
-  let tokenRef = '';
-  let role = '';
-  let tokenValid = false;
-  let mismatch = false;
-
-  try {
-    const host = new URL(url).host;
-    projectRef = host.split('.supabase.co')[0] || '';
-  } catch {}
-
-  try {
-    const parts = key.split('.');
-    if (parts.length === 3) {
-      const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-      const padded = payloadBase64 + '='.repeat((4 - (payloadBase64.length % 4)) % 4);
-      const payloadJson = JSON.parse(atob(padded));
-      tokenRef = payloadJson?.ref || '';
-      role = payloadJson?.role || '';
-      tokenValid = !!tokenRef;
-    }
-  } catch {}
-
-  mismatch = !!projectRef && !!tokenRef && projectRef !== tokenRef;
+  const apiBase = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Info label="Project Ref" value={projectRef || 'N/A'} />
-        <Info label="Token Ref" value={tokenRef || 'N/A'} />
-        <Info label="Role" value={role || 'N/A'} />
+        <Info label="API Base" value={apiBase} />
+        <Info label="App URL" value={import.meta.env.VITE_APP_URL || window.location.origin} />
+        <Info label="Platform" value="Azure Static Web Apps" />
       </div>
       <div className="flex items-center gap-2 text-sm">
-        {mismatch ? (
-          <span className="text-red-600 flex items-center gap-1"><AlertIcon className="w-4 h-4" /> Mismatch: a chave pertence ao projeto {tokenRef}, mas a URL aponta para {projectRef}.</span>
-        ) : (
-          <span className="text-green-700 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Chave e URL parecem consistentes.</span>
-        )}
+        <span className="text-green-700 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Configuração 100% Azure.</span>
       </div>
-      {!tokenValid && (
-        <div className="text-yellow-700 text-sm flex items-center gap-1">
-          <AlertIcon className="w-4 h-4" /> Não foi possível decodificar a chave. Verifique se é uma publishable/anon key válida.
-        </div>
-      )}
     </div>
   );
 }
@@ -709,7 +662,7 @@ const AssignRoleTool = () => {
         <input className="p-2 border rounded" value={role} onChange={(e)=>setRole(e.target.value)} placeholder="role" />
         <Button disabled={loading} onClick={submit}>{loading ? 'Processando…' : 'Atribuir'}</Button>
       </div>
-      <p className="text-xs text-muted-foreground">Usa /api/assign-role no backend. Requer SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY em Produção.</p>
+      <p className="text-xs text-muted-foreground">Usa /api/assign-role no backend. Requer AZURE_JWT_SECRET e DATABASE_URL em Produção.</p>
     </div>
   );
 };

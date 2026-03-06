@@ -124,7 +124,7 @@ Interactive tabs for showcasing product modules.
 ---
 
 ### 6. LeadForm
-Lead capture form with Supabase integration.
+Lead capture form with Azure API integration.
 
 ```tsx
 <LeadForm
@@ -146,7 +146,7 @@ Lead capture form with Supabase integration.
 - LGPD checkbox
 - Loading states
 - Toast notifications
-- Supabase integration
+- Azure API integration
 
 ---
 
@@ -246,7 +246,7 @@ See `LandingExample.tsx` for a complete working example of all components.
 - shadcn/ui components
 - lucide-react (icons)
 - TailwindCSS
-- Supabase client (LeadForm only)
+- Azure runtime client (LeadForm only)
 - sonner (toast notifications)
 
 ## Accessibility

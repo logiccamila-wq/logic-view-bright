@@ -7,7 +7,8 @@
 - Banco: Azure Database for PostgreSQL
 - IA: Azure OpenAI
 - Deploy: Azure Static Web Apps + GitHub Actions
-- Domínio: `www.xyzlogicflow.com.br`
+- Domínio: `www.xyzlogicflow.com.br` (ativo até 2027-02-23, renovação automática)
+- DNS: Azure DNS (`ns1-07.azure-dns.com`, `ns2-07.azure-dns.net`, `ns3-07.azure-dns.org`, `ns4-07.azure-dns.info`)
 
 ## Fluxo
 ```text
@@ -16,7 +17,7 @@ Browser -> Azure Static Web Apps -> /api/runtime/* -> PostgreSQL
 ```
 
 ## Componentes-chave
-- `src/integrations/supabase/client.ts`: camada de compatibilidade para manter chamadas existentes de frontend.
+- `src/integrations/supabase/client.ts`: camada de compatibilidade Azure runtime (mantém nome por compatibilidade de imports).
 - `api/runtime/index.js`: endpoints auth/query/mutate/rpc/invoke.
 - `api/shared/db.js`: conexão segura com PostgreSQL.
 - `.github/workflows/azure-static-web-apps.yml`: pipeline de build/deploy.
@@ -25,6 +26,3 @@ Browser -> Azure Static Web Apps -> /api/runtime/* -> PostgreSQL
 - Secrets somente no backend Azure (nunca no frontend).
 - JWT do runtime via `AZURE_JWT_SECRET`.
 - CORS restrito com `ALLOWED_ORIGINS`.
-
-## Observação
-- Referências históricas a Vercel/Supabase/Cloudflare/Firebase devem ser tratadas como legado e não devem orientar novas implementações.

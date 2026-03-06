@@ -13,7 +13,7 @@
 ## Build e Deploy para Teste
 - [ ] Rodar `npm run build` sem erros
 - [ ] Rodar `npm run start:prod` localmente e validar funcionamento
-- [ ] Deploy automático para ambiente de teste (Vercel, Netlify, etc.)
+- [ ] Deploy automático para ambiente de teste (Azure Static Web Apps)
 - [ ] Validar URL de preview/teste
 - [ ] Testes de navegação, performance e bugs no ambiente de teste
 - [ ] Coletar feedback do time/usuários

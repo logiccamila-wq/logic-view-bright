@@ -42,7 +42,7 @@ Se o login falhar após atualizar, verifique as variáveis de ambiente necessár
 - NEXT_PUBLIC_STACK_AUTH_PROJECT_ID
 - NEXT_PUBLIC_STACK_AUTH_JWKS_URL
 - JWT_SECRET
-- DATABASE_URL (Neon)
+- DATABASE_URL (Azure PostgreSQL)
 
 No Windows, você pode criar um arquivo `.env.local` na raiz do projeto com conteúdo como:
 

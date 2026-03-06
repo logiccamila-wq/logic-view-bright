@@ -2,10 +2,10 @@
 
 ## Arquitetura e Estrutura
 
-**Stack Principal:**
+**Stack Principal (100% Azure):**
 - Frontend: React 18 + TypeScript + Vite + TailwindCSS + shadcn/ui
-- Backend: Azure Functions (Node) + PostgreSQL
-- Deploy: Azure Static Web Apps (frontend) + Azure Functions (backend)
+- Backend: Azure Functions (Node) + Azure Database for PostgreSQL
+- Deploy: Azure Static Web Apps (frontend + managed functions)
 - Domínio: www.xyzlogicflow.com.br
 
 **Sistema de Módulos:**
@@ -19,7 +19,7 @@
 - Roles principais: `admin`, `driver`, `finance`, `operations`, `fleet_maintenance`
 - ROLE_ALIASES normaliza roles em português (motorista → driver, mecanico → fleet_maintenance)
 - Controle de acesso por módulo em `MODULE_PERMISSIONS` (AuthContext)
-- Edge Functions validam roles via `user_roles` table (ver [supabase/functions/ai-analyze/index.ts](../supabase/functions/ai-analyze/index.ts) L26-35)
+- Azure Functions validam roles via `user_roles` table
 
 ## Padrões de Código
 
@@ -27,10 +27,11 @@
 - Use alias `@/` para imports (tsconfig.json baseUrl: `./`, paths: `@/*` → `./src/*`)
 - Exemplos: `@/components/ui/button`, `@/integrations/supabase/client`, `@/hooks/useDrivers`
 
-**Runtime Client (compatibilidade supabase-like):**
+**Runtime Client (camada de compatibilidade Azure):**
 - **SEMPRE** importe via `import { supabase } from "@/integrations/supabase/client"`
-- Client usa API runtime Azure (`VITE_API_BASE_URL` + endpoints `/api/runtime/*`)
-- Mantém assinatura compatível para evitar refactor massivo de UI
+- O arquivo `src/integrations/supabase/client.ts` é na verdade um **client Azure runtime**
+- Usa API Azure (`VITE_API_BASE_URL` + endpoints `/api/runtime/*`)
+- O nome "supabase" é mantido apenas para evitar refactor massivo nos 80+ arquivos importadores
 
 **Data Fetching:**
 - Use TanStack Query (React Query) para cache e sincronização
@@ -49,25 +50,18 @@
 - `NotificationsContext`: alertas de sistema
 - Hooks de negócio em [src/hooks/](../src/hooks/): `useDrivers`, `useMaintenanceAlerts`, `useCostAlerts`, `useTomTom`, etc.
 
-## Runtime API (Backend)
+## Runtime API (Backend Azure)
 
 **Localização:** [api/runtime/index.js](../api/runtime/index.js)
 
 **Padrão de Autorização:**
 ```typescript
-// 1. Validar Bearer token
+// 1. Validar Bearer token (JWT assinado com AZURE_JWT_SECRET)
 const authHeader = req.headers?.authorization || "";
 const accessToken = authHeader.replace(/^Bearer\s+/i, "");
 
-// 2. Buscar user via /auth/v1/user
-const userResp = await fetch(`${supabaseUrl}/auth/v1/user`, {
-  headers: { Authorization: `Bearer ${accessToken}`, apikey: serviceKey }
-});
-
-// 3. Buscar roles via user_roles table
-const rolesResp = await fetch(`${supabaseUrl}/rest/v1/user_roles?user_id=eq.${uid}&select=role`, {
-  headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey }
-});
+// 2. Validar JWT e extrair user_id
+// 3. Buscar roles via user_roles table (query PostgreSQL direto)
 
 // 4. Validar permissão
 const allowedRoles = ["admin", "finance", "logistics_manager"];
@@ -75,17 +69,14 @@ const isAllowed = roles.some(r => allowedRoles.includes(r));
 ```
 
 **CORS Padrão:**
-- Helper em [supabase/functions/_shared/cors.ts](../supabase/functions/_shared/cors.ts)
-- `getAllowedOrigins()` lê `ALLOWED_ORIGINS` env (CSV)
-- `buildCorsHeaders(origin)` retorna headers corretos
-- `handlePreflight(origin)` para OPTIONS requests
+- `ALLOWED_ORIGINS` env var (CSV) define origens permitidas
+- Preflight handler para OPTIONS requests
 
-**Env Vars Comuns:**
-- `AZURE_POSTGRES_*` (ou `DATABASE_URL`)
-- `AZURE_JWT_SECRET`, `AZURE_JWT_EXPIRES_IN`
-- `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT`, `AZURE_OPENAI_API_VERSION`
-- `AZURE_FUNCTIONS_BASE_URL`, `AZURE_FUNCTIONS_API_KEY` (opcional para proxy invoke)
-- `ALLOWED_ORIGINS`
+**Env Vars (Azure):**
+- `AZURE_POSTGRES_*` (ou `DATABASE_URL`) — conexão PostgreSQL
+- `AZURE_JWT_SECRET`, `AZURE_JWT_EXPIRES_IN` — autenticação JWT
+- `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT` — IA
+- `ALLOWED_ORIGINS` — CORS
 
 **Deploy:**
 ```bash
@@ -98,101 +89,54 @@ git push origin main
 **Dev Local:**
 ```bash
 npm run dev       # Vite dev server (localhost:5173)
-npm run check     # TypeScript check (--noEmit)
-npm run lint      # ESLint (../src/components/layout, src/modules)
-```
-
-**Build e Deploy:**
-```bash
-npm run build         # tsc + vite build → dist/
-./deploy.sh           # Deploy completo (auto)
-npm run deploy:all    # Build + git push
-```
-
-**Database:**
-```bash
-npm run db:push   # supabase db push (aplica migrations)
-npm run db:reset  # supabase db reset (reset + seed)
+npm run build     # vite build → dist/
 ```
 
 **Seed de Dados:**
 - Scripts em [scripts/](../scripts/): `seed-demo.cjs`, `seed-roles.cjs`, `create-test-users.cjs`
 - Exemplo: `node scripts/seed-demo.cjs` (usa API `/api/db`)
-- Dados de exemplo: veículos (EJG-1234), trips, macros, refuelings, service_orders
-
-**Validação e Testes:**
-- Scripts de validação: `validate-system.cjs`, `health-check.cjs`, `verify-setup.cjs`
-- Testes de login: `test-logins.cjs`, `test-camila-login.cjs`
-- Não há framework de testes automatizados (sem Jest/Vitest)
 
 ## Integrações Externas
 
 **APIs e Serviços:**
-- EmailJS: envio de emails (ver hooks)
-- WhatsApp Business API: alertas (send-whatsapp-alert function)
-- OpenRouteService: rotas/geocoding (useOpenRouteService hook)
-- TomTom: mapas/geocoding (useTomTom hook)
-- OCR: processamento de documentos
-- N8n: workflows via trigger-n8n-workflow function
-
-**Exemplos de Functions:**
-- `ai-analyze`: análise IA com rate limiting e roles
-- `calculate-route`: cálculo de rotas (OpenRouteService/TomTom)
-- `import-cte-xml`: importação CTe via XML
-- `send-email`: envio via EmailJS
-- `geocode-address`: geocoding de endereços
+- EmailJS: envio de emails
+- WhatsApp Business API: alertas
+- OpenRouteService: rotas/geocoding
+- TomTom: mapas/geocoding
+- Azure OpenAI: análise IA
 
 ## Domínios de Negócio
 
-**Gestão de Frota:**
-- Veículos: `vehicles` table, status tracking, mileage
-- Manutenção: `service_orders`, alertas preditivas ([src/pages/PredictiveMaintenance.tsx](../src/pages/PredictiveMaintenance.tsx))
-- Documentação: CRLV, licenças, vencimentos
-
-**Motoristas:**
-- Cadastro: `drivers` table via useDrivers hook
-- Jornada: `driver_journey`, violações, macros
-- Macros de viagem: INICIO, FIM, PAUSA (trip_macros table, [src/pages/DriverMacros.tsx](../src/pages/DriverMacros.tsx))
-- Payroll: cálculo via `calculate-driver-payroll` function
-
-**Logística (TMS):**
-- Viagens: `trips` table (origin, destination, status)
-- CTe: importação XML, consulta status, emissão (functions/emitir-cte, import-cte-*)
-- MDFe: emissão/encerramento (functions/emitir-mdfe, encerrar-mdfe)
-- Rastreamento: GPS, IoT, telemetria ([src/pages/LiveTracking.tsx](../src/pages/LiveTracking.tsx))
-
-**Financeiro:**
-- Abastecimentos: `refuelings` table
-- KPIs: custo/km, despesas ([src/pages/LogisticsKPI.tsx](../src/pages/LogisticsKPI.tsx))
-- Conciliação bancária: `bank_reconciliation` table, import-bank-statement function
-- Aprovações: workflow em [src/pages/Approvals.tsx](../src/pages/Approvals.tsx)
+**Gestão de Frota:** veículos, manutenção, documentação
+**Motoristas:** cadastro, jornada, macros de viagem, payroll
+**Logística (TMS):** viagens, CTe, MDFe, rastreamento GPS
+**Financeiro:** abastecimentos, KPIs, conciliação bancária, aprovações
 
 ## Segurança
 
 **Nunca exponha no frontend:**
-- `SUPABASE_SERVICE_ROLE_KEY` (só em Edge Functions)
-- `AI_PROVIDER_KEY`, `OPENAI_API_KEY`
+- `AZURE_JWT_SECRET`, `DATABASE_URL`
+- `AZURE_OPENAI_API_KEY`
 - Qualquer secret/token de APIs externas
 
 **Boas Práticas:**
-- Validar env vars ao iniciar functions (ver ai-analyze L14-16)
-- Usar RLS policies em Supabase (migrations)
+- Validar env vars ao iniciar functions
 - Sanitizar inputs antes de queries
-- Rate limiting em endpoints sensíveis (ai-analyze L47-51)
+- Rate limiting em endpoints sensíveis
 - CORS restrito via ALLOWED_ORIGINS
 
 **Deployment:**
-- Frontend/API: Azure Static Web Apps via GitHub Actions (`.github/workflows/azure-static-web-apps.yml`)
-- Env vars frontend: Azure Static Web Apps Configuration
-- Env vars backend: Azure Functions / App Service
-- DNS: Configurado para www.xyzlogicflow.com.br
+- Frontend/API: Azure Static Web Apps via GitHub Actions
+- Env vars: Azure Static Web Apps Configuration / Azure Functions
+- Domínio: www.xyzlogicflow.com.br (ativo até 2027-02-23, renovação automática)
+- DNS: Azure DNS (ns1-07.azure-dns.com, ns2-07.azure-dns.net, ns3-07.azure-dns.org, ns4-07.azure-dns.info)
 
 ---
 
 **Referências Rápidas:**
 - Módulos: [src/modules/registry.ts](../src/modules/registry.ts)
 - Auth: [src/contexts/AuthContext.tsx](../src/contexts/AuthContext.tsx)
-- Supabase client: [src/integrations/supabase/client.ts](../src/integrations/supabase/client.ts)
-- Edge Functions: [supabase/functions/](../supabase/functions/)
-- Deploy guides: [docs/deployment-guides/](../docs/deployment-guides/)
-- README completo: [README_FINAL.md](../README_FINAL.md)
+- Runtime client: [src/integrations/supabase/client.ts](../src/integrations/supabase/client.ts)
+- Azure Functions: [api/runtime/index.js](../api/runtime/index.js)
+- SQL migrations: [supabase/migrations/](../supabase/migrations/)
+- README: [README_FINAL.md](../README_FINAL.md)

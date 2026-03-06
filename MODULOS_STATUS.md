@@ -9,8 +9,8 @@
 ## ✅ Módulos Implementados
 
 ### Dashboard Principal (3/3) ✅
-- ✅ `/dashboard/pedidos` - Gestão de Pedidos (CRUD completo com neonClient)
-- ✅ `/dashboard/veiculos` - Gestão de Frota (CRUD completo com neonClient)
+- ✅ `/dashboard/pedidos` - Gestão de Pedidos (CRUD completo com azureDbClient)
+- ✅ `/dashboard/veiculos` - Gestão de Frota (CRUD completo com azureDbClient)
 - ✅ `/dashboard/financeiro` - Núcleo Financeiro (cards de resumo)
 
 ### Financeiro (7/7) ✅ 
@@ -140,7 +140,7 @@ Todos os 24 módulos incluem:
 ### 🎯 **Próximas Fases:**
 
 1. **Integração Backend**
-   - Substituir mock data por neonClient
+   - Substituir mock data por azureDbClient
    - Conectar CFO/Economista ao Gemini API
    - Implementar autenticação real
 
@@ -155,7 +155,7 @@ Todos os 24 módulos incluem:
    - Cache de dados
 
 4. **Produção**
-   - Deploy Vercel completo
+   - Deploy Azure completo
    - CI/CD pipeline
    - Monitoring e analytics
 
@@ -211,7 +211,7 @@ Todos os módulos devem seguir:
 "use client";
 import { useState } from 'react';
 import { Container, Typography, Button, Table, ... } from '@mui/material';
-import { neonClient } from '@/lib/neonClient';
+import { azureDbClient } from '@/lib/azureDbClient';
 
 export default function ModulePage() {
   const [data, setData] = useState([]);

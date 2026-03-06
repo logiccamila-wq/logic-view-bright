@@ -53,7 +53,7 @@
 - 🤝 Sistema de reputação bidirecional
 - 🤝 Pagamento garantido via plataforma (escrow)
 - 🤝 API pública para integradores
-- **Tech Stack**: Supabase Realtime + Stripe Connect
+- **Tech Stack**: Azure SignalR + Stripe Connect
 - **ROI**: 6 meses | **Impacto**: ⭐⭐⭐⭐⭐
 
 ---
