@@ -9,6 +9,7 @@ type RealtimeEventType = "INSERT" | "UPDATE" | "DELETE";
 export interface User {
   id: string;
   email: string;
+  role?: string;
   user_metadata?: AnyObj;
 }
 
@@ -246,7 +247,8 @@ class AzureQueryBuilder implements PromiseLike<any> {
 
   constructor(private readonly table: string) {}
 
-  select(columns = "*") {
+  // options (e.g. { count: "exact" }) are accepted for API compatibility but not used in this runtime stub
+  select(columns = "*", _options?: { count?: "exact" | "planned" | "estimated"; head?: boolean }) {
     if (this.action === "insert" || this.action === "update" || this.action === "delete" || this.action === "upsert") {
       this.returning = columns || "*";
       return this;
@@ -509,7 +511,8 @@ const supabase = {
       return { data: { user: (resp.data?.user || null) as User | null }, error: resp.error || null };
     },
 
-    async resetPasswordForEmail(email: string) {
+    // options (e.g. { redirectTo }) are accepted for API compatibility but not used in this runtime stub
+    async resetPasswordForEmail(email: string, _options?: { redirectTo?: string }) {
       const resp = await runtimeRequest("/auth/reset-password", "POST", { email });
       return { data: resp.data || null, error: resp.error || null };
     },
