@@ -35,7 +35,10 @@ const ROLE_ALIASES: Record<string, AppRole> = {
 
 function normalizeRoles(rs: string[]): AppRole[] {
   return rs
-    .map((r) => (ROLE_ALIASES[r] ? ROLE_ALIASES[r] : (r as AppRole)))
+    .map((r) => {
+      const key = r?.toLowerCase?.() || "";
+      return ROLE_ALIASES[key] ? ROLE_ALIASES[key] : (key as AppRole);
+    })
     .filter(Boolean) as AppRole[];
 }
 
@@ -43,6 +46,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   roles: AppRole[];
+  rolesReady: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<void>;
@@ -127,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesReady, setRolesReady] = useState(false);
   const navigate = useNavigate();
 
   // Buscar roles do usuário
@@ -138,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // If table doesn't exist or other error, log but don't crash, fallback to empty roles
         console.warn("Error fetching roles (table might be missing):", error);
         setRoles([]);
+        setRolesReady(true);
         return;
       }
 
@@ -146,9 +152,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return typeof v === 'string' ? v : '';
       }).filter(Boolean);
       setRoles(normalizeRoles(extracted));
+      setRolesReady(true);
     } catch (error) {
       console.error("Error fetching roles:", error);
       setRoles([]);
+      setRolesReady(true);
     } finally {
       setLoading(false);
     }
@@ -169,15 +177,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (event === "SIGNED_OUT") {
         setRoles([]);
+        setRolesReady(false);
         setLoading(false);
         return;
       }
 
       if (session?.user) {
         setLoading(true);
+        setRolesReady(false);
         setTimeout(() => fetchUserRoles(session.user.id), 0);
       } else {
         setRoles([]);
+        setRolesReady(false);
         setLoading(false);
       }
     });
@@ -191,9 +202,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         setLoading(true);
+        setRolesReady(false);
         setTimeout(() => fetchUserRoles(session.user.id), 0);
       } else {
         setLoading(false);
+        setRolesReady(false);
       }
     });
 
@@ -307,7 +320,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const canAccessModule = (module: string) => {
     if (roles.includes("admin")) return true;
-
     return roles.some((role) => MODULE_PERMISSIONS[role]?.includes(module));
   };
 
@@ -317,6 +329,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         roles,
+        rolesReady,
         loading,
         signIn,
         signUp,
