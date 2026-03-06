@@ -1,297 +1,216 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  ShoppingCart, 
-  PackageCheck, 
-  TrendingUp, 
-  Clock,
-  DollarSign,
-  AlertCircle,
-  Plus,
-  Search,
-  FileText
-} from "lucide-react";
+import { ShoppingCart, Package, Clock, Plus, Search, Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useOmsOrders, useOmsMutations, OmsOrder } from "@/hooks/useOMS";
+
+const emptyOrder: Partial<OmsOrder> = { order_number: "", customer_name: "", customer_document: "", origin: "", destination: "", status: "pendente", priority: "normal", items_description: "", total_value: 0, notes: "" };
 
 const OMS = () => {
-  const pedidos = [
-    { id: "PD001", cliente: "Transportadora ABC", data: "2025-11-12", valor: "R$ 28.500", status: "processando", itens: 5 },
-    { id: "PD002", cliente: "Logística XYZ", data: "2025-11-12", valor: "R$ 15.200", status: "aprovado", itens: 3 },
-    { id: "PD003", cliente: "Frota Nacional", data: "2025-11-11", valor: "R$ 42.100", status: "entregue", itens: 8 },
-    { id: "PD004", cliente: "Cargo Express", data: "2025-11-11", valor: "R$ 19.800", status: "separacao", itens: 4 },
-    { id: "PD005", cliente: "Trans Brasil", data: "2025-11-10", valor: "R$ 33.600", status: "pendente", itens: 6 },
-  ];
+  const { data: orders = [], isLoading } = useOmsOrders();
+  const { createOrder, updateOrder, deleteOrder } = useOmsMutations();
 
-  const pedidosPendentes = [
-    { id: "PP001", cliente: "Cliente A", motivo: "Aguardando pagamento", prazo: "Hoje" },
-    { id: "PP002", cliente: "Cliente B", motivo: "Produto em falta", prazo: "Amanhã" },
-    { id: "PP003", cliente: "Cliente C", motivo: "Revisão de preços", prazo: "2 dias" },
-  ];
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Partial<OmsOrder> | null>(null);
+
+  const filtered = orders.filter(o => {
+    const matchSearch = o.order_number.toLowerCase().includes(search.toLowerCase()) ||
+      o.customer_name.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = statusFilter === "all" || o.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  const pendentes = orders.filter(o => o.status === "pendente").length;
+  const emTransito = orders.filter(o => o.status === "em_transito").length;
+  const entregues = orders.filter(o => o.status === "entregue").length;
+  const totalValue = orders.reduce((s, o) => s + (o.total_value || 0), 0);
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+      pendente: { label: "Pendente", variant: "secondary" },
+      aprovado: { label: "Aprovado", variant: "default" },
+      em_separacao: { label: "Em Separação", variant: "outline" },
+      em_transito: { label: "Em Trânsito", variant: "default" },
+      entregue: { label: "Entregue", variant: "default" },
+      cancelado: { label: "Cancelado", variant: "destructive" },
+    };
+    const s = map[status] || { label: status, variant: "secondary" as const };
+    return <Badge variant={s.variant} className={status === "entregue" ? "bg-green-600" : status === "em_transito" ? "bg-blue-600" : ""}>{s.label}</Badge>;
+  };
+
+  const priorityBadge = (p: string) => {
+    if (p === "urgente") return <Badge variant="destructive">Urgente</Badge>;
+    if (p === "alta") return <Badge className="bg-orange-500">Alta</Badge>;
+    return <Badge variant="outline">{p}</Badge>;
+  };
+
+  const handleSave = () => {
+    if (!editing) return;
+    if (editing.id) {
+      updateOrder.mutate(editing as OmsOrder);
+    } else {
+      createOrder.mutate(editing);
+    }
+    setDialogOpen(false);
+    setEditing(null);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Excluir este pedido?")) deleteOrder.mutate(id);
+  };
 
   return (
-      <div className="space-y-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">OMS - Order Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Sistema de Gestão de Pedidos e Ordens de Compra
-          </p>
+          <h1 className="text-3xl font-bold">OMS - Gestão de Pedidos</h1>
+          <p className="text-muted-foreground mt-1">Ciclo operacional de pedidos ponta a ponta</p>
         </div>
-
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard 
-            title="Pedidos Hoje" 
-            value="47" 
-            icon={ShoppingCart}
-            trend={{ value: "+8 vs ontem", positive: true }}
-          />
-          <StatCard 
-            title="Taxa Aprovação" 
-            value="92%" 
-            icon={PackageCheck}
-            trend={{ value: "+2%", positive: true }}
-          />
-          <StatCard 
-            title="Tempo Médio" 
-            value="4.2h" 
-            icon={Clock}
-          />
-          <StatCard 
-            title="Ticket Médio" 
-            value="R$ 27.5k" 
-            icon={DollarSign}
-            trend={{ value: "+15%", positive: true }}
-          />
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="pedidos" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pedidos">Todos Pedidos</TabsTrigger>
-            <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
-            <TabsTrigger value="faturamento">Faturamento</TabsTrigger>
-            <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
-          </TabsList>
-
-          {/* Todos Pedidos */}
-          <TabsContent value="pedidos" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Gestão de Pedidos</CardTitle>
-                  <div className="flex gap-2">
-                    <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Buscar pedidos..." className="pl-8 w-64" />
-                    </div>
-                    <Button>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Novo Pedido
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Itens</TableHead>
-                      <TableHead>Valor</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pedidos.map((pedido) => (
-                      <TableRow key={pedido.id}>
-                        <TableCell className="font-mono">{pedido.id}</TableCell>
-                        <TableCell>{pedido.cliente}</TableCell>
-                        <TableCell>{pedido.data}</TableCell>
-                        <TableCell className="text-center">{pedido.itens}</TableCell>
-                        <TableCell className="font-semibold text-green-600">{pedido.valor}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={
-                              pedido.status === "entregue" ? "default" : 
-                              pedido.status === "aprovado" ? "secondary" : 
-                              pedido.status === "processando" ? "outline" :
-                              pedido.status === "separacao" ? "secondary" :
-                              "destructive"
-                            }
-                          >
-                            {pedido.status === "entregue" ? "Entregue" : 
-                             pedido.status === "aprovado" ? "Aprovado" : 
-                             pedido.status === "processando" ? "Processando" :
-                             pedido.status === "separacao" ? "Em Separação" :
-                             "Pendente"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">Detalhes</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Pendentes */}
-          <TabsContent value="pendentes" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-yellow-600" />
-                  Pedidos Pendentes de Ação
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Motivo</TableHead>
-                      <TableHead>Prazo</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pedidosPendentes.map((pedido) => (
-                      <TableRow key={pedido.id}>
-                        <TableCell className="font-mono">{pedido.id}</TableCell>
-                        <TableCell>{pedido.cliente}</TableCell>
-                        <TableCell>{pedido.motivo}</TableCell>
-                        <TableCell>
-                          <Badge variant={pedido.prazo === "Hoje" ? "destructive" : "secondary"}>
-                            {pedido.prazo}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">Resolver</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Faturamento */}
-          <TabsContent value="faturamento" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Faturamento Mês</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-green-600">R$ 1.28M</p>
-                  <p className="text-sm text-muted-foreground mt-2">+18% vs mês anterior</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Pedidos Faturados</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">142</p>
-                  <p className="text-sm text-muted-foreground mt-2">este mês</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Aguardando NF-e</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-yellow-600">8</p>
-                  <p className="text-sm text-muted-foreground mt-2">pedidos</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Ações de Faturamento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Emitir Notas Fiscais Pendentes
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <DollarSign className="mr-2 h-4 w-4" />
-                  Gerar Boletos de Cobrança
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <PackageCheck className="mr-2 h-4 w-4" />
-                  Conciliar Pedidos x Notas
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Relatórios */}
-          <TabsContent value="relatorios" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Performance de Vendas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Conversão</span>
-                    <span className="font-bold text-green-600">87%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Tempo Médio Aprovação</span>
-                    <span className="font-bold">3.8h</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Taxa Cancelamento</span>
-                    <span className="font-bold text-red-600">2.3%</span>
-                  </div>
-                  <Button className="w-full mt-4">Gerar Relatório Completo</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top 5 Clientes</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {["Transportadora ABC", "Logística XYZ", "Frota Nacional", "Cargo Express", "Trans Brasil"].map((cliente, idx) => (
-                    <div key={idx} className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">{cliente}</span>
-                      <span className="font-semibold text-green-600">R$ {(50 - idx * 5)}k</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <Button onClick={() => { setEditing({ ...emptyOrder, order_number: `PED-${Date.now().toString(36).toUpperCase()}` }); setDialogOpen(true); }}>
+          <Plus className="h-4 w-4 mr-2" /> Novo Pedido
+        </Button>
       </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard title="Total Pedidos" value={orders.length} icon={<ShoppingCart className="h-5 w-5" />} />
+        <StatCard title="Pendentes" value={pendentes} icon={<Clock className="h-5 w-5 text-yellow-500" />} />
+        <StatCard title="Em Trânsito" value={emTransito} icon={<Package className="h-5 w-5 text-blue-500" />} />
+        <StatCard title="Entregues" value={entregues} icon={<CheckCircle2 className="h-5 w-5 text-green-500" />} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <CardTitle>Pedidos</CardTitle>
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="aprovado">Aprovado</SelectItem>
+                  <SelectItem value="em_separacao">Em Separação</SelectItem>
+                  <SelectItem value="em_transito">Em Trânsito</SelectItem>
+                  <SelectItem value="entregue">Entregue</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Buscar pedido ou cliente..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Pedido</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Origem</TableHead>
+                  <TableHead>Destino</TableHead>
+                  <TableHead>Valor</TableHead>
+                  <TableHead>Prioridade</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.length === 0 ? (
+                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Nenhum pedido encontrado</TableCell></TableRow>
+                ) : filtered.map(o => (
+                  <TableRow key={o.id}>
+                    <TableCell className="font-mono font-medium">{o.order_number}</TableCell>
+                    <TableCell>{o.customer_name}</TableCell>
+                    <TableCell>{o.origin || "-"}</TableCell>
+                    <TableCell>{o.destination || "-"}</TableCell>
+                    <TableCell>R$ {(o.total_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                    <TableCell>{priorityBadge(o.priority)}</TableCell>
+                    <TableCell>{statusBadge(o.status)}</TableCell>
+                    <TableCell>{new Date(o.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => { setEditing({ ...o }); setDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{editing?.id ? "Editar Pedido" : "Novo Pedido"}</DialogTitle></DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Nº Pedido</Label><Input value={editing?.order_number || ""} onChange={e => setEditing(prev => ({ ...prev, order_number: e.target.value }))} /></div>
+              <div>
+                <Label>Prioridade</Label>
+                <Select value={editing?.priority || "normal"} onValueChange={v => setEditing(prev => ({ ...prev, priority: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="alta">Alta</SelectItem>
+                    <SelectItem value="urgente">Urgente</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Cliente</Label><Input value={editing?.customer_name || ""} onChange={e => setEditing(prev => ({ ...prev, customer_name: e.target.value }))} /></div>
+              <div><Label>CNPJ/CPF</Label><Input value={editing?.customer_document || ""} onChange={e => setEditing(prev => ({ ...prev, customer_document: e.target.value }))} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Origem</Label><Input value={editing?.origin || ""} onChange={e => setEditing(prev => ({ ...prev, origin: e.target.value }))} /></div>
+              <div><Label>Destino</Label><Input value={editing?.destination || ""} onChange={e => setEditing(prev => ({ ...prev, destination: e.target.value }))} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Valor Total (R$)</Label><Input type="number" step="0.01" value={editing?.total_value ?? 0} onChange={e => setEditing(prev => ({ ...prev, total_value: Number(e.target.value) }))} /></div>
+              <div>
+                <Label>Status</Label>
+                <Select value={editing?.status || "pendente"} onValueChange={v => setEditing(prev => ({ ...prev, status: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pendente">Pendente</SelectItem>
+                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                    <SelectItem value="em_separacao">Em Separação</SelectItem>
+                    <SelectItem value="em_transito">Em Trânsito</SelectItem>
+                    <SelectItem value="entregue">Entregue</SelectItem>
+                    <SelectItem value="cancelado">Cancelado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div><Label>Itens / Descrição</Label><Textarea value={editing?.items_description || ""} onChange={e => setEditing(prev => ({ ...prev, items_description: e.target.value }))} rows={3} /></div>
+            <div><Label>Observações</Label><Input value={editing?.notes || ""} onChange={e => setEditing(prev => ({ ...prev, notes: e.target.value }))} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={createOrder.isPending || updateOrder.isPending}>
+              {editing?.id ? "Salvar" : "Cadastrar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

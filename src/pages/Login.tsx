@@ -33,7 +33,7 @@ const Login = () => {
     if (onlyMechanic) {
       navigate("/mechanic");
     } else if (onlyDriver) {
-      navigate("/driver");
+      navigate("/app-motorista");
     } else {
       navigate("/dashboard");
     }
@@ -149,11 +149,11 @@ const Login = () => {
           ) : (
             <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className={!isAlb ? 'text-white' : ''}>E-mail ou usuario *</Label>
+                <Label htmlFor="email" className={!isAlb ? 'text-white' : ''}>E-mail, CPF ou usuario *</Label>
                 <Input
                   id="email"
                   type="text"
-                  placeholder="seu@email.com, demo ou admin"
+                  placeholder="seu@email.com, CPF ou admin"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

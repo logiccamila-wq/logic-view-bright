@@ -21,10 +21,10 @@ interface ParticleBackgroundProps {
 }
 
 const ParticleBackground: React.FC<ParticleBackgroundProps> = ({
-  particleCount = 50,
-  colors = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'],
-  speed = 0.5,
-  size = 2,
+  particleCount = 25,
+  colors = ['#3B82F6', '#8B5CF6', '#10B981'],
+  speed = 0.3,
+  size = 1.5,
   interactive = true,
   className = ''
 }) => {
@@ -52,7 +52,7 @@ const ParticleBackground: React.FC<ParticleBackgroundProps> = ({
       vy: (Math.random() - 0.5) * speed,
       radius: Math.random() * size + 1,
       color: colors[Math.floor(Math.random() * colors.length)],
-      alpha: Math.random() * 0.5 + 0.5
+      alpha: Math.random() * 0.3 + 0.2
     });
 
     const initParticles = () => {

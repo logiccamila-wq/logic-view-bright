@@ -1,590 +1,450 @@
-import { useState } from 'react';
-import { Smartphone, Navigation, Camera, CheckCircle, MapPin, FileText, AlertCircle, Package } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
+  Smartphone, Navigation, Camera, CheckCircle, MapPin,
+  AlertCircle, Clock, Fuel, Play, Square, Coffee, Truck
+} from "lucide-react";
+
+const CHECKLIST_ITEMS = [
+  { id: "pneus", label: "Pneus em bom estado", critical: true },
+  { id: "oleo", label: "Nível de óleo OK", critical: true },
+  { id: "agua", label: "Nível de água OK", critical: true },
+  { id: "freios", label: "Freios funcionando", critical: true },
+  { id: "luzes", label: "Luzes funcionando", critical: true },
+  { id: "espelhos", label: "Retrovisores OK", critical: false },
+  { id: "docs", label: "Documentação em dia", critical: true },
+  { id: "extintor", label: "Extintor de incêndio", critical: true },
+  { id: "triangulo", label: "Triângulo", critical: false },
+  { id: "estepe", label: "Estepe em bom estado", critical: true },
+  { id: "amarracao", label: "Carga bem amarrada", critical: true },
+  { id: "lona", label: "Lona em bom estado", critical: false },
+];
 
 export default function AppMotoristaPage() {
-  const [viagemAtiva, setViagemAtiva] = useState({
-    numero: 'V-2025-001234',
-    origem: 'Belo Horizonte, MG',
-    destino: 'Vitória, ES',
-    carga: 'Minério de Ferro - 35t',
-    cliente: 'Mineração Vale do Rio',
-    veiculo: 'ABC-1234',
-    distanciaTotal: 524,
-    distanciaPercorrida: 287,
-    progresso: 55,
-    eta: '14:30'
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // State
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [obsChecklist, setObsChecklist] = useState("");
+  const [macroType, setMacroType] = useState<string>("INICIO");
+  const [odometer, setOdometer] = useState("");
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Buscar viagens ativas do motorista
+  const { data: trips = [] } = useQuery({
+    queryKey: ["driver_trips_active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("trips")
+        .select("*")
+        .in("status", ["em_andamento", "programada", "in_progress", "scheduled"])
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data || [];
+    },
   });
 
-  const [checklist, setChecklist] = useState({
-    items: [
-      { id: 'pneus', label: 'Pneus em bom estado', checked: false, critical: true },
-      { id: 'oleo', label: 'Nível de óleo OK', checked: false, critical: true },
-      { id: 'agua', label: 'Nível de água OK', checked: false, critical: true },
-      { id: 'freios', label: 'Freios funcionando', checked: false, critical: true },
-      { id: 'luzes', label: 'Luzes funcionando', checked: false, critical: true },
-      { id: 'espelhos', label: 'Retrovisores OK', checked: false, critical: false },
-      { id: 'docs', label: 'Documentação em dia', checked: false, critical: true },
-      { id: 'extintor', label: 'Extintor de incêndio', checked: false, critical: true },
-      { id: 'triangulo', label: 'Triângulo', checked: false, critical: false },
-      { id: 'estepe', label: 'Estepe em bom estado', checked: false, critical: true },
-      { id: 'amarracao', label: 'Carga bem amarrada', checked: false, critical: true },
-      { id: 'lona', label: 'Lona em bom estado', checked: false, critical: false }
-    ],
-    observacoes: ''
+  // Buscar veículos
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ["vehicles_list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vehicles")
+        .select("id, placa, modelo, marca")
+        .order("placa", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
   });
 
-  const [checkinEtapa, setCheckinEtapa] = useState<'coleta' | 'transito' | 'entrega'>('coleta');
-  const [checkinFotos, setCheckinFotos] = useState({
-    carga: null as File | null,
-    lacre: null as File | null,
-    nf: null as File | null,
-    assinatura: null as File | null
+  // Buscar macros recentes
+  const { data: macros = [] } = useQuery({
+    queryKey: ["trip_macros_recent"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("trip_macros")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data || [];
+    },
   });
-  const [localizacaoCapturada, setLocalizacaoCapturada] = useState(false);
 
-  const toggleChecklistItem = (id: string) => {
-    setChecklist(prev => ({
-      ...prev,
-      items: prev.items.map(item => 
-        item.id === id ? { ...item, checked: !item.checked } : item
-      )
-    }));
-  };
+  // Buscar abastecimentos recentes
+  const { data: refuelings = [] } = useQuery({
+    queryKey: ["refuelings_recent"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("refuelings")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-  const handleFotoChange = (tipo: keyof typeof checkinFotos, file: File | null) => {
-    setCheckinFotos(prev => ({ ...prev, [tipo]: file }));
-  };
+  // Registrar macro de viagem
+  const registerMacro = useMutation({
+    mutationFn: async (payload: { trip_id?: string; macro_type: string; odometer_km?: number; latitude?: number; longitude?: number }) => {
+      const { data, error } = await supabase
+        .from("trip_macros")
+        .insert({
+          trip_id: payload.trip_id || null,
+          macro_type: payload.macro_type,
+          odometer_km: payload.odometer_km || null,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
+          timestamp: new Date().toISOString(),
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["trip_macros_recent"] });
+      toast({ title: `Macro ${vars.macro_type} registrada`, description: "Evento salvo com sucesso" });
+    },
+    onError: (e: Error) => toast({ title: "Erro ao registrar macro", description: e.message, variant: "destructive" }),
+  });
 
-  const capturarLocalizacao = () => {
+  // Registrar abastecimento
+  const registerRefueling = useMutation({
+    mutationFn: async (payload: { vehicle_plate: string; liters: number; total_value: number; fuel_type: string; odometer_km: number; station: string }) => {
+      const { data, error } = await supabase
+        .from("refuelings")
+        .insert(payload)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["refuelings_recent"] });
+      toast({ title: "Abastecimento registrado" });
+    },
+    onError: (e: Error) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
+  });
+
+  // Capturar localização
+  const captureLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(() => {
-        setLocalizacaoCapturada(true);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          toast({ title: "Localização capturada", description: `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}` });
+        },
+        () => toast({ title: "Erro ao capturar GPS", variant: "destructive" })
+      );
     }
   };
 
-  const checklistCompleto = checklist.items.filter(i => i.critical).every(i => i.checked);
-  const itensVerificados = checklist.items.filter(i => i.checked).length;
+  // Registrar macro
+  const handleMacro = () => {
+    registerMacro.mutate({
+      trip_id: trips[0]?.id,
+      macro_type: macroType,
+      odometer_km: odometer ? Number(odometer) : undefined,
+      latitude: location?.lat,
+      longitude: location?.lng,
+    });
+  };
+
+  // Refueling form state
+  const [fuelForm, setFuelForm] = useState({ vehicle_plate: "", liters: 0, total_value: 0, fuel_type: "diesel_s10", odometer_km: 0, station: "" });
+
+  const handleRefueling = () => {
+    if (!fuelForm.vehicle_plate || !fuelForm.liters) return;
+    registerRefueling.mutate(fuelForm);
+    setFuelForm({ vehicle_plate: "", liters: 0, total_value: 0, fuel_type: "diesel_s10", odometer_km: 0, station: "" });
+  };
+
+  const activeTrip = trips[0];
+  const checkedCount = Object.values(checkedItems).filter(Boolean).length;
+  const criticalDone = CHECKLIST_ITEMS.filter(i => i.critical).every(i => checkedItems[i.id]);
 
   return (
-    <div style={{ maxWidth: 1600, margin: '0 auto', padding: 24, background: '#0f172a', minHeight: '100vh' }}>
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-        <Smartphone size={56} color="#3b82f6" />
+      <div className="flex items-center gap-4">
+        <Smartphone className="h-10 w-10 text-blue-500" />
         <div>
-          <h1 style={{ margin: 0, fontSize: 36, color: '#e5e7eb' }}>
-            📱 Super App Motorista
-          </h1>
-          <p style={{ margin: '8px 0 0', color: '#9aa3b0', fontSize: 18 }}>
-            Check-in Inteligente + POD Digital + Checklist MOPP + Navegação
-          </p>
+          <h1 className="text-3xl font-bold">App Motorista</h1>
+          <p className="text-muted-foreground">Check-in + Macros + Checklist + Abastecimento</p>
         </div>
       </div>
 
       {/* Viagem Ativa */}
-      <div style={{
-        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-        borderRadius: 16,
-        padding: 32,
-        marginBottom: 32,
-        color: 'white'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 20 }}>
-          <div>
-            <Badge style={{ background: 'rgba(255,255,255,0.2)', marginBottom: 8 }}>
-              VIAGEM ATIVA
-            </Badge>
-            <h2 style={{ margin: 0, fontSize: 28 }}>
-              {viagemAtiva.numero}
-            </h2>
-            <p style={{ margin: '8px 0 0', fontSize: 16, opacity: 0.9 }}>
-              {viagemAtiva.cliente}
-            </p>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 14, opacity: 0.9 }}>ETA</div>
-            <div style={{ fontSize: 32, fontWeight: 'bold' }}>{viagemAtiva.eta}</div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-          <Navigation size={24} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>
-              {viagemAtiva.origem} → {viagemAtiva.destino}
+      {activeTrip && (
+        <Card className="border-blue-500/50 bg-blue-500/5">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Truck className="h-5 w-5 text-blue-500" /> Viagem Ativa
+              </CardTitle>
+              <Badge className="bg-blue-600">{activeTrip.status}</Badge>
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.2)', height: 8, borderRadius: 4, overflow: 'hidden' }}>
-              <div style={{
-                background: 'white',
-                height: '100%',
-                width: `${viagemAtiva.progresso}%`,
-                transition: 'width 0.3s'
-              }} />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><span className="text-muted-foreground">Origem:</span> <strong>{activeTrip.origin}</strong></div>
+              <div><span className="text-muted-foreground">Destino:</span> <strong>{activeTrip.destination}</strong></div>
+              <div><span className="text-muted-foreground">Veículo:</span> <strong>{activeTrip.vehicle_plate}</strong></div>
+              <div><span className="text-muted-foreground">ETA:</span> <strong>{activeTrip.eta ? new Date(activeTrip.eta).toLocaleString("pt-BR") : "-"}</strong></div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 14 }}>
-              <span>{viagemAtiva.distanciaPercorrida} km percorridos</span>
-              <span>{viagemAtiva.distanciaTotal} km total</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, fontSize: 14 }}>
-          <div>
-            <div style={{ opacity: 0.9, marginBottom: 4 }}>Carga:</div>
-            <div style={{ fontWeight: 'bold' }}>{viagemAtiva.carga}</div>
-          </div>
-          <div>
-            <div style={{ opacity: 0.9, marginBottom: 4 }}>Veículo:</div>
-            <div style={{ fontWeight: 'bold' }}>{viagemAtiva.veiculo}</div>
-          </div>
-          <div>
-            <div style={{ opacity: 0.9, marginBottom: 4 }}>Progresso:</div>
-            <div style={{ fontWeight: 'bold' }}>{viagemAtiva.progresso}%</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs Principais */}
-      <Tabs defaultValue="checkin" className="w-full">
-        <TabsList style={{ background: 'rgba(255,255,255,0.05)', padding: 8, borderRadius: 12, marginBottom: 24 }}>
-          <TabsTrigger value="checkin">📦 Check-in</TabsTrigger>
-          <TabsTrigger value="checklist">✅ Checklist</TabsTrigger>
-          <TabsTrigger value="pod">📸 POD Digital</TabsTrigger>
-          <TabsTrigger value="stats">📊 Estatísticas</TabsTrigger>
+      <Tabs defaultValue="macros" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="macros">Macros</TabsTrigger>
+          <TabsTrigger value="checklist">Checklist</TabsTrigger>
+          <TabsTrigger value="abastecimento">Abastecimento</TabsTrigger>
+          <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
 
-        {/* CHECK-IN */}
-        <TabsContent value="checkin">
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '2px solid rgba(255,255,255,0.1)',
-            borderRadius: 16,
-            padding: 32
-          }}>
-            <h3 style={{ margin: '0 0 24px', color: '#e5e7eb', fontSize: 24 }}>
-              📦 Check-in de Carga
-            </h3>
-
-            {/* Seletor de Etapa */}
-            <div style={{ display: 'flex', gap: 16, marginBottom: 32 }}>
-              {(['coleta', 'transito', 'entrega'] as const).map(etapa => (
-                <button
-                  key={etapa}
-                  onClick={() => setCheckinEtapa(etapa)}
-                  style={{
-                    flex: 1,
-                    padding: '16px 24px',
-                    background: checkinEtapa === etapa 
-                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-                      : 'rgba(255,255,255,0.05)',
-                    border: 'none',
-                    borderRadius: 12,
-                    color: 'white',
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  {etapa}
-                </button>
-              ))}
-            </div>
-
-            {/* Localização */}
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', color: '#e5e7eb', marginBottom: 12, fontSize: 16, fontWeight: 'bold' }}>
-                <MapPin size={20} style={{ display: 'inline', marginRight: 8 }} />
-                Localização GPS
-              </label>
-              <Button
-                onClick={capturarLocalizacao}
-                style={{
-                  background: localizacaoCapturada 
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: 8
-                }}
-              >
-                {localizacaoCapturada ? '✓ Localização Capturada' : 'Capturar Localização'}
-              </Button>
-              {localizacaoCapturada && (
-                <div style={{ color: '#10b981', fontSize: 13, marginTop: 8 }}>
-                  ✓ GPS: -19.9167, -43.9345 (Belo Horizonte)
+        {/* Macros */}
+        <TabsContent value="macros">
+          <Card>
+            <CardHeader><CardTitle>Registrar Macro de Viagem</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Tipo de Macro</Label>
+                  <Select value={macroType} onValueChange={setMacroType}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="INICIO">
+                        <span className="flex items-center gap-2"><Play className="h-4 w-4 text-green-500" /> INÍCIO</span>
+                      </SelectItem>
+                      <SelectItem value="PAUSA">
+                        <span className="flex items-center gap-2"><Coffee className="h-4 w-4 text-yellow-500" /> PAUSA</span>
+                      </SelectItem>
+                      <SelectItem value="RETORNO">
+                        <span className="flex items-center gap-2"><Play className="h-4 w-4 text-blue-500" /> RETORNO</span>
+                      </SelectItem>
+                      <SelectItem value="FIM">
+                        <span className="flex items-center gap-2"><Square className="h-4 w-4 text-red-500" /> FIM</span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-            </div>
+                <div>
+                  <Label>Hodômetro (km)</Label>
+                  <Input type="number" value={odometer} onChange={e => setOdometer(e.target.value)} placeholder="Ex: 125430" />
+                </div>
+              </div>
 
-            {/* Fotos por Etapa */}
-            <div style={{ marginBottom: 24 }}>
-              <h4 style={{ color: '#e5e7eb', marginBottom: 16 }}>
-                📸 Fotos Obrigatórias - {checkinEtapa.toUpperCase()}
-              </h4>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={captureLocation} className="flex-1">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  {location ? `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : "Capturar GPS"}
+                </Button>
+                <Button onClick={handleMacro} disabled={registerMacro.isPending} className="flex-1">
+                  <CheckCircle className="h-4 w-4 mr-2" /> Registrar {macroType}
+                </Button>
+              </div>
 
-              {checkinEtapa === 'coleta' && (
-                <div style={{ display: 'grid', gap: 16 }}>
-                  {[
-                    { key: 'carga', label: 'Foto da Carga', required: true },
-                    { key: 'lacre', label: 'Foto do Lacre/Selo', required: true },
-                    { key: 'nf', label: 'Foto da Nota Fiscal', required: true }
-                  ].map(({ key, label, required }) => (
-                    <div key={key}>
-                      <label style={{ display: 'block', fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#9aa3b0' }}>
-                        <Camera size={16} style={{ display: 'inline', marginRight: 6 }} />
-                        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
-                      </label>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={(e) => handleFotoChange(key as keyof typeof checkinFotos, e.target.files?.[0] || null)}
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          border: '2px dashed rgba(255,255,255,0.2)',
-                          borderRadius: 8,
-                          padding: 12,
-                          color: '#e5e7eb'
-                        }}
-                      />
-                      {checkinFotos[key as keyof typeof checkinFotos] && (
-                        <div style={{ color: '#10b981', fontSize: 13, marginTop: 4 }}>
-                          ✓ {checkinFotos[key as keyof typeof checkinFotos]!.name}
-                        </div>
-                      )}
+              {/* Macros recentes */}
+              <div className="mt-4">
+                <h4 className="font-medium mb-2">Últimas Macros</h4>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {macros.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">Nenhuma macro registrada</p>
+                  ) : macros.slice(0, 10).map(m => (
+                    <div key={m.id} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
+                      <Badge variant={m.macro_type === "INICIO" ? "default" : m.macro_type === "FIM" ? "destructive" : "secondary"}>
+                        {m.macro_type}
+                      </Badge>
+                      <span className="text-muted-foreground">
+                        {m.odometer_km ? `${m.odometer_km} km` : ""} 
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(m.timestamp || m.created_at).toLocaleString("pt-BR")}
+                      </span>
                     </div>
                   ))}
                 </div>
-              )}
-
-              {checkinEtapa === 'entrega' && (
-                <div style={{ display: 'grid', gap: 16 }}>
-                  {[
-                    { key: 'carga', label: 'Foto da Carga Entregue', required: true },
-                    { key: 'assinatura', label: 'Foto da Assinatura/Canho', required: true }
-                  ].map(({ key, label, required }) => (
-                    <div key={key}>
-                      <label style={{ display: 'block', fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#9aa3b0' }}>
-                        <Camera size={16} style={{ display: 'inline', marginRight: 6 }} />
-                        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
-                      </label>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={(e) => handleFotoChange(key as keyof typeof checkinFotos, e.target.files?.[0] || null)}
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          border: '2px dashed rgba(255,255,255,0.2)',
-                          borderRadius: 8,
-                          padding: 12,
-                          color: '#e5e7eb'
-                        }}
-                      />
-                      {checkinFotos[key as keyof typeof checkinFotos] && (
-                        <div style={{ color: '#10b981', fontSize: 13, marginTop: 4 }}>
-                          ✓ {checkinFotos[key as keyof typeof checkinFotos]!.name}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Button
-              style={{
-                width: '100%',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                border: 'none',
-                padding: '16px',
-                borderRadius: 12,
-                fontSize: 16,
-                fontWeight: 'bold'
-              }}
-            >
-              ✓ Enviar Check-in + Gerar Protocolo WhatsApp
-            </Button>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        {/* CHECKLIST */}
+        {/* Checklist */}
         <TabsContent value="checklist">
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '2px solid rgba(255,255,255,0.1)',
-            borderRadius: 16,
-            padding: 32
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h3 style={{ margin: 0, color: '#e5e7eb', fontSize: 24 }}>
-                ✅ Checklist Digital MOPP
-              </h3>
-              <div style={{
-                background: checklistCompleto 
-                  ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-                  : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                padding: '8px 16px',
-                borderRadius: 8,
-                color: 'white',
-                fontWeight: 'bold'
-              }}>
-                {itensVerificados} / {checklist.items.length}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Checklist de Inspeção</CardTitle>
+                <Badge variant={criticalDone ? "default" : "destructive"} className={criticalDone ? "bg-green-600" : ""}>
+                  {checkedCount}/{CHECKLIST_ITEMS.length} verificados
+                </Badge>
               </div>
-            </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {CHECKLIST_ITEMS.map(item => (
+                <div key={item.id} className="flex items-center gap-3 p-2 rounded hover:bg-muted/50">
+                  <Checkbox
+                    checked={checkedItems[item.id] || false}
+                    onCheckedChange={(checked) => setCheckedItems(prev => ({ ...prev, [item.id]: !!checked }))}
+                  />
+                  <span className={`flex-1 ${checkedItems[item.id] ? "line-through text-muted-foreground" : ""}`}>
+                    {item.label}
+                  </span>
+                  {item.critical && (
+                    <Badge variant="outline" className="text-xs border-red-300 text-red-400">
+                      <AlertCircle className="h-3 w-3 mr-1" /> Obrigatório
+                    </Badge>
+                  )}
+                </div>
+              ))}
 
-            <div style={{ display: 'grid', gap: 12, marginBottom: 24 }}>
-              {checklist.items.map(item => (
-                <div
-                  key={item.id}
-                  onClick={() => toggleChecklistItem(item.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: 16,
-                    background: item.checked 
-                      ? 'rgba(16, 185, 129, 0.1)' 
-                      : 'rgba(255,255,255,0.05)',
-                    border: item.critical 
-                      ? `2px solid ${item.checked ? '#10b981' : '#ef4444'}`
-                      : '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <div style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 6,
-                    background: item.checked ? '#10b981' : 'rgba(255,255,255,0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    {item.checked && <CheckCircle size={20} color="white" />}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ color: '#e5e7eb', fontSize: 15, fontWeight: item.checked ? 'bold' : 'normal' }}>
-                      {item.label}
-                    </div>
-                    {item.critical && (
-                      <div style={{ color: '#ef4444', fontSize: 12, marginTop: 2 }}>
-                        ⚠️ Item crítico - obrigatório
+              <div className="mt-4">
+                <Label>Observações</Label>
+                <Textarea value={obsChecklist} onChange={e => setObsChecklist(e.target.value)} placeholder="Observações da inspeção..." rows={3} />
+              </div>
+
+              <Button className="w-full mt-2" disabled={!criticalDone}>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {criticalDone ? "Confirmar Checklist" : "Complete os itens obrigatórios"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Abastecimento */}
+        <TabsContent value="abastecimento">
+          <Card>
+            <CardHeader><CardTitle>Registrar Abastecimento</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Veículo</Label>
+                <Select value={fuelForm.vehicle_plate} onValueChange={v => setFuelForm(f => ({ ...f, vehicle_plate: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o veículo..." /></SelectTrigger>
+                  <SelectContent>
+                    {vehicles.map(v => (
+                      <SelectItem key={v.id} value={v.placa}>{v.placa} - {v.modelo}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Litros</Label>
+                  <Input type="number" step="0.01" value={fuelForm.liters || ""} onChange={e => setFuelForm(f => ({ ...f, liters: Number(e.target.value) }))} />
+                </div>
+                <div>
+                  <Label>Valor Total (R$)</Label>
+                  <Input type="number" step="0.01" value={fuelForm.total_value || ""} onChange={e => setFuelForm(f => ({ ...f, total_value: Number(e.target.value) }))} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Combustível</Label>
+                  <Select value={fuelForm.fuel_type} onValueChange={v => setFuelForm(f => ({ ...f, fuel_type: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="diesel_s10">Diesel S10</SelectItem>
+                      <SelectItem value="diesel_s500">Diesel S500</SelectItem>
+                      <SelectItem value="arla32">Arla 32</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Hodômetro (km)</Label>
+                  <Input type="number" value={fuelForm.odometer_km || ""} onChange={e => setFuelForm(f => ({ ...f, odometer_km: Number(e.target.value) }))} />
+                </div>
+              </div>
+
+              <div>
+                <Label>Posto</Label>
+                <Input value={fuelForm.station} onChange={e => setFuelForm(f => ({ ...f, station: e.target.value }))} placeholder="Nome do posto" />
+              </div>
+
+              {fuelForm.liters > 0 && fuelForm.total_value > 0 && (
+                <div className="p-3 bg-muted rounded text-sm">
+                  <strong>Preço/litro:</strong> R$ {(fuelForm.total_value / fuelForm.liters).toFixed(3)}
+                </div>
+              )}
+
+              <Button className="w-full" onClick={handleRefueling} disabled={!fuelForm.vehicle_plate || !fuelForm.liters || registerRefueling.isPending}>
+                <Fuel className="h-4 w-4 mr-2" /> Registrar Abastecimento
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Últimos abastecimentos */}
+          <Card className="mt-4">
+            <CardHeader><CardTitle className="text-lg">Últimos Abastecimentos</CardTitle></CardHeader>
+            <CardContent>
+              {refuelings.length === 0 ? (
+                <p className="text-center py-4 text-muted-foreground">Nenhum abastecimento registrado</p>
+              ) : (
+                <div className="space-y-2">
+                  {refuelings.map(r => (
+                    <div key={r.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
+                      <div>
+                        <p className="font-medium">{r.vehicle_plate}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("pt-BR")} · {r.station || "-"}</p>
                       </div>
-                    )}
-                  </div>
+                      <div className="text-right">
+                        <p className="font-medium">R$ {(r.total_value || 0).toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground">{r.liters}L · R$ {r.liters ? ((r.total_value || 0) / r.liters).toFixed(3) : "0"}/L</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', color: '#e5e7eb', marginBottom: 8, fontSize: 14, fontWeight: 'bold' }}>
-                Observações:
-              </label>
-              <textarea
-                value={checklist.observacoes}
-                onChange={(e) => setChecklist(prev => ({ ...prev, observacoes: e.target.value }))}
-                placeholder="Registre aqui qualquer problema encontrado..."
-                style={{
-                  width: '100%',
-                  padding: 12,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 8,
-                  color: '#e5e7eb',
-                  fontSize: 14,
-                  resize: 'vertical',
-                  minHeight: 100
-                }}
-              />
-            </div>
-
-            <Button
-              disabled={!checklistCompleto}
-              style={{
-                width: '100%',
-                background: checklistCompleto 
-                  ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                  : 'rgba(255,255,255,0.1)',
-                border: 'none',
-                padding: '16px',
-                borderRadius: 12,
-                fontSize: 16,
-                fontWeight: 'bold',
-                cursor: checklistCompleto ? 'pointer' : 'not-allowed'
-              }}
-            >
-              {checklistCompleto ? '✓ Finalizar Checklist' : '⚠️ Complete todos os itens críticos'}
-            </Button>
-          </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        {/* POD DIGITAL */}
-        <TabsContent value="pod">
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '2px solid rgba(255,255,255,0.1)',
-            borderRadius: 16,
-            padding: 32
-          }}>
-            <h3 style={{ margin: '0 0 24px', color: '#e5e7eb', fontSize: 24 }}>
-              📸 Prova de Entrega Digital (POD)
-            </h3>
-
-            <div style={{ display: 'grid', gap: 24 }}>
-              <div>
-                <h4 style={{ color: '#e5e7eb', marginBottom: 16 }}>1. Foto da Mercadoria Entregue</h4>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '2px dashed rgba(255,255,255,0.2)',
-                    borderRadius: 8,
-                    padding: 12,
-                    color: '#e5e7eb'
-                  }}
-                />
-              </div>
-
-              <div>
-                <h4 style={{ color: '#e5e7eb', marginBottom: 16 }}>2. Assinatura Digital do Recebedor</h4>
-                <div style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '2px dashed rgba(255,255,255,0.2)',
-                  borderRadius: 8,
-                  padding: 40,
-                  textAlign: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <FileText size={48} color="#6b7280" style={{ margin: '0 auto' }} />
-                  <p style={{ color: '#9aa3b0', marginTop: 16 }}>
-                    Toque para capturar assinatura
-                  </p>
+        {/* Histórico */}
+        <TabsContent value="historico">
+          <Card>
+            <CardHeader><CardTitle>Viagens Recentes</CardTitle></CardHeader>
+            <CardContent>
+              {trips.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">Nenhuma viagem encontrada</p>
+              ) : (
+                <div className="space-y-3">
+                  {trips.map(t => (
+                    <div key={t.id} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">{t.vehicle_plate}</span>
+                        <Badge>{t.status}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                        <div><MapPin className="h-3 w-3 inline mr-1" />{t.origin}</div>
+                        <div><Navigation className="h-3 w-3 inline mr-1" />{t.destination}</div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(t.created_at).toLocaleDateString("pt-BR")}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              <div>
-                <h4 style={{ color: '#e5e7eb', marginBottom: 16 }}>3. Dados do Recebedor</h4>
-                <div style={{ display: 'grid', gap: 12 }}>
-                  <Input
-                    placeholder="Nome completo"
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 8,
-                      padding: 12,
-                      color: '#e5e7eb'
-                    }}
-                  />
-                  <Input
-                    placeholder="CPF/CNPJ"
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 8,
-                      padding: 12,
-                      color: '#e5e7eb'
-                    }}
-                  />
-                  <Input
-                    placeholder="Hora da entrega (HH:MM)"
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 8,
-                      padding: 12,
-                      color: '#e5e7eb'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div style={{
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: 12,
-              padding: 16,
-              marginTop: 24,
-              marginBottom: 24
-            }}>
-              <p style={{ margin: 0, color: '#93c5fd', fontSize: 14, lineHeight: 1.6 }}>
-                <strong>🔒 Blockchain Garantido:</strong><br />
-                • POD gravado imutavelmente em blockchain<br />
-                • Hash criptográfico gerado automaticamente<br />
-                • Auditoria disponível 24/7<br />
-                • Impossível de alterar após criação
-              </p>
-            </div>
-
-            <Button
-              style={{
-                width: '100%',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                border: 'none',
-                padding: '16px',
-                borderRadius: 12,
-                fontSize: 16,
-                fontWeight: 'bold'
-              }}
-            >
-              🔒 Finalizar POD + Gravar em Blockchain
-            </Button>
-          </div>
-        </TabsContent>
-
-        {/* ESTATÍSTICAS */}
-        <TabsContent value="stats">
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '2px solid rgba(255,255,255,0.1)',
-            borderRadius: 16,
-            padding: 32
-          }}>
-            <h3 style={{ margin: '0 0 24px', color: '#e5e7eb', fontSize: 24 }}>
-              📊 Seus KPIs de Desempenho
-            </h3>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
-              {[
-                { label: 'Entregas no Prazo', valor: '98%', meta: '95%', cor: '#10b981' },
-                { label: 'Consumo Médio', valor: '3.2 km/L', meta: '3.0 km/L', cor: '#3b82f6' },
-                { label: 'Avaliação Clientes', valor: '4.9/5', meta: '4.5/5', cor: '#f59e0b' }
-              ].map((kpi, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: `2px solid ${kpi.cor}`,
-                    borderRadius: 12,
-                    padding: 20,
-                    textAlign: 'center'
-                  }}
-                >
-                  <div style={{ fontSize: 14, color: '#9aa3b0', marginBottom: 8 }}>
-                    {kpi.label}
-                  </div>
-                  <div style={{ fontSize: 36, fontWeight: 'bold', color: kpi.cor, marginBottom: 8 }}>
-                    {kpi.valor}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#9aa3b0' }}>
-                    Meta: {kpi.meta}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
