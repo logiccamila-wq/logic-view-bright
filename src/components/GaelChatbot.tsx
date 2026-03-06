@@ -35,14 +35,13 @@ const GaelChatbot: React.FC<GaelChatbotProps> = ({ dashboardData }) => {
   }, [messages]);
 
   const streamChat = async (userMessages: Message[]) => {
-    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gael-chat`;
+    const CHAT_URL = `/api/runtime/invoke/gael-chat`;
     
     try {
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
           messages: userMessages,

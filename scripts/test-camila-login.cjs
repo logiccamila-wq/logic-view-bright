@@ -1,8 +1,33 @@
+const fs = require('fs');
+const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 
+function loadEnv() {
+  const envPath = path.resolve(__dirname, '../.env');
+  if (fs.existsSync(envPath)) {
+    return Object.fromEntries(
+      fs.readFileSync(envPath, 'utf8')
+        .split('\n')
+        .filter(line => line && !line.startsWith('#') && line.includes('='))
+        .map(line => {
+          const idx = line.indexOf('=');
+          return [line.slice(0, idx).trim(), line.slice(idx + 1).trim()];
+        })
+        .filter(([k]) => k)
+    );
+  }
+  return {};
+}
+
 async function testLogin() {
-  const supabaseUrl = 'https://eixkvksttadhukucohda.supabase.co';
-  const anonKey = 'sb_publishable_dDvmA4UZtlFG3WaFo4ayFw_AJAnc7U3';
+  const envs = { ...process.env, ...loadEnv() };
+  const supabaseUrl = envs.VITE_SUPABASE_URL || envs.SUPABASE_URL;
+  const anonKey = envs.VITE_SUPABASE_PUBLISHABLE_KEY || envs.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !anonKey) {
+    console.error('Missing VITE_SUPABASE_URL (or SUPABASE_URL) and VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY)');
+    process.exit(1);
+  }
 
   const supabase = createClient(supabaseUrl, anonKey);
 
