@@ -56,7 +56,7 @@ test.describe('Deep-link redirect', () => {
     // Complete UI login
     await uiLogin(page);
 
-    // After login the app should redirect back to the target (or the default home)
-    await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
+    // After login the app should redirect back to the originally requested target
+    await expect(page).toHaveURL(target, { timeout: 15_000 });
   });
 });

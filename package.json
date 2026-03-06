@@ -18,7 +18,7 @@
     "start:prod": "node .next/standalone/server.js",
     "lint": "next lint --max-warnings=1000",
     "lint:fix": "next lint --fix --max-warnings=1000",
-    "check": "tsc --noEmit || true",
+    "check": "tsc --noEmit",
     "db:migrate": "node backend/scripts/apply_sql_files.mjs backend/scripts/create_os_tables.sql backend/scripts/create_tools_tables.sql",
     "test:e2e": "playwright test"
   },

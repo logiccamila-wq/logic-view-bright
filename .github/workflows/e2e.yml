@@ -14,6 +14,10 @@ jobs:
       contents: read
     env:
       TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
+      # These are needed so that `npm run build` (and `next start`) bundle the
+      # correct Supabase config into the app when running E2E against a local server.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
     steps:
       - name: Checkout code
