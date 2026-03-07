@@ -10,7 +10,7 @@ import { Truck } from "lucide-react";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { MaintenanceCostAnalysis } from "@/components/mechanic/MaintenanceCostAnalysis";
 import { useNavigate } from "react-router-dom";
 import { TireControl } from "@/components/fleet/TireControl";

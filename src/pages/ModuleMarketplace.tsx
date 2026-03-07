@@ -41,7 +41,7 @@ interface Module {
 }
 
 import { modules as registry } from '@/modules/registry';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/azure/client';
 
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();

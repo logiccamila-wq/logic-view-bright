@@ -1,7 +1,7 @@
 import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Clock, CheckCircle } from "lucide-react";

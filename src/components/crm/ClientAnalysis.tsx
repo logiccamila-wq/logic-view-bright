@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2, TrendingUp, TrendingDown, AlertTriangle, Target, DollarSign, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

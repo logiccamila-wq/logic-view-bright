@@ -33,7 +33,7 @@ if (fs.existsSync(modulesRegistryPath)) {
 // 2. VERIFICAR TABELAS DO BANCO DE DADOS
 console.log('\n📊 2. VERIFICANDO ESTRUTURA DO BANCO DE DADOS\n');
 
-const migrationsDir = path.join(rootDir, 'supabase/migrations');
+const migrationsDir = path.join(rootDir, 'sql/migrations');
 if (fs.existsSync(migrationsDir)) {
   const migrations = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql'));
   console.log(`✅ ${migrations.length} migrações encontradas`);
@@ -59,21 +59,16 @@ if (fs.existsSync(migrationsDir)) {
   issues.push('❌ Diretório de migrações não encontrado');
 }
 
-// 3. VERIFICAR EDGE FUNCTIONS
-console.log('\n⚡ 3. VERIFICANDO EDGE FUNCTIONS\n');
+// 3. VERIFICAR AZURE FUNCTIONS
+console.log('\n⚡ 3. VERIFICANDO AZURE FUNCTIONS\n');
 
-const functionsDir = path.join(rootDir, 'supabase/functions');
+const functionsDir = path.join(rootDir, 'api/runtime');
 if (fs.existsSync(functionsDir)) {
-  const functions = fs.readdirSync(functionsDir)
-    .filter(f => {
-      const stat = fs.statSync(path.join(functionsDir, f));
-      return stat.isDirectory() && !f.startsWith('_');
-    });
-  
-  console.log(`✅ ${functions.length} Edge Functions encontradas:`);
-  functions.forEach(fn => console.log(`   - ${fn}`));
+  const files = fs.readdirSync(functionsDir).filter(f => f.endsWith('.js') || f.endsWith('.ts'));
+  console.log(`✅ Azure Functions encontradas em api/runtime (${files.length} arquivo(s))`);
+  files.forEach(fn => console.log(`   - ${fn}`));
 } else {
-  console.log('⚠️  Diretório de Edge Functions não encontrado');
+  console.log('⚠️  Diretório api/runtime não encontrado');
 }
 
 // 4. VERIFICAR COMPONENTES PRINCIPAIS

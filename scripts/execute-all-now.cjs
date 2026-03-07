@@ -46,9 +46,9 @@ const accessDoc = `# 🎯 LOGIC VIEW BRIGHT - Informações de Acesso
 ## 🌐 URLS DO SISTEMA
 
 ### 🚀 Produção
-- **URL Principal:** https://logic-view-bright-main.vercel.app
-- **Domínio Customizado:** https://www.xyzlogicflow.tech
-- **Supabase Dashboard:** https://supabase.com/dashboard
+- **URL Principal:** https://www.xyzlogicflow.com.br
+- **Domínio Customizado:** https://www.xyzlogicflow.com.br
+- **Azure Portal:** https://portal.azure.com
 
 ### 🔧 Desenvolvimento Local
 - **URL Dev:** http://localhost:5173
@@ -62,7 +62,7 @@ const accessDoc = `# 🎯 LOGIC VIEW BRIGHT - Informações de Acesso
 \`\`\`
 Email: admin@logicview.com
 Senha: Admin@2024
-URL: https://logic-view-bright-main.vercel.app/dashboard
+URL: https://www.xyzlogicflow.com.br/dashboard
 \`\`\`
 
 **Permissões Completas:**
@@ -90,7 +90,7 @@ URL: https://logic-view-bright-main.vercel.app/dashboard
 \`\`\`
 Email: motorista@logicview.com
 Senha: Motorista@2024
-URL: https://logic-view-bright-main.vercel.app/driver-app
+URL: https://www.xyzlogicflow.com.br/driver-app
 \`\`\`
 
 **Funcionalidades:**
@@ -113,7 +113,7 @@ URL: https://logic-view-bright-main.vercel.app/driver-app
 \`\`\`
 Email: mecanico@logicview.com
 Senha: Mecanico@2024
-URL: https://logic-view-bright-main.vercel.app/mechanic-app
+URL: https://www.xyzlogicflow.com.br/mechanic-app
 \`\`\`
 
 **Funcionalidades:**
@@ -135,7 +135,7 @@ URL: https://logic-view-bright-main.vercel.app/mechanic-app
 \`\`\`
 Email: gestor@logicview.com
 Senha: Gestor@2024
-URL: https://logic-view-bright-main.vercel.app/dashboard
+URL: https://www.xyzlogicflow.com.br/dashboard
 \`\`\`
 
 **Funcionalidades:**
@@ -247,19 +247,18 @@ npm run build         # Build de produção
 npm run preview       # Preview do build
 \`\`\`
 
-### Supabase
+### Azure PostgreSQL
 \`\`\`bash
-npx supabase login                          # Login
-npx supabase link --project-ref YOUR_REF    # Linkar projeto
-npx supabase db push                        # Push migrações
-npx supabase functions deploy               # Deploy functions
+
+
+# Apply SQL migrations from sql/migrations/ to Azure PostgreSQL
+
 \`\`\`
 
-### Deploy
+### Deploy (Azure Static Web Apps)
 \`\`\`bash
-vercel --prod         # Deploy produção
-vercel                # Deploy preview
-vercel logs --follow  # Ver logs
+git push origin main   # Deploy via GitHub Actions → Azure SWA
+# View logs in Azure Portal or GitHub Actions
 \`\`\`
 
 ---
@@ -274,15 +273,15 @@ vercel logs --follow  # Ver logs
 npm run build
 \`\`\`
 
-### Erro 502/503
+### Erro 502/503 (Azure)
 \`\`\`bash
 # Verificar se deploy foi bem-sucedido
-vercel logs
+# Check GitHub Actions logs or Azure SWA logs
 \`\`\`
 
 ### Domínio não carrega
 \`\`\`bash
-# Verificar DNS e configuração no Vercel
+# Verificar DNS e configuração no Azure DNS
 # Aguardar propagação DNS (até 48h)
 \`\`\`
 
@@ -291,8 +290,8 @@ vercel logs
 ## 📞 LINKS IMPORTANTES
 
 - **GitHub:** https://github.com/logiccamila-wq/logic-view-bright
-- **Vercel Dashboard:** https://vercel.com/dashboard
-- **Supabase:** https://supabase.com/dashboard
+- **Azure Portal:** https://portal.azure.com
+
 
 ---
 
@@ -320,8 +319,8 @@ console.log('📋 Arquivos Gerados:');
 console.log('   ✅ SYSTEM_ACCESS.md (documentação completa)\n');
 
 console.log('🌐 URLs do Sistema:');
-console.log('   - Produção: https://logic-view-bright-main.vercel.app');
-console.log('   - Domínio: https://www.xyzlogicflow.tech');
+console.log('   - Produção: https://www.xyzlogicflow.com.br');
+console.log('   - Domínio: https://www.xyzlogicflow.com.br');
 console.log('   - Local: http://localhost:5173\n');
 
 console.log('🔑 Credenciais de Teste (ver SYSTEM_ACCESS.md):');
@@ -333,5 +332,5 @@ console.log('   - Gestor: gestor@logicview.com / Gestor@2024\n');
 console.log('🚀 Próximos Passos:');
 console.log('   1. Abra SYSTEM_ACCESS.md para ver todas as informações');
 console.log('   2. Para rodar local: npm run dev');
-console.log('   3. Para deploy: vercel --prod');
+console.log('   3. Para deploy: git push origin main   # Deploy via GitHub Actions → Azure SWA
 console.log('   4. Aguarde propagação DNS do domínio (se necessário)\n');

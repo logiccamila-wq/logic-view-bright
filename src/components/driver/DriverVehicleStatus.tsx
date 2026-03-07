@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Gauge, Smartphone, Wifi, Battery, MapPin, Navigation, Truck } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const DriverVehicleStatus = () => {

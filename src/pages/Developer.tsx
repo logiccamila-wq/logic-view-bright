@@ -28,7 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle as AlertIcon } from "lucide-react";
 import { toast } from "sonner";

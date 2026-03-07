@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 
 const ERP = () => {
   const { data: financialData, isLoading } = useFinancialData();

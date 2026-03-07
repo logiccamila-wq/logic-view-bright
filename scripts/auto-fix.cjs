@@ -33,10 +33,19 @@ if (!fs.existsSync(envPath)) {
     console.log('  ⚠️  Configure as variáveis em .env antes de continuar!');
   } else {
     // Criar .env básico
-    const basicEnv = `# Supabase
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+    const basicEnv = `# Azure Runtime
+VITE_API_BASE_URL=
+
+# Azure JWT
+AZURE_JWT_SECRET=change-me-in-production
+AZURE_JWT_EXPIRES_IN=7d
+
+# Azure PostgreSQL
+AZURE_POSTGRES_HOST=
+AZURE_POSTGRES_PORT=5432
+AZURE_POSTGRES_DB=
+AZURE_POSTGRES_USER=
+AZURE_POSTGRES_PASSWORD=
 
 # EmailJS
 VITE_EMAILJS_SERVICE_ID=

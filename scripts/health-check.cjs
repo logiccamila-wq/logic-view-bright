@@ -1,8 +1,8 @@
 const https = require('https');
 
 const checks = {
-  supabase: process.env.VITE_SUPABASE_URL,
-  vercel: 'https://logic-view-bright.vercel.app', // Ajuste conforme seu domínio
+  azure: process.env.VITE_API_BASE_URL || 'http://localhost:7071',
+  app: 'https://www.xyzlogicflow.com.br',
 };
 
 async function checkEndpoint(name, url) {

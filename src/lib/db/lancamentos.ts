@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import type { LancamentoFinanceiro } from "@/types/financeiro";
 
 export async function listLancamentos(filters?: {

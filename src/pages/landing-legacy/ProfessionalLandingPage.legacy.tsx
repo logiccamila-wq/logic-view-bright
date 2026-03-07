@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 
 export default function ProfessionalLandingPage() {
   const navigate = useNavigate();

@@ -6,10 +6,9 @@ console.log('🔍 Verificando configuração do Logic View Bright...\n');
 // Verificar arquivos essenciais
 const essentialFiles = [
   '.env',
-  'supabase/.env',
-  'vercel.json',
+  'staticwebapp.config.json',
   'vite.config.ts',
-  'src/integrations/supabase/client.ts'
+  'src/integrations/azure/client.ts'
 ];
 
 const missingFiles = [];
@@ -26,12 +25,15 @@ essentialFiles.forEach(file => {
 // Verificar variáveis de ambiente
 console.log('\n📋 Variáveis de Ambiente Necessárias:');
 const requiredEnvVars = [
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
-  'EMAILJS_SERVICE_ID',
-  'EMAILJS_TEMPLATE_ID',
-  'EMAILJS_PUBLIC_KEY'
+  'VITE_API_BASE_URL',
+  'AZURE_JWT_SECRET',
+  'AZURE_POSTGRES_HOST',
+  'AZURE_POSTGRES_DB',
+  'AZURE_POSTGRES_USER',
+  'AZURE_POSTGRES_PASSWORD',
+  'VITE_EMAILJS_SERVICE_ID',
+  'VITE_EMAILJS_TEMPLATE_ID',
+  'VITE_EMAILJS_PUBLIC_KEY'
 ];
 
 requiredEnvVars.forEach(envVar => {
@@ -43,6 +45,6 @@ if (missingFiles.length > 0) {
   console.log('1. Criar arquivos faltantes');
 }
 console.log('2. Configurar variáveis de ambiente');
-console.log('3. Executar migrações do Supabase');
-console.log('4. Fazer seed dos dados');
-console.log('5. Deploy no Vercel');
+console.log('3. Aplicar migrações SQL em sql/migrations/ no Azure PostgreSQL');
+console.log('4. Fazer seed dos dados: node scripts/seed-demo.cjs');
+console.log('5. Deploy: git push origin main (Azure Static Web Apps)');

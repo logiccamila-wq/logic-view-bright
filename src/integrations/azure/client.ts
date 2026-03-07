@@ -1,5 +1,4 @@
-// Azure runtime client — maintains a compatible API surface used by 80+ app files.
-// The "supabase" naming is kept solely to avoid a massive import refactor.
+// Azure runtime client — provides a query/auth API backed by the Azure Functions runtime at /api/runtime/*.
 
 type AnyObj = Record<string, any>;
 
@@ -38,20 +37,19 @@ export interface RealtimeChannel {
 const TOKEN_KEY = "azure_session_token";
 const SESSION_KEY = "azure_session_data";
 
-const getEnvVar = (viteKey: string, nextKey?: string): string | undefined => {
-  if (typeof import.meta !== "undefined" && import.meta.env) {
-    const value = (import.meta.env as Record<string, string | undefined>)[viteKey];
-    if (value) return value;
+const getEnvVar = (viteKey: string): string | undefined => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const env = (import.meta as any).env as Record<string, string | undefined> | undefined;
+    if (env) return env[viteKey];
+  } catch {
+    // import.meta not available (e.g. in Node.js test environments)
   }
-
-  if (nextKey && typeof process !== "undefined" && process.env) {
-    return process.env[nextKey];
-  }
-
   return undefined;
 };
 
 const API_BASE_URL = (getEnvVar("VITE_API_BASE_URL") || "/api").replace(/\/$/, "");
+
 const RUNTIME_BASE = `${API_BASE_URL}/runtime`;
 
 function getToken(): string {
@@ -135,7 +133,7 @@ function emitAuth(event: AuthChangeEvent, session: Session | null) {
 
 function parseFilterString(filter?: string) {
   if (!filter) return null;
-  const [column, op, ...rest] = String(filter).split("=")[0].split(".");
+  const [column, op] = String(filter).split("=")[0].split(".");
   const value = String(filter).split(".").slice(2).join(".");
   if (!column || !op) return null;
 
@@ -248,7 +246,7 @@ class AzureQueryBuilder implements PromiseLike<any> {
 
   constructor(private readonly table: string) {}
 
-  // options (e.g. { count: "exact" }) are accepted for API compatibility but not used in this runtime stub
+  // options (e.g. { count: "exact" }) are accepted for API compatibility but not honored by this runtime
   select(columns = "*", _options?: { count?: "exact" | "planned" | "estimated"; head?: boolean }) {
     if (this.action === "insert" || this.action === "update" || this.action === "delete" || this.action === "upsert") {
       this.returning = columns || "*";
@@ -512,7 +510,7 @@ const supabase = {
       return { data: { user: (resp.data?.user || null) as User | null }, error: resp.error || null };
     },
 
-    // options (e.g. { redirectTo }) are accepted for API compatibility but not used in this runtime stub
+    // options (e.g. { redirectTo }) are accepted for API compatibility but not used in this runtime
     async resetPasswordForEmail(email: string, _options?: { redirectTo?: string }) {
       const resp = await runtimeRequest("/auth/reset-password", "POST", { email });
       return { data: resp.data || null, error: resp.error || null };

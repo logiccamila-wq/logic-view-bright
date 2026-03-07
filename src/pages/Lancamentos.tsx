@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { listLancamentos, createLancamento, updateLancamento, deleteLancamento } from "@/lib/db/lancamentos";
 import { listPlanoContas } from "@/lib/db/planoContas";
 import { listCentrosCusto } from "@/lib/db/centrosCusto";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 
 export default function Lancamentos() {
   const [lancamentos, setLancamentos] = useState<any[]>([]);

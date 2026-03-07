@@ -17,7 +17,7 @@ import {
   SprayCan,
   Filter,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { InventoryItemDialog } from "@/components/inventory/InventoryItemDialog";

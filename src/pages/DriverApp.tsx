@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { StatCard } from "@/components/StatCard";
 import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 import { DriverJourneyStatus } from "@/components/driver/DriverJourneyStatus";

@@ -1,31 +1,28 @@
-const { createClient } = require('@supabase/supabase-js');
-
 async function testLogin() {
-  const supabaseUrl = 'https://eixkvksttadhukucohda.supabase.co';
-  const anonKey = 'sb_publishable_dDvmA4UZtlFG3WaFo4ayFw_AJAnc7U3';
-
-  const supabase = createClient(supabaseUrl, anonKey);
+  const apiBase = (process.env.VITE_API_BASE_URL || 'http://localhost:7071/api').replace(/\/$/, '');
+  const runtimeBase = `${apiBase}/runtime`;
 
   console.log('🔐 Testando login com logiccamila@gmail.com...\n');
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: 'logiccamila@gmail.com',
-    password: 'Multi.13',
+  const resp = await fetch(`${runtimeBase}/auth/signin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'logiccamila@gmail.com', password: 'Multi.13' }),
   });
 
-  if (error) {
-    console.error('❌ Erro no login:', error.message);
+  const result = await resp.json();
+
+  if (result.error) {
+    console.error('❌ Erro no login:', result.error.message || String(result.error));
     process.exit(1);
   }
 
+  const user = result.data?.session?.user;
   console.log('✅ Login bem-sucedido!');
-  console.log('\n📧 Email:', data.user.email);
-  console.log('🆔 User ID:', data.user.id);
-  console.log('✉️  Email confirmado:', data.user.email_confirmed_at ? 'Sim' : 'Não');
-  console.log('\n👤 Metadata do usuário:');
-  console.log(JSON.stringify(data.user.user_metadata, null, 2));
-  console.log('\n✅ Nome exibido:', data.user.user_metadata?.name || data.user.user_metadata?.display_name || data.user.email);
-  console.log('\n🌐 Pode fazer login em: https://logic-view-bright.vercel.app/login');
+  console.log('\n📧 Email:', user?.email);
+  console.log('🆔 User ID:', user?.id);
+  console.log('\n✅ Nome exibido:', user?.user_metadata?.full_name || user?.email);
+  console.log('\n🌐 Pode fazer login em: https://www.xyzlogicflow.com.br/login');
 }
 
 testLogin().catch(console.error);

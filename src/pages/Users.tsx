@@ -7,7 +7,7 @@ import { Plus, Search, Edit, Trash2, User } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Users as UsersIcon } from "lucide-react";
 import { UserFormDialog } from "@/components/UserFormDialog";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import {
   AlertDialog,

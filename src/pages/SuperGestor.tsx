@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { predictNextMaintenance, optimizeFuelCosts, predictTireFailureRisk } from "@/utils/mlPredictive";
 
 type Insight = {
