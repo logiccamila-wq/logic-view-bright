@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, Sparkles, TrendingUp, AlertTriangle, Zap, Target, Activity, Database } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface AIInsight {

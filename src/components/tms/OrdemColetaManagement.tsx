@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Plus, Search, FileText, Download } from "lucide-react";
 import { OrdemColetaDialog } from "./OrdemColetaDialog";

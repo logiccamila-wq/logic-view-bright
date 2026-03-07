@@ -17,7 +17,7 @@ Browser -> Azure Static Web Apps -> /api/runtime/* -> PostgreSQL
 ```
 
 ## Componentes-chave
-- `src/integrations/supabase/client.ts`: camada de compatibilidade Azure runtime (mantém nome por compatibilidade de imports).
+- `src/integrations/azure/client.ts`: cliente Azure runtime que expõe API de query/auth compatível.
 - `api/runtime/index.js`: endpoints auth/query/mutate/rpc/invoke.
 - `api/shared/db.js`: conexão segura com PostgreSQL.
 - `.github/workflows/azure-static-web-apps.yml`: pipeline de build/deploy.

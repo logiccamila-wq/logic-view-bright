@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
 
 function loadEnv() {
   const envs = {};
@@ -28,18 +27,20 @@ function loadEnv() {
 
 (async () => {
   const envs = { ...process.env, ...loadEnv() };
-  const url = envs.VITE_SUPABASE_URL;
-  const anon = envs.VITE_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !anon) {
-    console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY');
-    process.exit(1);
-  }
-  const supabase = createClient(url, anon);
+  const apiBase = (envs.VITE_API_BASE_URL || 'http://localhost:7071/api').replace(/\/$/, '');
+  const runtimeBase = `${apiBase}/runtime`;
+
   async function tryLogin(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { email, ok: false, error: error.message };
-    return { email, ok: true, userId: data.user?.id };
+    const resp = await fetch(`${runtimeBase}/auth/signin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await resp.json();
+    if (data.error) return { email, ok: false, error: data.error.message || String(data.error) };
+    return { email, ok: true, userId: data.data?.session?.user?.id };
   }
+
   const users = [
     { email: 'logicdev@optilog.app', password: 'Dev.Multi#2025' },
     { email: 'motorista.teste@optilog.app', password: 'Drive.Multi#2025' },
@@ -49,6 +50,6 @@ function loadEnv() {
   for (const u of users) {
     results.push(await tryLogin(u.email, u.password));
   }
-  console.log(JSON.stringify({ url, results }, null, 2));
+  console.log(JSON.stringify({ runtimeBase, results }, null, 2));
 })();
 

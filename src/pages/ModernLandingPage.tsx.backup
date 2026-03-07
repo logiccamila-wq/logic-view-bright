@@ -12,7 +12,7 @@ import {
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { PageTransition, FadeInUp, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 export default function ModernLandingPage() {

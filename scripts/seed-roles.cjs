@@ -25,47 +25,57 @@ function loadEnv() {
   return envs;
 }
 
-async function resolveUserId(supabaseUrl, serviceKey, email) {
-  const u = new URL(`${supabaseUrl}/auth/v1/admin/users`);
-  u.searchParams.set('email', email);
-  const r = await fetch(u.toString(), {
-    headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey },
-  });
-  if (!r.ok) return null;
-  const js = await r.json();
-  const user = Array.isArray(js) ? js[0] : js?.users?.[0];
-  return user?.id || null;
-}
-
-async function getExistingRoles(supabaseUrl, serviceKey, userId) {
-  const u = new URL(`${supabaseUrl}/rest/v1/user_roles`);
-  u.searchParams.set('user_id', `eq.${userId}`);
-  const r = await fetch(u.toString(), { headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } });
-  if (!r.ok) return [];
-  return await r.json();
-}
-
-async function insertRole(supabaseUrl, serviceKey, userId, role) {
-  const r = await fetch(`${supabaseUrl}/rest/v1/user_roles`, {
+async function signIn(runtimeBase, email, password) {
+  const r = await fetch(`${runtimeBase}/auth/signin`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${serviceKey}`,
-      apikey: serviceKey,
-      Prefer: 'return=representation',
-    },
-    body: JSON.stringify({ user_id: userId, role }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
   });
-  const txt = await r.text();
-  try { return { status: r.status, body: JSON.parse(txt) }; } catch { return { status: r.status, body: { raw: txt } }; }
+  const js = await r.json();
+  return js?.data?.session?.access_token || null;
+}
+
+async function resolveUserId(runtimeBase, token, email) {
+  const r = await fetch(`${runtimeBase}/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ table: 'users', select: 'id', filters: [{ op: 'eq', column: 'email', value: email }], single: true }),
+  });
+  const js = await r.json();
+  return js?.data?.id || null;
+}
+
+async function getExistingRoles(runtimeBase, token, userId) {
+  const r = await fetch(`${runtimeBase}/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ table: 'user_roles', select: 'role', filters: [{ op: 'eq', column: 'user_id', value: userId }] }),
+  });
+  const js = await r.json();
+  return Array.isArray(js?.data) ? js.data : [];
+}
+
+async function insertRole(runtimeBase, token, userId, role) {
+  const r = await fetch(`${runtimeBase}/mutate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ action: 'insert', table: 'user_roles', values: { user_id: userId, role }, returning: 'user_id,role' }),
+  });
+  const js = await r.json();
+  return { status: r.status, body: js };
 }
 
 (async () => {
   const envs = { ...process.env, ...loadEnv() };
-  const supabaseUrl = envs.SUPABASE_URL || envs.VITE_SUPABASE_URL || '';
-  const serviceKey = envs.SUPABASE_SERVICE_ROLE_KEY || '';
-  if (!supabaseUrl || !serviceKey) {
-    console.error('Missing SUPABASE_URL/VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  const apiBase = (envs.VITE_API_BASE_URL || 'http://localhost:7071/api').replace(/\/$/, '');
+  const runtimeBase = `${apiBase}/runtime`;
+  const adminEmail = envs.ADMIN_EMAIL || 'admin@xyzlogicflow.com.br';
+  const adminPassword = envs.ADMIN_PASSWORD || 'admin123';
+
+  // Sign in as admin to get an auth token
+  const token = await signIn(runtimeBase, adminEmail, adminPassword);
+  if (!token) {
+    console.error('Failed to sign in as admin. Check ADMIN_EMAIL/ADMIN_PASSWORD env vars.');
     process.exit(1);
   }
 
@@ -77,15 +87,15 @@ async function insertRole(supabaseUrl, serviceKey, userId, role) {
 
   const out = [];
   for (const t of targets) {
-    const userId = await resolveUserId(supabaseUrl, serviceKey, t.email);
+    const userId = await resolveUserId(runtimeBase, token, t.email);
     if (!userId) { out.push({ email: t.email, ok: false, error: 'user_not_found' }); continue; }
-    const existing = await getExistingRoles(supabaseUrl, serviceKey, userId);
+    const existing = await getExistingRoles(runtimeBase, token, userId);
     const alreadyHas = existing.some(r => r.role === t.role);
     if (alreadyHas) { out.push({ email: t.email, ok: true, userId, role: t.role, note: 'role_already_present' }); continue; }
-    const ins = await insertRole(supabaseUrl, serviceKey, userId, t.role);
+    const ins = await insertRole(runtimeBase, token, userId, t.role);
     if (ins.status === 201 || ins.status === 200) out.push({ email: t.email, ok: true, userId, role: t.role });
     else out.push({ email: t.email, ok: false, userId, role: t.role, error: 'insert_failed', detail: ins.body });
   }
-  console.log(JSON.stringify({ supabaseUrl, results: out }, null, 2));
+  console.log(JSON.stringify({ runtimeBase, results: out }, null, 2));
 })();
 

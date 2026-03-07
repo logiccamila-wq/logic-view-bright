@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Users, Plus, Search, TrendingUp, FileText, AlertCircle } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { ClientDialog } from "@/components/crm/ClientDialog";
 import { ClientAnalysis } from "@/components/crm/ClientAnalysis";
 import {

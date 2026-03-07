@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { Package, Truck, MapPin, Clock, CheckCircle, AlertCircle, Navigation } from "lucide-react";
 import { TripCreationDialog } from "./TripCreationDialog";
 import { toast } from "sonner";

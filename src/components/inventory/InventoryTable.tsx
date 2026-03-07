@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Edit, ArrowUpDown, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { BarcodePrinter } from "./BarcodePrinter";
 

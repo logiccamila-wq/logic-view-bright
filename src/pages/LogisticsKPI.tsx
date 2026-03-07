@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { useQuery } from "@tanstack/react-query";
 import { costPerKm, avgFuelKmPerLiter, emptyMileagePercent, operationalSpeed } from "@/utils/kpis";
 

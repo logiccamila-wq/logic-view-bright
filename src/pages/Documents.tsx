@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, AlertTriangle, Shield, Clock, Car, CreditCard, FileCheck, Plus, Search, Edit, Trash2, FileUp, CheckCircle, XCircle } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { DocumentDialog } from "@/components/documents/DocumentDialog";
 import { DocumentPreviewDialog } from "@/components/documents/DocumentPreviewDialog";

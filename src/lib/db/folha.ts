@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import type { FolhaPagamento } from "@/types/financeiro";
 
 export async function listFolhaPagamento(competencia?: string) {

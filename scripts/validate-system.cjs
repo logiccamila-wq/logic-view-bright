@@ -7,20 +7,19 @@ console.log('🔍 Validação Completa do Sistema Logic View Bright\n');
 const criticalFiles = {
   'Config': [
     'vite.config.ts',
-    'vercel.json',
+    'staticwebapp.config.json',
     'tsconfig.json',
-    'tailwind.config.ts'
+    'tailwind.config.js'
   ],
   'Frontend Core': [
     'src/main.tsx',
     'src/App.tsx',
-    'src/integrations/supabase/client.ts',
+    'src/integrations/azure/client.ts',
     'src/modules/registry.ts'
   ],
   'Backend': [
-    'supabase/config.toml',
-    'functions/api/db.ts',
-    'functions/api/seed-demo.ts'
+    'api/runtime/index.js',
+    'api/shared/db.js'
   ],
   'Environment': [
     '.env.example'
@@ -53,9 +52,9 @@ if (fs.existsSync(packageJsonPath)) {
     'react',
     'react-dom',
     'vite',
-    '@supabase/supabase-js',
+    '@tanstack/react-query',
     'tailwindcss',
-    '@tanstack/react-query'
+    'pg'
   ];
   
   criticalDeps.forEach(dep => {
@@ -70,9 +69,10 @@ if (fs.existsSync(packageJsonPath)) {
 // 3. Verificar variáveis de ambiente
 console.log('\n\n🔐 Variáveis de Ambiente Necessárias:\n');
 const requiredEnvVars = [
-  { key: 'VITE_SUPABASE_URL', example: 'https://xxx.supabase.co' },
-  { key: 'VITE_SUPABASE_ANON_KEY', example: 'eyJhbGc...' },
-  { key: 'SUPABASE_SERVICE_ROLE_KEY', example: 'eyJhbGc... (backend only)' },
+  { key: 'VITE_API_BASE_URL', example: 'http://localhost:7071' },
+  { key: 'AZURE_JWT_SECRET', example: 'change-me-in-production' },
+  { key: 'AZURE_POSTGRES_HOST', example: 'myserver.postgres.database.azure.com' },
+  { key: 'AZURE_POSTGRES_DB', example: 'optilog' },
   { key: 'VITE_EMAILJS_SERVICE_ID', example: 'service_xxx' },
   { key: 'VITE_EMAILJS_TEMPLATE_ID', example: 'template_xxx' },
   { key: 'VITE_EMAILJS_PUBLIC_KEY', example: 'xxx' },
@@ -118,10 +118,7 @@ console.log('\n\n🎯 PRÓXIMOS PASSOS RECOMENDADOS:\n');
 console.log('1. Configure todas as variáveis de ambiente (.env)');
 console.log('2. Execute: npm install');
 console.log('3. Execute: npm run build (para verificar erros TypeScript)');
-console.log('4. Configure Supabase:');
-console.log('   - npx supabase login');
-console.log('   - npx supabase link --project-ref SEU_PROJECT_REF');
-console.log('   - npx supabase db push');
+console.log('4. Aplique as migrações SQL em sql/migrations/ no PostgreSQL Azure');
 console.log('5. Seed dados demo: node scripts/seed-demo.cjs');
-console.log('6. Deploy: vercel --prod');
+console.log('6. Deploy: git push origin main (Azure Static Web Apps via GitHub Actions)');
 console.log('\n');

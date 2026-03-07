@@ -21,7 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Search, UserPlus, Eye, Edit, Trash2, MapPin, Clock, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { DriverDialog } from "@/components/driver/DriverDialog";
 import {

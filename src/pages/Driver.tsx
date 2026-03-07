@@ -26,7 +26,7 @@ import { DriverEarnings } from "@/components/driver/DriverEarnings";
 import { DriverVehicleStatus } from "@/components/driver/DriverVehicleStatus";
 import { DriverAlerts } from "@/components/driver/DriverAlerts";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { demoList, demoCreate } from "@/lib/demoStore";

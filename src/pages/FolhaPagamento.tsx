@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { listFolhaPagamento, createFolhaPagamento, updateFolhaPagamento, deleteFolhaPagamento } from "@/lib/db/folha";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 
 export default function FolhaPagamento() {
   const [folhas, setFolhas] = useState<any[]>([]);

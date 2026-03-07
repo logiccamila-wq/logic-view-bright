@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { TrendingUp, TrendingDown, DollarSign, Filter } from "lucide-react";
 import { DREGraph } from "@/components/dre/DREGraph";
 import { DRETable } from "@/components/dre/DRETable";

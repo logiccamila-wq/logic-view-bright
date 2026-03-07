@@ -8,7 +8,7 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/azure/client";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 
 const EHS = () => {

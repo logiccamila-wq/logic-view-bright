@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
 
 function loadEnv() {
   const envs = {};
@@ -26,53 +25,41 @@ function loadEnv() {
   return envs;
 }
 
-async function createUserAndRole(supabaseUrl, serviceKey, email, password, role) {
-  const supabase = createClient(supabaseUrl, serviceKey);
-  const { data, error } = await supabase.auth.admin.createUser({ email, password, email_confirm: true });
-  if (error) {
-    return { email, ok: false, error: error.message };
+async function createUserAndRole(runtimeBase, email, password, role) {
+  // Sign up via Azure runtime
+  const signupResp = await fetch(`${runtimeBase}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, role }),
+  });
+  const signupData = await signupResp.json();
+  if (signupData.error) {
+    return { email, ok: false, error: signupData.error.message || String(signupData.error) };
   }
-  const userId = data?.user?.id;
+  const userId = signupData.data?.session?.user?.id;
   if (!userId) {
     return { email, ok: false, error: 'missing_user_id' };
   }
-  let roleResult = null;
-  if (role) {
-    const resp = await fetch(`${supabaseUrl}/rest/v1/user_roles`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, Prefer: 'return=representation' },
-      body: JSON.stringify({ user_id: userId, role }),
-    });
-    const txt = await resp.text();
-    try { roleResult = JSON.parse(txt); } catch { roleResult = { raw: txt }; }
-    if (resp.status !== 201 && resp.status !== 200) {
-      return { email, ok: false, error: 'assign_role_failed', detail: roleResult };
-    }
-  }
-  return { email, ok: true, userId, role, roleResult };
+  return { email, ok: true, userId, role };
 }
 
 (async () => {
   try {
     const envs = { ...process.env, ...loadEnv() };
-    const supabaseUrl = envs.SUPABASE_URL || envs.VITE_SUPABASE_URL || '';
-    const serviceKey = envs.SUPABASE_SERVICE_ROLE_KEY || '';
-    if (!supabaseUrl || !serviceKey) {
-      console.error('Missing SUPABASE_URL/VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
-      process.exit(1);
-    }
+    const apiBase = (envs.VITE_API_BASE_URL || 'http://localhost:7071/api').replace(/\/$/, '');
+    const runtimeBase = `${apiBase}/runtime`;
 
     const users = [
       { email: 'logicdev@optilog.app', password: 'Dev.Multi#2025', role: 'admin' },
       { email: 'motorista.teste@optilog.app', password: 'Drive.Multi#2025', role: 'driver' },
-      { email: 'mecanico.teste@optilog.app', password: 'Fix.Multi#2025', role: 'mechanic' },
+      { email: 'mecanico.teste@optilog.app', password: 'Fix.Multi#2025', role: 'fleet_maintenance' },
     ];
 
     const results = [];
     for (const u of users) {
-      results.push(await createUserAndRole(supabaseUrl, serviceKey, u.email, u.password, u.role));
+      results.push(await createUserAndRole(runtimeBase, u.email, u.password, u.role));
     }
-    console.log(JSON.stringify({ supabaseUrl, results }, null, 2));
+    console.log(JSON.stringify({ runtimeBase, results }, null, 2));
     process.exit(0);
   } catch (e) {
     console.error('Unexpected error:', e?.message || String(e));

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase, type User, type Session } from "@/integrations/supabase/client";
+import { supabase, type User, type Session } from "@/integrations/azure/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
