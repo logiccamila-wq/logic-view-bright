@@ -62,15 +62,20 @@ export default async function handler(req: any, res: any) {
     const optimization = typeof context.optimization === "number" ? Math.max(0, Math.min(100, context.optimization)) : 50;
     const risk = typeof context.risk === "number" ? Math.max(0, Math.min(100, context.risk)) : 50;
 
-    const optStrategy = optimization >= 75
+    const OPT_HIGH = 75;
+    const OPT_LOW = 40;
+    const RISK_HIGH = 75;
+    const RISK_LOW = 40;
+
+    const optStrategy = optimization >= OPT_HIGH
       ? "O nível de otimização é ALTO: priorize visão agressiva de crescimento, expansão e recomendações ousadas."
-      : optimization >= 40
+      : optimization >= OPT_LOW
         ? "O nível de otimização é MODERADO: sugira melhorias graduais e eficiência operacional equilibrada."
         : "O nível de otimização é BAIXO: priorize redução de custos, cortes inteligentes e preservação de caixa.";
 
-    const riskStrategy = risk >= 75
+    const riskStrategy = risk >= RISK_HIGH
       ? "O nível de risco aceito é ALTO: recomende expansão agressiva, projeções ousadas e investimentos de alto retorno."
-      : risk >= 40
+      : risk >= RISK_LOW
         ? "O nível de risco aceito é MODERADO: sugira ações com risco calculado e crescimento sustentável."
         : "O nível de risco aceito é BAIXO: recomende ações conservadoras, proteção de caixa e foco em estabilidade.";
 

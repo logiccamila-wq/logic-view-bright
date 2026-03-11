@@ -57,3 +57,4 @@ _ci_build_artifacts/
 .wrangler/
 .trae/
 >>>>>>> 81e290ed9b2d19a98f5695288cb17f3de54eb86e
+*.tsbuildinfo

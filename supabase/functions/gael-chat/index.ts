@@ -21,6 +21,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const OPT_HIGH = 75;
+const OPT_LOW = 40;
+const RISK_HIGH = 75;
+const RISK_LOW = 40;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -30,18 +35,18 @@ serve(async (req) => {
     const { messages, dashboardData, optimization, risk } = validated;
 
     // Derive slider-driven strategy labels
-    const optLevel = optimization >= 75 ? "alta" : optimization >= 40 ? "moderada" : "baixa";
-    const riskLevel = risk >= 75 ? "alto" : risk >= 40 ? "moderado" : "baixo";
+    const optLevel = optimization >= OPT_HIGH ? "alta" : optimization >= OPT_LOW ? "moderada" : "baixa";
+    const riskLevel = risk >= RISK_HIGH ? "alto" : risk >= RISK_LOW ? "moderado" : "baixo";
 
-    const optStrategy = optimization >= 75
+    const optStrategy = optimization >= OPT_HIGH
       ? "Adote uma visão agressiva de crescimento: priorize expansão, aumento de faturamento, novos mercados e recomendações ousadas de investimento."
-      : optimization >= 40
+      : optimization >= OPT_LOW
         ? "Adote uma visão equilibrada: sugira melhorias graduais, otimização de processos e eficiência operacional sem riscos excessivos."
         : "Adote uma visão conservadora: priorize redução de custos, eficiência máxima, cortes inteligentes e preservação de caixa.";
 
-    const riskStrategy = risk >= 75
+    const riskStrategy = risk >= RISK_HIGH
       ? "O usuário aceita alto risco: recomende expansão agressiva, aumento de estoque estratégico, projeções ousadas e investimentos com retorno potencialmente alto."
-      : risk >= 40
+      : risk >= RISK_LOW
         ? "O usuário aceita risco moderado: sugira ações com risco calculado, projeções equilibradas e crescimento sustentável."
         : "O usuário prefere baixo risco: recomende ações conservadoras, proteção de caixa, baixa alavancagem e foco em estabilidade.";
 
