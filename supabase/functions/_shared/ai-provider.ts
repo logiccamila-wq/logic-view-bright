@@ -314,7 +314,8 @@ async function googleChatStream(opts: ChatCompletionOptions): Promise<Response> 
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify(openAIChunk)}\n\n`));
                 }
               } catch {
-                // Final partial/invalid line; nothing more we can do
+                // Final partial/invalid line — log as it may indicate data loss
+                console.warn("[ai-provider] Discarding unparseable final SSE buffer:", line.slice(0, 200));
               }
             }
           }
