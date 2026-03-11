@@ -536,4 +536,12 @@ export const modules: RegistryModule[] = [
     enabled: true,
     route: "/erp-system",
   },
+  {
+    slug: "sitemap",
+    name: "Mapa do Sistema",
+    description: "Visualização de todos os módulos e páginas da plataforma",
+    category: "dev",
+    enabled: true,
+    route: "/sitemap",
+  },
 ];
