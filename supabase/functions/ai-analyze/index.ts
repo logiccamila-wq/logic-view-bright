@@ -87,10 +87,10 @@ export default async function handler(req: any, res: any) {
         geminiBody.systemInstruction = { parts: [{ text: systemText }] };
       }
 
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${googleAiModel}:generateContent?key=${googleAiKey}`;
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${googleAiModel}:generateContent`;
       const aiResp = await fetch(geminiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-goog-api-key": googleAiKey },
         body: JSON.stringify(geminiBody),
       });
 
@@ -141,10 +141,10 @@ export default async function handler(req: any, res: any) {
           };
           if (systemText) geminiBody.systemInstruction = { parts: [{ text: systemText }] };
 
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${googleAiModel}:generateContent?key=${googleAiKey}`;
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${googleAiModel}:generateContent`;
           const fallbackResp = await fetch(geminiUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "x-goog-api-key": googleAiKey },
             body: JSON.stringify(geminiBody),
           });
           if (!fallbackResp.ok) { res.status(fallbackResp.status).send(await fallbackResp.text()); return; }

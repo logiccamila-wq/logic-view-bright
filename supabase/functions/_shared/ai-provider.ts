@@ -189,11 +189,14 @@ async function googleChat(opts: ChatCompletionOptions): Promise<ChatCompletionRe
   };
   if (systemInstruction) body.systemInstruction = systemInstruction;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
   const resp = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
     body: JSON.stringify(body),
   });
 
@@ -237,11 +240,14 @@ async function googleChatStream(opts: ChatCompletionOptions): Promise<Response> 
   };
   if (systemInstruction) body.systemInstruction = systemInstruction;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
 
   const resp = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
     body: JSON.stringify(body),
   });
 
@@ -254,36 +260,69 @@ async function googleChatStream(opts: ChatCompletionOptions): Promise<Response> 
   const reader = resp.body!.getReader();
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
+  let buffer = "";
 
   const stream = new ReadableStream({
     async pull(controller) {
       const { done, value } = await reader.read();
+
+      if (value) {
+        // Append newly decoded text to the buffer; TextDecoder with { stream: true }
+        // correctly handles multi-byte UTF-8 characters across chunks.
+        const text = decoder.decode(value, { stream: true });
+        buffer += text;
+
+        const lines = buffer.split("\n");
+        // Keep the last line as a potentially incomplete fragment
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr) continue;
+          try {
+            const chunk: any = JSON.parse(jsonStr);
+            const partText = chunk.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+            if (partText) {
+              // Emit in OpenAI-compatible delta format
+              const openAIChunk = {
+                choices: [{ delta: { content: partText }, index: 0, finish_reason: null }],
+              };
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(openAIChunk)}\n\n`));
+            }
+          } catch {
+            // skip malformed chunks (likely incomplete JSON that will be completed in later reads)
+          }
+        }
+      }
+
       if (done) {
+        // Process any remaining buffered data as a final line
+        if (buffer.trim()) {
+          const line = buffer;
+          buffer = "";
+          if (line.startsWith("data: ")) {
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr) {
+              try {
+                const chunk: any = JSON.parse(jsonStr);
+                const partText = chunk.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+                if (partText) {
+                  const openAIChunk = {
+                    choices: [{ delta: { content: partText }, index: 0, finish_reason: null }],
+                  };
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify(openAIChunk)}\n\n`));
+                }
+              } catch {
+                // Final partial/invalid line; nothing more we can do
+              }
+            }
+          }
+        }
+
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
         return;
-      }
-
-      const text = decoder.decode(value, { stream: true });
-      // Google SSE lines: "data: {...}\n\n"
-      const lines = text.split("\n");
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const jsonStr = line.slice(6).trim();
-        if (!jsonStr) continue;
-        try {
-          const chunk: any = JSON.parse(jsonStr);
-          const partText = chunk.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-          if (partText) {
-            // Emit in OpenAI-compatible delta format
-            const openAIChunk = {
-              choices: [{ delta: { content: partText }, index: 0, finish_reason: null }],
-            };
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(openAIChunk)}\n\n`));
-          }
-        } catch {
-          // skip malformed chunks
-        }
       }
     },
   });
@@ -304,38 +343,110 @@ export class AIProviderError extends Error {
   }
 }
 
+// ── Fallback helpers ───────────────────────────────────────────────────
+
+/**
+ * Determines if an error is transient and should trigger fallback.
+ * Returns true for: 429 (rate limit), 500+ (server errors), network errors.
+ * Returns false for: 400 (bad request), 401/403 (auth), missing config.
+ */
+function isRetryableError(err: unknown): boolean {
+  if (err instanceof AIProviderError) {
+    return err.status === 429 || err.status >= 500;
+  }
+  // Network errors (fetch failures, timeouts) are retryable
+  if (err instanceof TypeError) return true;
+  return false;
+}
+
+function logProviderEvent(
+  provider: string,
+  mode: string,
+  success: boolean,
+  latencyMs: number,
+  error?: string,
+) {
+  const entry = { provider, mode, success, latency_ms: latencyMs, ...(error ? { error } : {}) };
+  if (success) {
+    console.log("[ai-provider]", JSON.stringify(entry));
+  } else {
+    console.warn("[ai-provider]", JSON.stringify(entry));
+  }
+}
+
 // ── Public API ─────────────────────────────────────────────────────────
 
 /**
  * Send a non-streaming chat completion request to the configured AI provider.
  *
- * In "auto" mode: tries Azure OpenAI first, then Google AI.
+ * In "auto" mode: tries Azure OpenAI first, then Google AI on retryable errors.
  */
 export async function chatCompletion(opts: ChatCompletionOptions): Promise<ChatCompletionResult> {
   const provider = getProviderName();
 
   if (provider === "azure") {
     if (!isAzureConfigured()) throw new Error("Azure OpenAI is not configured");
-    return azureChat(opts);
-  }
-
-  if (provider === "google") {
-    if (!isGoogleConfigured()) throw new Error("Google AI is not configured");
-    return googleChat(opts);
-  }
-
-  // auto – try Azure first, fall back to Google
-  if (isAzureConfigured()) {
+    const t0 = Date.now();
     try {
-      return await azureChat(opts);
+      const result = await azureChat(opts);
+      logProviderEvent("azure", "direct", true, Date.now() - t0);
+      return result;
     } catch (err) {
-      console.warn("Azure OpenAI failed, falling back to Google AI:", (err as Error).message);
-      if (isGoogleConfigured()) return googleChat(opts);
+      logProviderEvent("azure", "direct", false, Date.now() - t0, (err as Error).message);
       throw err;
     }
   }
 
-  if (isGoogleConfigured()) return googleChat(opts);
+  if (provider === "google") {
+    if (!isGoogleConfigured()) throw new Error("Google AI is not configured");
+    const t0 = Date.now();
+    try {
+      const result = await googleChat(opts);
+      logProviderEvent("google", "direct", true, Date.now() - t0);
+      return result;
+    } catch (err) {
+      logProviderEvent("google", "direct", false, Date.now() - t0, (err as Error).message);
+      throw err;
+    }
+  }
+
+  // auto – try Azure first, fall back to Google on retryable errors
+  if (isAzureConfigured()) {
+    const t0 = Date.now();
+    try {
+      const result = await azureChat(opts);
+      logProviderEvent("azure", "auto", true, Date.now() - t0);
+      return result;
+    } catch (err) {
+      const elapsed = Date.now() - t0;
+      logProviderEvent("azure", "auto", false, elapsed, (err as Error).message);
+      if (isRetryableError(err) && isGoogleConfigured()) {
+        console.warn("[ai-provider] Retryable error from Azure, falling back to Google AI");
+        const t1 = Date.now();
+        try {
+          const result = await googleChat(opts);
+          logProviderEvent("google", "auto-fallback", true, Date.now() - t1);
+          return result;
+        } catch (fallbackErr) {
+          logProviderEvent("google", "auto-fallback", false, Date.now() - t1, (fallbackErr as Error).message);
+          throw fallbackErr;
+        }
+      }
+      throw err;
+    }
+  }
+
+  if (isGoogleConfigured()) {
+    const t0 = Date.now();
+    try {
+      const result = await googleChat(opts);
+      logProviderEvent("google", "auto", true, Date.now() - t0);
+      return result;
+    } catch (err) {
+      logProviderEvent("google", "auto", false, Date.now() - t0, (err as Error).message);
+      throw err;
+    }
+  }
 
   throw new Error("No AI provider configured. Set AZURE_OPENAI_* or GOOGLE_AI_API_KEY environment variables.");
 }
@@ -351,26 +462,67 @@ export async function chatCompletionStream(opts: ChatCompletionOptions): Promise
 
   if (provider === "azure") {
     if (!isAzureConfigured()) throw new Error("Azure OpenAI is not configured");
-    return azureChatStream(opts);
-  }
-
-  if (provider === "google") {
-    if (!isGoogleConfigured()) throw new Error("Google AI is not configured");
-    return googleChatStream(opts);
-  }
-
-  // auto – try Azure first, fall back to Google
-  if (isAzureConfigured()) {
+    const t0 = Date.now();
     try {
-      return await azureChatStream(opts);
+      const result = await azureChatStream(opts);
+      logProviderEvent("azure", "stream-direct", true, Date.now() - t0);
+      return result;
     } catch (err) {
-      console.warn("Azure OpenAI streaming failed, falling back to Google AI:", (err as Error).message);
-      if (isGoogleConfigured()) return googleChatStream(opts);
+      logProviderEvent("azure", "stream-direct", false, Date.now() - t0, (err as Error).message);
       throw err;
     }
   }
 
-  if (isGoogleConfigured()) return googleChatStream(opts);
+  if (provider === "google") {
+    if (!isGoogleConfigured()) throw new Error("Google AI is not configured");
+    const t0 = Date.now();
+    try {
+      const result = await googleChatStream(opts);
+      logProviderEvent("google", "stream-direct", true, Date.now() - t0);
+      return result;
+    } catch (err) {
+      logProviderEvent("google", "stream-direct", false, Date.now() - t0, (err as Error).message);
+      throw err;
+    }
+  }
+
+  // auto – try Azure first, fall back to Google on retryable errors
+  if (isAzureConfigured()) {
+    const t0 = Date.now();
+    try {
+      const result = await azureChatStream(opts);
+      logProviderEvent("azure", "stream-auto", true, Date.now() - t0);
+      return result;
+    } catch (err) {
+      const elapsed = Date.now() - t0;
+      logProviderEvent("azure", "stream-auto", false, elapsed, (err as Error).message);
+      if (isRetryableError(err) && isGoogleConfigured()) {
+        console.warn("[ai-provider] Retryable error from Azure stream, falling back to Google AI");
+        const t1 = Date.now();
+        try {
+          const result = await googleChatStream(opts);
+          logProviderEvent("google", "stream-auto-fallback", true, Date.now() - t1);
+          return result;
+        } catch (fallbackErr) {
+          logProviderEvent("google", "stream-auto-fallback", false, Date.now() - t1, (fallbackErr as Error).message);
+          throw fallbackErr;
+        }
+      }
+      throw err;
+    }
+  }
+
+  if (isGoogleConfigured()) {
+    const t0 = Date.now();
+    try {
+      const result = await googleChatStream(opts);
+      logProviderEvent("google", "stream-auto", true, Date.now() - t0);
+      return result;
+    } catch (err) {
+      logProviderEvent("google", "stream-auto", false, Date.now() - t0, (err as Error).message);
+      throw err;
+    }
+  }
 
   throw new Error("No AI provider configured. Set AZURE_OPENAI_* or GOOGLE_AI_API_KEY environment variables.");
 }
