@@ -92,6 +92,7 @@ const AnaliseTributaria = lazy(() => import("@/pages/AnaliseTributaria"));
 const AppMotorista = lazy(() => import("@/pages/AppMotorista"));
 const GestaoProcessosOperacionais = lazy(() => import("@/pages/GestaoProcessosOperacionais"));
 const AuditoriaSASSMAQ = lazy(() => import("@/pages/AuditoriaSASSMAQ"));
+const ERPSystemShaderStyle = lazy(() => import("@/pages/ERPSystemShaderStyle"));
 
 function App() {
   return (
@@ -204,6 +205,7 @@ function App() {
                               <Route path="app-motorista" element={<AppMotorista />} />
                               <Route path="gestao-pops" element={<GestaoProcessosOperacionais />} />
                               <Route path="auditoria-sassmaq" element={<AuditoriaSASSMAQ />} />
+                              <Route path="erp-system" element={<ERPSystemShaderStyle />} />
                             </Routes>
                           </Suspense>
                         </Layout>
