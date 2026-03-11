@@ -156,7 +156,8 @@ function convertMessagesToGemini(messages: ChatMessage[]): {
     }
   }
 
-  // Gemini requires at least one user message
+  // Gemini API requires at least one user message in `contents`;
+  // when only system messages are provided, add a minimal placeholder.
   if (contents.length === 0) {
     contents.push({ role: "user", parts: [{ text: "." }] });
   }
