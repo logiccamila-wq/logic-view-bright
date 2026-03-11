@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, MessageSquare, BarChart3, Package, TrendingUp, Send } from 'lucide-react';
+import { Settings, MessageSquare, BarChart3, Package, TrendingUp, Send, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ERPChatPanel } from "@/components/erp/ERPChatPanel";
 
 const SEVEN_DAY_RISK_THRESHOLD = 50;
 const THIRTY_DAY_RISK_THRESHOLD = 70;
@@ -42,7 +43,7 @@ const mensagensIniciais = [
 
 const ERPSystemShaderStyle = () => {
   const [prediction, setPrediction] = useState(50);
-  const [messages, setMessages] = useState(mensagensIniciais);
+  const [teamMessages, setTeamMessages] = useState(mensagensIniciais);
   const [message, setMessage] = useState('');
 
   const getPredictionLabel = (val: number) => {
@@ -119,6 +120,10 @@ const ERPSystemShaderStyle = () => {
           <TabsTrigger value="analytics" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
             <BarChart3 className="w-4 h-4 mr-2" />
             Analytics
+          </TabsTrigger>
+          <TabsTrigger value="erp-pilot" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+            <Sparkles className="w-4 h-4 mr-2" />
+            ERP Pilot
           </TabsTrigger>
           <TabsTrigger value="inventory" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
             <Package className="w-4 h-4 mr-2" />
@@ -208,6 +213,11 @@ const ERPSystemShaderStyle = () => {
           </div>
         </TabsContent>
 
+        {/* ERP Pilot Chat Tab */}
+        <TabsContent value="erp-pilot" className="mt-4">
+          <ERPChatPanel />
+        </TabsContent>
+
         {/* Inventory Tab */}
         <TabsContent value="inventory" className="mt-4">
           <Card className="bg-gradient-to-br from-slate-800/60 to-slate-900/80 border border-slate-700/50 backdrop-blur-sm">
@@ -261,7 +271,7 @@ const ERPSystemShaderStyle = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                {messages.map((m) => (
+                {teamMessages.map((m) => (
                   <div
                     key={m.id}
                     className="flex items-start gap-3 p-3 rounded-xl bg-slate-700/30 border border-slate-600/20"
@@ -293,7 +303,7 @@ const ERPSystemShaderStyle = () => {
                   if (!message.trim()) return;
                   const now = new Date();
                   const hora = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                  setMessages((prev) => [
+                  setTeamMessages((prev) => [
                     ...prev,
                     { id: `msg-${Date.now()}`, de: "Você", texto: message.trim(), hora },
                   ]);
