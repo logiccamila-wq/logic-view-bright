@@ -19,7 +19,8 @@ import {
   Settings,
   Download,
   TrendingUp,
-  Brain
+  Brain,
+  Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -117,6 +118,7 @@ export function Sidebar({ className }: SidebarProps) {
         { href: "/permissions", label: "Permissões", icon: Shield, module: "settings" },
         { href: "/reports", label: "Relatórios", icon: FileText, module: "reports" },
         { href: "/settings", label: "Configurações", icon: Settings, module: "settings" },
+        { href: "/sitemap", label: "Mapa do Sistema", icon: Layers },
       ]
     },
   ];
