@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { chatCompletionStream, AIProviderError } from "../_shared/ai-provider.ts";
 
 const requestSchema = z.object({
   messages: z.array(z.object({
@@ -25,14 +26,6 @@ serve(async (req) => {
     const body = await req.json();
     const validated = requestSchema.parse(body);
     const { messages, dashboardData } = validated;
-    const azureEndpoint = Deno.env.get("AZURE_OPENAI_ENDPOINT") ?? "";
-    const azureApiKey = Deno.env.get("AZURE_OPENAI_API_KEY") ?? "";
-    const azureDeployment = Deno.env.get("AZURE_OPENAI_DEPLOYMENT") ?? "";
-    const azureApiVersion = Deno.env.get("AZURE_OPENAI_API_VERSION") ?? "2024-10-21";
-
-    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
-      throw new Error("AZURE_OPENAI_* is not configured");
-    }
 
     // System prompt com contexto do dashboard
     const systemPrompt = `Você é Gael, uma consultora de IA especializada em logística e gestão empresarial para a OptiLog.
@@ -74,57 +67,42 @@ IMPORTANTE:
 - Use linguagem executiva e profissional
 - Quando não tiver dados, seja transparente sobre limitações`;
 
-    const baseUrl = azureEndpoint.replace(/\/$/, "");
-    const response = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
-      method: "POST",
-      headers: {
-        "api-key": azureApiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: true,
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
+    const streamResponse = await chatCompletionStream({
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+      temperature: 0.7,
+      maxTokens: 2000,
+      stream: true,
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns instantes." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Créditos/limite insuficientes no Azure OpenAI." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: "Erro ao conectar com o serviço de IA" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    return new Response(response.body, {
+    return new Response(streamResponse.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
     console.error("Gael chat error:", e);
-    
+
     if (e instanceof z.ZodError) {
       return new Response(
         JSON.stringify({ error: "Invalid input", details: e.errors }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    if (e instanceof AIProviderError) {
+      if (e.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns instantes." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (e.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Créditos/limite insuficientes no serviço de IA." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
     
     return new Response(

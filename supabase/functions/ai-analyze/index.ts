@@ -5,6 +5,9 @@ export default async function handler(req: any, res: any) {
   const aiKey = process.env.AI_PROVIDER_KEY || process.env.AI_GATEWAY_API_KEY || "";
   const aiModel = process.env.AI_PROVIDER_MODEL || "gpt-4o-mini";
   const aiEndpoint = process.env.AI_PROVIDER_ENDPOINT || "https://api.openai.com/v1/chat/completions";
+  const googleAiKey = process.env.GOOGLE_AI_API_KEY || "";
+  const googleAiModel = process.env.GOOGLE_AI_MODEL || "gemini-2.0-flash";
+  const providerPref = (process.env.AI_PROVIDER || "auto").toLowerCase().trim();
   const allowedRoles = (process.env.AI_ALLOWED_ROLES || "admin,finance,logistics_manager").split(',').map(s=>s.trim()).filter(Boolean);
   const dailyDefault = parseInt(process.env.AI_DAILY_LIMIT_DEFAULT || "50");
   const dailyAdmin = parseInt(process.env.AI_DAILY_LIMIT_ADMIN || String(dailyDefault));
@@ -13,7 +16,7 @@ export default async function handler(req: any, res: any) {
   const costIn = parseFloat(process.env.AI_COST_INPUT || "0");
   const costOut = parseFloat(process.env.AI_COST_OUTPUT || "0");
   if (!supabaseUrl || !serviceKey) { res.status(500).json({ error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" }); return; }
-  if (!aiKey) { res.status(501).json({ error: "AI provider not configured" }); return; }
+  if (!aiKey && !googleAiKey) { res.status(501).json({ error: "AI provider not configured. Set AI_PROVIDER_KEY or GOOGLE_AI_API_KEY." }); return; }
 
   const authHeader = req.headers?.authorization || req.headers?.Authorization || "";
   if (!authHeader || !authHeader.toString().startsWith("Bearer ")) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -55,25 +58,117 @@ export default async function handler(req: any, res: any) {
     const context = body.context || {};
     if (!task) { res.status(400).json({ error: "task required" }); return; }
 
-    const aiResp = await fetch(aiEndpoint, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${aiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: aiModel,
-        messages: [
-          { role: "system", content: "You are a concise assistant. Answer briefly and avoid extra tokens." },
-          { role: "user", content: task + (Object.keys(context||{}).length ? `\n\nContext: ${JSON.stringify(context)}` : "") }
-        ],
-        max_tokens: 200,
-        temperature: 0.2
-      })
-    });
-    if (!aiResp.ok) { res.status(aiResp.status).send(await aiResp.text()); return; }
-    const aiJson: any = await aiResp.json().catch(()=>({}));
-    const content = aiJson?.choices?.[0]?.message?.content || "";
-    const usage = aiJson?.usage || {};
-    const tokensIn = usage?.prompt_tokens || 0;
-    const tokensOut = usage?.completion_tokens || 0;
+    const messages = [
+      { role: "system", content: "You are a concise assistant. Answer briefly and avoid extra tokens." },
+      { role: "user", content: task + (Object.keys(context||{}).length ? `\n\nContext: ${JSON.stringify(context)}` : "") }
+    ];
+
+    let content = "";
+    let tokensIn = 0;
+    let tokensOut = 0;
+    let usedProvider = "openai";
+
+    // Determine provider: "azure", "google", "openai", or "auto"
+    const useGoogle = providerPref === "google" || providerPref === "gemini" || (providerPref === "auto" && !aiKey && googleAiKey);
+    const useOpenAI = !useGoogle && aiKey;
+
+    if (useGoogle && googleAiKey) {
+      // Google AI Studio (Gemini) call
+      const geminiContents = messages
+        .filter(m => m.role !== "system")
+        .map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+      const systemText = messages.filter(m => m.role === "system").map(m => m.content).join("\n\n");
+
+      const geminiBody: Record<string, unknown> = {
+        contents: geminiContents,
+        generationConfig: { temperature: 0.2, maxOutputTokens: 200 },
+      };
+      if (systemText) {
+        geminiBody.systemInstruction = { parts: [{ text: systemText }] };
+      }
+
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${googleAiModel}:generateContent?key=${googleAiKey}`;
+      const aiResp = await fetch(geminiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geminiBody),
+      });
+
+      if (!aiResp.ok) {
+        // If Google fails and OpenAI is available, try OpenAI as fallback
+        if (aiKey && providerPref === "auto") {
+          const fallbackResp = await fetch(aiEndpoint, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${aiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ model: aiModel, messages, max_tokens: 200, temperature: 0.2 })
+          });
+          if (!fallbackResp.ok) { res.status(fallbackResp.status).send(await fallbackResp.text()); return; }
+          const fallbackJson: any = await fallbackResp.json().catch(()=>({}));
+          content = fallbackJson?.choices?.[0]?.message?.content || "";
+          const u = fallbackJson?.usage || {};
+          tokensIn = u?.prompt_tokens || 0;
+          tokensOut = u?.completion_tokens || 0;
+          usedProvider = "openai";
+        } else {
+          res.status(aiResp.status).send(await aiResp.text()); return;
+        }
+      } else {
+        const aiJson: any = await aiResp.json().catch(()=>({}));
+        content = aiJson?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const meta = aiJson?.usageMetadata || {};
+        tokensIn = meta?.promptTokenCount || 0;
+        tokensOut = meta?.candidatesTokenCount || 0;
+        usedProvider = "google-ai";
+      }
+    } else if (useOpenAI && aiKey) {
+      // OpenAI / Azure OpenAI call (original behavior)
+      const aiResp = await fetch(aiEndpoint, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${aiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: aiModel, messages, max_tokens: 200, temperature: 0.2 })
+      });
+
+      if (!aiResp.ok) {
+        // If OpenAI fails and Google is available, try Google as fallback
+        if (googleAiKey && providerPref === "auto") {
+          const geminiContents = messages
+            .filter(m => m.role !== "system")
+            .map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+          const systemText = messages.filter(m => m.role === "system").map(m => m.content).join("\n\n");
+          const geminiBody: Record<string, unknown> = {
+            contents: geminiContents,
+            generationConfig: { temperature: 0.2, maxOutputTokens: 200 },
+          };
+          if (systemText) geminiBody.systemInstruction = { parts: [{ text: systemText }] };
+
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${googleAiModel}:generateContent?key=${googleAiKey}`;
+          const fallbackResp = await fetch(geminiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(geminiBody),
+          });
+          if (!fallbackResp.ok) { res.status(fallbackResp.status).send(await fallbackResp.text()); return; }
+          const fallbackJson: any = await fallbackResp.json().catch(()=>({}));
+          content = fallbackJson?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const meta = fallbackJson?.usageMetadata || {};
+          tokensIn = meta?.promptTokenCount || 0;
+          tokensOut = meta?.candidatesTokenCount || 0;
+          usedProvider = "google-ai";
+        } else {
+          res.status(aiResp.status).send(await aiResp.text()); return;
+        }
+      } else {
+        const aiJson: any = await aiResp.json().catch(()=>({}));
+        content = aiJson?.choices?.[0]?.message?.content || "";
+        const usage = aiJson?.usage || {};
+        tokensIn = usage?.prompt_tokens || 0;
+        tokensOut = usage?.completion_tokens || 0;
+        usedProvider = "openai";
+      }
+    } else {
+      res.status(501).json({ error: "No AI provider key configured" }); return;
+    }
+
     const cost = ((tokensIn/1000) * costIn) + ((tokensOut/1000) * costOut);
     await fetch(`${supabaseUrl}/rest/v1/ai_usage`, {
       method: "POST",
@@ -81,7 +176,7 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({ user_id: uid, role: (roles[0]||null), task, tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: Number.isFinite(cost) ? Number(cost.toFixed(4)) : 0 })
     });
 
-    res.status(200).json({ ok: true, user_id: uid, output: content, usage, cost_usd: Number.isFinite(cost) ? Number(cost.toFixed(4)) : 0 });
+    res.status(200).json({ ok: true, user_id: uid, output: content, provider: usedProvider, usage: { prompt_tokens: tokensIn, completion_tokens: tokensOut }, cost_usd: Number.isFinite(cost) ? Number(cost.toFixed(4)) : 0 });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || "ai_failed" });
   }
