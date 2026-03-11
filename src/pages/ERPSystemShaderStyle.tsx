@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, MessageSquare, BarChart3, Package, TrendingUp, Send } from 'lucide-react';
+import { Settings, MessageSquare, BarChart3, Package, TrendingUp, Send, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import GaelChatbot from "@/components/GaelChatbot";
 import {
   Table,
   TableBody,
@@ -42,6 +43,7 @@ const mensagensIniciais = [
 
 const ERPSystemShaderStyle = () => {
   const [prediction, setPrediction] = useState(50);
+  const [optimization, setOptimization] = useState(50);
   const [messages, setMessages] = useState(mensagensIniciais);
   const [message, setMessage] = useState('');
 
@@ -52,7 +54,15 @@ const ERPSystemShaderStyle = () => {
     return { label: "Risco Crítico", color: "text-red-400" };
   };
 
+  const getOptimizationLabel = (val: number) => {
+    if (val < 30) return { label: "Conservador", color: "text-blue-400" };
+    if (val < 60) return { label: "Equilibrado", color: "text-indigo-400" };
+    if (val < 80) return { label: "Agressivo", color: "text-purple-400" };
+    return { label: "Máxima Expansão", color: "text-fuchsia-400" };
+  };
+
   const { label: predLabel, color: predColor } = getPredictionLabel(prediction);
+  const { label: optLabel, color: optColor } = getOptimizationLabel(optimization);
 
   const getStatusBadge = (status: string) => {
     const map: Record<string, string> = {
@@ -168,11 +178,33 @@ const ERPSystemShaderStyle = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300 text-sm">Nível de Otimização</span>
+                  <span className={`text-sm font-bold ${optColor}`}>
+                    {optimization}% — {optLabel}
+                  </span>
+                </div>
+                <Slider
+                  value={[optimization]}
+                  onValueChange={(v) => setOptimization(v[0])}
+                  min={0}
+                  max={100}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>0 — Conservador</span>
+                  <span>100 — Expansão máxima</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-4 pt-2">
                 {[
                   { label: "Previsão 7 dias", value: prediction < SEVEN_DAY_RISK_THRESHOLD ? "Normal" : "Alerta" },
                   { label: "Previsão 30 dias", value: prediction < THIRTY_DAY_RISK_THRESHOLD ? "Estável" : "Crítico" },
                   { label: "Confiança IA", value: `${Math.round(70 + (prediction / 100) * 30)}%` },
+                  { label: "Estratégia", value: optimization >= 75 ? "Expansão" : optimization >= 40 ? "Equilíbrio" : "Proteção" },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -364,6 +396,11 @@ const ERPSystemShaderStyle = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Chatbot flutuante com contexto dos sliders */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <GaelChatbot optimization={optimization} risk={prediction} />
+      </div>
     </div>
   );
 };

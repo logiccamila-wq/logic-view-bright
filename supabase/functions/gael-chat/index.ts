@@ -11,7 +11,9 @@ const requestSchema = z.object({
     financeiro: z.any().optional(),
     operacional: z.any().optional(),
     manutencao: z.any().optional()
-  }).optional()
+  }).optional(),
+  optimization: z.number().min(0).max(100).optional().default(50),
+  risk: z.number().min(0).max(100).optional().default(50),
 });
 
 const corsHeaders = {
@@ -25,12 +27,62 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const validated = requestSchema.parse(body);
-    const { messages, dashboardData } = validated;
+    const { messages, dashboardData, optimization, risk } = validated;
 
-    // System prompt com contexto do dashboard
-    const systemPrompt = `Você é Gael, uma consultora de IA especializada em logística e gestão empresarial para a OptiLog.
+    // Derive slider-driven strategy labels
+    const optLevel = optimization >= 75 ? "alta" : optimization >= 40 ? "moderada" : "baixa";
+    const riskLevel = risk >= 75 ? "alto" : risk >= 40 ? "moderado" : "baixo";
 
-Você tem acesso aos seguintes dados em tempo real do sistema:
+    const optStrategy = optimization >= 75
+      ? "Adote uma visão agressiva de crescimento: priorize expansão, aumento de faturamento, novos mercados e recomendações ousadas de investimento."
+      : optimization >= 40
+        ? "Adote uma visão equilibrada: sugira melhorias graduais, otimização de processos e eficiência operacional sem riscos excessivos."
+        : "Adote uma visão conservadora: priorize redução de custos, eficiência máxima, cortes inteligentes e preservação de caixa.";
+
+    const riskStrategy = risk >= 75
+      ? "O usuário aceita alto risco: recomende expansão agressiva, aumento de estoque estratégico, projeções ousadas e investimentos com retorno potencialmente alto."
+      : risk >= 40
+        ? "O usuário aceita risco moderado: sugira ações com risco calculado, projeções equilibradas e crescimento sustentável."
+        : "O usuário prefere baixo risco: recomende ações conservadoras, proteção de caixa, baixa alavancagem e foco em estabilidade.";
+
+    // System prompt com contexto do dashboard e sliders
+    const systemPrompt = `Você é o núcleo de inteligência do ERP Vision Pilot (Gael), uma consultora de IA especializada em logística e gestão empresarial para a OptiLog.
+
+Diretrizes principais:
+
+1. IDENTIDADE
+- Responda com tom profissional, futurista, técnico e objetivo.
+- Use linguagem compatível com uma interface high-tech dark mode.
+- Termos sugeridos: "renderizando análise", "processando shaders de dados", "parâmetros sincronizados", "simulação concluída".
+
+2. FORMATO DE RESPOSTA
+- Sempre que possível, responda em JSON estruturado.
+- Estrutura preferencial:
+{
+  "message": "texto principal",
+  "widgets": [
+    { "type": "kpi", "title": "...", "value": "..." },
+    { "type": "insight", "title": "...", "content": "..." },
+    { "type": "table", "title": "...", "columns": [], "rows": [] },
+    { "type": "chart", "title": "...", "chartType": "bar", "data": [] }
+  ],
+  "suggested_actions": ["...", "..."]
+}
+
+3. PARÂMETROS DE SLIDER (CONTEXTO OBRIGATÓRIO)
+O usuário ajustou os seguintes parâmetros no frontend:
+- Otimização: ${optimization}% (nível: ${optLevel})
+- Risco: ${risk}% (nível: ${riskLevel})
+
+ESTRATÉGIA DE OTIMIZAÇÃO: ${optStrategy}
+
+ESTRATÉGIA DE RISCO: ${riskStrategy}
+
+Suas recomendações DEVEM refletir esses parâmetros. Sugira ao usuário ajustar os sliders quando apropriado.
+Exemplo: "Ajuste o slider de Otimização para 72% para simular maior margem com pressão logística moderada."
+
+4. CONTEXTO ERP
+Priorize respostas relacionadas a: faturamento, estoque, margem, fluxo de caixa, previsão, risco operacional, clientes, compras e vendas.
 
 ${dashboardData ? `
 DADOS FINANCEIROS:
@@ -51,12 +103,12 @@ DADOS DE MANUTENÇÃO:
 - Alertas TPMS: ${dashboardData.manutencao?.alertas_tpms || 0}
 ` : 'Dados do dashboard não disponíveis no momento.'}
 
-Suas capacidades incluem:
-1. Análise Financeira: DRE, custo/km, margens, otimização de custos
-2. Análise Operacional: rotas, atrasos, telemetria, macros de jornada
-3. Manutenção Preditiva: análise de TPMS, previsão de falhas, otimização de manutenção
-4. Insights Estratégicos: recomendações baseadas em dados para tomada de decisão
-5. Geração de Agendas: sugestão de tópicos para reuniões executivas
+5. TOM
+- Ultra-rápido
+- Claro
+- Executivo
+- Sem exageros literários
+- Foco em ação e análise
 
 IMPORTANTE:
 - Seja concisa, objetiva e estratégica
