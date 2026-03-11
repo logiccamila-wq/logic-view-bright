@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import { chatCompletion, AIProviderError } from "../_shared/ai-provider.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,14 +64,6 @@ serve(async (req) => {
     const inadimplente = financialAnalysis?.[0]?.inadimplente || false;
     const scoreCliente = financialAnalysis?.[0]?.score_cliente || 100;
 
-    const azureEndpoint = Deno.env.get("AZURE_OPENAI_ENDPOINT") ?? "";
-    const azureApiKey = Deno.env.get("AZURE_OPENAI_API_KEY") ?? "";
-    const azureDeployment = Deno.env.get("AZURE_OPENAI_DEPLOYMENT") ?? "";
-    const azureApiVersion = Deno.env.get("AZURE_OPENAI_API_VERSION") ?? "2024-10-21";
-    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
-      throw new Error("AZURE_OPENAI_* nao configurado");
-    }
-
     const systemPrompt = `Voce e um analista financeiro especializado em logistica e transportes. Analise os dados do cliente e forneca:
 1. Analise Preditiva: Previsao de receita para proximos 3 meses
 2. Analise Comparativa: Comparacao com medias do setor
@@ -101,36 +94,13 @@ ${financialAnalysis?.map(fa =>
 
 Forneca analise completa com numeros especificos.`;
 
-    const baseUrl = azureEndpoint.replace(/\/$/, "");
-    const aiResponse = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
-      method: "POST",
-      headers: {
-        "api-key": azureApiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        temperature: 0.7,
-      }),
+    const result = await chatCompletion({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7,
     });
-
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        throw new Error("Limite de requisicoes excedido. Tente novamente em alguns instantes.");
-      }
-      if (aiResponse.status === 402) {
-        throw new Error("Creditos/limite insuficientes no Azure OpenAI.");
-      }
-      const errorText = await aiResponse.text();
-      console.error("Erro na API de IA:", aiResponse.status, errorText);
-      throw new Error("Erro ao gerar analise com IA");
-    }
-
-    const aiData = await aiResponse.json();
-    const analysis = aiData.choices[0].message.content;
 
     return new Response(
       JSON.stringify({
@@ -145,7 +115,8 @@ Forneca analise completa com numeros especificos.`;
           inadimplente,
           scoreCliente
         },
-        analysis,
+        analysis: result.content,
+        provider: result.provider,
         financialHistory: financialAnalysis,
         recentCtes: ctes?.slice(0, 10)
       }),
@@ -157,6 +128,22 @@ Forneca analise completa com numeros especificos.`;
 
   } catch (error: any) {
     console.error("Erro na analise:", error);
+
+    if (error instanceof AIProviderError) {
+      if (error.status === 429) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Limite de requisicoes excedido. Tente novamente em alguns instantes." }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+        );
+      }
+      if (error.status === 402) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Creditos/limite insuficientes no servico de IA." }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 402 }
+        );
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: false,

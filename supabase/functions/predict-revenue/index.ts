@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { chatCompletion, AIProviderError } from "../_shared/ai-provider.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -109,27 +110,11 @@ serve(async (req) => {
       }
     }
 
-    // Chamar Azure OpenAI para análise preditiva
-    const azureEndpoint = Deno.env.get('AZURE_OPENAI_ENDPOINT') ?? ''
-    const azureApiKey = Deno.env.get('AZURE_OPENAI_API_KEY') ?? ''
-    const azureDeployment = Deno.env.get('AZURE_OPENAI_DEPLOYMENT') ?? ''
-    const azureApiVersion = Deno.env.get('AZURE_OPENAI_API_VERSION') ?? '2024-10-21'
-    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
-      throw new Error('AZURE_OPENAI_* não configurado')
-    }
-
-    const baseUrl = azureEndpoint.replace(/\/$/, '')
-    const aiResponse = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
-      method: 'POST',
-      headers: {
-        'api-key': azureApiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: 'system',
-            content: `Você é um especialista em análise preditiva financeira e previsão de receita. 
+    const result = await chatCompletion({
+      messages: [
+        {
+          role: 'system',
+          content: `Você é um especialista em análise preditiva financeira e previsão de receita. 
 Analise os dados históricos fornecidos e gere previsões precisas considerando:
 - Tendências de crescimento ou declínio
 - Sazonalidade (variações por mês do ano)
@@ -159,10 +144,10 @@ Retorne APENAS um JSON válido no formato:
     "recomendacoes": ["aumentar capacidade para dezembro", "preparar estoque"]
   }
 }`
-          },
-          {
-            role: 'user',
-            content: `Analise estes dados históricos de receita e gere previsões para os próximos ${months_ahead} meses:
+        },
+        {
+          role: 'user',
+          content: `Analise estes dados históricos de receita e gere previsões para os próximos ${months_ahead} meses:
 
 Dados Históricos (últimos ${dataContext.statistics.total_months} meses):
 ${JSON.stringify(dataContext, null, 2)}
@@ -173,38 +158,12 @@ Estatísticas:
 - Ticket médio: R$ ${dataContext.statistics.avg_ticket.toFixed(2)}
 
 Gere previsões realistas considerando os padrões históricos e sazonalidade.`
-          }
-        ],
-        temperature: 0.3,
-      }),
+        }
+      ],
+      temperature: 0.3,
     })
 
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Limite de requisições excedido. Tente novamente em alguns minutos.' }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
-      }
-      if (aiResponse.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Créditos/limite insuficientes no Azure OpenAI.' }),
-          {
-            status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
-      }
-      const errorText = await aiResponse.text()
-      console.error('Erro na API Azure OpenAI:', aiResponse.status, errorText)
-      throw new Error('Erro ao gerar previsão')
-    }
-
-    const aiData = await aiResponse.json()
-    const content = aiData.choices[0].message.content
+    const content = result.content
 
     // Extrair JSON da resposta
     let predictions
@@ -248,6 +207,7 @@ Gere previsões realistas considerando os padrões históricos e sazonalidade.`
         historical_data: historicalData,
         predictions: predictions.predictions,
         insights: predictions.insights,
+        provider: result.provider,
         metadata: {
           generated_at: new Date().toISOString(),
           months_analyzed: historicalData.length,
@@ -261,6 +221,22 @@ Gere previsões realistas considerando os padrões históricos e sazonalidade.`
     )
   } catch (error: any) {
     console.error('Erro na função predict-revenue:', error)
+
+    if (error instanceof AIProviderError) {
+      if (error.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Limite de requisições excedido. Tente novamente em alguns minutos.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      if (error.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'Créditos/limite insuficientes no serviço de IA.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
     return new Response(
       JSON.stringify({ error: error?.message || 'Unknown error' }),
       {

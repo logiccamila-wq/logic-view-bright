@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { chatCompletion, AIProviderError } from "../_shared/ai-provider.ts";
 
 const requestSchema = z.object({
   messages: z.array(z.object({
@@ -112,53 +113,14 @@ REGRAS:
 
 IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações específicas quando necessário.`;
 
-    const azureEndpoint = Deno.env.get("AZURE_OPENAI_ENDPOINT") ?? "";
-    const azureApiKey = Deno.env.get("AZURE_OPENAI_API_KEY") ?? "";
-    const azureDeployment = Deno.env.get("AZURE_OPENAI_DEPLOYMENT") ?? "";
-    const azureApiVersion = Deno.env.get("AZURE_OPENAI_API_VERSION") ?? "2024-10-21";
-    if (!azureEndpoint || !azureApiKey || !azureDeployment) {
-      throw new Error("AZURE_OPENAI_* não configurado");
-    }
-
-    const baseUrl = azureEndpoint.replace(/\/$/, "");
-    const response = await fetch(`${baseUrl}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`, {
-      method: "POST",
-      headers: {
-        "api-key": azureApiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: false,
-      }),
+    const result = await chatCompletion({
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Limite de uso atingido. Tente novamente em instantes." }), {
-          status: 429,
-          headers: { ...getCors(origin), "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes. Entre em contato com o administrador." }), {
-          status: 402,
-          headers: { ...getCors(origin), "Content-Type": "application/json" },
-        });
-      }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: "Erro ao processar sua mensagem" }), {
-        status: 500,
-        headers: { ...getCors(origin), "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await response.json();
-    const aiMessage = data.choices[0].message.content;
+    const aiMessage = result.content;
 
     // Save AI response to database
     await supabase
@@ -168,7 +130,7 @@ IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações es
         sender_id: userId,
         message: aiMessage,
         message_type: "text",
-        metadata: { provider: "azure-openai", deployment: azureDeployment },
+        metadata: { provider: result.provider },
       });
 
     return new Response(JSON.stringify({ message: aiMessage }), {
@@ -176,6 +138,22 @@ IMPORTANTE: Você tem acesso ao FAQ do sistema e pode consultar informações es
     });
   } catch (error) {
     console.error("Error in ejg-chatbot:", error);
+
+    if (error instanceof AIProviderError) {
+      if (error.status === 429) {
+        return new Response(JSON.stringify({ error: "Limite de uso atingido. Tente novamente em instantes." }), {
+          status: 429,
+          headers: { ...getCors(req.headers.get("origin")), "Content-Type": "application/json" },
+        });
+      }
+      if (error.status === 402) {
+        return new Response(JSON.stringify({ error: "Créditos insuficientes. Entre em contato com o administrador." }), {
+          status: 402,
+          headers: { ...getCors(req.headers.get("origin")), "Content-Type": "application/json" },
+        });
+      }
+    }
+
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: { ...getCors(req.headers.get("origin")), "Content-Type": "application/json" },
