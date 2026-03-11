@@ -214,7 +214,8 @@ export function useERPChat(
                   ];
                 });
               }
-            } catch {
+            } catch (parseErr) {
+              console.warn("useERPChat: SSE JSON parse failed, buffering:", parseErr);
               textBuffer = line + "\n" + textBuffer;
               break;
             }

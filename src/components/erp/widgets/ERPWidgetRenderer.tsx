@@ -184,7 +184,7 @@ export function ERPWidgetRenderer({ widgets }: ERPWidgetRendererProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {kpis.map((w, i) => (
             <KpiWidget
-              key={`kpi-${i}`}
+              key={`kpi-${w.title}-${i}`}
               widget={w as Extract<ERPWidget, { type: "kpi" }>}
             />
           ))}
@@ -195,21 +195,21 @@ export function ERPWidgetRenderer({ widgets }: ERPWidgetRendererProps) {
           case "insight":
             return (
               <InsightWidget
-                key={`insight-${i}`}
+                key={`insight-${w.title}-${i}`}
                 widget={w as Extract<ERPWidget, { type: "insight" }>}
               />
             );
           case "table":
             return (
               <TableWidget
-                key={`table-${i}`}
+                key={`table-${w.title}-${i}`}
                 widget={w as Extract<ERPWidget, { type: "table" }>}
               />
             );
           case "chart":
             return (
               <ChartWidget
-                key={`chart-${i}`}
+                key={`chart-${w.title}-${i}`}
                 widget={w as Extract<ERPWidget, { type: "chart" }>}
               />
             );
