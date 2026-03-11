@@ -13,9 +13,11 @@ interface Message {
 
 interface GaelChatbotProps {
   dashboardData?: any;
+  optimization?: number;
+  risk?: number;
 }
 
-const GaelChatbot: React.FC<GaelChatbotProps> = ({ dashboardData }) => {
+const GaelChatbot: React.FC<GaelChatbotProps> = ({ dashboardData, optimization, risk }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -48,7 +50,9 @@ const GaelChatbot: React.FC<GaelChatbotProps> = ({ dashboardData }) => {
         },
         body: JSON.stringify({ 
           messages: userMessages,
-          dashboardData 
+          dashboardData,
+          optimization: optimization ?? 50,
+          risk: risk ?? 50,
         }),
       });
 

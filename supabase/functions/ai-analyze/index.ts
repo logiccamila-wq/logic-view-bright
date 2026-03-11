@@ -58,8 +58,35 @@ export default async function handler(req: any, res: any) {
     const context = body.context || {};
     if (!task) { res.status(400).json({ error: "task required" }); return; }
 
+    // Extract optimization and risk slider values from context
+    const optimization = typeof context.optimization === "number" ? Math.max(0, Math.min(100, context.optimization)) : 50;
+    const risk = typeof context.risk === "number" ? Math.max(0, Math.min(100, context.risk)) : 50;
+
+    const OPT_HIGH = 75;
+    const OPT_LOW = 40;
+    const RISK_HIGH = 75;
+    const RISK_LOW = 40;
+
+    const optStrategy = optimization >= OPT_HIGH
+      ? "O nível de otimização é ALTO: priorize visão agressiva de crescimento, expansão e recomendações ousadas."
+      : optimization >= OPT_LOW
+        ? "O nível de otimização é MODERADO: sugira melhorias graduais e eficiência operacional equilibrada."
+        : "O nível de otimização é BAIXO: priorize redução de custos, cortes inteligentes e preservação de caixa.";
+
+    const riskStrategy = risk >= RISK_HIGH
+      ? "O nível de risco aceito é ALTO: recomende expansão agressiva, projeções ousadas e investimentos de alto retorno."
+      : risk >= RISK_LOW
+        ? "O nível de risco aceito é MODERADO: sugira ações com risco calculado e crescimento sustentável."
+        : "O nível de risco aceito é BAIXO: recomende ações conservadoras, proteção de caixa e foco em estabilidade.";
+
+    const systemContent = `You are the ERP Vision Pilot AI core. Answer concisely and avoid extra tokens.
+${optStrategy}
+${riskStrategy}
+Optimization slider: ${optimization}%. Risk slider: ${risk}%.
+Tailor all recommendations to reflect these parameters.`;
+
     const messages = [
-      { role: "system", content: "You are a concise assistant. Answer briefly and avoid extra tokens." },
+      { role: "system", content: systemContent },
       { role: "user", content: task + (Object.keys(context||{}).length ? `\n\nContext: ${JSON.stringify(context)}` : "") }
     ];
 
