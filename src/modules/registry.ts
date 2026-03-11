@@ -528,4 +528,12 @@ export const modules: RegistryModule[] = [
     enabled: true,
     route: "/demo",
   },
+  {
+    slug: "erp-system",
+    name: "ERP System",
+    description: "Visão integrada de ERP com analytics, estoque, comunicação e configurações",
+    category: "business",
+    enabled: true,
+    route: "/erp-system",
+  },
 ];
