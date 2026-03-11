@@ -145,7 +145,7 @@ const categoryAccentColors: Record<string, string> = {
   dev: "bg-gray-500",
 };
 
-
+export default function Sitemap() {
   const categories = Object.keys(categoryLabels);
 
   const grouped = categories.reduce<Record<string, typeof modules>>((acc, cat) => {
