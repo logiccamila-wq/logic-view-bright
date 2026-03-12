@@ -70,8 +70,8 @@ const Developer = () => {
     }
   });
 
-  // Mock data para edge functions
-  const mockEdgeFunctions = [
+  // Mock data para jobs do runtime Azure
+  const mockRuntimeJobs = [
     { name: "analyze-client", status: "active", lastRun: "2024-11-15 10:30", executions: 145 },
     { name: "calculate-driver-payroll", status: "active", lastRun: "2024-11-15 09:15", executions: 89 },
     { name: "ejg-chatbot", status: "active", lastRun: "2024-11-15 10:45", executions: 523 },
@@ -85,7 +85,7 @@ const Developer = () => {
       id: "1", 
       timestamp: "2024-11-15 10:45:23", 
       level: "info", 
-      service: "edge-function",
+      service: "azure-runtime",
       message: "EJG Chatbot: Nova conversa iniciada",
       details: { userId: "123", conversationId: "conv-456" }
     },
@@ -109,7 +109,7 @@ const Developer = () => {
       id: "4", 
       timestamp: "2024-11-15 10:42:18", 
       level: "error", 
-      service: "edge-function",
+      service: "azure-runtime",
       message: "Erro ao processar pagamento",
       details: { error: "Payment gateway timeout", payrollId: "pay-789" }
     },
@@ -188,22 +188,22 @@ const Developer = () => {
         {/* Tabs */}
         <Tabs defaultValue="functions" className="w-full">
           <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="functions">Edge Functions</TabsTrigger>
+            <TabsTrigger value="functions">Azure Runtime</TabsTrigger>
             <TabsTrigger value="database">Database</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
             <TabsTrigger value="api">API Monitor</TabsTrigger>
             <TabsTrigger value="config">Configurações</TabsTrigger>
-            <TabsTrigger value="runtimeClient">Supabase Debug</TabsTrigger>
+            <TabsTrigger value="runtimeClient">Azure Debug</TabsTrigger>
           </TabsList>
 
-          {/* Edge Functions */}
+          {/* Azure Runtime */}
           <TabsContent value="functions" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Code2 className="w-5 h-5" />
-                    Edge Functions
+                    Azure Runtime
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline">
@@ -229,7 +229,7 @@ const Developer = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockEdgeFunctions.map((func) => (
+                    {mockRuntimeJobs.map((func) => (
                       <TableRow key={func.name}>
                         <TableCell className="font-mono font-medium">{func.name}</TableCell>
                         <TableCell>{getStatusBadge(func.status)}</TableCell>
@@ -547,7 +547,7 @@ function Diagnostics() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <Info label="API Base" value={apiBase} />
         <Info label="App URL" value={import.meta.env.VITE_APP_URL || window.location.origin} />
-        <Info label="Platform" value="Azure Static Web Apps" />
+        <Info label="Platform" value="Azure App Service + Runtime API" />
       </div>
       <div className="flex items-center gap-2 text-sm">
         <span className="text-green-700 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Configuração 100% Azure.</span>

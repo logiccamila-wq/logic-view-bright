@@ -56,7 +56,7 @@ export default function CostMonitoring() {
       <div>
         <h1 className="text-4xl font-bold text-foreground mb-2">Monitoramento de Custos</h1>
         <p className="text-muted-foreground">
-          Acompanhe gastos de infraestrutura Azure e projeções para crescimento
+          Acompanhe gastos de infraestrutura Azure com foco em qualidade, rapidez e economia
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export default function CostMonitoring() {
                 Infraestrutura 100% Azure
               </h3>
               <p className="text-green-800 dark:text-green-200 text-sm">
-                Azure Static Web Apps + Azure Functions + Azure Database for PostgreSQL
+                Azure App Service + Runtime API Node.js + Azure Database for PostgreSQL
               </p>
               <p className="text-xs text-green-700 dark:text-green-300 mt-1">
                 Domínio: www.xyzlogicflow.com.br
@@ -109,23 +109,23 @@ export default function CostMonitoring() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Static Web Apps</CardTitle>
+            <CardTitle className="text-sm font-medium">App Service</CardTitle>
             <HardDrive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Free</div>
-            <p className="text-xs text-muted-foreground">Plano Free (100 GB bandwidth)</p>
+            <div className="text-2xl font-bold">$6.00</div>
+            <p className="text-xs text-muted-foreground">Linux B1 compartilhado</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Functions</CardTitle>
+            <CardTitle className="text-sm font-medium">Runtime API</CardTitle>
             <Network className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Free</div>
-            <p className="text-xs text-muted-foreground">Consumption Plan (1M exec grátis)</p>
+            <div className="text-2xl font-bold">Incluso</div>
+            <p className="text-xs text-muted-foreground">Hospedado no mesmo App Service</p>
           </CardContent>
         </Card>
       </div>
@@ -234,7 +234,7 @@ export default function CostMonitoring() {
                   <Legend />
                   <Bar dataKey="compute" stackId="a" fill="#0078D4" name="PostgreSQL" />
                   <Bar dataKey="storage" stackId="a" fill="#10b981" name="Storage" />
-                  <Bar dataKey="functions" stackId="a" fill="#f59e0b" name="Functions" />
+                  <Bar dataKey="functions" stackId="a" fill="#f59e0b" name="Runtime API" />
                 </BarChart>
               </ResponsiveContainer>
 
@@ -265,20 +265,20 @@ export default function CostMonitoring() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  Static Web Apps
+                  Azure App Service
                   <Badge variant="secondary">Ativo</Badge>
                 </CardTitle>
-                <CardDescription>Frontend + Managed Functions</CardDescription>
+                <CardDescription>Frontend + runtime Node.js unificados</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold">Free</div>
-                  <p className="text-sm text-muted-foreground">plano atual</p>
+                  <div className="text-3xl font-bold">$6.00</div>
+                  <p className="text-sm text-muted-foreground">/mês (Linux B1)</p>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    100 GB bandwidth/mês
+                    Deploy único do frontend e backend
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -333,32 +333,32 @@ export default function CostMonitoring() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  Azure Functions
+                  Runtime API Node.js
                   <Badge variant="secondary">Ativo</Badge>
                 </CardTitle>
-                <CardDescription>API serverless</CardDescription>
+                <CardDescription>API compartilhada no App Service</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold">Free</div>
-                  <p className="text-sm text-muted-foreground">Consumption Plan</p>
+                  <div className="text-3xl font-bold">Incluso</div>
+                  <p className="text-sm text-muted-foreground">Sem custo separado de hospedagem</p>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    1M execuções grátis/mês
+                    Endpoints centralizados em /api/runtime/*
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    400K GB-s grátis/mês
+                    JWT e roles validados no backend
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Auto-scaling
+                    Pool PostgreSQL reutilizado
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Integrado com SWA
+                    Escala junto com o App Service
                   </div>
                 </div>
               </CardContent>

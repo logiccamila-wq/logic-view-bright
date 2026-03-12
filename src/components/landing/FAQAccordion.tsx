@@ -35,7 +35,7 @@ const defaultFAQs: FAQItem[] = [
   },
   {
     question: "Meus dados estão seguros?",
-    answer: "Absoluta segurança! Usamos criptografia de ponta a ponta (SSL/TLS), backups automáticos diários, conformidade com LGPD, e infraestrutura em cloud certificada (AWS/Supabase). Você mantém controle total sobre seus dados.",
+    answer: "Absoluta segurança! Usamos criptografia de ponta a ponta (SSL/TLS), backups automáticos diários, conformidade com LGPD e infraestrutura 100% Azure com App Service, PostgreSQL gerenciado e monitoramento centralizado. Você mantém controle total sobre seus dados.",
   },
   {
     question: "Preciso de conhecimento técnico para usar?",

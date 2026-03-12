@@ -2,17 +2,19 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const projectRoot = path.resolve(__dirname, '..');
+
 console.log('🔧 Auto-Fix: Corrigindo Problemas Comuns\n');
 
 const fixes = [];
 
 // 1. Garantir que node_modules existe
 console.log('📦 Verificando node_modules...');
-const nodeModulesPath = path.join('/workspaces/logic-view-bright', 'node_modules');
+const nodeModulesPath = path.join(projectRoot, 'node_modules');
 if (!fs.existsSync(nodeModulesPath)) {
   console.log('  ⚙️  Instalando dependências...');
   try {
-    execSync('npm install', { stdio: 'inherit', cwd: '/workspaces/logic-view-bright' });
+    execSync('npm install', { stdio: 'inherit', cwd: projectRoot });
     fixes.push('✅ Dependências instaladas');
   } catch (error) {
     fixes.push('❌ Erro ao instalar dependências');
@@ -23,8 +25,8 @@ if (!fs.existsSync(nodeModulesPath)) {
 
 // 2. Criar .env se não existir
 console.log('\n🔐 Verificando .env...');
-const envPath = path.join('/workspaces/logic-view-bright', '.env');
-const envExamplePath = path.join('/workspaces/logic-view-bright', '.env.example');
+const envPath = path.join(projectRoot, '.env');
+const envExamplePath = path.join(projectRoot, '.env.example');
 
 if (!fs.existsSync(envPath)) {
   if (fs.existsSync(envExamplePath)) {
@@ -33,10 +35,12 @@ if (!fs.existsSync(envPath)) {
     console.log('  ⚠️  Configure as variáveis em .env antes de continuar!');
   } else {
     // Criar .env básico
-    const basicEnv = `# Supabase
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+    const basicEnv = `# Azure runtime
+DATABASE_URL=
+AZURE_APPINSIGHTS_CONNECTION_STRING=
+VITE_API_BASE_URL=/api
+VITE_APP_URL=http://localhost:3000
+NODE_ENV=development
 
 # EmailJS
 VITE_EMAILJS_SERVICE_ID=
@@ -61,14 +65,14 @@ VITE_WHATSAPP_TOKEN=
 // 3. Verificar build
 console.log('\n🔨 Testando build...');
 try {
-  execSync('npm run build', { 
+  execSync('npm run build:azure', { 
     stdio: 'pipe', 
-    cwd: '/workspaces/logic-view-bright' 
+    cwd: projectRoot 
   });
   fixes.push('✅ Build passou sem erros');
 } catch (error) {
   fixes.push('⚠️  Build com erros - verifique manualmente');
-  console.log('  Execute: npm run build -- --debug para detalhes');
+  console.log('  Execute: npm run build:azure -- --debug para detalhes');
 }
 
 // 4. Verificar TypeScript
@@ -76,7 +80,7 @@ console.log('\n📝 Verificando TypeScript...');
 try {
   execSync('npx tsc --noEmit', { 
     stdio: 'pipe', 
-    cwd: '/workspaces/logic-view-bright' 
+    cwd: projectRoot 
   });
   fixes.push('✅ TypeScript sem erros');
 } catch (error) {
