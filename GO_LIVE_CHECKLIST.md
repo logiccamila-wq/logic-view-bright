@@ -14,6 +14,11 @@
   - `ns2-07.azure-dns.net`
   - `ns3-07.azure-dns.org`
   - `ns4-07.azure-dns.info`
+- [ ] Registros legados removidos do DNS:
+  - [ ] remover `CNAME` apontando para `logicflow-insight.lovable.app`
+  - [ ] remover `TXT` `_lovable.app`, `_lovable.motorista` e `_lovable.oficina`
+  - [ ] revisar `www` e `@` para garantir apontamento final no Azure, nao em CDN legado
+  - [ ] manter somente registros de email realmente necessarios (MX, SPF, DKIM, DMARC)
 - [ ] Certificado TLS ativo e renovação automática habilitada
 - [ ] Variáveis em SWA configuradas:
 - [ ] `VITE_APP_URL=https://www.xyzlogicflow.com.br`

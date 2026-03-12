@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Sparkles, TrendingUp, AlertTriangle, Zap, Target, Activity, Database, Bot, ArrowUpRight, MonitorSmartphone, Video, Rocket, Workflow, Boxes, ShieldCheck } from "lucide-react";
+import { Brain, Sparkles, TrendingUp, AlertTriangle, Zap, Target, Activity, Database, Bot, ArrowUpRight, MonitorSmartphone, Video, Rocket, Workflow, Boxes, ShieldCheck, Truck, Wallet, Wrench, Users, FileText, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { StatCard } from "@/components/StatCard";
+import { modules } from "@/modules/registry";
 
 interface AIInsight {
   id: string;
@@ -28,6 +30,28 @@ interface MLModel {
   lastTrained: string;
   predictions: number;
 }
+
+interface LiveMetrics {
+  revenue30d: number;
+  vehiclesActive: number;
+  tripsRunning: number;
+  ordersPending: number;
+  criticalNC: number;
+  avgCostKm: number | null;
+  lastUpdated: string;
+  source: "live" | "fallback";
+}
+
+const initialLiveMetrics: LiveMetrics = {
+  revenue30d: 0,
+  vehiclesActive: 0,
+  tripsRunning: 0,
+  ordersPending: 0,
+  criticalNC: 0,
+  avgCostKm: null,
+  lastUpdated: "",
+  source: "fallback",
+};
 
 const operationalModules = [
   {
@@ -89,13 +113,74 @@ const azureStarterStack = [
   "GitHub + Student/planos gratuitos para acelerar prototipação, CI/CD e experimentação inicial.",
 ] as const;
 
+const specialtyActions = [
+  {
+    title: "Operações",
+    description: "Centraliza torre de controle, viagens, roteirização e ações imediatas por SLA operacional.",
+    icon: Truck,
+    actions: ["Priorizar viagens em andamento", "Reduzir gargalos de roteirização", "Disparar plano de contingência"],
+    route: "/control-tower",
+  },
+  {
+    title: "Financeiro IA/ML",
+    description: "Traz para o SuperGestor as frentes de margem, custo/km, tributário e consultoria financeira inteligente.",
+    icon: Wallet,
+    actions: ["Abrir consultoria financeira IA", "Comparar cenários tributários", "Ativar plano de economia"],
+    route: "/consultoria-financeira-ia",
+  },
+  {
+    title: "Manutenção & Compliance",
+    description: "Combina manutenção preditiva, auditoria, NCs críticas e priorização por risco operacional.",
+    icon: Wrench,
+    actions: ["Escalar veículos com risco alto", "Priorizar ordens pendentes", "Revisar não conformidades"],
+    route: "/predictive-maintenance",
+  },
+  {
+    title: "Inovação & IA Interna",
+    description: "Concentra avatar virtual, copilotos especializados, analytics avançado e evolução de produto premium.",
+    icon: Brain,
+    actions: ["Abrir analytics avançado", "Planejar modo reunião", "Publicar kit premium por módulo"],
+    route: "/advanced-analytics",
+  },
+] as const;
+
+const premiumKitSlugs = [
+  "supergestor-ai",
+  "supergestor",
+  "consultoria-financeira-ia",
+  "analise-tributaria",
+  "cost-monitoring",
+  "predictive-maintenance",
+  "advanced-analytics",
+  "ai-route-optimization",
+  "reports",
+  "developer",
+] as const;
+
+const premiumModuleKits = modules
+  .filter((module) => premiumKitSlugs.includes(module.slug as typeof premiumKitSlugs[number]))
+  .map((module) => ({
+    ...module,
+    kitLabel:
+      module.category === "finance"
+        ? "kit financeiro IA/ML"
+        : module.category === "maintenance"
+          ? "kit risco e manutenção"
+          : module.category === "dev"
+            ? "kit observabilidade"
+            : "kit comando premium",
+  }));
+
 export default function SuperGestorAI() {
   const { toast } = useToast();
   const [query, setQuery] = useState("");
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [models, setModels] = useState<MLModel[]>([]);
+  const [liveMetrics, setLiveMetrics] = useState<LiveMetrics>(initialLiveMetrics);
   const [loading, setLoading] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [liveError, setLiveError] = useState("");
 
   const loadInitialData = useCallback(async () => {
     setModels([
@@ -140,6 +225,100 @@ export default function SuperGestorAI() {
     generateInsights();
   }, []);
 
+  const fetchLiveMetrics = useCallback(async () => {
+    setLiveLoading(true);
+    setLiveError("");
+
+    const [revenueResult, vehiclesResult, ordersResult, tripsResult, nonConformitiesResult, refuelingsResult] =
+      await Promise.allSettled([
+        supabase
+          .from("revenue_records")
+          .select("valor_frete, data_emissao")
+          .order("data_emissao", { ascending: false })
+          .limit(500),
+        supabase.from("vehicles").select("id, status"),
+        supabase.from("service_orders").select("status"),
+        (supabase as any).from("trips").select("status").limit(500),
+        (supabase as any).from("non_conformities").select("severity, status").limit(500),
+        supabase
+          .from("refuelings")
+          .select("cost_per_km, timestamp")
+          .order("timestamp", { ascending: false })
+          .limit(500),
+      ]);
+
+    const revenueRows =
+      revenueResult.status === "fulfilled" && !revenueResult.value.error ? revenueResult.value.data || [] : [];
+    const vehicleRows =
+      vehiclesResult.status === "fulfilled" && !vehiclesResult.value.error ? vehiclesResult.value.data || [] : [];
+    const orderRows =
+      ordersResult.status === "fulfilled" && !ordersResult.value.error ? ordersResult.value.data || [] : [];
+    const tripRows =
+      tripsResult.status === "fulfilled" && !tripsResult.value.error ? tripsResult.value.data || [] : [];
+    const ncRows =
+      nonConformitiesResult.status === "fulfilled" && !nonConformitiesResult.value.error
+        ? nonConformitiesResult.value.data || []
+        : [];
+    const refuelingRows =
+      refuelingsResult.status === "fulfilled" && !refuelingsResult.value.error ? refuelingsResult.value.data || [] : [];
+
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
+
+    const revenue30d = revenueRows
+      .filter((row: any) => new Date(row.data_emissao).getTime() >= since.getTime())
+      .reduce((sum: number, row: any) => sum + (row.valor_frete || 0), 0);
+
+    const vehiclesActive =
+      vehicleRows.filter((vehicle: any) => String(vehicle.status || "").toUpperCase().includes("ATIV")).length ||
+      vehicleRows.length;
+    const ordersPending = orderRows.filter((order: any) =>
+      (order.status || "").toLowerCase().match(/abert|pend/)
+    ).length;
+    const tripsRunning = tripRows.filter((trip: any) =>
+      (trip.status || "").toLowerCase().match(/andamento|ativa|em andamento/)
+    ).length;
+    const criticalNC = ncRows.filter((nc: any) =>
+      (nc.status || "").toLowerCase().includes("open") || (nc.severity || 0) >= 7
+    ).length;
+    const averageCostKm =
+      refuelingRows.length > 0
+        ? refuelingRows.reduce((sum: number, row: any) => sum + Number(row.cost_per_km || 0), 0) / refuelingRows.length
+        : null;
+
+    const fulfilledCount = [
+      revenueResult,
+      vehiclesResult,
+      ordersResult,
+      tripsResult,
+      nonConformitiesResult,
+      refuelingsResult,
+    ].filter((result) => result.status === "fulfilled").length;
+
+    if (fulfilledCount === 0) {
+      setLiveError("Runtime indisponível no momento. Exibindo a estrutura premium pronta para operar.");
+      setLiveMetrics((current) => ({
+        ...current,
+        lastUpdated: new Date().toISOString(),
+        source: "fallback",
+      }));
+      setLiveLoading(false);
+      return;
+    }
+
+    setLiveMetrics({
+      revenue30d,
+      vehiclesActive,
+      tripsRunning,
+      ordersPending,
+      criticalNC,
+      avgCostKm: averageCostKm,
+      lastUpdated: new Date().toISOString(),
+      source: fulfilledCount === 6 ? "live" : "fallback",
+    });
+    setLiveLoading(false);
+  }, []);
+
   const runAutomatedAnalysis = useCallback(async () => {
     toast({
       title: "Análise Automática",
@@ -149,20 +328,23 @@ export default function SuperGestorAI() {
     // Simular análise com IA
     setTimeout(() => {
       generateInsights();
+      fetchLiveMetrics();
       toast({
         title: "Análise Concluída",
         description: "Novos insights e recomendações disponíveis"
       });
     }, 2000);
-  }, [toast]);
+  }, [fetchLiveMetrics, toast]);
 
   useEffect(() => {
     loadInitialData();
-    if (autoMode) {
-      const interval = setInterval(runAutomatedAnalysis, 300000); // 5 min
-      return () => clearInterval(interval);
-    }
-  }, [autoMode, loadInitialData, runAutomatedAnalysis]);
+    fetchLiveMetrics();
+  }, [fetchLiveMetrics, loadInitialData]);
+
+  useEffect(() => {
+    const interval = setInterval(fetchLiveMetrics, autoMode ? 60000 : 180000);
+    return () => clearInterval(interval);
+  }, [autoMode, fetchLiveMetrics]);
 
   const generateInsights = async () => {
     const mockInsights: AIInsight[] = [
@@ -276,6 +458,76 @@ export default function SuperGestorAI() {
     }
   };
 
+  const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  });
+
+  const liveKpiCards = [
+    {
+      title: "Receita 30d",
+      value: currencyFormatter.format(liveMetrics.revenue30d),
+      icon: Wallet,
+      trend: {
+        value: liveMetrics.source === "live" ? "snapshot do runtime Azure" : "snapshot parcial / fallback elegante",
+        positive: true,
+      },
+    },
+    {
+      title: "Viagens em Andamento",
+      value: liveMetrics.tripsRunning,
+      icon: Truck,
+      trend: {
+        value: liveMetrics.tripsRunning > 0 ? "operação viva sob monitoramento" : "sem viagens críticas agora",
+        positive: true,
+      },
+    },
+    {
+      title: "Veículos Ativos",
+      value: liveMetrics.vehiclesActive,
+      icon: Activity,
+      trend: {
+        value: "base pronta para despacho",
+        positive: true,
+      },
+    },
+    {
+      title: "Ordens Pendentes",
+      value: liveMetrics.ordersPending,
+      icon: Wrench,
+      trend: {
+        value: "quanto menor, melhor",
+        positive: liveMetrics.ordersPending <= 5,
+      },
+    },
+    {
+      title: "NCs Críticas",
+      value: liveMetrics.criticalNC,
+      icon: AlertTriangle,
+      trend: {
+        value: "compliance e risco operacional",
+        positive: liveMetrics.criticalNC === 0,
+      },
+    },
+    {
+      title: "Custo/KM Médio",
+      value: liveMetrics.avgCostKm !== null ? `R$ ${liveMetrics.avgCostKm.toFixed(2)}` : "--",
+      icon: TrendingUp,
+      trend: {
+        value: "referência financeira integrada",
+        positive: true,
+      },
+    },
+  ];
+
+  const meetingSummary = [
+    `Operação em foco com ${liveMetrics.tripsRunning} viagens em andamento e ${liveMetrics.vehiclesActive} veículos ativos disponíveis para reação rápida.`,
+    `A frente financeira premium está consolidada no SuperGestor com receita estimada de ${currencyFormatter.format(liveMetrics.revenue30d)} nos últimos 30 dias.`,
+    `Manutenção e compliance exigem atenção em ${liveMetrics.ordersPending} ordens pendentes e ${liveMetrics.criticalNC} não conformidades críticas.`,
+    "A recomendação executiva é concentrar inovação, IA/ML e kits avançados dentro do SuperGestor, preservando os demais módulos como camadas operacionais e normativas.",
+  ];
+
   return (
     <Layout>
       <div className="container mx-auto p-6 space-y-6">
@@ -310,6 +562,58 @@ export default function SuperGestorAI() {
             </Button>
           </div>
         </div>
+
+        <Card className="border-primary/20 shadow-sm">
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-primary" />
+                  Dashboard premium com KPIs operacionais em tempo quase real
+                </CardTitle>
+                <CardDescription className="mt-2">
+                  O SuperGestor passa a receber os sinais críticos da operação, financeiro, manutenção e inovação em uma única camada executiva.
+                </CardDescription>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={liveMetrics.source === "live" ? "default" : "secondary"}>
+                  {liveMetrics.source === "live" ? "dados vivos do runtime" : "fallback operacional"}
+                </Badge>
+                <Badge variant="outline">
+                  {liveMetrics.lastUpdated
+                    ? `atualizado às ${new Date(liveMetrics.lastUpdated).toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`
+                    : "aguardando leitura"}
+                </Badge>
+                <Button variant="outline" size="sm" onClick={fetchLiveMetrics} disabled={liveLoading}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${liveLoading ? "animate-spin" : ""}`} />
+                  Atualizar KPIs
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {liveError && (
+              <div className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
+                {liveError}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {liveKpiCards.map((kpi) => (
+                <StatCard
+                  key={kpi.title}
+                  title={kpi.title}
+                  value={kpi.value}
+                  icon={kpi.icon}
+                  trend={kpi.trend}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border-purple-200 bg-gradient-to-r from-purple-50 via-background to-fuchsia-50">
           <CardHeader>
@@ -412,6 +716,45 @@ export default function SuperGestorAI() {
           </Card>
         </div>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Ações por especialidade dentro do SuperGestor
+            </CardTitle>
+            <CardDescription>
+              Toda frente premium de IA, ML e inovação passa a ser coordenada aqui, enquanto o restante do sistema segue normativo e operacional.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {specialtyActions.map((specialty) => {
+              const Icon = specialty.icon;
+
+              return (
+                <Card key={specialty.title} className="border-dashed">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Icon className="h-4 w-4 text-primary" />
+                      {specialty.title}
+                    </CardTitle>
+                    <CardDescription>{specialty.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {specialty.actions.map((action) => (
+                        <li key={action}>• {action}</li>
+                      ))}
+                    </ul>
+                    <Button asChild className="w-full" variant="outline">
+                      <Link to={specialty.route}>Abrir frente</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
+
         {/* AI Query Interface */}
         <Card>
           <CardHeader>
@@ -444,6 +787,8 @@ export default function SuperGestorAI() {
             <TabsTrigger value="models">Modelos ML</TabsTrigger>
             <TabsTrigger value="automation">Automação</TabsTrigger>
             <TabsTrigger value="operations">Operação</TabsTrigger>
+            <TabsTrigger value="meeting">Modo Reunião</TabsTrigger>
+            <TabsTrigger value="kits">Kits por módulo</TabsTrigger>
           </TabsList>
 
           {/* Insights Tab */}
@@ -579,6 +924,95 @@ export default function SuperGestorAI() {
                     <li>• Acesso rápido a runtime health, workflows e módulos críticos do negócio.</li>
                   </ul>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="meeting" className="space-y-4">
+            <Card className="border-primary/20">
+              <CardHeader>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Video className="h-5 w-5 text-primary" />
+                      Modo reunião
+                    </CardTitle>
+                    <CardDescription>
+                      Resumo executivo pronto para abertura de reunião, handoff entre áreas e participação futura do avatar do SuperGestor.
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="modern"
+                    onClick={() =>
+                      toast({
+                        title: "Resumo executivo pronto",
+                        description: "O SuperGestor já organizou os principais pontos para a reunião executiva.",
+                      })
+                    }
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Gerar resumo executivo
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <div className="xl:col-span-2 rounded-lg border p-4 space-y-3">
+                  <h3 className="font-semibold">Resumo para abrir a reunião</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    {meetingSummary.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-lg border p-4 space-y-3">
+                  <h3 className="font-semibold">Roteiro sugerido</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• 1. Situação operacional e rotas críticas</li>
+                    <li>• 2. Receita, custo/km e eficiência financeira</li>
+                    <li>• 3. Manutenção, compliance e riscos prioritários</li>
+                    <li>• 4. Inovações premium que devem ficar dentro do SuperGestor</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="kits" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Boxes className="h-5 w-5 text-primary" />
+                  Biblioteca premium de kits por módulo
+                </CardTitle>
+                <CardDescription>
+                  A inteligência aplicada fica centralizada no SuperGestor e distribuída como kits reutilizáveis para cada frente crítica do negócio.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {premiumModuleKits.map((kit) => (
+                  <Card key={kit.slug} className="border-dashed">
+                    <CardHeader className="space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <CardTitle className="text-lg">{kit.name}</CardTitle>
+                          <CardDescription>{kit.description}</CardDescription>
+                        </div>
+                        <Badge variant="outline">{kit.kitLabel}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="text-sm text-muted-foreground">
+                        Categoria origem: <span className="font-medium text-foreground">{kit.category || "geral"}</span>
+                      </div>
+                      <Button asChild variant="outline" className="w-full justify-between">
+                        <Link to={kit.route || "/supergestor-ai"}>
+                          Abrir kit no SuperGestor
+                          <ArrowUpRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
               </CardContent>
             </Card>
           </TabsContent>
