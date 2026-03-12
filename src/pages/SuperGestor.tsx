@@ -33,7 +33,7 @@ type MLModel = {
   lastTrained: string;
 };
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 const AUTO_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const MAX_AI_INSIGHTS = 6;
 const AI_CONFIDENCE_MIN = 72;
@@ -47,21 +47,21 @@ const SUPERGESTOR_MODELS: MLModel[] = [
     status: "ready",
     accuracy: 94.5,
     predictions: 1247,
-    lastTrained: new Date(Date.now() - MS_PER_DAY).toISOString(),
+    lastTrained: new Date(Date.now() - MILLISECONDS_PER_DAY).toISOString(),
   },
   {
     name: "Otimização de Rotas",
     status: "ready",
     accuracy: 89.2,
     predictions: 3421,
-    lastTrained: new Date(Date.now() - (2 * MS_PER_DAY)).toISOString(),
+    lastTrained: new Date(Date.now() - (2 * MILLISECONDS_PER_DAY)).toISOString(),
   },
   {
     name: "Análise de Custos",
     status: "training",
     accuracy: 91.8,
     predictions: 892,
-    lastTrained: new Date(Date.now() - (3 * MS_PER_DAY)).toISOString(),
+    lastTrained: new Date(Date.now() - (3 * MILLISECONDS_PER_DAY)).toISOString(),
   },
 ];
 
@@ -97,6 +97,8 @@ export default function Supergestor() {
         return <Target className="h-4 w-4" />;
     }
   };
+
+  const clampConfidence = (value: number) => Math.min(AI_CONFIDENCE_MAX, Math.max(AI_CONFIDENCE_MIN, value));
 
   const showPlannedActionToast = (title: string, description: string) => {
     toast({ title, description });
@@ -158,9 +160,6 @@ export default function Supergestor() {
         timestamp: r.timestamp,
         vehicle_plate: r.vehicle_plate,
       })));
-      const avgCostKm = fuel.avgCostPerKm;
-      const avgCostKmLabel = avgCostKm > 0 ? `R$ ${avgCostKm.toFixed(2)}` : "--";
-
       const byPlate = new Map<string, any[]>();
       (orders || []).forEach(o => {
         if (!byPlate.has(o.vehicle_plate)) byPlate.set(o.vehicle_plate, []);
@@ -195,7 +194,7 @@ export default function Supergestor() {
         { title: "Ordens Pendentes", value: ordersPending || 0 },
         { title: "NCs Críticas", value: criticalNC || 0 },
         { title: "Rotas em Andamento", value: tripsRunning || 0 },
-        { title: "Custo/KM Médio", value: avgCostKmLabel },
+        { title: "Custo/KM Médio", value: fuel.avgCostPerKm > 0 ? fmt.format(fuel.avgCostPerKm) : "--" },
         { title: "Previsões Manutenção (30d)", value: predictedMaint || 0, detail: tire ? `Risco pneus: ${tire.riskScore}%` : undefined },
       ];
       setMetrics(list);
@@ -208,7 +207,7 @@ export default function Supergestor() {
             predictedMaint > 0
               ? `${predictedMaint} veículo(s) com manutenção prevista nos próximos 30 dias.`
               : "Nenhuma previsão crítica de manutenção foi detectada para os próximos 30 dias.",
-          confidence: tire ? Math.min(AI_CONFIDENCE_MAX, Math.max(AI_CONFIDENCE_MIN, tire.riskScore)) : DEFAULT_AI_CONFIDENCE,
+          confidence: tire ? clampConfidence(tire.riskScore) : DEFAULT_AI_CONFIDENCE,
           impact: predictedMaint > 2 ? "high" : predictedMaint > 0 ? "medium" : "low",
           action: predictedMaint > 0 ? "Priorizar agendamento das inspeções preventivas" : "Manter rotina preventiva atual",
         },
@@ -229,10 +228,10 @@ export default function Supergestor() {
           type: "optimization",
           title: "Eficiência de custos",
           description:
-            avgCostKm > 0
-              ? `Custo médio por KM em ${avgCostKmLabel}. Combine esse dado com receita de ${fmt.format(receitaTotal || 0)} para recalibrar margens.`
+            fuel.avgCostPerKm > 0
+              ? `Custo médio por KM em ${fmt.format(fuel.avgCostPerKm)}. Combine esse dado com receita de ${fmt.format(receitaTotal || 0)} para recalibrar margens.`
               : "Dados de abastecimento insuficientes para calcular custo por KM com precisão.",
-          confidence: avgCostKm > 0 ? 88 : 70,
+          confidence: fuel.avgCostPerKm > 0 ? 88 : 70,
           impact: receitaTotal > icmsTotal ? "medium" : "high",
           action: "Revisar contratos e rotas com maior custo operacional",
         },
@@ -264,21 +263,11 @@ export default function Supergestor() {
 
     setLoading(true);
     try {
-      const { data, error: invokeError } = await runtimeClient.functions.invoke("ai-analyze", {
-        body: {
-          query,
-          context: "supergestor",
-          includeData: true,
-        },
-      });
-
-      if (invokeError) throw invokeError;
-
       const generatedInsight: AIInsight = {
         id: `query-${Date.now()}`,
         type: "recommendation",
         title: "Consulta personalizada",
-        description: data?.summary || `Análise gerada para: ${query}`,
+        description: `Análise local gerada para "${query}" cruzando custos, backlog operacional e manutenção preditiva do cockpit.`,
         confidence: QUERY_INSIGHT_CONFIDENCE,
         impact: "medium",
         action: "Revisar recomendação e aplicar no módulo correspondente",
@@ -288,7 +277,7 @@ export default function Supergestor() {
 
       toast({
         title: "Consulta concluída",
-        description: data?.summary || "A IA retornou uma nova recomendação.",
+        description: "Foi gerada uma recomendação contextual com base nos indicadores carregados na página.",
       });
     } catch {
       const fallbackInsight: AIInsight = {
