@@ -67,7 +67,7 @@ export default function Admin() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Admin Dados</h1>
-            <p className="text-muted-foreground">CRUD rápido integrado ao Supabase</p>
+            <p className="text-muted-foreground">CRUD rápido integrado ao runtime Azure</p>
           </div>
           <div className="flex gap-2">
             <select className="border rounded px-3 py-2" value={table} onChange={(e)=>setTable(e.target.value)}>

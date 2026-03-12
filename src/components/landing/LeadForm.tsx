@@ -25,7 +25,7 @@ const defaultPlans = getPlanOptions("monthly");
 
 /**
  * Enhanced lead capture form with domain preview
- * Integrates with Supabase leads table
+ * Integrates with the Azure runtime leads endpoint/table
  */
 export function LeadForm({ onSuccess, plans = defaultPlans }: LeadFormProps) {
   const [formData, setFormData] = useState({
@@ -64,10 +64,8 @@ export function LeadForm({ onSuccess, plans = defaultPlans }: LeadFormProps) {
     setLoading(true);
 
     try {
-      // NOTE: Type assertion needed because leads table exists in database
-      // but is not yet in generated Supabase types (src/integrations/runtimeClient/types.ts).
-      // To fix: Run `npx runtimeClient gen types typescript` to regenerate types
-      // after deploying the leads table migration.
+      // NOTE: Type assertion needed because the leads table exists in the runtime
+      // but is not yet represented in the frontend client typing.
       const { error } = await (runtimeClient as any).from("leads").insert([
         {
           name: formData.name,

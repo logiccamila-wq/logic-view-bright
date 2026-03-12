@@ -26,8 +26,8 @@ interface IntegrationGridProps {
 const defaultIntegrations: Integration[] = [
   { name: "TomTom Maps", icon: <MapPin className="w-8 h-8" />, category: "Logística" },
   { name: "SEFAZ CTe/MDFe", icon: <FileText className="w-8 h-8" />, category: "Fiscal" },
-  { name: "Supabase", icon: <Database className="w-8 h-8" />, category: "Database" },
-  { name: "AWS Cloud", icon: <Cloud className="w-8 h-8" />, category: "Infraestrutura" },
+  { name: "Azure Database for PostgreSQL", icon: <Database className="w-8 h-8" />, category: "Database" },
+  { name: "Azure App Service", icon: <Cloud className="w-8 h-8" />, category: "Infraestrutura" },
   { name: "Zapier", icon: <Zap className="w-8 h-8" />, category: "Automação" },
   { name: "WhatsApp API", icon: <MessageSquare className="w-8 h-8" />, category: "Comunicação" },
   { name: "EmailJS", icon: <Mail className="w-8 h-8" />, category: "E-mail" },
