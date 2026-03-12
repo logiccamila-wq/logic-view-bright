@@ -1,48 +1,48 @@
 # Deployment
 
-Se a dúvida for **"onde está configurado o deploy na Azure ou a pipeline?"**, os arquivos principais são estes:
+If you need to answer **"where is the Azure deployment or pipeline configured?"**, these are the main files to inspect:
 
-## 1. Pipeline de CI/CD
+## 1. CI/CD pipeline
 
-Arquivo: `.github/workflows/azure-deploy.yml`
+File: `.github/workflows/azure-deploy.yml`
 
-Esse é o pipeline principal do repositório. Ele mostra:
+This is the main checked-in pipeline for the repository. It shows:
 
-- quando a automação roda (`push` e `pull_request` na branch `main`)
-- o job de build com `npm ci`, `npm run check` e `npm run build`
-- o job de deploy para Azure App Service
+- when automation runs (`push` and `pull_request` on the `main` branch)
+- the build job with `npm ci`, `npm run check`, and `npm run build`
+- the deploy job for Azure App Service
 
-O deploy automático só acontece no `push` para `main` quando estas configurações existem no GitHub:
+Automatic deployment only runs on `push` to `main` when these GitHub settings exist:
 
 - secret `AZURE_CREDENTIALS`
 - variable `AZURE_WEBAPP_NAME`
 
-## 2. Configuração Azure para empacotamento e runtime
+## 2. Azure packaging and runtime config
 
-Arquivo: `azure.yaml`
+File: `azure.yaml`
 
-Esse arquivo mostra o fluxo de empacotamento e inicialização configurado no repositório:
+This file shows the packaging and startup flow configured in the repository:
 
 - `npm install`
 - `npm run build`
 - `npm start`
 
-## 3. Arquivos de runtime para conferir
+## 3. Runtime files to inspect
 
-- `server/index.js` - entry point Node.js usado quando o app roda como servidor publicado
-- `api/runtime/index.js` - handlers compartilhados do runtime/API usados na camada Azure
+- `server/index.js` - Node.js entrypoint when the app runs as a published server
+- `api/runtime/index.js` - shared runtime/API handlers used by the Azure layer
 
 ## 4. Azure Static Web Apps
 
-Arquivo: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
+File: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
 
-Esse documento mostra o caminho alternativo/dirigido a Azure Static Web Apps para frontend e explica quais ajustes seriam necessários nesse modelo.
+This document shows the Azure Static Web Apps path for the frontend and explains the extra setup needed for that model.
 
-## 5. Como responder rápido
+## 5. Quick answer
 
-Se você quer descobrir **onde olhar**:
+If you only need to know **where to look**:
 
-- pipeline do GitHub: `.github/workflows/azure-deploy.yml`
-- configuração Azure do app: `azure.yaml`
-- runtime/backend: `api/runtime/index.js` e `server/index.js`
-- documentação específica de Static Web Apps: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
+- GitHub pipeline: `.github/workflows/azure-deploy.yml`
+- Azure app configuration: `azure.yaml`
+- runtime/backend files: `api/runtime/index.js` and `server/index.js`
+- Static Web Apps-specific guide: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
