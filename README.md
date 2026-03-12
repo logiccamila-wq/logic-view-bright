@@ -37,6 +37,17 @@ O output de producao e gerado em `dist/`.
 
 Use `.env.example` como referencia unica para ambiente local e Azure.
 
+## DNS e dominio oficial
+
+Para a trilha Azure-first, o domínio `xyzlogicflow.com.br` deve apontar para os alvos oficiais do Azure usados pelo frontend/API. Registros legados de validação ou apontamento para plataformas antigas devem ser removidos assim que não forem mais necessários.
+
+Limpeza recomendada de legado:
+
+- remover CNAMEs que apontem para `*.lovable.app`
+- remover TXT de verificação `_lovable.*`
+- substituir apontamentos de `www` e `@` que ainda passem por CDN/hosting legado quando o domínio definitivo estiver publicado no Azure
+- preservar somente registros de email que continuarem em uso real (MX, SPF, DKIM, DMARC)
+
 ## Observacao de migracao
 
 Este repositorio contem componentes legados que ainda referenciam servicos antigos em partes especificas do codigo. A trilha oficial e a arquitetura Azure-only, e novos modulos devem seguir exclusivamente esse padrao.

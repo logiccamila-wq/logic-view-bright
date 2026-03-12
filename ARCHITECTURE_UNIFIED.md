@@ -26,3 +26,9 @@ Browser -> Azure Static Web Apps -> /api/runtime/* -> PostgreSQL
 - Secrets somente no backend Azure (nunca no frontend).
 - JWT do runtime via `AZURE_JWT_SECRET`.
 - CORS restrito com `ALLOWED_ORIGINS`.
+
+## Higiene de DNS
+- O domínio oficial deve terminar no Azure, sem dependência de apontamentos transitórios para Lovable ou CDN legado.
+- Remover registros `CNAME` que apontem para `*.lovable.app`.
+- Remover registros `TXT` de verificação `_lovable.*` após a desativação definitiva desse fluxo.
+- Registros de email (MX/SPF/DKIM/DMARC) podem permanecer se fizerem parte da operação vigente de mail.

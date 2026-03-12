@@ -39,6 +39,127 @@ function safeJson(r: Response) {
   return r.json()
 }
 
+const platformOrganization = [
+  {
+    area: "Backend",
+    icon: Server,
+    owner: "Azure Functions + runtime API",
+    summary: "Centraliza autenticação, autorização por roles, integrações e regras de negócio sensíveis.",
+    highlights: [
+      "API principal em /api/runtime/*",
+      "JWT com AZURE_JWT_SECRET e validação de roles",
+      "Integrações externas e automações ficam no backend"
+    ]
+  },
+  {
+    area: "Frontend",
+    icon: Globe,
+    owner: "React 18 + TypeScript + Vite",
+    summary: "Entrega módulos de negócio lazy-loaded e consome o runtime Azure com cache e estados reativos.",
+    highlights: [
+      "Rotas centralizadas em src/App.tsx",
+      "Módulos registrados em src/modules/registry.ts",
+      "Hooks e React Query sustentam listagens e sincronização"
+    ]
+  },
+  {
+    area: "UI & UX",
+    icon: Settings,
+    owner: "TailwindCSS + shadcn/ui",
+    summary: "Padroniza componentes, feedback visual, acessibilidade e responsividade para o produto inteiro.",
+    highlights: [
+      "Biblioteca em src/components/ui/",
+      "Layout compartilhado com sidebar, header e skeletons",
+      "Experiência consistente para dashboards, formulários e tabelas"
+    ]
+  },
+  {
+    area: "CI/CD",
+    icon: RefreshCw,
+    owner: "GitHub Actions + Azure Static Web Apps",
+    summary: "Automatiza instalação, build e deploy do frontend e da API em cada push ou PR para main.",
+    highlights: [
+      "Workflow: .github/workflows/azure-static-web-apps.yml",
+      "Pipeline usa npm ci + npm run build:azure",
+      "Deploy publica app em dist e API na pasta api"
+    ]
+  },
+  {
+    area: "CRUD",
+    icon: Code2,
+    owner: "Páginas de negócio + Admin Dados",
+    summary: "Operações de criar, listar, atualizar e excluir devem ficar distribuídas por domínio, com apoio do admin técnico.",
+    highlights: [
+      "Página /admin oferece CRUD técnico rápido",
+      "Fluxos de negócio continuam nos módulos específicos",
+      "Mutations devem invalidar queries para manter UI sincronizada"
+    ]
+  },
+  {
+    area: "Banco de Dados",
+    icon: Database,
+    owner: "Azure Database for PostgreSQL",
+    summary: "Armazena perfis, viagens, documentos e eventos operacionais acessados pelo runtime seguro.",
+    highlights: [
+      "Banco acessado pelo backend, nunca diretamente com secrets no frontend",
+      "Queries e roles técnicas ficam auditáveis no runtime",
+      "Estrutura e evolução do schema seguem migrations SQL"
+    ]
+  }
+] as const;
+
+const deliveryPipeline = [
+  {
+    step: "1. Commit e Pull Request",
+    detail: "Mudanças entram pela branch e são validadas antes da publicação.",
+  },
+  {
+    step: "2. Instalação e build",
+    detail: "O workflow executa npm ci e npm run build:azure para gerar o bundle Vite.",
+  },
+  {
+    step: "3. Deploy Azure",
+    detail: "O action Azure/static-web-apps-deploy publica o frontend em dist e mantém api/ disponível.",
+  },
+  {
+    step: "4. Operação assistida",
+    detail: "Logs, diagnósticos e testes de health check permanecem acessíveis nesta própria central técnica.",
+  },
+] as const;
+
+const technicalOwnership = [
+  {
+    scope: "Rotas e módulos",
+    source: "src/App.tsx + src/modules/registry.ts",
+    responsibility: "Organizam navegação, lazy loading e catálogo funcional do produto.",
+  },
+  {
+    scope: "Componentes visuais",
+    source: "src/components/ui/ + layout compartilhado",
+    responsibility: "Garantem consistência de UI/UX, feedback e acessibilidade.",
+  },
+  {
+    scope: "Integração de dados",
+    source: "src/integrations/supabase/client.ts (compat Azure) + hooks",
+    responsibility: "Padronizam chamadas ao runtime Azure e sincronização com o frontend.",
+  },
+  {
+    scope: "CRUD técnico",
+    source: "src/pages/Admin.tsx",
+    responsibility: "Oferece operação rápida para tabelas críticas em suporte administrativo.",
+  },
+  {
+    scope: "API e segurança",
+    source: "api/runtime/index.js",
+    responsibility: "Concentra autenticação, autorização, CORS e acesso seguro ao PostgreSQL.",
+  },
+  {
+    scope: "Entrega contínua",
+    source: ".github/workflows/azure-static-web-apps.yml",
+    responsibility: "Automatiza build, deploy e encerramento de ambientes de PR.",
+  },
+] as const;
+
 const Developer = () => {
   const [selectedLog, setSelectedLog] = useState<any>(null);
 
@@ -186,8 +307,12 @@ const Developer = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="functions" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+        <Tabs defaultValue="organization" className="w-full">
+          <TabsList
+            className="flex h-auto w-full flex-wrap justify-start gap-2"
+            aria-label="Navegação do painel do desenvolvedor"
+          >
+            <TabsTrigger value="organization">Organização</TabsTrigger>
             <TabsTrigger value="functions">Edge Functions</TabsTrigger>
             <TabsTrigger value="database">Database</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
@@ -195,6 +320,103 @@ const Developer = () => {
             <TabsTrigger value="config">Configurações</TabsTrigger>
             <TabsTrigger value="supabase">Supabase Debug</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="organization" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Organização da Plataforma</CardTitle>
+                <CardDescription>
+                  Visão central para alinhar backend, frontend, UI/UX, CI/CD, CRUD e banco de dados em um único fluxo operacional.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {platformOrganization.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <Card key={item.area} className="border-dashed">
+                        <CardHeader className="space-y-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <Icon className="w-5 h-5 text-primary" />
+                              <CardTitle className="text-lg">{item.area}</CardTitle>
+                            </div>
+                            <Badge variant="outline">{item.owner}</Badge>
+                          </div>
+                          <CardDescription>{item.summary}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
+                            {item.highlights.map((highlight) => (
+                              <li key={highlight} className="flex items-start gap-2">
+                                <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 shrink-0" />
+                                <span>{highlight}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <RefreshCw className="w-5 h-5" />
+                        Pipeline de entrega
+                      </CardTitle>
+                      <CardDescription>
+                        Fluxo mínimo recomendado para manter a plataforma organizada do código até a publicação.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {deliveryPipeline.map((stage) => (
+                        <div key={stage.step} className="rounded-lg border p-4">
+                          <p className="font-medium">{stage.step}</p>
+                          <p className="text-sm text-muted-foreground mt-1">{stage.detail}</p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Terminal className="w-5 h-5" />
+                        Mapa de responsabilidades
+                      </CardTitle>
+                      <CardDescription>
+                        Referência rápida dos arquivos e áreas que sustentam a organização técnica do produto.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Escopo</TableHead>
+                            <TableHead>Fonte principal</TableHead>
+                            <TableHead>Responsabilidade</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {technicalOwnership.map((item) => (
+                            <TableRow key={item.scope}>
+                              <TableCell className="font-medium">{item.scope}</TableCell>
+                              <TableCell className="font-mono text-xs">{item.source}</TableCell>
+                              <TableCell>{item.responsibility}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Edge Functions */}
           <TabsContent value="functions" className="space-y-4">
