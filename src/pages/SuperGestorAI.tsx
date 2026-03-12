@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Sparkles, TrendingUp, AlertTriangle, Zap, Target, Activity, Database } from "lucide-react";
+import { Brain, Sparkles, TrendingUp, AlertTriangle, Zap, Target, Activity, Database, Bot, ArrowUpRight, MonitorSmartphone, Video, Rocket, Workflow, Boxes, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface AIInsight {
   id: string;
@@ -27,6 +28,66 @@ interface MLModel {
   lastTrained: string;
   predictions: number;
 }
+
+const operationalModules = [
+  {
+    title: "Operação e controles",
+    description: "Acesso rápido às rotinas administrativas, parâmetros e visão do mapa do sistema.",
+    links: [
+      { label: "Admin Dados", href: "/admin" },
+      { label: "Configurações", href: "/settings" },
+      { label: "Mapa do Sistema", href: "/sitemap" },
+    ],
+  },
+  {
+    title: "IA e comando",
+    description: "O SuperGestor assume o papel de orquestrador dos módulos, diagnósticos e automações inteligentes.",
+    links: [
+      { label: "SuperGestor Operacional", href: "/supergestor" },
+      { label: "Painel do Desenvolvedor", href: "/developer" },
+      { label: "Control Tower", href: "/control-tower" },
+    ],
+  },
+  {
+    title: "Runtime Azure e entrega",
+    description: "Atalhos para validar saúde da API e acompanhar a esteira principal de deploy.",
+    links: [
+      { label: "Health Check Azure", href: "/api/runtime/health", external: true },
+      { label: "GitHub Actions", href: "https://github.com/logiccamila-wq/logic-view-bright/actions", external: true },
+      { label: "Workflow Azure SWA", href: "https://github.com/logiccamila-wq/logic-view-bright/blob/main/.github/workflows/azure-static-web-apps.yml", external: true },
+    ],
+  },
+] as const;
+
+const avatarRoadmap = [
+  {
+    title: "Avatar virtual do SuperGestor",
+    description: "Camada conversacional com presença visual para atendimento executivo, operações e suporte aos módulos.",
+    icon: Bot,
+  },
+  {
+    title: "Participação em reuniões",
+    description: "Integração futura com vídeo, transcrição, resumos e tomada de decisão assistida pela IA interna.",
+    icon: Video,
+  },
+  {
+    title: "Sala virtual de personagens",
+    description: "Ambiente com agentes especializados por área: financeiro, manutenção, logística, compliance e inovação.",
+    icon: MonitorSmartphone,
+  },
+  {
+    title: "Kits e automações por módulo",
+    description: "Biblioteca reutilizável de prompts, playbooks, conectores e experiências assistidas pelo SuperGestor.",
+    icon: Boxes,
+  },
+] as const;
+
+const azureStarterStack = [
+  "Azure OpenAI para o núcleo conversacional e copilotos internos.",
+  "Azure Static Web Apps + Functions para operar com custo enxuto e escalar por demanda.",
+  "Azure AI Speech/Avatar como trilha de evolução para voz, presença virtual e reuniões.",
+  "GitHub + Student/planos gratuitos para acelerar prototipação, CI/CD e experimentação inicial.",
+] as const;
 
 export default function SuperGestorAI() {
   const { toast } = useToast();
@@ -229,7 +290,7 @@ export default function SuperGestorAI() {
               Inteligência Artificial e Machine Learning para Gestão Avançada
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={autoMode ? "default" : "outline"}
               onClick={() => setAutoMode(!autoMode)}
@@ -241,7 +302,114 @@ export default function SuperGestorAI() {
               <Sparkles className="h-4 w-4 mr-2" />
               Analisar Agora
             </Button>
+            <Button asChild variant="modern">
+              <Link to="/supergestor">
+                <Rocket className="h-4 w-4 mr-2" />
+                Abrir Centro Operacional
+              </Link>
+            </Button>
           </div>
+        </div>
+
+        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 via-background to-fuchsia-50">
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-purple-600" />
+                  SuperGestor como IA central da empresa
+                </CardTitle>
+                <CardDescription className="mt-2 max-w-3xl">
+                  Este módulo passa a concentrar a visão operacional, estratégica e de inovação: orquestra módulos,
+                  conecta o runtime Azure, prepara a evolução para avatar virtual e cria uma camada única de IA interna
+                  de alto valor para logística, manutenção, financeiro, compliance e reuniões executivas.
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="border-purple-300 text-purple-700">
+                módulo premium de inovação
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {operationalModules.map((group) => (
+              <Card key={group.title} className="border-dashed">
+                <CardHeader>
+                  <CardTitle className="text-lg">{group.title}</CardTitle>
+                  <CardDescription>{group.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {group.links.map((link) => (
+                    <Button
+                      key={link.label}
+                      asChild
+                      variant="outline"
+                      className="w-full justify-between"
+                    >
+                      {link.external ? (
+                        <a href={link.href} target="_blank" rel="noreferrer">
+                          {link.label}
+                          <ArrowUpRight className="h-4 w-4" />
+                        </a>
+                      ) : (
+                        <Link to={link.href}>
+                          {link.label}
+                          <ArrowUpRight className="h-4 w-4" />
+                        </Link>
+                      )}
+                    </Button>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <Card className="xl:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Workflow className="h-5 w-5 text-purple-600" />
+                Roadmap operacional do SuperGestor
+              </CardTitle>
+              <CardDescription>
+                Próximas capacidades para transformar o módulo no principal cérebro operacional e de especialidades da plataforma.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {avatarRoadmap.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <div key={item.title} className="rounded-lg border p-4 space-y-2">
+                    <div className="flex items-center gap-2 font-semibold">
+                      <Icon className="h-4 w-4 text-purple-600" />
+                      <span>{item.title}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                Stack Azure de baixo custo
+              </CardTitle>
+              <CardDescription>
+                Direção recomendada para prototipar e crescer usando o que Azure + Student + oferta gratuita costumam viabilizar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {azureStarterStack.map((item) => (
+                <div key={item} className="rounded-lg border p-3 text-sm text-muted-foreground">
+                  {item}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </div>
 
         {/* AI Query Interface */}
@@ -268,10 +436,11 @@ export default function SuperGestorAI() {
         </Card>
 
         <Tabs defaultValue="insights" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex h-auto flex-wrap gap-2">
             <TabsTrigger value="insights">Insights IA</TabsTrigger>
             <TabsTrigger value="models">Modelos ML</TabsTrigger>
             <TabsTrigger value="automation">Automação</TabsTrigger>
+            <TabsTrigger value="operations">Operação</TabsTrigger>
           </TabsList>
 
           {/* Insights Tab */}
@@ -375,6 +544,37 @@ export default function SuperGestorAI() {
                     Notificar gestores quando IA detectar anomalias ou oportunidades
                   </p>
                   <Button variant="outline" size="sm">Configurar</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="operations" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Orquestração operacional e especialidades</CardTitle>
+                <CardDescription>
+                  O SuperGestor evolui para coordenar módulos, ritos operacionais e especialidades internas em uma só camada de IA.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="rounded-lg border p-4 space-y-3">
+                  <h3 className="font-semibold">Especialidades que convergem para o SuperGestor</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• Logística, TMS, Control Tower e roteirização com tomada de decisão assistida.</li>
+                    <li>• Financeiro, DRE, payroll e aprovações com copiloto analítico e alertas.</li>
+                    <li>• Manutenção, compliance, ESG e auditorias com visão consolidada de risco.</li>
+                    <li>• Developer, CI/CD e runtime Azure como base para observabilidade e automação.</li>
+                  </ul>
+                </div>
+                <div className="rounded-lg border p-4 space-y-3">
+                  <h3 className="font-semibold">Próximos conectores operacionais</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• Resumo executivo automático antes de reuniões e handoffs.</li>
+                    <li>• Presença virtual com voz/avatar para acompanhamento e demonstrações.</li>
+                    <li>• Kits por módulo com prompts, checklists e ações sugeridas pela IA.</li>
+                    <li>• Acesso rápido a runtime health, workflows e módulos críticos do negócio.</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
