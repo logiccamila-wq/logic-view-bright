@@ -13,7 +13,7 @@ Foram enviados arquivos de apoio diretamente no `main` (zips, planilhas e logs),
    - `*.zip`, `*.7z`, `*.rar`
    - `*.xlsx`, `*.xls`, `*.csv`
    - arquivos temporários de editor/runtime como `*.swp`, `*.swo`, `*.pid`, `.dev_pid`
-   - pastas legadas `.netlify`, `.wrangler`, `.trae`
+   - pastas legadas de tooling `.wrangler`, `.trae`
 2. Remoção dos artefatos pesados versionados no root (somente da árvore do git, sem deletar histórico).
 
 ## Arquivos removidos do versionamento nesta limpeza

@@ -6,6 +6,34 @@
 - Banco: Azure Database for PostgreSQL
 - IA: Azure OpenAI
 - Domínio principal: `www.xyzlogicflow.com.br`
+- Plataforma oficial: 100% Azure (sem trilhas paralelas em Vercel ou Netlify)
+
+## 1.1 Cronograma sugerido de go-live
+
+### D-7 a D-5
+- [ ] Congelar mudanças de infraestrutura fora da trilha Azure
+- [ ] Revisar secrets e variáveis no Azure Static Web Apps e Azure Functions
+- [ ] Confirmar DNS, TLS e `ALLOWED_ORIGINS` para `www.xyzlogicflow.com.br`
+
+### D-4 a D-2
+- [ ] Executar `npm ci`, `npm run check` e `npm run build`
+- [ ] Validar workflow `.github/workflows/azure-deploy.yml` em ambiente de homologação
+- [ ] Rodar smoke tests das rotas críticas e autenticação via runtime Azure
+
+### D-1
+- [ ] Aprovar checklist técnico e de negócio
+- [ ] Confirmar janela de publicação, responsáveis e plano de rollback
+- [ ] Comunicar equipe sobre freeze e horário de corte
+
+### Dia do go-live
+- [ ] Publicar release pela pipeline Azure
+- [ ] Validar homepage, login, marketplace e APIs `/api/runtime/*`
+- [ ] Monitorar Azure Monitor, Application Insights e logs do banco nas primeiras horas
+
+### D+1 a D+7
+- [ ] Revisar incidentes, métricas e feedback dos usuários
+- [ ] Ajustar alertas, performance e queries sensíveis no Azure
+- [ ] Encerrar go-live com checklist pós-produção e próximos passos
 
 ## 2. Pré-Go-Live
 - [x] Domínio `xyzlogicflow.com.br` ativo (validade: 2027-02-23, renovação automática)
@@ -26,9 +54,10 @@
 
 ## 3. Build e Release
 - [ ] `npm ci` sem erro
-- [ ] `npm run build:azure` sem erro
+- [ ] `npm run check` sem erro
+- [ ] `npm run build` sem erro
 - [ ] Workflow `.github/workflows/azure-deploy.yml` com sucesso
-- [ ] `api_location: "api"` confirmado
+- [ ] Secrets e variáveis do deploy Azure confirmados
 
 ## 4. Smoke Test Funcional
 - [ ] Página inicial abre em `https://www.xyzlogicflow.com.br`
