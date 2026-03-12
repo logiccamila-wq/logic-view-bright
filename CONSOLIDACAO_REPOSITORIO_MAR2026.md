@@ -12,6 +12,7 @@ Foram enviados arquivos de apoio diretamente no `main` (zips, planilhas e logs),
 1. `.gitignore` reforçado para bloquear:
    - `*.zip`, `*.7z`, `*.rar`
    - `*.xlsx`, `*.xls`, `*.csv`
+   - arquivos temporários de editor/runtime como `*.swp`, `*.swo`, `*.pid`, `.dev_pid`
    - pastas legadas `.netlify`, `.wrangler`, `.trae`
 2. Remoção dos artefatos pesados versionados no root (somente da árvore do git, sem deletar histórico).
 
@@ -21,6 +22,7 @@ Foram enviados arquivos de apoio diretamente no `main` (zips, planilhas e logs),
 - `CTE E MANUTENÇÃO.zip`
 - `demo-repository-main.zip`
 - `files.zip`
+- `logicflow-insight-87281dae-main (1).zip`
 - `optilog_packages.zip`
 - `xyzlogicflow-main (1).zip`
 - `manutencao planilha.xlsx`
