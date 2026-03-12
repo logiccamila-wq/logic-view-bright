@@ -6,7 +6,9 @@ interface ImmersiveLoadingScreenProps {
   subtitle?: string;
 }
 
-const signalBars = [40, 72, 55, 88, 63];
+// These percentages intentionally form an asymmetric preview chart so the loader
+// hints at the analytics-heavy landing page before the app finishes rendering.
+const DEMO_SIGNAL_BAR_HEIGHTS = [40, 72, 55, 88, 63];
 
 export default function ImmersiveLoadingScreen({
   title = "Carregando cockpit logístico",
@@ -83,7 +85,7 @@ export default function ImmersiveLoadingScreen({
 
               <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/40 p-5">
                 <div className="flex items-end gap-3">
-                  {signalBars.map((bar, index) => (
+                  {DEMO_SIGNAL_BAR_HEIGHTS.map((bar, index) => (
                     <motion.div
                       key={index}
                       className="flex-1 rounded-full bg-gradient-to-t from-blue-600 via-sky-400 to-cyan-200"

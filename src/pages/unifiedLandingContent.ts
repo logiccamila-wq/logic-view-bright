@@ -267,9 +267,13 @@ export const landingTranslations = {
   },
 } as const;
 
+function isLandingLanguageCode(language?: string): language is LandingLanguageCode {
+  return Boolean(language && language in landingTranslations);
+}
+
 export function resolveLandingLanguage(language?: string): LandingLanguageCode {
-  if (language && language in landingTranslations) {
-    return language as LandingLanguageCode;
+  if (isLandingLanguageCode(language)) {
+    return language;
   }
 
   return "pt-BR";

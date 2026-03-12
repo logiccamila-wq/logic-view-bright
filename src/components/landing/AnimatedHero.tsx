@@ -10,6 +10,19 @@ interface HeroMetric {
   delta?: string;
 }
 
+// These values intentionally stagger particle placement and motion so the background
+// feels organic without relying on randomness that would jump on re-render.
+const PARTICLE_HORIZONTAL_STEP = 17;
+const PARTICLE_VERTICAL_STEP = 29;
+const PARTICLE_BASE_DURATION = 12;
+const PARTICLE_DURATION_VARIATION = 5;
+const PARTICLE_DURATION_STEP = 2;
+const PARTICLE_BASE_OFFSET = 16;
+const PARTICLE_OFFSET_VARIATION = 4;
+const PARTICLE_OFFSET_STEP = 10;
+// Demo bar heights create an intentionally uneven "live analytics" silhouette for the mock panel.
+const DEMO_CHART_BAR_HEIGHTS = [56, 82, 64, 93, 74, 88];
+
 interface HeroPalette {
   primary: string;
   secondary: string;
@@ -79,13 +92,11 @@ export function AnimatedHero({
   controls,
 }: AnimatedHeroProps) {
   const particles = Array.from({ length: 16 }, (_, index) => ({
-    left: `${(index * 17) % 100}%`,
-    top: `${(index * 29) % 100}%`,
-    duration: 12 + (index % 5) * 2,
-    offset: 16 + (index % 4) * 10,
+    left: `${(index * PARTICLE_HORIZONTAL_STEP) % 100}%`,
+    top: `${(index * PARTICLE_VERTICAL_STEP) % 100}%`,
+    duration: PARTICLE_BASE_DURATION + (index % PARTICLE_DURATION_VARIATION) * PARTICLE_DURATION_STEP,
+    offset: PARTICLE_BASE_OFFSET + (index % PARTICLE_OFFSET_VARIATION) * PARTICLE_OFFSET_STEP,
   }));
-
-  const chartBars = [56, 82, 64, 93, 74, 88];
 
   return (
     <section className="relative min-h-[calc(100vh-7rem)] flex items-center overflow-hidden rounded-[2rem] border border-white/10">
@@ -336,7 +347,7 @@ export function AnimatedHero({
                 }}
               >
                 <div className="mb-4 flex items-end gap-3">
-                  {chartBars.map((height, index) => (
+                  {DEMO_CHART_BAR_HEIGHTS.map((height, index) => (
                     <motion.div
                       key={index}
                       className="flex-1 rounded-full"

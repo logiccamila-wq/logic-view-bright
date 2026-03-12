@@ -51,6 +51,11 @@ import {
   resolveLandingPalette,
 } from "@/pages/unifiedLandingContent";
 
+const getLanguageShortName = (languageName: string) => {
+  const normalizedName = languageName.trim();
+  return normalizedName.length > 0 ? normalizedName.split(/\s+/)[0] : "Lang";
+};
+
 export default function UnifiedLandingPage() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
@@ -678,7 +683,7 @@ export default function UnifiedLandingPage() {
                               selectedLanguage === language.code ? `${activePalette.secondary}33` : "rgba(255,255,255,0.04)",
                           }}
                         >
-                          {language.flag} {language.name.split(" ")[0]}
+                          {language.flag} {getLanguageShortName(language.name)}
                         </button>
                       ))}
                     </div>
