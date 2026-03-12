@@ -6,13 +6,19 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "Installing npm dependencies..."
-npm ci
+run_step() {
+  local label="$1"
+  shift
 
-echo "Running TypeScript checks..."
-npm run check
+  echo "$label"
+  if ! "$@"; then
+    echo "Step failed: $label" >&2
+    exit 1
+  fi
+}
 
-echo "Building production bundle..."
-npm run build
+run_step "Installing npm dependencies..." npm ci
+run_step "Running TypeScript checks..." npm run check
+run_step "Building production bundle..." npm run build:azure
 
 echo "Validation completed. Apply SQL migrations from sql/migrations/ and configure Azure environment variables before deployment."

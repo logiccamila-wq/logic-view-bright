@@ -3,16 +3,23 @@
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $projectRoot
 
-Write-Host "Installing npm dependencies..."
-npm ci
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+function Invoke-Step {
+    param(
+        [string]$Label,
+        [scriptblock]$Command
+    )
 
-Write-Host "Running TypeScript checks..."
-npm run check
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Write-Host $Label
+    & $Command
+    if ($LASTEXITCODE -ne 0) {
+        $exitCode = $LASTEXITCODE
+        Write-Error "$Label failed."
+        exit $exitCode
+    }
+}
 
-Write-Host "Building production bundle..."
-npm run build
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-Step "Installing npm dependencies..." { npm ci }
+Invoke-Step "Running TypeScript checks..." { npm run check }
+Invoke-Step "Building production bundle..." { npm run build:azure }
 
 Write-Host "Validation completed. Apply SQL migrations from sql/migrations/ and configure Azure environment variables before deployment."

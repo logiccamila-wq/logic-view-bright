@@ -17,7 +17,7 @@ Copy `.env.example` to your local environment file and set:
 
 - `DATABASE_URL` - PostgreSQL connection string
 - `AZURE_APPINSIGHTS_CONNECTION_STRING` - Azure Application Insights connection string
-- `VITE_API_BASE_URL` - public base URL consumed by the frontend runtime client (defaults to `/api`)
+- `VITE_API_BASE_URL` - optional public base URL consumed by the frontend runtime client; when unset the app falls back to `/api`
 - `VITE_APP_URL` - public URL of the deployed app
 - `NODE_ENV` - use `production` for deployed environments
 
@@ -42,7 +42,7 @@ Production deployment is 100% Azure. The canonical automated path uses GitHub Ac
 
 ### Frontend
 - Build output is generated in `dist/`
-- `npm run build:azure` is available as the Azure-oriented build alias used by deployment documentation
+- `npm run build:azure` is available as the Azure-oriented build alias used by deployment documentation and currently maps to the same Vite production build as `npm run build`
 - `staticwebapp.config.json` remains available only if you later split the frontend to Azure Static Web Apps
 
 ### Backend
