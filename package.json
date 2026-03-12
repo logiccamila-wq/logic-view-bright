@@ -9,6 +9,7 @@
     "dev": "vite",
     "check": "tsc --noEmit -p tsconfig.app.json",
     "build": "vite build",
+    "build:azure": "vite build",
     "build:force": "rm -rf dist && npm run build",
     "preview": "vite preview",
     "start": "node server/index.js",
