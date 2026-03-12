@@ -101,7 +101,7 @@ const platformOrganization = [
     owner: "Azure Database for PostgreSQL",
     summary: "Armazena perfis, viagens, documentos e eventos operacionais acessados pelo runtime seguro.",
     highlights: [
-      "Banco acessado pelo backend, nunca direto com secrets no frontend",
+      "Banco acessado pelo backend, nunca diretamente com secrets no frontend",
       "Queries e roles técnicas ficam auditáveis no runtime",
       "Estrutura e evolução do schema seguem migrations SQL"
     ]
@@ -140,8 +140,8 @@ const technicalOwnership = [
   },
   {
     scope: "Integração de dados",
-    source: "src/integrations/supabase/client.ts + hooks",
-    responsibility: "Padronizam chamadas ao runtime e sincronização com o frontend.",
+    source: "src/integrations/supabase/client.ts (compat Azure) + hooks",
+    responsibility: "Padronizam chamadas ao runtime Azure e sincronização com o frontend.",
   },
   {
     scope: "CRUD técnico",
@@ -308,7 +308,7 @@ const Developer = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="functions" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-2">
             <TabsTrigger value="organization">Organização</TabsTrigger>
             <TabsTrigger value="functions">Edge Functions</TabsTrigger>
             <TabsTrigger value="database">Database</TabsTrigger>
@@ -327,7 +327,7 @@ const Developer = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {platformOrganization.map((item) => {
                     const Icon = item.icon;
 
@@ -358,7 +358,7 @@ const Developer = () => {
                   })}
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
