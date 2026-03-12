@@ -1,25 +1,18 @@
 #!/bin/bash
 
-# Automate environment setup
+# Automate environment validation for Azure/App Service deployments.
+set -euo pipefail
 
-# Step 1: Git pull
-echo "Pulling latest code..."
-git pull
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# Step 2: Install npm dependencies
 echo "Installing npm dependencies..."
 npm ci
 
-# Step 3: Generate Prisma client
-echo "Generating Prisma client..."
-prisma generate
+echo "Running TypeScript checks..."
+npm run check
 
-# Step 4: Run Prisma migrations
-echo "Running Prisma migrations..."
-prisma migrate dev
+echo "Building production bundle..."
+npm run build
 
-# Step 5: Validate the database
-echo "Validating the database..."
-# Add your database validation commands here
-
-echo "Environment setup completed!"
+echo "Validation completed. Apply SQL migrations from sql/migrations/ and configure Azure environment variables before deployment."

@@ -1,19 +1,19 @@
-# Azure Static Web Apps – Deployment Guide
+# Azure Static Web Apps – Optional Frontend Hosting Guide
 
-This document describes how to deploy this Vite + React + TypeScript project to [Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/).
+This document describes an optional way to host only the frontend in [Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/). The repository's default GitHub Actions pipeline currently deploys the full app to Azure App Service, so use this guide only if you decide to split the frontend host from the Node runtime.
 
 ## Build configuration
 
 | Setting | Value |
 |---|---|
 | **app_location** | `/` |
-| **api_location** | `api` |
+| **api_location** | _not used_ (keep `/api/runtime/*` on Azure App Service) |
 | **output_location** | `dist` |
 | **build command** | `npm ci && npm run build:azure` |
 
 ## GitHub Actions Workflow
 
-A GitHub Actions workflow has been configured at `.github/workflows/azure-deploy.yml` for automatic deployment to Azure Static Web Apps.
+The checked-in workflow at `.github/workflows/azure-deploy.yml` deploys Azure App Service, not Static Web Apps. If you adopt SWA for the frontend, create a separate workflow with `Azure/static-web-apps-deploy` and the `AZURE_STATIC_WEB_APPS_API_TOKEN` secret.
 
 ### Prerequisites
 
@@ -45,7 +45,7 @@ For Azure SWA, add the following variables in the portal under **Configuration �
 
 | Variable | Description |
 |---|---|
-| `VITE_API_BASE_URL` | Base URL for Azure Functions APIs |
+| `VITE_API_BASE_URL` | Base URL for the deployed runtime API (`/api` when reverse-proxied, or `https://<app>.azurewebsites.net/api`) |
 | `VITE_APP_URL` | The public URL of the deployed app |
 
 > **Never commit real secrets.** The `.env` and `.env.*` files (except `.env.example`) are gitignored.
@@ -81,14 +81,13 @@ The following security headers are configured in `staticwebapp.config.json`:
 
 ## Build Scripts
 
-The project includes multiple build scripts for different deployment targets:
+The project includes the following relevant frontend scripts:
 
 | Script | Description |
 |---|---|
 | `npm run build` | Azure-oriented production build |
-| `npm run build:vite` | Vite production build |
-| `npm run build:azure` | Vite build with `dist` output for Azure SWA |
-| `npm run dev:vite` | Vite development server |
+| `npm run build:azure` | Alias for the Azure deployment build |
+| `npm run dev` | Vite development server |
 | `npm run preview` | Vite preview server |
 
 ## Quick-start

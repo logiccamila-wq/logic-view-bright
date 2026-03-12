@@ -1,16 +1,18 @@
-# Setup Environment Script for Windows
+# Setup environment validation for Azure/App Service deployments.
 
-# Navigate to the project directory
-cd path/to/your/project
+$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $projectRoot
 
-# Pull the latest code from the repository
-git pull
+Write-Host "Installing npm dependencies..."
+npm ci
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# Install dependencies using npm
-npm install
+Write-Host "Running TypeScript checks..."
+npm run check
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# Generate Prisma client
-prisma generate
+Write-Host "Building production bundle..."
+npm run build
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# Run database migrations
-prisma migrate deploy
+Write-Host "Validation completed. Apply SQL migrations from sql/migrations/ and configure Azure environment variables before deployment."
