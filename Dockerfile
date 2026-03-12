@@ -1,28 +1,26 @@
-# Dockerfile multi-stage para Next.js + Node 20
+# Multi-stage build for Vite + Express (Node 20)
 FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Instalação de dependências (cache)
+# Install all dependencies (including devDependencies for build)
 FROM base AS deps
 COPY package*.json ./
-RUN apk add --no-cache python3 make g++ && \
-    npm ci --only=production && \
-    npm cache clean --force
+RUN npm ci
 
-# Build
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+# Build the Vite frontend
+FROM deps AS builder
 COPY . .
-RUN npm run build || true
+RUN npm run build
 
-# Production image
+# Production image — only runtime dependencies + dist + server
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+COPY server ./server
+COPY api ./api
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "server/index.js"]

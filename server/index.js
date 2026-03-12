@@ -35,10 +35,19 @@ function createApp() {
   app.use(express.json({ limit: '5mb' }));
   app.use(express.urlencoded({ extended: true }));
 
-  app.use('/api', apiRoutes);
+  // Register /api/runtime before /api so runtime routes are not shadowed
   app.use('/api/runtime', runtimeRoutes);
+  app.use('/api', apiRoutes);
 
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, {
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      } else if (filePath.endsWith('.js') || filePath.endsWith('.mjs')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      }
+    },
+  }));
   app.get(NON_API_ROUTE_PATTERN, staticFileRateLimit, (_req, res) => {
     res.sendFile(indexPath, (error) => {
       if (error) {
