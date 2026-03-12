@@ -41,6 +41,7 @@ interface Module {
 }
 
 import { modules as registry } from '@/modules/registry';
+import { mergeUniqueModules, resolveModuleRoute } from '@/modules/moduleNavigation';
 import { runtimeClient } from '@/integrations/azure/client';
 
 const ModuleMarketplace: React.FC = () => {
@@ -72,7 +73,7 @@ const ModuleMarketplace: React.FC = () => {
     })();
   }, []);
 
-  const modules: Module[] = useMemo(() => [
+  const modules: Module[] = useMemo(() => mergeUniqueModules([
     {
       id: 'dashboard',
       name: t('modules.dashboard.name'),
@@ -272,7 +273,7 @@ const ModuleMarketplace: React.FC = () => {
       features: [],
     })),
     ...dbModules,
-  ], [t, dbModules]) as Module[];
+  ]), [t, dbModules]) as Module[];
 
   const registryCategories = Array.from(new Set(registry.map(r => r.category))).filter(Boolean);
   const categories = [
@@ -296,36 +297,57 @@ const ModuleMarketplace: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleInstall = async (moduleId: string) => {
+  const installModuleEndpoint = `${(import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')}/install-module`;
+
+  const openRouteFor = (id: string) => {
+    navigate(resolveModuleRoute(id));
+  };
+
+  const activateModule = async (
+    moduleId: string,
+    successMessage: string,
+    errorMessage: string,
+  ) => {
+    if (moduleId === 'all') {
+      toast.info('A instalação em lote depende do backend publicado.');
+      return;
+    }
+
     try {
-      const r = await fetch('/api/install-module', {
+      const response = await fetch(installModuleEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduleId, clientKey: 'ejg' })
+        body: JSON.stringify({ moduleId, clientKey: 'ejg' }),
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error || 'Falha ao instalar');
-      toast.success(`Módulo instalado: ${moduleId}`);
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data?.error || `HTTP ${response.status}`);
+      }
+
+      toast.success(successMessage);
       openRouteFor(moduleId);
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao instalar módulo');
+    } catch (error: any) {
+      console.warn(`Falha ao ativar módulo ${moduleId}:`, error);
+      toast.info(errorMessage);
+      openRouteFor(moduleId);
     }
   };
 
+  const handleInstall = async (moduleId: string) => {
+    await activateModule(
+      moduleId,
+      `Módulo instalado: ${moduleId}`,
+      'Backend de instalação indisponível. Abrindo o módulo diretamente.',
+    );
+  };
+
   const handleTrial = async (moduleId: string) => {
-    try {
-      const r = await fetch('/api/install-module', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduleId, clientKey: 'ejg' })
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error || 'Falha ao iniciar teste');
-      toast.success(`Teste iniciado: ${moduleId}`);
-      openRouteFor(moduleId);
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao iniciar teste');
-    }
+    await activateModule(
+      moduleId,
+      `Teste iniciado: ${moduleId}`,
+      'Backend de trial indisponível. Abrindo o módulo diretamente.',
+    );
   };
 
   const getStatusBadge = (status: Module['status']) => {
@@ -391,22 +413,6 @@ const ModuleMarketplace: React.FC = () => {
         </span>
       </div>
     );
-  };
-
-  const openRouteFor = (id: string) => {
-    const map: Record<string, string> = {
-      dashboard: '/dashboard',
-      tms: '/tms',
-      wms: '/wms',
-      oms: '/oms',
-      crm: '/crm',
-      erp: '/erp',
-      'driver-app': '/driver',
-      'mechanic-hub': '/mechanic',
-    };
-    const reg = registry.find(r => r.slug === id);
-    const path = reg?.route || map[id] || `/module/${id}`;
-    navigate(path);
   };
 
   return (

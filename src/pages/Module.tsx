@@ -1,29 +1,18 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { modules } from "@/modules/registry";
+import { resolveModuleRoute } from "@/modules/moduleNavigation";
 
 export default function ModulePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const mod = modules.find(m => m.slug === slug);
 
-  const map: Record<string, string> = {
-    "dashboard": "/dashboard",
-    "tms": "/tms",
-    "wms": "/wms",
-    "oms": "/oms",
-    "crm": "/crm",
-    "erp": "/erp",
-    "driver-app": "/driver",
-    "mechanic-hub": "/mechanic",
-    "control-tower": "/control-tower",
-  };
-
   useEffect(() => {
     const s = slug || "";
-    const target = mod?.route || map[s];
+    const target = mod?.route || (s ? resolveModuleRoute(s) : undefined);
     if (target) navigate(target);
-  }, [slug]);
+  }, [mod?.route, navigate, slug]);
 
   if (!mod) {
     return (
