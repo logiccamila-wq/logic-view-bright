@@ -54,6 +54,7 @@ Production deployment is 100% Azure. The canonical automated path uses GitHub Ac
 - GitHub Actions workflow: `.github/workflows/azure-deploy.yml`
 - The workflow installs dependencies, type-checks, builds, and deploys to Azure App Service when `AZURE_CREDENTIALS` and `AZURE_WEBAPP_NAME` are configured in GitHub
 - Runtime application settings should be configured in Azure App Service using the variables from `.env.example`
+- If you need the quick answer for "where do I see the Azure deploy or pipeline?", open `DEPLOYMENT.md`
 
 ## Azure configuration
 
