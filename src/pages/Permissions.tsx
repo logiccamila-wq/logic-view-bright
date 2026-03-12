@@ -58,6 +58,71 @@ const ROLE_INFO: Record<AppRole, { name: string; color: string; description: str
   maintenance_manager: { name: 'Gerente de Manutenção', color: 'bg-pink-500', description: 'Gestão de manutenção' },
 };
 
+const GITHUB_COPILOT_AGENT_PERMISSIONS = [
+  {
+    category: 'Em geral',
+    permissions: [
+      'Alterar configurações de rastreamento',
+      'Criar novos projetos',
+      'Excluir projeto de equipe',
+      'Editar informações de nível de instância',
+      'Exibir informações em nível de instância',
+    ],
+  },
+  {
+    category: 'Conta de serviço',
+    permissions: [
+      'Fazer pedidos em nome de outras pessoas.',
+      'Eventos de gatilho',
+      'Visualizar informações de sincronização do sistema',
+    ],
+  },
+  {
+    category: 'Tábuas',
+    permissions: [
+      'Administrar permissões de processo',
+      'Criar processo',
+      'Excluir campo da organização',
+      'Excluir processo',
+      'Processo de edição',
+    ],
+  },
+  {
+    category: 'Descansar',
+    permissions: [
+      'Administrar alterações arquivadas',
+      'Administrar espaços de trabalho',
+      'Crie um espaço de trabalho',
+    ],
+  },
+  {
+    category: 'Oleodutos',
+    permissions: [
+      'Administrar permissões de recursos de compilação',
+      'Gerenciar recursos de construção',
+      'Gerenciar políticas de dutos',
+      'Use os recursos de construção',
+      'Veja os recursos de construção',
+    ],
+  },
+  {
+    category: 'Planos de teste',
+    permissions: ['Gerenciar controladores de teste'],
+  },
+  {
+    category: 'Auditoria',
+    permissions: [
+      'Excluir fluxos de auditoria',
+      'Gerenciar fluxos de auditoria',
+      'Visualizar registro de auditoria',
+    ],
+  },
+  {
+    category: 'Políticas',
+    permissions: ['Gerenciar políticas empresariais'],
+  },
+] as const;
+
 function safeJson(r: Response) {
   const ct = r.headers.get("content-type") || "";
   if (!ct.includes("application/json")) throw new Error("Resposta não JSON");
@@ -121,6 +186,42 @@ const Permissions = () => {
                 </Badge>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Agente de codificação do GitHub Copilot
+            </CardTitle>
+            <CardDescription>
+              Todas as permissões abaixo estão configuradas como permitidas para o agente.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {GITHUB_COPILOT_AGENT_PERMISSIONS.map(({ category, permissions }) => (
+              <div key={category} className="space-y-3">
+                <div className="flex items-center justify-between gap-3 border-b pb-2">
+                  <h3 className="font-semibold">{category}</h3>
+                  <Badge className="bg-green-600 text-white">Permitido</Badge>
+                </div>
+                <div className="grid gap-2">
+                  {permissions.map((permission) => (
+                    <div
+                      key={permission}
+                      className="flex items-center justify-between gap-3 rounded-md border px-3 py-2"
+                    >
+                      <span className="text-sm">{permission}</span>
+                      <Badge variant="outline" className="border-green-600 text-green-700">
+                        <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                        Permitir
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
