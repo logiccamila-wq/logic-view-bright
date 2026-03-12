@@ -39,8 +39,8 @@ if (!fs.existsSync(envPath)) {
 DATABASE_URL=
 AZURE_APPINSIGHTS_CONNECTION_STRING=
 VITE_API_BASE_URL=/api
-VITE_APP_URL=https://www.xyzlogicflow.com.br
-NODE_ENV=production
+VITE_APP_URL=http://localhost:3000
+NODE_ENV=development
 
 # EmailJS
 VITE_EMAILJS_SERVICE_ID=
