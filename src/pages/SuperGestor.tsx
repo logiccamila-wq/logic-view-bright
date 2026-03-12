@@ -33,6 +33,15 @@ type MLModel = {
   lastTrained: string;
 };
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const AUTO_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const MAX_AI_INSIGHTS = 6;
+const AI_CONFIDENCE_MIN = 72;
+const AI_CONFIDENCE_MAX = 97;
+const DEFAULT_AI_CONFIDENCE = 84;
+const QUERY_INSIGHT_CONFIDENCE = 82;
+const FALLBACK_INSIGHT_CONFIDENCE = 74;
+
 export default function Supergestor() {
   const { toast } = useToast();
   const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -43,21 +52,21 @@ export default function Supergestor() {
       status: "ready",
       accuracy: 94.5,
       predictions: 1247,
-      lastTrained: new Date(Date.now() - 86400000).toISOString(),
+      lastTrained: new Date(Date.now() - MS_PER_DAY).toISOString(),
     },
     {
       name: "Otimização de Rotas",
       status: "ready",
       accuracy: 89.2,
       predictions: 3421,
-      lastTrained: new Date(Date.now() - 172800000).toISOString(),
+      lastTrained: new Date(Date.now() - (2 * MS_PER_DAY)).toISOString(),
     },
     {
       name: "Análise de Custos",
       status: "training",
       accuracy: 91.8,
       predictions: 892,
-      lastTrained: new Date(Date.now() - 259200000).toISOString(),
+      lastTrained: new Date(Date.now() - (3 * MS_PER_DAY)).toISOString(),
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -195,7 +204,7 @@ export default function Supergestor() {
             predictedMaint > 0
               ? `${predictedMaint} veículo(s) com manutenção prevista nos próximos 30 dias.`
               : "Nenhuma previsão crítica de manutenção foi detectada para os próximos 30 dias.",
-          confidence: tire ? Math.min(97, Math.max(72, tire.riskScore)) : 84,
+          confidence: tire ? Math.min(AI_CONFIDENCE_MAX, Math.max(AI_CONFIDENCE_MIN, tire.riskScore)) : DEFAULT_AI_CONFIDENCE,
           impact: predictedMaint > 2 ? "high" : predictedMaint > 0 ? "medium" : "low",
           action: predictedMaint > 0 ? "Priorizar agendamento das inspeções preventivas" : "Manter rotina preventiva atual",
         },
@@ -241,7 +250,7 @@ export default function Supergestor() {
 
     const interval = window.setInterval(() => {
       fetchInsights();
-    }, 300000);
+    }, AUTO_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
   }, [autoMode]);
@@ -266,12 +275,12 @@ export default function Supergestor() {
         type: "recommendation",
         title: "Consulta personalizada",
         description: data?.summary || `Análise gerada para: ${query}`,
-        confidence: 82,
+        confidence: QUERY_INSIGHT_CONFIDENCE,
         impact: "medium",
         action: "Revisar recomendação e aplicar no módulo correspondente",
       };
 
-      setAiInsights((prev) => [generatedInsight, ...prev].slice(0, 6));
+      setAiInsights((prev) => [generatedInsight, ...prev].slice(0, MAX_AI_INSIGHTS));
 
       toast({
         title: "Consulta concluída",
@@ -283,12 +292,12 @@ export default function Supergestor() {
         type: "recommendation",
         title: "Sugestão rápida do SuperGestor",
         description: `Priorize a análise de "${query}" cruzando custos, ordens pendentes e indicadores de manutenção desta página.`,
-        confidence: 74,
+        confidence: FALLBACK_INSIGHT_CONFIDENCE,
         impact: "medium",
         action: "Executar análise detalhada com os dados operacionais disponíveis",
       };
 
-      setAiInsights((prev) => [fallbackInsight, ...prev].slice(0, 6));
+      setAiInsights((prev) => [fallbackInsight, ...prev].slice(0, MAX_AI_INSIGHTS));
 
       toast({
         title: "Modo local ativado",
