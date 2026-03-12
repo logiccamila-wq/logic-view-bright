@@ -171,7 +171,9 @@ const premiumModuleKits = modules
             : "kit comando premium",
   }));
 
-const LIVE_QUERY_LIMIT = 500;
+const REVENUE_QUERY_LIMIT = 500;
+const STATUS_QUERY_LIMIT = 200;
+const REFUELING_QUERY_LIMIT = 200;
 const CRITICAL_SEVERITY_THRESHOLD = 7;
 const AUTO_MODE_REFRESH_INTERVAL_MS = 60_000;
 const NORMAL_MODE_REFRESH_INTERVAL_MS = 180_000;
@@ -179,10 +181,25 @@ const REVENUE_LOOKBACK_DAYS = 30;
 const ACTIVE_VEHICLE_STATUS_KEYWORDS = ["ATIV", "ACTIVE"];
 const PENDING_ORDER_STATUS_PATTERN = /abert|pend/;
 const RUNNING_TRIP_STATUS_PATTERN = /andamento|ativa|em andamento/;
+const ACTIVE_VEHICLE_QUERY_PATTERNS = ["%ativ%", "%active%"] as const;
+const PENDING_ORDER_QUERY_PATTERNS = ["%abert%", "%pend%"] as const;
+const RUNNING_TRIP_QUERY_PATTERNS = ["%andamento%", "%ativa%", "%em andamento%"] as const;
 
 function matchesAnyKeyword(value: string, keywords: readonly string[]) {
   const normalizedValue = value.toUpperCase();
   return keywords.some((keyword) => normalizedValue.includes(keyword));
+}
+
+function buildIlikeOrExpression(column: string, patterns: readonly string[]) {
+  return patterns
+    .map((pattern) => {
+      const normalizedPattern = String(pattern);
+      if (!/^[%a-z\s]+$/i.test(normalizedPattern)) {
+        throw new Error(`Unsupported ILIKE pattern: ${normalizedPattern}`);
+      }
+      return `${column}.ilike.${normalizedPattern}`;
+    })
+    .join(",");
 }
 
 function isCriticalNonConformity(status: string, severity: number) {
@@ -314,16 +331,28 @@ export default function SuperGestorAI() {
           .select("valor_frete, data_emissao")
           .gte("data_emissao", sinceIso)
           .order("data_emissao", { ascending: false })
-          .limit(LIVE_QUERY_LIMIT),
-        supabase.from("vehicles").select("id, status").limit(LIVE_QUERY_LIMIT),
-        supabase.from("service_orders").select("status").limit(LIVE_QUERY_LIMIT),
-        (supabase as any).from("trips").select("status").limit(LIVE_QUERY_LIMIT),
-        (supabase as any).from("non_conformities").select("severity, status").limit(LIVE_QUERY_LIMIT),
+          .limit(REVENUE_QUERY_LIMIT),
+        supabase
+          .from("vehicles")
+          .select("id, status")
+          .or(buildIlikeOrExpression("status", ACTIVE_VEHICLE_QUERY_PATTERNS))
+          .limit(STATUS_QUERY_LIMIT),
+        supabase
+          .from("service_orders")
+          .select("status")
+          .or(buildIlikeOrExpression("status", PENDING_ORDER_QUERY_PATTERNS))
+          .limit(STATUS_QUERY_LIMIT),
+        (supabase as any)
+          .from("trips")
+          .select("status")
+          .or(buildIlikeOrExpression("status", RUNNING_TRIP_QUERY_PATTERNS))
+          .limit(STATUS_QUERY_LIMIT),
+        (supabase as any).from("non_conformities").select("severity, status").limit(STATUS_QUERY_LIMIT),
         supabase
           .from("refuelings")
           .select("cost_per_km, timestamp")
           .order("timestamp", { ascending: false })
-          .limit(LIVE_QUERY_LIMIT),
+          .limit(REFUELING_QUERY_LIMIT),
       ]);
 
       const [revenueResult, vehiclesResult, ordersResult, tripsResult, nonConformitiesResult, refuelingsResult] = results;
