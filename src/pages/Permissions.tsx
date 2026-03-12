@@ -123,6 +123,41 @@ const GITHUB_COPILOT_AGENT_PERMISSIONS = [
   },
 ] as const;
 
+const GITHUB_COPILOT_AGENT_USERS = [
+  {
+    name: 'Camila Lareste Gomes da Silva',
+    identifier: 'camila.lareste@ufrpe.br',
+    accessLevel: 'Básico',
+    microsoftEntraType: 'Usuário',
+    addedAt: '06/03/2026',
+    lastAccess: '12/03/2026',
+  },
+  {
+    name: 'API GitHub Actions - Desenvolvedor',
+    identifier: 'b9a50111-7110-459d-bc13-534691bd5b7b',
+    accessLevel: 'Básico',
+    microsoftEntraType: 'Aplicativo',
+    addedAt: '12/03/2026',
+    lastAccess: 'Nunca',
+  },
+  {
+    name: 'camilalareste-2498-projetos de recursos camilalareste-2498',
+    identifier: 'e20bee31-2dc9-40a8-b01b-9437713af7ca',
+    accessLevel: 'Parte interessada',
+    microsoftEntraType: 'Grupo',
+    addedAt: '06/03/2026',
+    lastAccess: 'Nunca',
+  },
+  {
+    name: 'camilalareste-2498-recurso-camilalareste-2498-AgentIdentityBlueprint',
+    identifier: 'c1f50454-242a-486f-8d88-bdb93d77225d',
+    accessLevel: 'Parte interessada',
+    microsoftEntraType: 'Grupo',
+    addedAt: '06/03/2026',
+    lastAccess: 'Nunca',
+  },
+] as const;
+
 function safeJson(r: Response) {
   const ct = r.headers.get("content-type") || "";
   if (!ct.includes("application/json")) throw new Error("Resposta não JSON");
@@ -222,6 +257,67 @@ const Permissions = () => {
                 </div>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Usuários do grupo GitHub Copilot
+            </CardTitle>
+            <CardDescription>
+              Todos os usuários, regras do grupo e resumo de acesso associados ao agente.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="mt-1 text-2xl font-semibold">{GITHUB_COPILOT_AGENT_USERS.length}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Filtro</p>
+                <p className="mt-1 font-medium">Todos os usuários</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Regras do grupo</p>
+                <p className="mt-1 font-medium">Usuários de exportação</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Nível de acesso</p>
+                <p className="mt-1 font-medium">Básico / Parte interessada</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="p-3 text-left font-semibold">Usuário</th>
+                    <th className="p-3 text-left font-semibold">Identificador</th>
+                    <th className="p-3 text-left font-semibold">Nível de acesso</th>
+                    <th className="p-3 text-left font-semibold">Tipo de usuário Microsoft Entra</th>
+                    <th className="p-3 text-left font-semibold">Adicionado em</th>
+                    <th className="p-3 text-left font-semibold">Último acesso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {GITHUB_COPILOT_AGENT_USERS.map((user) => (
+                    <tr key={user.identifier} className="border-b align-top">
+                      <td className="p-3 font-medium">{user.name}</td>
+                      <td className="p-3 text-sm text-muted-foreground">{user.identifier}</td>
+                      <td className="p-3">
+                        <Badge variant="outline">{user.accessLevel}</Badge>
+                      </td>
+                      <td className="p-3 text-sm">{user.microsoftEntraType}</td>
+                      <td className="p-3 text-sm">{user.addedAt}</td>
+                      <td className="p-3 text-sm">{user.lastAccess}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
 
