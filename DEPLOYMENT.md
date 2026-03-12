@@ -1,6 +1,6 @@
 # Deployment
 
-Se a dúvida for **"aonde eu vejo o sistema faz o deploy na Azure ou pipeline?"**, os arquivos principais são estes:
+Se a dúvida for **"onde está configurado o deploy na Azure ou a pipeline?"**, os arquivos principais são estes:
 
 ## 1. Pipeline de CI/CD
 
