@@ -6,6 +6,7 @@ CREATE OR REPLACE FUNCTION public.approve_inventory_request(
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_item_id uuid;
@@ -79,6 +80,7 @@ CREATE OR REPLACE FUNCTION public.reject_inventory_request(
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   UPDATE public.inventory_requests

@@ -48,6 +48,3 @@ CREATE TRIGGER update_notifications_updated_at
 BEFORE UPDATE ON public.notifications
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
-
--- Enable realtime
-ALTER PUBLICATION app_realtime ADD TABLE public.notifications;

@@ -31,6 +31,4 @@ CREATE POLICY "Motoristas podem inserir seu rastreamento"
   ON public.vehicle_tracking FOR INSERT
   WITH CHECK (auth.uid() = driver_id);
 
--- Habilitar realtime
 ALTER TABLE public.vehicle_tracking REPLICA IDENTITY FULL;
-ALTER PUBLICATION app_realtime ADD TABLE public.vehicle_tracking;

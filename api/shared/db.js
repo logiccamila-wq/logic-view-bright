@@ -1,6 +1,7 @@
 const postgres = require("postgres");
 
 let sqlClient;
+let closePromise;
 
 function getConnectionString() {
   return process.env.DATABASE_URL || "";
@@ -21,16 +22,29 @@ function getPool() {
 
     sqlClient = {
       async query(statement, params = []) {
-        const rows = await sql.unsafe(statement, params);
+        const rows = await sql.unsafe(statement, params, { prepare: true });
         return {
           rows,
           rowCount: typeof rows.count === "number" ? rows.count : rows.length,
         };
       },
+      async end() {
+        if (!closePromise) {
+          closePromise = sql.end({ timeout: 5 });
+        }
+        return closePromise;
+      },
     };
   }
 
   return sqlClient;
+}
+
+async function closePool() {
+  if (!sqlClient) return;
+  await sqlClient.end();
+  sqlClient = undefined;
+  closePromise = undefined;
 }
 
 function isValidIdentifier(value) {
@@ -60,6 +74,7 @@ async function ensureAuthSchema() {
 
 module.exports = {
   getPool,
+  closePool,
   quoteIdentifier,
   isValidIdentifier,
   ensureAuthSchema,
