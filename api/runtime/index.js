@@ -12,6 +12,36 @@ const DEMO_PASSWORD = process.env.DEMO_PASSWORD || "demo123";
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@xyzlogicflow.com.br").toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
+function isDatabaseConfigured() {
+  return Boolean(
+    process.env.AZURE_POSTGRES_CONNECTION_STRING ||
+      process.env.DATABASE_URL ||
+      (process.env.AZURE_POSTGRES_HOST &&
+        process.env.AZURE_POSTGRES_DB &&
+        process.env.AZURE_POSTGRES_USER &&
+        process.env.AZURE_POSTGRES_PASSWORD)
+  );
+}
+
+function getAllowedOrigins() {
+  return String(process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+function resolveCorsOrigin(req) {
+  const configuredOrigins = getAllowedOrigins();
+  if (!configuredOrigins.length) return "*";
+
+  const origin = req.headers?.origin;
+  if (origin && configuredOrigins.includes(origin)) {
+    return origin;
+  }
+
+  return configuredOrigins[0] || "";
+}
+
 function normalizeLoginIdentifier(raw) {
   const value = String(raw || "").toLowerCase().trim();
   if (value === "demo") return DEMO_EMAIL;
@@ -65,12 +95,13 @@ async function ensureDefaultAccessUsers() {
   });
 }
 
-function json(status, body) {
+function json(req, status, body) {
   return {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": resolveCorsOrigin(req),
+      Vary: "Origin",
       "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
       "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
     },
@@ -197,11 +228,11 @@ async function handleAuth(path, req) {
     const fullName = body.fullName || body.full_name || "";
     const role = body.role || "driver";
 
-    if (!email || !password) return json(400, { error: { message: "email and password are required" } });
+    if (!email || !password) return json(req, 400, { error: { message: "email and password are required" } });
 
     const exists = await pool.query("SELECT id FROM app_users WHERE email = $1", [email]);
     if (exists.rowCount) {
-      return json(400, { error: { message: "Email already registered" } });
+      return json(req, 400, { error: { message: "Email already registered" } });
     }
 
     const userId = randomUUID();
@@ -225,7 +256,7 @@ async function handleAuth(path, req) {
 
     const token = jwt.sign({ sub: userId, email }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
     const user = { id: userId, email, user_metadata: { full_name: fullName } };
-    return json(200, { data: { user, session: { access_token: token, user } }, error: null });
+    return json(req, 200, { data: { user, session: { access_token: token, user } }, error: null });
   }
 
   if (path[1] === "signin") {
@@ -233,61 +264,61 @@ async function handleAuth(path, req) {
 
     const email = normalizeLoginIdentifier(body.email);
     const password = String(body.password || "");
-    if (!email || !password) return json(400, { error: { message: "email and password are required" } });
+    if (!email || !password) return json(req, 400, { error: { message: "email and password are required" } });
 
     const rs = await pool.query(
       `SELECT id, email, password_hash, full_name FROM app_users WHERE email = $1 LIMIT 1`,
       [email]
     );
 
-    if (!rs.rowCount) return json(401, { data: { user: null, session: null }, error: { message: "Invalid credentials" } });
+    if (!rs.rowCount) return json(req, 401, { data: { user: null, session: null }, error: { message: "Invalid credentials" } });
     const row = rs.rows[0];
     const ok = await bcrypt.compare(password, row.password_hash);
-    if (!ok) return json(401, { data: { user: null, session: null }, error: { message: "Invalid credentials" } });
+    if (!ok) return json(req, 401, { data: { user: null, session: null }, error: { message: "Invalid credentials" } });
 
     const token = jwt.sign({ sub: row.id, email: row.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
     const user = { id: row.id, email: row.email, user_metadata: { full_name: row.full_name || "" } };
-    return json(200, { data: { user, session: { access_token: token, user } }, error: null });
+    return json(req, 200, { data: { user, session: { access_token: token, user } }, error: null });
   }
 
   if (path[1] === "session") {
     const auth = getAuthUser(req);
-    if (!auth) return json(200, { data: { session: null }, error: null });
+    if (!auth) return json(req, 200, { data: { session: null }, error: null });
     const user = { id: auth.sub, email: auth.email };
-    return json(200, { data: { session: { access_token: getBearerToken(req), user } }, error: null });
+    return json(req, 200, { data: { session: { access_token: getBearerToken(req), user } }, error: null });
   }
 
   if (path[1] === "user") {
     const auth = getAuthUser(req);
-    if (!auth) return json(200, { data: { user: null }, error: null });
+    if (!auth) return json(req, 200, { data: { user: null }, error: null });
     const rs = await pool.query(`SELECT id, email, full_name FROM app_users WHERE id = $1 LIMIT 1`, [auth.sub]);
-    if (!rs.rowCount) return json(200, { data: { user: null }, error: null });
+    if (!rs.rowCount) return json(req, 200, { data: { user: null }, error: null });
     const row = rs.rows[0];
-    return json(200, { data: { user: { id: row.id, email: row.email, user_metadata: { full_name: row.full_name || "" } } }, error: null });
+    return json(req, 200, { data: { user: { id: row.id, email: row.email, user_metadata: { full_name: row.full_name || "" } } }, error: null });
   }
 
   if (path[1] === "update-user") {
     const auth = getAuthUser(req);
-    if (!auth) return json(401, { error: { message: "Unauthorized" } });
+    if (!auth) return json(req, 401, { error: { message: "Unauthorized" } });
     const newPassword = String(body.password || "");
     if (!newPassword || newPassword.length < 6) {
-      return json(400, { error: { message: "Password must have at least 6 characters" } });
+      return json(req, 400, { error: { message: "Password must have at least 6 characters" } });
     }
     const hash = await bcrypt.hash(newPassword, 10);
     await pool.query(`UPDATE app_users SET password_hash = $1, updated_at = NOW() WHERE id = $2`, [hash, auth.sub]);
-    return json(200, { data: { user: { id: auth.sub, email: auth.email } }, error: null });
+    return json(req, 200, { data: { user: { id: auth.sub, email: auth.email } }, error: null });
   }
 
   if (path[1] === "reset-password") {
     // Azure-only baseline: accepts request and returns success. Integrate Azure Communication Services in next step.
-    return json(200, { data: { sent: true }, error: null });
+    return json(req, 200, { data: { sent: true }, error: null });
   }
 
   if (path[1] === "signout") {
-    return json(200, { error: null });
+    return json(req, 200, { error: null });
   }
 
-  return json(404, { error: { message: "Auth route not found" } });
+  return json(req, 404, { error: { message: "Auth route not found" } });
 }
 
 function parseOrExpression(expr) {
@@ -328,7 +359,7 @@ async function handleQuery(req) {
   const orExpr = body.or || null;
 
   if (!isValidIdentifier(schema) || !isValidIdentifier(table)) {
-    return json(400, { data: null, error: { message: "Invalid schema/table" } });
+    return json(req, 400, { data: null, error: { message: "Invalid schema/table" } });
   }
 
   const selectColumns = buildSelectColumns(select);
@@ -373,15 +404,15 @@ async function handleQuery(req) {
   const rs = await pool.query(sql, params);
 
   if (single) {
-    if (!rs.rows.length) return json(406, { data: null, error: { message: "No rows" } });
-    return json(200, { data: rs.rows[0], error: null });
+    if (!rs.rows.length) return json(req, 406, { data: null, error: { message: "No rows" } });
+    return json(req, 200, { data: rs.rows[0], error: null });
   }
 
   if (maybeSingle) {
-    return json(200, { data: rs.rows[0] || null, error: null });
+    return json(req, 200, { data: rs.rows[0] || null, error: null });
   }
 
-  return json(200, { data: rs.rows, error: null });
+  return json(req, 200, { data: rs.rows, error: null });
 }
 
 async function handleMutate(req) {
@@ -394,17 +425,17 @@ async function handleMutate(req) {
   const returning = body.returning || "*";
 
   if (!isValidIdentifier(schema) || !isValidIdentifier(table)) {
-    return json(400, { data: null, error: { message: "Invalid schema/table" } });
+    return json(req, 400, { data: null, error: { message: "Invalid schema/table" } });
   }
 
   const fullTable = `${quoteIdentifier(schema)}.${quoteIdentifier(table)}`;
 
   if (action === "insert") {
     const rows = Array.isArray(body.values) ? body.values : [body.values || {}];
-    if (!rows.length) return json(400, { data: null, error: { message: "Insert values required" } });
+    if (!rows.length) return json(req, 400, { data: null, error: { message: "Insert values required" } });
 
     const columns = Object.keys(rows[0] || {}).filter(isValidIdentifier);
-    if (!columns.length) return json(400, { data: null, error: { message: "No valid columns for insert" } });
+    if (!columns.length) return json(req, 400, { data: null, error: { message: "No valid columns for insert" } });
 
     let idx = 1;
     const values = [];
@@ -420,17 +451,17 @@ async function handleMutate(req) {
 
     const sql = `INSERT INTO ${fullTable} (${columns.map(quoteIdentifier).join(",")}) VALUES ${valueSql} RETURNING ${buildSelectColumns(returning)}`;
     const rs = await pool.query(sql, values);
-    return json(200, { data: rs.rows, error: null });
+    return json(req, 200, { data: rs.rows, error: null });
   }
 
   if (action === "upsert") {
     const rows = Array.isArray(body.values) ? body.values : [body.values || {}];
     const conflict = Array.isArray(body.onConflict) ? body.onConflict.filter(isValidIdentifier) : [];
-    if (!rows.length) return json(400, { data: null, error: { message: "Upsert values required" } });
-    if (!conflict.length) return json(400, { data: null, error: { message: "onConflict is required for upsert" } });
+    if (!rows.length) return json(req, 400, { data: null, error: { message: "Upsert values required" } });
+    if (!conflict.length) return json(req, 400, { data: null, error: { message: "onConflict is required for upsert" } });
 
     const columns = Object.keys(rows[0] || {}).filter(isValidIdentifier);
-    if (!columns.length) return json(400, { data: null, error: { message: "No valid columns for upsert" } });
+    if (!columns.length) return json(req, 400, { data: null, error: { message: "No valid columns for upsert" } });
 
     let idx = 1;
     const values = [];
@@ -458,13 +489,13 @@ async function handleMutate(req) {
     `;
 
     const rs = await pool.query(sql, values);
-    return json(200, { data: rs.rows, error: null });
+    return json(req, 200, { data: rs.rows, error: null });
   }
 
   if (action === "update") {
     const patch = body.values || {};
     const columns = Object.keys(patch).filter(isValidIdentifier);
-    if (!columns.length) return json(400, { data: null, error: { message: "Update values required" } });
+    if (!columns.length) return json(req, 400, { data: null, error: { message: "Update values required" } });
 
     let idx = 1;
     const params = [];
@@ -479,17 +510,17 @@ async function handleMutate(req) {
     params.push(...where.values);
     const sql = `UPDATE ${fullTable} SET ${setSql}${where.sql} RETURNING ${buildSelectColumns(returning)}`;
     const rs = await pool.query(sql, params);
-    return json(200, { data: rs.rows, error: null });
+    return json(req, 200, { data: rs.rows, error: null });
   }
 
   if (action === "delete") {
     const where = buildWhere(filters, 1);
     const sql = `DELETE FROM ${fullTable}${where.sql} RETURNING ${buildSelectColumns(returning)}`;
     const rs = await pool.query(sql, where.values);
-    return json(200, { data: rs.rows, error: null });
+    return json(req, 200, { data: rs.rows, error: null });
   }
 
-  return json(400, { data: null, error: { message: `Unsupported mutate action: ${action}` } });
+  return json(req, 400, { data: null, error: { message: `Unsupported mutate action: ${action}` } });
 }
 
 async function handleRpc(req) {
@@ -499,7 +530,7 @@ async function handleRpc(req) {
   const args = body.args || {};
 
   if (!isValidIdentifier(fnName)) {
-    return json(400, { data: null, error: { message: "Invalid function name" } });
+    return json(req, 400, { data: null, error: { message: "Invalid function name" } });
   }
 
   const keys = Object.keys(args).filter(isValidIdentifier);
@@ -511,16 +542,16 @@ async function handleRpc(req) {
     : `SELECT * FROM ${quoteIdentifier(fnName)}()`;
 
   const rs = await pool.query(sql, values);
-  return json(200, { data: rs.rows, error: null });
+  return json(req, 200, { data: rs.rows, error: null });
 }
 
 async function handleInvoke(path, req) {
   const fnName = path[1];
-  if (!fnName) return json(400, { data: null, error: { message: "Function name is required" } });
+  if (!fnName) return json(req, 400, { data: null, error: { message: "Function name is required" } });
 
   const base = process.env.AZURE_FUNCTIONS_BASE_URL || "";
   if (!base) {
-    return json(501, { data: null, error: { message: "AZURE_FUNCTIONS_BASE_URL is not configured" } });
+    return json(req, 501, { data: null, error: { message: "AZURE_FUNCTIONS_BASE_URL is not configured" } });
   }
 
   const body = parseBody(req);
@@ -551,30 +582,60 @@ async function handleInvoke(path, req) {
   }
 
   if (!resp.ok) {
-    return json(resp.status, { data: null, error: { message: typeof data === "string" ? data : JSON.stringify(data) } });
+    return json(req, resp.status, { data: null, error: { message: typeof data === "string" ? data : JSON.stringify(data) } });
   }
 
-  return json(200, { data, error: null });
+  return json(req, 200, { data, error: null });
+}
+
+async function handleHealth(req) {
+  const health = {
+    ok: true,
+    service: "azure-runtime-api",
+    timestamp: new Date().toISOString(),
+    runtime: {
+      jwtConfigured: Boolean(process.env.AZURE_JWT_SECRET || process.env.JWT_SECRET),
+      functionsProxyConfigured: Boolean(process.env.AZURE_FUNCTIONS_BASE_URL),
+      allowedOriginsConfigured: getAllowedOrigins().length > 0,
+    },
+    database: {
+      configured: true,
+      reachable: true,
+    },
+  };
+
+  try {
+    await getPool().query("SELECT 1");
+  } catch (error) {
+    health.ok = false;
+    health.database = {
+      configured: isDatabaseConfigured(),
+      reachable: false,
+    };
+  }
+
+  return json(req, health.ok ? 200 : 503, health);
 }
 
 module.exports = async function (context, req) {
   try {
-    if (req.method === "OPTIONS") return json(200, { ok: true });
+    if (req.method === "OPTIONS") return json(req, 200, { ok: true });
 
     const path = parseSegments(req);
     if (!path.length) {
-      return json(200, { ok: true, service: "azure-runtime-api" });
+      return json(req, 200, { ok: true, service: "azure-runtime-api" });
     }
 
+    if (path[0] === "health") return await handleHealth(req);
     if (path[0] === "auth") return await handleAuth(path, req);
     if (path[0] === "query") return await handleQuery(req);
     if (path[0] === "mutate") return await handleMutate(req);
     if (path[0] === "rpc") return await handleRpc(req);
     if (path[0] === "invoke") return await handleInvoke(path, req);
 
-    return json(404, { error: { message: "Route not found" } });
+    return json(req, 404, { error: { message: "Route not found" } });
   } catch (error) {
     context.log.error("Runtime API error", error);
-    return json(500, { data: null, error: { message: error.message || "Internal error" } });
+    return json(req, 500, { data: null, error: { message: error.message || "Internal error" } });
   }
 };
