@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Plus, Search, FileText, Download } from "lucide-react";
 import { OrdemColetaDialog } from "./OrdemColetaDialog";
@@ -24,7 +24,7 @@ export function OrdemColetaManagement() {
   const loadOrdens = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('ordem_coleta')
         .select('*')
         .order('data_emissao', { ascending: false });
@@ -43,7 +43,7 @@ export function OrdemColetaManagement() {
     try {
       toast.info('Gerando PDF...');
       
-      const { data, error } = await supabase.functions.invoke('generate-ordem-coleta-pdf', {
+      const { data, error } = await runtimeClient.functions.invoke('generate-ordem-coleta-pdf', {
         body: { ordem_id: ordem.id }
       });
 

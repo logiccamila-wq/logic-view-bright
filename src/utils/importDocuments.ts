@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 
 interface VehicleData {
   plate: string;
@@ -224,7 +224,7 @@ export async function previewImport(): Promise<PreviewResult> {
 }
 
 export async function importDocuments(dryRun: boolean = false): Promise<ImportResult> {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await runtimeClient.auth.getUser();
   
   if (!user) {
     throw new Error('Usuário não autenticado');
@@ -282,7 +282,7 @@ export async function importDocuments(dryRun: boolean = false): Promise<ImportRe
       if (documents.length > 0 && !dryRun) {
         console.log(`Importando ${documents.length} documentos para veículo ${vehicle.plate}`);
         
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('vehicle_documents')
           .insert(documents);
 

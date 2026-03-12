@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -61,7 +61,7 @@ export function WorkSessionPanel() {
   const loadActiveSession = async () => {
     if (!user) return;
 
-    const { data: session } = await (supabase as any)
+    const { data: session } = await (runtimeClient as any)
       .from("driver_work_sessions")
       .select("*")
       .eq("driver_id", user.id)
@@ -74,7 +74,7 @@ export function WorkSessionPanel() {
 
     if (session) {
       // Buscar evento atual (não finalizado)
-      const { data: event } = await (supabase as any)
+      const { data: event } = await (runtimeClient as any)
         .from("driver_work_events")
         .select("*")
         .eq("session_id", session.id)
@@ -99,7 +99,7 @@ export function WorkSessionPanel() {
 
     setLoading(true);
     try {
-      const { data: trip } = await supabase
+      const { data: trip } = await runtimeClient
         .from("trips")
         .select("id, vehicle_plate")
         .eq("driver_id", user.id)
@@ -114,7 +114,7 @@ export function WorkSessionPanel() {
         return;
       }
 
-      const { data: session, error } = await (supabase as any)
+      const { data: session, error } = await (runtimeClient as any)
         .from("driver_work_sessions")
         .insert({
           driver_id: user.id,
@@ -146,7 +146,7 @@ export function WorkSessionPanel() {
 
     setLoading(true);
     try {
-      const { data: session, error } = await (supabase as any)
+      const { data: session, error } = await (runtimeClient as any)
         .from("driver_work_sessions")
         .insert({
           driver_id: user.id,
@@ -182,7 +182,7 @@ export function WorkSessionPanel() {
         await finalizarEvento();
       }
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("driver_work_sessions")
         .update({
           status: "concluida",
@@ -193,7 +193,7 @@ export function WorkSessionPanel() {
       if (error) throw error;
 
       // Chamar função de análise
-      await supabase.functions.invoke("analyze-driver-journey", {
+      await runtimeClient.functions.invoke("analyze-driver-journey", {
         body: { sessionId: currentSession.id },
       });
 
@@ -218,7 +218,7 @@ export function WorkSessionPanel() {
         await finalizarEvento();
       }
 
-      const { data: event, error } = await (supabase as any)
+      const { data: event, error } = await (runtimeClient as any)
         .from("driver_work_events")
         .insert([{
           session_id: currentSession.id,
@@ -250,7 +250,7 @@ export function WorkSessionPanel() {
     const inicio = new Date(currentEvent.data_hora_inicio);
     const duracaoMinutos = Math.round((agora.getTime() - inicio.getTime()) / (1000 * 60));
 
-    const { error } = await (supabase as any)
+    const { error } = await (runtimeClient as any)
       .from("driver_work_events")
       .update({
         data_hora_fim: agora.toISOString(),
@@ -276,7 +276,7 @@ export function WorkSessionPanel() {
       updateData.total_descanso_minutos = (currentSession?.total_descanso_minutos || 0) + duracaoMinutos;
     }
 
-    await (supabase as any)
+    await (runtimeClient as any)
       .from("driver_work_sessions")
       .update(updateData)
       .eq("id", currentSession!.id);

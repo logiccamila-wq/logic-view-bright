@@ -1,5 +1,5 @@
 {
-  "name": "optilog-app",
+  "name": "logic-view-bright",
   "version": "1.0.0",
   "private": true,
   "engines": {
@@ -7,17 +7,13 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:vite": "vite",
     "check": "tsc --noEmit -p tsconfig.app.json",
-    "build": "npm run build:azure",
-    "build:force": "rm -rf dist && npm run build:azure",
-    "build:vite": "vite build",
-    "build:azure": "vite build --outDir dist",
+    "build": "vite build",
+    "build:force": "rm -rf dist && npm run build",
     "preview": "vite preview",
-    "start": "node scripts/start.js",
+    "start": "node server/index.js",
     "lint": "eslint src --max-warnings=1000",
     "lint:fix": "eslint src --fix --max-warnings=1000",
-    "db:migrate": "node backend/scripts/apply_sql_files.mjs backend/scripts/create_os_tables.sql backend/scripts/create_tools_tables.sql",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -25,7 +21,6 @@
     "@azure/identity": "^4.9.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
@@ -58,6 +53,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-query": "^5.90.21",
+    "applicationinsights": "^3.14.0",
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -67,6 +63,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
+    "express": "^5.2.1",
     "framer-motion": "^12.34.3",
     "i18next": "^25.8.13",
     "i18next-browser-languagedetector": "^8.2.1",
@@ -81,7 +78,7 @@
     "lucide-react": "^0.548.0",
     "next-themes": "^0.4.6",
     "openai": "^6.7.0",
-    "pg": "^8.16.3",
+    "postgres": "^3.4.8",
     "qrcode.react": "^4.2.0",
     "react": "18.2.0",
     "react-chartjs-2": "^5.3.1",
@@ -124,8 +121,8 @@
     "@undici/web": false,
     "@undici/*": false
   },
-  "description": "Super Gestor é uma plataforma de gestão de tarefas e conformidade com frontend em React/Vite e arquitetura cloud centrada em Azure.",
-  "main": "KpiCard.js",
+  "description": "Azure-native logistics platform with React, Vite, Node.js, and PostgreSQL.",
+  "main": "server/index.js",
   "directories": {
     "doc": "docs",
     "lib": "lib"

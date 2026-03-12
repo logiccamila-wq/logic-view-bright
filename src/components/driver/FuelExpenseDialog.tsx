@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Fuel } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 
 export function FuelExpenseDialog() {
@@ -29,7 +29,7 @@ export function FuelExpenseDialog() {
 
   useEffect(() => {
     const loadRecent = async () => {
-      const { data } = await supabase.from('refuelings' as any).select('*').order('created_at', { ascending: false }).limit(5);
+      const { data } = await runtimeClient.from('refuelings' as any).select('*').order('created_at', { ascending: false }).limit(5);
       setRecent((data as any) || []);
     };
     if (open) loadRecent();
@@ -40,7 +40,7 @@ export function FuelExpenseDialog() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('refuelings' as any).insert({
+      const { error } = await runtimeClient.from('refuelings' as any).insert({
         driver_id: user?.id,
         vehicle_plate: formData.vehicle_plate,
         km: kmNum,

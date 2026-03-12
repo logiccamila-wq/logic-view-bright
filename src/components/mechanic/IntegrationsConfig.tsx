@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +54,7 @@ export function IntegrationsConfig() {
     if (!user) return;
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from('integration_settings')
         .select('*')
         .eq('user_id', user.id);
@@ -93,7 +93,7 @@ export function IntegrationsConfig() {
         config: config.config,
       };
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('integration_settings')
         .upsert(data, {
           onConflict: 'user_id,integration_type',
@@ -120,7 +120,7 @@ export function IntegrationsConfig() {
   const testWhatsAppIntegration = async () => {
     setTesting('whatsapp');
     try {
-      const { error } = await supabase.functions.invoke('send-whatsapp-alert', {
+      const { error } = await runtimeClient.functions.invoke('send-whatsapp-alert', {
         body: {
           alertType: 'cost_threshold',
           currentValue: 5000,
@@ -153,7 +153,7 @@ export function IntegrationsConfig() {
   const testN8nIntegration = async () => {
     setTesting('n8n');
     try {
-      const { error } = await supabase.functions.invoke('trigger-n8n-workflow', {
+      const { error } = await runtimeClient.functions.invoke('trigger-n8n-workflow', {
         body: {
           webhookUrl: n8nConfig.config.webhookUrl,
           alertData: {

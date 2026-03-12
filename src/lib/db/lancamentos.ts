@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import type { LancamentoFinanceiro } from "@/types/financeiro";
 
 export async function listLancamentos(filters?: {
@@ -8,7 +8,7 @@ export async function listLancamentos(filters?: {
   planoContasId?: string;
   centroCustoId?: string;
 }) {
-  let query = supabase
+  let query = runtimeClient
     .from("lancamentos_financeiros")
     .select("*, plano_contas(*), centros_custo(*)")
     .order("data", { ascending: false });
@@ -36,7 +36,7 @@ export async function listLancamentos(filters?: {
 }
 
 export async function createLancamento(lancamento: Omit<LancamentoFinanceiro, "id" | "created_at">) {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("lancamentos_financeiros")
     .insert([{
       ...lancamento,
@@ -52,7 +52,7 @@ export async function createLancamento(lancamento: Omit<LancamentoFinanceiro, "i
 }
 
 export async function updateLancamento(id: string, lancamento: Partial<LancamentoFinanceiro>) {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("lancamentos_financeiros")
     .update(lancamento)
     .eq("id", id)
@@ -64,7 +64,7 @@ export async function updateLancamento(id: string, lancamento: Partial<Lancament
 }
 
 export async function deleteLancamento(id: string) {
-  const { error } = await supabase
+  const { error } = await runtimeClient
     .from("lancamentos_financeiros")
     .delete()
     .eq("id", id);

@@ -1,8 +1,8 @@
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import type { PlanoContas } from "@/types/financeiro";
 
 export async function listPlanoContas() {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("plano_contas")
     .select("*, centros_custo(*)")
     .order("codigo");
@@ -12,7 +12,7 @@ export async function listPlanoContas() {
 }
 
 export async function createPlanoContas(conta: Omit<PlanoContas, "id" | "created_at" | "updated_at">) {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("plano_contas")
     .insert([{
       ...conta,
@@ -28,7 +28,7 @@ export async function createPlanoContas(conta: Omit<PlanoContas, "id" | "created
 }
 
 export async function updatePlanoContas(id: string, conta: Partial<PlanoContas>) {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("plano_contas")
     .update(conta)
     .eq("id", id)
@@ -40,7 +40,7 @@ export async function updatePlanoContas(id: string, conta: Partial<PlanoContas>)
 }
 
 export async function deletePlanoContas(id: string) {
-  const { error } = await supabase
+  const { error } = await runtimeClient
     .from("plano_contas")
     .delete()
     .eq("id", id);

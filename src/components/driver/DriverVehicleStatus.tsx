@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Gauge, Smartphone, Wifi, Battery, MapPin, Navigation, Truck } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const DriverVehicleStatus = () => {
@@ -25,7 +25,7 @@ export const DriverVehicleStatus = () => {
   const loadVehicleData = async () => {
     if (!user) return;
 
-    const { data: session } = await supabase
+    const { data: session } = await runtimeClient
       .from('driver_work_sessions')
       .select('vehicle_plate')
       .eq('driver_id', user.id)

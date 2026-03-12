@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ const DriverMacros = () => {
   const [notes, setNotes] = useState("");
 
   const send = async () => {
-    const { error } = await supabase.from("trip_macros" as any).insert({
+    const { error } = await runtimeClient.from("trip_macros" as any).insert({
       driver_id: user!.id,
       trip_id: tripId || null,
       macro_type: macro,

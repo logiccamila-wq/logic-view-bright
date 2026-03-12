@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ export function ReconciliationPanel({ transactions }: ReconciliationPanelProps) 
   const { data: contasPagar } = useQuery({
     queryKey: ["contas_pagar_pendentes"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("contas_pagar")
         .select("*")
         .eq("status", "pendente")
@@ -28,7 +28,7 @@ export function ReconciliationPanel({ transactions }: ReconciliationPanelProps) 
   const { data: contasReceber } = useQuery({
     queryKey: ["contas_receber_pendentes"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("contas_receber")
         .select("*")
         .eq("status", "pendente")
@@ -51,14 +51,14 @@ export function ReconciliationPanel({ transactions }: ReconciliationPanelProps) 
         updateData.conta_receber_id = contaId;
       }
 
-      const { error: transError } = await supabase
+      const { error: transError } = await runtimeClient
         .from("bank_transactions")
         .update(updateData)
         .eq("id", transactionId);
 
       if (transError) throw transError;
 
-      const { error: contaError } = await supabase
+      const { error: contaError } = await runtimeClient
         .from(tipo === 'pagar' ? 'contas_pagar' : 'contas_receber')
         .update({ 
           status: 'pago',

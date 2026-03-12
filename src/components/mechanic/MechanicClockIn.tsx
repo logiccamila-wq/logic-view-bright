@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Clock, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Distrito Industrial Diper (Cabo de Santo Agostinho - PE)
@@ -43,7 +43,7 @@ export function MechanicClockIn() {
   useEffect(() => {
     (async () => {
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await (runtimeClient as any)
           .from('workshop_area')
           .select('center_lat, center_lon, radius_meters')
           .limit(1);
@@ -65,7 +65,7 @@ export function MechanicClockIn() {
 
     const dentroDaArea = distancia <= radius;
 
-    const { error } = await supabase
+    const { error } = await runtimeClient
       .from('mechanic_clock_in')
       .insert({
         mechanic_id: user?.id,
@@ -98,7 +98,7 @@ export function MechanicClockIn() {
   };
 
   const registerPunchNoLocation = async (type: PunchType) => {
-    const { error } = await supabase
+    const { error } = await runtimeClient
       .from('mechanic_clock_in')
       .insert({
         mechanic_id: user?.id,

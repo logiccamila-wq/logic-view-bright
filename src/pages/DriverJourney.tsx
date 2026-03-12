@@ -1,7 +1,7 @@
 import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Clock, CheckCircle } from "lucide-react";
@@ -43,7 +43,7 @@ export default function DriverJourney() {
   }, [user]);
 
   const loadViolations = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await (runtimeClient as any)
       .from("driver_violations")
       .select("*")
       .eq("driver_id", user!.id)
@@ -54,7 +54,7 @@ export default function DriverJourney() {
   };
 
   const loadWeeklyReports = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await (runtimeClient as any)
       .from("driver_weekly_reports")
       .select("*")
       .eq("driver_id", user!.id)

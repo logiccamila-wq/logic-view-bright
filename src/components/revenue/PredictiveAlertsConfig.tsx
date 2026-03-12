@@ -17,7 +17,7 @@ import {
   History
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +97,7 @@ export function PredictiveAlertsConfig() {
       setLoading(true);
 
       // Buscar metas
-      const { data: targetsData, error: targetsError } = await (supabase as any)
+      const { data: targetsData, error: targetsError } = await (runtimeClient as any)
         .from('revenue_targets')
         .select('*')
         .order('ano', { ascending: false })
@@ -107,7 +107,7 @@ export function PredictiveAlertsConfig() {
       setTargets(targetsData || []);
 
       // Buscar alertas
-      const { data: alertsData, error: alertsError } = await (supabase as any)
+      const { data: alertsData, error: alertsError } = await (runtimeClient as any)
         .from('predictive_alerts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -116,7 +116,7 @@ export function PredictiveAlertsConfig() {
       setAlerts(alertsData || []);
 
       // Buscar histórico (últimos 20)
-      const { data: historyData, error: historyError } = await (supabase as any)
+      const { data: historyData, error: historyError } = await (runtimeClient as any)
         .from('predictive_alert_history')
         .select('*')
         .order('created_at', { ascending: false })
@@ -142,7 +142,7 @@ export function PredictiveAlertsConfig() {
     if (!user) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('revenue_targets')
         .insert([{
           mes: parseInt(targetForm.mes),
@@ -203,7 +203,7 @@ export function PredictiveAlertsConfig() {
         alertData.target_threshold_percentage = parseFloat(alertForm.target_threshold_percentage);
       }
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('predictive_alerts')
         .insert([alertData]);
 
@@ -240,7 +240,7 @@ export function PredictiveAlertsConfig() {
 
   const toggleAlert = async (alertId: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('predictive_alerts')
         .update({ is_active: !currentStatus })
         .eq('id', alertId);
@@ -266,7 +266,7 @@ export function PredictiveAlertsConfig() {
     if (!confirm('Tem certeza que deseja excluir esta meta?')) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('revenue_targets')
         .delete()
         .eq('id', targetId);
@@ -292,7 +292,7 @@ export function PredictiveAlertsConfig() {
     if (!confirm('Tem certeza que deseja excluir este alerta?')) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('predictive_alerts')
         .delete()
         .eq('id', alertId);
@@ -318,7 +318,7 @@ export function PredictiveAlertsConfig() {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.functions.invoke('check-predictive-alerts');
+      const { data, error } = await runtimeClient.functions.invoke('check-predictive-alerts');
 
       if (error) throw error;
 

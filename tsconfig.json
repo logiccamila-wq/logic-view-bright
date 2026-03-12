@@ -2,7 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "target": "ES2017",
     "lib": [
@@ -48,7 +50,6 @@
   "exclude": [
     "node_modules",
     "functions/**",
-    "supabase/**",
     "index.ts",
     "optilog.app/**"
   ]

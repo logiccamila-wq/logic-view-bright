@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Banknote, TrendingUp, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,7 +33,7 @@ export default function DriverPayroll() {
 
     setLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from("driver_gratification")
         .select("*")
         .eq("driver_id", user.id)

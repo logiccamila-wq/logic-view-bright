@@ -7,7 +7,7 @@ import { Plus, Search, Edit, Trash2, User } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Users as UsersIcon } from "lucide-react";
 import { UserFormDialog } from "@/components/UserFormDialog";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -75,14 +75,14 @@ const Users = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profiles, error: profilesError } = await runtimeClient
         .from('profiles')
         .select('*');
 
       if (profilesError) throw profilesError;
 
       const userIds = (profiles || []).map((p: any) => p.id);
-      const { data: rolesData, error: rolesError } = await supabase
+      const { data: rolesData, error: rolesError } = await runtimeClient
         .from('user_roles')
         .select('user_id, role')
         .in('user_id', userIds);
@@ -128,20 +128,20 @@ const Users = () => {
     }
     setSaving(true);
     try {
-      const { error: profileError } = await supabase
+      const { error: profileError } = await runtimeClient
         .from('profiles')
         .update({ full_name: editName } as any)
         .eq('id', selectedUser.id);
       if (profileError) throw profileError;
 
       // Remove existing roles and add new one
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await runtimeClient
         .from('user_roles')
         .delete()
         .eq('user_id', selectedUser.id);
       if (deleteError) throw deleteError;
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await runtimeClient
         .from('user_roles')
         .insert([{ user_id: selectedUser.id, role: editRole }] as any);
       if (insertError) throw insertError;
@@ -166,7 +166,7 @@ const Users = () => {
   const confirmDeleteUser = async () => {
     if (!userToDelete) return;
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('profiles')
         .update({ status: 'inativo' } as any)
         .eq('id', userToDelete);

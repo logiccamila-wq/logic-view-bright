@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 
 export interface PayrollRecord {
@@ -47,7 +47,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
   const fetchMechanicHoursByEmployee = async (mes: string) => {
     try {
       const { start, end } = getMonthRange(mes);
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from('mechanic_daily_hours')
         .select('employee_id, dia, total_minutes, overtime_minutes')
         .gte('dia', start)
@@ -72,7 +72,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["payroll", mesReferencia, page, pageSize],
     queryFn: async () => {
-      let query = supabase
+      let query = runtimeClient
         .from("payroll_records")
         .select(
           `
@@ -165,7 +165,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
   const generateMonthlyPayroll = useMutation({
     mutationFn: async (mesReferencia: string) => {
       // Buscar todos os funcionários ativos
-      const { data: employees, error: empError } = await supabase
+      const { data: employees, error: empError } = await runtimeClient
         .from("employees")
         .select("*")
         .is("data_demissao", null);
@@ -176,7 +176,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
       const payrollRecords = employees.map((emp) => calculatePayroll(emp, mechanicHoursMap, mesReferencia));
 
       // Inserir todas as folhas
-      const { error: insertError } = await supabase
+      const { error: insertError } = await runtimeClient
         .from("payroll_records")
         .upsert(
           payrollRecords.map((p) => ({ ...p, mes_referencia: mesReferencia })),
@@ -198,7 +198,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
 
   const updatePayrollStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: PayrollRecord["status"] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("payroll_records")
         .update({ status })
         .eq("id", id)
@@ -219,7 +219,7 @@ export function usePayroll(mesReferencia?: string, page = 1, pageSize = 10) {
 
   const deletePayroll = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("payroll_records").delete().eq("id", id);
+      const { error } = await runtimeClient.from("payroll_records").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {

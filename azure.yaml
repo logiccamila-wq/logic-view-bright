@@ -1,0 +1,11 @@
+name: logic-view-bright
+services:
+  app:
+    project: .
+    language: js
+    host: appservice
+    hooks:
+      prepackage:
+        shell: sh
+        run: npm install && npm run build
+    startupCommand: npm start

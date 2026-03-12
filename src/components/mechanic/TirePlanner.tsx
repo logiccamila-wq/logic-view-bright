@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,7 +30,7 @@ export function TirePlanner() {
   const estoque = useMemo(() => pneus.filter(p => !p.vehicle_plate && p.status === "estoque"), [pneus]);
 
   const fetchPneus = async () => {
-    const { data, error } = await supabase.from("pneus" as any).select("id,codigo,marca,modelo,medida,status,vehicle_plate,posicao");
+    const { data, error } = await runtimeClient.from("pneus" as any).select("id,codigo,marca,modelo,medida,status,vehicle_plate,posicao");
     if (error) {
       console.error(error);
       toast.error("Falha ao carregar pneus");
@@ -46,7 +46,7 @@ export function TirePlanner() {
   const onDrop = async (posicao: string) => {
     if (!dragging || !plate) return;
     try {
-      const { error } = await supabase.from("pneus" as any).update({ status: "em_uso", vehicle_plate: plate, posicao }).eq("id", dragging.id);
+      const { error } = await runtimeClient.from("pneus" as any).update({ status: "em_uso", vehicle_plate: plate, posicao }).eq("id", dragging.id);
       if (error) throw error;
       toast.success(`Pneu ${dragging.codigo} instalado em ${posicao}`);
       setDragging(null);
@@ -59,7 +59,7 @@ export function TirePlanner() {
 
   const removeFromPosition = async (p: Pneu) => {
     try {
-      const { error } = await supabase.from("pneus" as any).update({ status: "estoque", vehicle_plate: null, posicao: null }).eq("id", p.id);
+      const { error } = await runtimeClient.from("pneus" as any).update({ status: "estoque", vehicle_plate: null, posicao: null }).eq("id", p.id);
       if (error) throw error;
       toast.success(`Pneu ${p.codigo} removido`);
       fetchPneus();

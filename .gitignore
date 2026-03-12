@@ -7,9 +7,6 @@ out/
 dist/
 build/
 
-# Vercel
-.vercel
-
 # Environment Variables
 .env
 .env.*
@@ -56,5 +53,4 @@ _ci_build_artifacts/
 .netlify/
 .wrangler/
 .trae/
->>>>>>> 81e290ed9b2d19a98f5695288cb17f3de54eb86e
 *.tsbuildinfo

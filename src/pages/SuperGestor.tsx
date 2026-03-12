@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { predictNextMaintenance, optimizeFuelCosts, predictTireFailureRisk } from "@/utils/mlPredictive";
 
 type Insight = {
@@ -22,7 +22,7 @@ export default function Supergestor() {
       const since = new Date();
       since.setMonth(since.getMonth() - 12);
 
-      const { data: rev } = await supabase
+      const { data: rev } = await runtimeClient
         .from("revenue_records")
         .select("valor_frete, valor_icms, data_emissao")
         .order("data_emissao", { ascending: false })
@@ -36,29 +36,29 @@ export default function Supergestor() {
         .filter(r => new Date(r.data_emissao).getTime() >= since.getTime())
         .reduce((s, r) => s + (r.valor_icms || 0), 0);
 
-      const { data: vehicles } = await supabase
+      const { data: vehicles } = await runtimeClient
         .from("vehicles")
         .select("id, status");
       const vehiclesActive = (vehicles || []).filter(v => String(v.status || '').toUpperCase().includes("ATIV")).length || (vehicles || []).length;
 
-      const { data: orders } = await supabase
+      const { data: orders } = await runtimeClient
         .from("service_orders")
         .select("status, vehicle_plate, odometer, created_at, completed_at, labor_hours");
       const ordersPending = (orders || []).filter(o => (o.status || '').toLowerCase().includes("abert") || (o.status || '').toLowerCase().includes("pend")).length;
 
-      const { data: ncs, error: ncErr } = await (supabase as any)
+      const { data: ncs, error: ncErr } = await (runtimeClient as any)
         .from("non_conformities")
         .select("severity, status")
         .limit(500);
       const criticalNC = ncErr ? 0 : (ncs || []).filter((n: any) => (n.status || '').toLowerCase().includes("open") || (n.severity || 0) >= 7).length;
 
-      const { data: trips } = await (supabase as any)
+      const { data: trips } = await (runtimeClient as any)
         .from("trips")
         .select("status")
         .limit(500);
       const tripsRunning = (trips || []).filter((t: any) => (t.status || '').toLowerCase().includes("andamento") || (t.status || '').toLowerCase().includes("ativa")).length;
 
-      const { data: refuelings } = await supabase
+      const { data: refuelings } = await runtimeClient
         .from("refuelings")
         .select("cost_per_km, timestamp, vehicle_plate")
         .order("timestamp", { ascending: false })
@@ -92,7 +92,7 @@ export default function Supergestor() {
         if (pred.predictedDays <= 30) predictedMaint += 1;
       });
 
-      const { data: tpms } = await supabase
+      const { data: tpms } = await runtimeClient
         .from("tpms_readings")
         .select("pressure_psi, temperature_celsius, tread_depth_mm, alert_level, created_at, vehicle_plate, tire_position")
         .order("created_at", { ascending: false })

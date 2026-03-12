@@ -21,7 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Search, UserPlus, Eye, Edit, Trash2, MapPin, Clock, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { DriverDialog } from "@/components/driver/DriverDialog";
 import {
@@ -77,7 +77,7 @@ const DriversManagement = () => {
 
   const loadDrivers = async () => {
     try {
-      const { data: profilesData, error: profilesError } = await supabase
+      const { data: profilesData, error: profilesError } = await runtimeClient
         .from('profiles')
         .select(`
           *,
@@ -120,7 +120,7 @@ const DriversManagement = () => {
 
   const loadTripHistory = async (driverId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('trips')
         .select('*')
         .eq('driver_id', driverId)
@@ -153,7 +153,7 @@ const DriversManagement = () => {
   const confirmDeleteDriver = async () => {
     if (!driverToDelete) return;
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from("profiles")
         .update({ status: "inativo" } as any)
         .eq("id", driverToDelete);

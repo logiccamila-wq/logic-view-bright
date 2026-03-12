@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Building2, Upload, CheckCircle2, AlertCircle, TrendingUp } from "lucide-react";
 import { BankAccountCard } from "@/components/bank/BankAccountCard";
 import { TransactionList } from "@/components/bank/TransactionList";
@@ -19,7 +19,7 @@ export default function BankReconciliation() {
   const { data: accounts, refetch: refetchAccounts } = useQuery({
     queryKey: ["bank_accounts"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("bank_accounts")
         .select("*")
         .eq("status", "ativa")
@@ -33,7 +33,7 @@ export default function BankReconciliation() {
   const { data: transactions } = useQuery({
     queryKey: ["bank_transactions", selectedAccount],
     queryFn: async () => {
-      let query = supabase
+      let query = runtimeClient
         .from("bank_transactions")
         .select(`
           *,
@@ -54,7 +54,7 @@ export default function BankReconciliation() {
   const { data: imports } = useQuery({
     queryKey: ["bank_imports"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("bank_imports")
         .select(`
           *,

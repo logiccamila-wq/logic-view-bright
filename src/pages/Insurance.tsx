@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -21,7 +21,7 @@ const Insurance = () => {
   const policiesQuery = useQuery({
     queryKey: ["insurance_policies"],
     queryFn: async () => {
-      const { data } = await supabase.from("insurance_policies" as any).select("*").order("created_at", { ascending: false });
+      const { data } = await runtimeClient.from("insurance_policies" as any).select("*").order("created_at", { ascending: false });
       return (data as any) as Policy[];
     },
   });
@@ -30,7 +30,7 @@ const Insurance = () => {
   const [form, setForm] = useState<Partial<Policy>>({});
 
   const create = async () => {
-    const { error } = await supabase.from("insurance_policies" as any).insert({
+    const { error } = await runtimeClient.from("insurance_policies" as any).insert({
       vehicle_plate: form.vehicle_plate,
       insurer_name: form.insurer_name,
       policy_number: form.policy_number,

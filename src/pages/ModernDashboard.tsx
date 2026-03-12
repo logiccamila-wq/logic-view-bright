@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useEffect } from "react";
 import { 
   Truck, Users, DollarSign, Package, TrendingUp, ArrowRight, 
@@ -41,7 +41,7 @@ const ModernDashboard = () => {
   const { data: vehicles = [] } = useQuery({
     queryKey: ['active-vehicles'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('vehicles')
         .select('*')
         .eq('status', 'Ativo')
@@ -54,7 +54,7 @@ const ModernDashboard = () => {
   const { data: trips = [] } = useQuery({
     queryKey: ['active-trips'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('trips')
         .select('*')
         .eq('status', 'Em Andamento')

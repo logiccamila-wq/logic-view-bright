@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -41,7 +41,7 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess }: ClientDi
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await runtimeClient.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
       const dataToSave = {
@@ -51,7 +51,7 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess }: ClientDi
       };
 
       if (client) {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from("clients")
           .update(dataToSave)
           .eq("id", client.id);
@@ -59,7 +59,7 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess }: ClientDi
         if (error) throw error;
         toast.success("Cliente atualizado com sucesso!");
       } else {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from("clients")
           .insert([dataToSave]);
 

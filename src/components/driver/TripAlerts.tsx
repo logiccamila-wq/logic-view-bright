@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Clock, Navigation } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ export function TripAlerts() {
   const { data: trips, refetch } = useQuery({
     queryKey: ['driver-trips', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('trips')
         .select(`
           *,
@@ -39,7 +39,7 @@ export function TripAlerts() {
 
   const handleAcceptTrip = async (tripId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('trips')
         .update({ status: 'in_progress' })
         .eq('id', tripId);

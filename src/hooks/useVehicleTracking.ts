@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase, type RealtimeChannel } from '@/integrations/supabase/client';
+import { runtimeClient, type RealtimeChannel } from '@/integrations/azure/client';
 
 interface VehiclePosition {
   id: string;
@@ -23,7 +23,7 @@ export function useVehicleTracking() {
     loadInitialPositions();
 
     // Setup realtime subscription
-    const realtimeChannel = supabase
+    const realtimeChannel = runtimeClient
       .channel('vehicle-tracking')
       .on(
         'postgres_changes',
@@ -54,7 +54,7 @@ export function useVehicleTracking() {
   const loadInitialPositions = async () => {
     try {
       // Buscar última posição de cada veículo
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('vehicle_tracking')
         .select('*')
         .order('timestamp', { ascending: false });
@@ -119,7 +119,7 @@ export function useVehicleTracking() {
     tripId?: string
   ) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('vehicle_tracking')
         .insert({
           vehicle_plate: vehiclePlate,

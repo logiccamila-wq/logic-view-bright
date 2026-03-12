@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Search, FileText, Eye, Download } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { toast } from 'sonner';
 import { CTEDialog } from './CTEDialog';
 import { ImportCTEDialog } from './ImportCTEDialog';
@@ -38,7 +38,7 @@ export function CTEManagement() {
   const loadCTEs = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('cte')
         .select('*')
         .order('created_at', { ascending: false });

@@ -17,7 +17,7 @@ import {
   Brain,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LineChart, Line, BarChart as RechartsBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import GaelChatbot from "@/components/GaelChatbot";
@@ -76,7 +76,7 @@ const ControlTower = () => {
     setLoading(true);
     try {
       // Financeiro - Abastecimentos
-      const { data: refuelings, error: refError } = await supabase
+      const { data: refuelings, error: refError } = await runtimeClient
         .from('refuelings')
         .select('*')
         .order('timestamp', { ascending: false });
@@ -88,7 +88,7 @@ const ControlTower = () => {
       const custoKm = totalKm > 0 ? totalCombustivel / totalKm : 0;
 
       // Operacional - Viagens
-      const { data: trips, error: tripsError } = await supabase
+      const { data: trips, error: tripsError } = await runtimeClient
         .from('trips')
         .select('*');
 
@@ -101,7 +101,7 @@ const ControlTower = () => {
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
       
-      const { data: macros, error: macrosError } = await supabase
+      const { data: macros, error: macrosError } = await runtimeClient
         .from('trip_macros')
         .select('*')
         .gte('timestamp', hoje.toISOString());
@@ -109,7 +109,7 @@ const ControlTower = () => {
       if (macrosError) throw macrosError;
 
       // Abastecimentos de hoje
-      const { data: refToday, error: refTodayError } = await supabase
+      const { data: refToday, error: refTodayError } = await runtimeClient
         .from('refuelings')
         .select('*')
         .gte('timestamp', hoje.toISOString());
@@ -117,7 +117,7 @@ const ControlTower = () => {
       if (refTodayError) throw refTodayError;
 
       // Manutenção - Ordens de Serviço
-      const { data: serviceOrders, error: soError } = await supabase
+      const { data: serviceOrders, error: soError } = await runtimeClient
         .from('service_orders')
         .select('*');
 
@@ -128,7 +128,7 @@ const ControlTower = () => {
       const osConcluidas = serviceOrders?.filter(so => so.status === 'concluida').length || 0;
 
       // Checklists
-      const { data: checklists, error: checkError } = await supabase
+      const { data: checklists, error: checkError } = await runtimeClient
         .from('maintenance_checklists')
         .select('*')
         .eq('status', 'em_andamento');
@@ -136,7 +136,7 @@ const ControlTower = () => {
       if (checkError) throw checkError;
 
       // TPMS Alertas
-      const { data: tpms, error: tpmsError } = await supabase
+      const { data: tpms, error: tpmsError } = await runtimeClient
         .from('tpms_readings')
         .select('*')
         .in('alert_level', ['amarelo', 'vermelho']);
@@ -179,8 +179,8 @@ const ControlTower = () => {
       ];
 
       // ML Preditiva
-      const { data: tpmsData } = await supabase.from('tpms_readings').select('*').order('created_at', { ascending: false }).limit(20);
-      const { data: serviceOrdersData } = await supabase.from('service_orders').select('*');
+      const { data: tpmsData } = await runtimeClient.from('tpms_readings').select('*').order('created_at', { ascending: false }).limit(20);
+      const { data: serviceOrdersData } = await runtimeClient.from('service_orders').select('*');
       
       const tireRisk = tpmsData && tpmsData.length > 0 
         ? predictTireFailureRisk(tpmsData) 

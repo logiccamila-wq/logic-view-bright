@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Loader2 } from "lucide-react";
 
 interface ContaPagar {
@@ -95,7 +95,7 @@ export function ContaPagarDialog({ open, onOpenChange, conta, onSuccess }: Conta
 
       if (conta?.id) {
         // Update
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from("contas_pagar")
           .update(dataToSave)
           .eq("id", conta.id);
@@ -104,7 +104,7 @@ export function ContaPagarDialog({ open, onOpenChange, conta, onSuccess }: Conta
         toast.success("Conta atualizada com sucesso!");
       } else {
         // Insert
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from("contas_pagar")
           .insert([dataToSave]);
 

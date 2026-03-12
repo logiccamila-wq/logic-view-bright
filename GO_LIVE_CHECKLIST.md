@@ -27,7 +27,7 @@
 ## 3. Build e Release
 - [ ] `npm ci` sem erro
 - [ ] `npm run build:azure` sem erro
-- [ ] Workflow `.github/workflows/azure-static-web-apps.yml` com sucesso
+- [ ] Workflow `.github/workflows/azure-deploy.yml` com sucesso
 - [ ] `api_location: "api"` confirmado
 
 ## 4. Smoke Test Funcional

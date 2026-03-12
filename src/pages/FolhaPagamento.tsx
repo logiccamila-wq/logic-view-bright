@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { listFolhaPagamento, createFolhaPagamento, updateFolhaPagamento, deleteFolhaPagamento } from "@/lib/db/folha";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 export default function FolhaPagamento() {
   const [folhas, setFolhas] = useState<any[]>([]);
@@ -42,7 +42,7 @@ export default function FolhaPagamento() {
       setLoading(true);
       const [folhasData, empData] = await Promise.all([
         listFolhaPagamento(competenciaFilter),
-        supabase.from("employees").select("*").order("nome"),
+        runtimeClient.from("employees").select("*").order("nome"),
       ]);
       setFolhas(folhasData || []);
       setEmployees(empData.data || []);

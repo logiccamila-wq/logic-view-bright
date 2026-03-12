@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { listLancamentos, createLancamento, updateLancamento, deleteLancamento } from "@/lib/db/lancamentos";
 import { listPlanoContas } from "@/lib/db/planoContas";
 import { listCentrosCusto } from "@/lib/db/centrosCusto";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 export default function Lancamentos() {
   const [lancamentos, setLancamentos] = useState<any[]>([]);
@@ -58,7 +58,7 @@ export default function Lancamentos() {
         listLancamentos(lancFiltros),
         listPlanoContas(),
         listCentrosCusto(),
-        supabase.from("vehicles").select("*").in("status", ["ativo", "Ativo"]),
+        runtimeClient.from("vehicles").select("*").in("status", ["ativo", "Ativo"]),
       ]);
       setLancamentos(lancData);
       setContas(contasData);

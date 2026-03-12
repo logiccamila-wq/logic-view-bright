@@ -36,7 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Search, Edit, Trash2, Route, MapPin, Truck, Calendar } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { RouteOptimizer } from "@/components/tms/RouteOptimizer";
@@ -91,7 +91,7 @@ const Routing = () => {
   const { data: routes = [], isLoading } = useQuery<RouteEntry[]>({
     queryKey: ["routes", searchTerm],
     queryFn: async () => {
-      let query = (supabase as any)
+      let query = (runtimeClient as any)
         .from("routes")
         .select("*")
         .order("created_at", { ascending: false });
@@ -111,7 +111,7 @@ const Routing = () => {
 
   const createRoute = useMutation({
     mutationFn: async (values: Omit<RouteEntry, "id" | "created_at">) => {
-      const { error } = await (supabase as any).from("routes").insert([values]);
+      const { error } = await (runtimeClient as any).from("routes").insert([values]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -124,7 +124,7 @@ const Routing = () => {
 
   const updateRoute = useMutation({
     mutationFn: async ({ id, ...values }: Partial<RouteEntry> & { id: string }) => {
-      const { error } = await (supabase as any).from("routes").update(values).eq("id", id);
+      const { error } = await (runtimeClient as any).from("routes").update(values).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -138,7 +138,7 @@ const Routing = () => {
 
   const deleteRoute = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("routes").delete().eq("id", id);
+      const { error } = await (runtimeClient as any).from("routes").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {

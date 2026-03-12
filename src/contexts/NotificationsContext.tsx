@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
@@ -45,7 +45,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
@@ -69,7 +69,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
     fetchNotifications();
 
-    const channel = supabase
+    const channel = runtimeClient
       .channel('notifications')
       .on(
         'postgres_changes',
@@ -108,13 +108,13 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      runtimeClient.removeChannel(channel);
     };
   }, [user]);
 
   const markAsRead = async (id: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('notifications')
         .update({ read: true })
         .eq('id', id);
@@ -130,7 +130,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('notifications')
         .update({ read: true })
         .eq('user_id', user.id)
@@ -146,7 +146,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const deleteNotification = async (id: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('notifications')
         .delete()
         .eq('id', id);
@@ -162,7 +162,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('notifications')
         .insert({
           ...notification,

@@ -58,7 +58,7 @@
 
 ### 🚀 **FASE 2: Inteligência (Semana 3-4)** - IA/ML e Otimização
 4. **AI Hub (Ecossistema IA)** ⭐⭐⭐
-   - Chat com múltiplas IAs (Gemini, ChatGPT, Copilot)
+   - Chat corporativo com Azure OpenAI e copilotos especializados
    - Especialistas: CBT, Inventário, Manuais de Mecânica
    - RAG (Retrieval Augmented Generation) com docs internos
    - Assistente de manutenção preditiva
@@ -258,13 +258,13 @@ CREATE TABLE tire_inspections (
 
 **Stack:**
 - Frontend: Next.js + chat UI (stream responses)
-- Backend: Node.js + OpenAI SDK + Google Gemini SDK
+- Backend: Node.js + Azure OpenAI SDK
 - RAG: LangChain + Pinecone (vector DB)
-- Modelos: GPT-4o, Gemini 2.0 Flash, GitHub Copilot
+- Modelos: GPT-4o e GitHub Copilot
 
 **Arquitetura:**
 ```
-User → AI Router → [GPT-4o | Gemini | Copilot] → RAG (docs internos) → Response
+User → AI Router → [GPT-4o | Copilot] → RAG (docs internos) → Response
 ```
 
 **Especialistas:**
@@ -397,7 +397,7 @@ CREATE TABLE bank_transactions (
 - MUI v6
 - Azure Database for PostgreSQL
 - Azure Static Web Apps (deploy)
-- OpenAI + Gemini (IA)
+- Azure OpenAI (IA)
 - Google OR-Tools (roteirização)
 - TensorFlow.js (ML)
 

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, DollarSign, AlertCircle, CheckCircle, Edit, Trash2, Loader2 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,7 +41,7 @@ const AccountsReceivable = () => {
   const loadContas = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("contas_receber")
         .select("*")
         .order("data_vencimento", { ascending: true });
@@ -64,7 +64,7 @@ const AccountsReceivable = () => {
   const handleMarkAsReceived = async (id: string) => {
     setActionLoading(id);
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from("contas_receber")
         .update({
           status: "recebido",
@@ -93,7 +93,7 @@ const AccountsReceivable = () => {
     
     setActionLoading(contaToDelete);
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from("contas_receber")
         .delete()
         .eq("id", contaToDelete);

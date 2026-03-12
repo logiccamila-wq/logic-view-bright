@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -131,7 +131,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
       };
 
       if (item) {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('workshop_inventory')
           .update(data)
           .eq('id', item.id);
@@ -139,7 +139,7 @@ export function InventoryItemDialog({ open, onOpenChange, item, onSuccess }: Inv
         if (error) throw error;
         toast.success('Item atualizado com sucesso');
       } else {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('workshop_inventory')
           .insert(data);
 

@@ -28,7 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle as AlertIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -47,15 +47,15 @@ const Developer = () => {
     queryKey: ['system-metrics'],
     queryFn: async () => {
       // Buscar contagem aproximada de registros
-      const { count: profilesCount } = await supabase
+      const { count: profilesCount } = await runtimeClient
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
-      const { count: tripsCount } = await supabase
+      const { count: tripsCount } = await runtimeClient
         .from('trips')
         .select('*', { count: 'exact', head: true });
 
-      const { count: cteCount } = await supabase
+      const { count: cteCount } = await runtimeClient
         .from('cte')
         .select('*', { count: 'exact', head: true });
 
@@ -193,7 +193,7 @@ const Developer = () => {
             <TabsTrigger value="logs">Logs</TabsTrigger>
             <TabsTrigger value="api">API Monitor</TabsTrigger>
             <TabsTrigger value="config">Configurações</TabsTrigger>
-            <TabsTrigger value="supabase">Supabase Debug</TabsTrigger>
+            <TabsTrigger value="runtimeClient">Supabase Debug</TabsTrigger>
           </TabsList>
 
           {/* Edge Functions */}
@@ -467,7 +467,7 @@ const Developer = () => {
           </TabsContent>
 
           {/* Azure API Debug */}
-          <TabsContent value="supabase" className="space-y-4">
+          <TabsContent value="runtimeClient" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -574,7 +574,7 @@ const UsersDiagnostics = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('profiles')
         .select('id, email, full_name, created_at, user_roles(role)')
         .order('created_at', { ascending: false });

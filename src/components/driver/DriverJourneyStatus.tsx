@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, PlayCircle, StopCircle, Coffee } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const DriverJourneyStatus = () => {
@@ -17,7 +17,7 @@ export const DriverJourneyStatus = () => {
   const loadActiveSession = async () => {
     if (!user) return;
 
-    const { data: session } = await supabase
+    const { data: session } = await runtimeClient
       .from('driver_work_sessions')
       .select('*')
       .eq('driver_id', user.id)
@@ -27,7 +27,7 @@ export const DriverJourneyStatus = () => {
     if (session) {
       setActiveSession(session);
       
-      const { data: event } = await supabase
+      const { data: event } = await runtimeClient
         .from('driver_work_events')
         .select('*')
         .eq('session_id', session.id)

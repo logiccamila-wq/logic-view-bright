@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 const sample = {
   maintenance_library: [
@@ -50,7 +50,7 @@ const MaintenanceLibrary = () => {
 
   const save = async () => {
     const payload = JSON.parse(json);
-    await supabase.from("integration_settings" as any).upsert({ key: "maintenance_library", value: payload }, { onConflict: "key" });
+    await runtimeClient.from("integration_settings" as any).upsert({ key: "maintenance_library", value: payload }, { onConflict: "key" });
   };
 
   return (

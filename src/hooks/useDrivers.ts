@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 
 export interface Driver {
@@ -26,7 +26,7 @@ export function useDrivers(searchTerm = "", page = 1, pageSize = 10) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["drivers", searchTerm, page, pageSize],
     queryFn: async () => {
-      let query = supabase
+      let query = runtimeClient
         .from("drivers")
         .select(
           `
@@ -38,7 +38,7 @@ export function useDrivers(searchTerm = "", page = 1, pageSize = 10) {
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        const { data: employees } = await supabase
+        const { data: employees } = await runtimeClient
           .from("employees")
           .select("id")
           .or(`nome.ilike.%${searchTerm}%,cpf.ilike.%${searchTerm}%`);
@@ -73,7 +73,7 @@ export function useDrivers(searchTerm = "", page = 1, pageSize = 10) {
 
   const createDriver = useMutation({
     mutationFn: async (driver: Omit<Driver, "id" | "created_at" | "updated_at" | "employee">) => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("drivers")
         .insert([driver])
         .select()
@@ -93,7 +93,7 @@ export function useDrivers(searchTerm = "", page = 1, pageSize = 10) {
 
   const updateDriver = useMutation({
     mutationFn: async ({ id, ...driver }: Partial<Driver> & { id: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("drivers")
         .update(driver)
         .eq("id", id)
@@ -114,7 +114,7 @@ export function useDrivers(searchTerm = "", page = 1, pageSize = 10) {
 
   const deleteDriver = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("drivers").delete().eq("id", id);
+      const { error } = await runtimeClient.from("drivers").delete().eq("id", id);
 
       if (error) throw error;
     },

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Table, FileSpreadsheet, Package } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
@@ -20,19 +20,19 @@ export default function ExportCenter() {
 
       switch (exportType) {
         case "cte":
-          const { data: cteData } = await supabase.from("cte").select("*").order("created_at", { ascending: false });
+          const { data: cteData } = await runtimeClient.from("cte").select("*").order("created_at", { ascending: false });
           data = cteData || [];
           filename = `cte_export_${new Date().toISOString().split('T')[0]}`;
           break;
 
         case "vehicles":
-          const { data: vehiclesData } = await supabase.from("vehicles").select("*").order("placa");
+          const { data: vehiclesData } = await runtimeClient.from("vehicles").select("*").order("placa");
           data = vehiclesData || [];
           filename = `veiculos_export_${new Date().toISOString().split('T')[0]}`;
           break;
 
         case "drivers":
-          const { data: driversData } = await supabase
+          const { data: driversData } = await runtimeClient
             .from("drivers")
             .select("*, employee:employees(nome, cpf, email)")
             .order("created_at", { ascending: false });
@@ -41,25 +41,25 @@ export default function ExportCenter() {
           break;
 
         case "employees":
-          const { data: empData } = await supabase.from("employees").select("*").order("nome");
+          const { data: empData } = await runtimeClient.from("employees").select("*").order("nome");
           data = empData || [];
           filename = `funcionarios_export_${new Date().toISOString().split('T')[0]}`;
           break;
 
         case "trips":
-          const { data: tripsData } = await supabase.from("trips").select("*").order("created_at", { ascending: false });
+          const { data: tripsData } = await runtimeClient.from("trips").select("*").order("created_at", { ascending: false });
           data = tripsData || [];
           filename = `viagens_export_${new Date().toISOString().split('T')[0]}`;
           break;
 
         case "refuelings":
-          const { data: refData } = await supabase.from("refuelings").select("*").order("data", { ascending: false });
+          const { data: refData } = await runtimeClient.from("refuelings").select("*").order("data", { ascending: false });
           data = refData || [];
           filename = `abastecimentos_export_${new Date().toISOString().split('T')[0]}`;
           break;
 
         case "service_orders":
-          const { data: soData } = await supabase.from("service_orders").select("*").order("created_at", { ascending: false });
+          const { data: soData } = await runtimeClient.from("service_orders").select("*").order("created_at", { ascending: false });
           data = soData || [];
           filename = `ordens_servico_export_${new Date().toISOString().split('T')[0]}`;
           break;

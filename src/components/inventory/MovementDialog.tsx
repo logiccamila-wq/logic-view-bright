@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -106,7 +106,7 @@ export function MovementDialog({ open, onOpenChange, item, inventory, onSuccess 
       }
 
       // Registrar movimentação
-      const { error: movError } = await supabase
+      const { error: movError } = await runtimeClient
         .from('inventory_movements')
         .insert({
           item_id: values.item_id,
@@ -115,13 +115,13 @@ export function MovementDialog({ open, onOpenChange, item, inventory, onSuccess 
           reason: values.reason,
           reference_document: values.reference_document || null,
           notes: values.notes || null,
-          responsible_user_id: (await supabase.auth.getUser()).data.user?.id,
+          responsible_user_id: (await runtimeClient.auth.getUser()).data.user?.id,
         });
 
       if (movError) throw movError;
 
       // Atualizar quantidade em estoque
-      const { error: updateError } = await supabase
+      const { error: updateError } = await runtimeClient
         .from('workshop_inventory')
         .update({ 
           quantity: newQuantity,

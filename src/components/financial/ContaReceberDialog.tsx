@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Loader2 } from "lucide-react";
 
 interface ContaReceber {
@@ -90,7 +90,7 @@ export function ContaReceberDialog({ open, onOpenChange, conta, onSuccess }: Con
 
       if (conta?.id) {
         // Update
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from("contas_receber")
           .update(dataToSave)
           .eq("id", conta.id);
@@ -99,7 +99,7 @@ export function ContaReceberDialog({ open, onOpenChange, conta, onSuccess }: Con
         toast.success("Conta atualizada com sucesso!");
       } else {
         // Insert
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from("contas_receber")
           .insert([dataToSave]);
 

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { predictNextMaintenance } from '@/utils/mlPredictive';
 import { Calendar, AlertTriangle, CheckCircle, Clock, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
@@ -36,12 +36,12 @@ export const MaintenanceScheduler = () => {
 
       // Buscar todas as ordens de serviço
       let serviceOrders: any[] | null = null;
-      const first = await supabase
+      const first = await runtimeClient
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
       if (first.error) {
-        const second = await supabase
+        const second = await runtimeClient
           .from('mechanic_orders')
           .select('*')
           .order('created_at', { ascending: false });
@@ -117,7 +117,7 @@ export const MaintenanceScheduler = () => {
 
   const createPreventiveMaintenance = async (schedule: VehicleSchedule) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from(ordersTable)
         .insert({
           vehicle_plate: schedule.plate,
@@ -146,7 +146,7 @@ export const MaintenanceScheduler = () => {
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('parts_requests')
         .insert({
           mechanic_id: user.id,
@@ -172,7 +172,7 @@ export const MaintenanceScheduler = () => {
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('parts_requests')
         .insert({
           mechanic_id: user.id,

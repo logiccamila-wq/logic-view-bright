@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 
 interface BankAccountDialogProps {
@@ -31,7 +31,7 @@ export function BankAccountDialog({ open, onOpenChange, onSuccess }: BankAccount
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("bank_accounts").insert({
+      const { error } = await runtimeClient.from("bank_accounts").insert({
         ...formData,
         saldo_inicial: parseFloat(formData.saldo_inicial),
         saldo_atual: parseFloat(formData.saldo_inicial),

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 
 interface DistributionDialogProps {
@@ -32,7 +32,7 @@ export function DistributionDialog({ open, onOpenChange, partners, onSuccess }: 
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("partner_distributions").insert({
+      const { error } = await runtimeClient.from("partner_distributions").insert({
         ...formData,
         valor_bruto: parseFloat(formData.valor_bruto),
         impostos_retidos: parseFloat(formData.impostos_retidos),

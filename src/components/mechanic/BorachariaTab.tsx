@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -92,7 +92,7 @@ export function BorachariaTab() {
 
   const fetchPneus = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('pneus' as any)
         .select('*')
         .order('created_at', { ascending: false });
@@ -109,7 +109,7 @@ export function BorachariaTab() {
 
   const fetchMovimentacoes = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('movimentacao_pneus' as any)
         .select('*')
         .order('created_at', { ascending: false })
@@ -126,14 +126,14 @@ export function BorachariaTab() {
     fetchPneus();
     fetchMovimentacoes();
 
-    const pneusChannel = supabase
+    const pneusChannel = runtimeClient
       .channel('pneus_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pneus' }, () => {
         fetchPneus();
       })
       .subscribe();
 
-    const movChannel = supabase
+    const movChannel = runtimeClient
       .channel('movimentacao_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'movimentacao_pneus' }, () => {
         fetchMovimentacoes();
@@ -141,8 +141,8 @@ export function BorachariaTab() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(pneusChannel);
-      supabase.removeChannel(movChannel);
+      runtimeClient.removeChannel(pneusChannel);
+      runtimeClient.removeChannel(movChannel);
     };
   }, []);
 
@@ -150,7 +150,7 @@ export function BorachariaTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('pneus' as any).insert({
+      const { error } = await runtimeClient.from('pneus' as any).insert({
         ...pneuFormData,
         pressao_recomendada: pneuFormData.pressao_recomendada ? parseFloat(pneuFormData.pressao_recomendada) : null,
         valor_compra: pneuFormData.valor_compra ? parseFloat(pneuFormData.valor_compra) : null,
@@ -181,7 +181,7 @@ export function BorachariaTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('movimentacao_pneus' as any).insert({
+      const { error } = await runtimeClient.from('movimentacao_pneus' as any).insert({
         ...movimentacaoFormData,
         km_veiculo: movimentacaoFormData.km_veiculo ? parseInt(movimentacaoFormData.km_veiculo) : null,
         responsavel_id: user?.id,
@@ -191,7 +191,7 @@ export function BorachariaTab() {
 
       // Atualizar status do pneu
       if (movimentacaoFormData.tipo_movimentacao === 'instalacao') {
-        await supabase
+        await runtimeClient
           .from('pneus' as any)
           .update({
             status: 'em_uso',

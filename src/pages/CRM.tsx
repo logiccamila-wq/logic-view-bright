@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Users, Plus, Search, TrendingUp, FileText, AlertCircle } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { ClientDialog } from "@/components/crm/ClientDialog";
 import { ClientAnalysis } from "@/components/crm/ClientAnalysis";
 import {
@@ -27,7 +27,7 @@ const CRM = () => {
   const { data: clients, isLoading, refetch } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('clients')
         .select('*')
         .order('created_at', { ascending: false });
@@ -40,11 +40,11 @@ const CRM = () => {
   const { data: stats } = useQuery({
     queryKey: ['client-stats'],
     queryFn: async () => {
-      const { data: clientsData } = await supabase
+      const { data: clientsData } = await runtimeClient
         .from('clients')
         .select('status, limite_credito');
 
-      const { data: analysisData } = await supabase
+      const { data: analysisData } = await runtimeClient
         .from('client_financial_analysis')
         .select('inadimplente, score_cliente');
 
@@ -79,7 +79,7 @@ const CRM = () => {
 
   const handleImportFromCTE = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('import-clients-from-cte');
+      const { data, error } = await runtimeClient.functions.invoke('import-clients-from-cte');
       
       if (error) throw error;
       

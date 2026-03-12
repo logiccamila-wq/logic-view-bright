@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export default function LandingPage() {
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('leads' as any).insert({
+      const { error } = await runtimeClient.from('leads' as any).insert({
         name: leadName,
         email: leadEmail,
         phone: leadPhone,

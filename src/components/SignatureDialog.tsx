@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import SignatureCanvas from "react-signature-canvas";
@@ -43,7 +43,7 @@ export function SignatureDialog({
       const userAgent = navigator.userAgent;
       const ipAddress = ""; // In production, get from server
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("digital_signatures")
         .insert({
           report_id: reportId,

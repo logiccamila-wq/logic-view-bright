@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import { predictNextMaintenance } from '@/utils/mlPredictive';
@@ -18,7 +18,7 @@ export function useMaintenanceAlerts() {
     if (!user || !canReceiveAlerts) return;
 
     try {
-      const { data: serviceOrdersRaw, error: ordersError } = await supabase
+      const { data: serviceOrdersRaw, error: ordersError } = await runtimeClient
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
@@ -36,7 +36,7 @@ export function useMaintenanceAlerts() {
       })();
 
       // Buscar planos de manutenção ativos
-      const { data: plansRaw, error: plansError } = await (supabase as any)
+      const { data: plansRaw, error: plansError } = await (runtimeClient as any)
         .from('maintenance_plans')
         .select('*')
         .eq('is_active', true);
@@ -160,7 +160,7 @@ export function useMaintenanceAlerts() {
     const interval = setInterval(checkMaintenanceSchedules, 6 * 60 * 60 * 1000);
 
     // Configurar listener para novas ordens de serviço
-    const channel = supabase
+    const channel = runtimeClient
       .channel('maintenance-alerts')
       .on(
         'postgres_changes',
@@ -189,7 +189,7 @@ export function useMaintenanceAlerts() {
 
     return () => {
       clearInterval(interval);
-      supabase.removeChannel(channel);
+      runtimeClient.removeChannel(channel);
     };
   }, [canReceiveAlerts, checkMaintenanceSchedules]);
 

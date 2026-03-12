@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,7 +55,7 @@ export function ServiceOrdersTab() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
@@ -65,7 +65,7 @@ export function ServiceOrdersTab() {
       setOrders(data || []);
     } catch (error: any) {
       try {
-        const { data, error: err2 } = await supabase
+        const { data, error: err2 } = await runtimeClient
           .from('mechanic_orders')
           .select('*')
           .order('created_at', { ascending: false });
@@ -86,14 +86,14 @@ export function ServiceOrdersTab() {
   useEffect(() => {
     fetchOrders();
 
-    const channelService = supabase
+    const channelService = runtimeClient
       .channel('service_orders_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'service_orders' }, () => {
         fetchOrders();
       })
       .subscribe();
 
-    const channelMechanic = supabase
+    const channelMechanic = runtimeClient
       .channel('mechanic_orders_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'mechanic_orders' }, () => {
         fetchOrders();
@@ -101,8 +101,8 @@ export function ServiceOrdersTab() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channelService);
-      supabase.removeChannel(channelMechanic);
+      runtimeClient.removeChannel(channelService);
+      runtimeClient.removeChannel(channelMechanic);
     };
   }, []);
 
@@ -111,7 +111,7 @@ export function ServiceOrdersTab() {
     
     try {
       const targetTable = ordersTable;
-      const { error } = await supabase.from(targetTable).insert({
+      const { error } = await runtimeClient.from(targetTable).insert({
         ...formData,
         odometer: parseInt(formData.odometer),
         created_by: user?.id,
@@ -149,7 +149,7 @@ export function ServiceOrdersTab() {
         updateData.completed_at = new Date().toISOString();
       }
 
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from(ordersTable)
         .update(updateData)
         .eq('id', orderId);

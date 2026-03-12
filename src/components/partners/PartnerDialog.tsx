@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,7 +30,7 @@ export function PartnerDialog({ open, onOpenChange, onSuccess }: PartnerDialogPr
   const { data: socios } = useQuery({
     queryKey: ["socios-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("profiles")
         .select("id, full_name, email, tipo_vinculo")
         .eq("tipo_vinculo", "SOCIO");
@@ -45,7 +45,7 @@ export function PartnerDialog({ open, onOpenChange, onSuccess }: PartnerDialogPr
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("partners").insert({
+      const { error } = await runtimeClient.from("partners").insert({
         ...formData,
         participacao_percentual: parseFloat(formData.participacao_percentual),
         valor_capital_social: parseFloat(formData.valor_capital_social),

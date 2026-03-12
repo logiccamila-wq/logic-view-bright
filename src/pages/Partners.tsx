@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Users, DollarSign, TrendingUp, PieChart } from "lucide-react";
 import { PartnerCard } from "@/components/partners/PartnerCard";
 import { DistributionDialog } from "@/components/partners/DistributionDialog";
@@ -17,7 +17,7 @@ export default function Partners() {
   const { data: partners, refetch } = useQuery({
     queryKey: ["partners"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("partners")
         .select(`
           *,
@@ -34,7 +34,7 @@ export default function Partners() {
   const { data: distributions } = useQuery({
     queryKey: ["partner_distributions"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("partner_distributions")
         .select(`
           *,

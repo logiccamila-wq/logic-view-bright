@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { startOfMonth, endOfMonth, subMonths } from "date-fns";
 
 export const useFinancialData = () => {
@@ -13,7 +13,7 @@ export const useFinancialData = () => {
       const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
       // Buscar CTEs autorizados do mês atual
-      const { data: ctesCurrent, error: cteError } = await supabase
+      const { data: ctesCurrent, error: cteError } = await runtimeClient
         .from('cte')
         .select('valor_total, data_emissao')
         .eq('status', 'autorizado')
@@ -23,7 +23,7 @@ export const useFinancialData = () => {
       if (cteError) throw cteError;
 
       // Buscar CTEs do mês anterior para comparação
-      const { data: ctesLast, error: cteLastError } = await supabase
+      const { data: ctesLast, error: cteLastError } = await runtimeClient
         .from('cte')
         .select('valor_total')
         .eq('status', 'autorizado')
@@ -33,7 +33,7 @@ export const useFinancialData = () => {
       if (cteLastError) throw cteLastError;
 
       // Buscar contas a receber
-      const { data: contasReceber, error: crError } = await supabase
+      const { data: contasReceber, error: crError } = await runtimeClient
         .from('contas_receber')
         .select('valor, status, data_vencimento, cliente, descricao, created_at')
         .order('created_at', { ascending: false });
@@ -41,7 +41,7 @@ export const useFinancialData = () => {
       if (crError) throw crError;
 
       // Buscar contas a pagar
-      const { data: contasPagar, error: cpError } = await supabase
+      const { data: contasPagar, error: cpError } = await runtimeClient
         .from('contas_pagar')
         .select('valor, status, data_vencimento, fornecedor, descricao, created_at, categoria')
         .order('created_at', { ascending: false });

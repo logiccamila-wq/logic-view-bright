@@ -1,20 +1,20 @@
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useQuery } from "@tanstack/react-query";
 import { costPerKm, avgFuelKmPerLiter, emptyMileagePercent, operationalSpeed } from "@/utils/kpis";
 
 const LogisticsKPI = () => {
   const refuel = useQuery({
     queryKey: ["refuelings"],
-    queryFn: async () => (await supabase.from("refuelings" as any).select("km,liters,total_value,cost_per_km,timestamp").order("timestamp", { ascending: false })).data as any[] || [],
+    queryFn: async () => (await runtimeClient.from("refuelings" as any).select("km,liters,total_value,cost_per_km,timestamp").order("timestamp", { ascending: false })).data as any[] || [],
   });
   const deliveries = useQuery({
     queryKey: ["revenue_records"],
-    queryFn: async () => (await supabase.from("revenue_records" as any).select("data_emissao,valor_frete,peso_kg").order("data_emissao", { ascending: false })).data as any[] || [],
+    queryFn: async () => (await runtimeClient.from("revenue_records" as any).select("data_emissao,valor_frete,peso_kg").order("data_emissao", { ascending: false })).data as any[] || [],
   });
   const sessions = useQuery({
     queryKey: ["driver_work_sessions"],
-    queryFn: async () => (await supabase.from("driver_work_sessions" as any).select("start_time,end_time,km_start,km_end").order("start_time", { ascending: false })).data as any[] || [],
+    queryFn: async () => (await runtimeClient.from("driver_work_sessions" as any).select("start_time,end_time,km_start,km_end").order("start_time", { ascending: false })).data as any[] || [],
   });
 
   const totalKm = (sessions.data||[]).reduce((s, w)=> s + Math.max(0,(w.km_end||0)-(w.km_start||0)), 0);

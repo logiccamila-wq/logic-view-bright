@@ -5,8 +5,8 @@ Manter apenas a trilha de produção escolhida (Azure) e remover deploys paralel
 
 ## Alterações aplicadas
 - Ajustado [`ci.yml`](.github/workflows/ci.yml) para não falhar quando o script `check` não existir.
-- Removido workflow [`azure-static-web-apps.yml`](.github/workflows/azure-static-web-apps.yml).
-- Removido workflow [`azure-static-web-apps.yml`](.github/workflows/azure-static-web-apps.yml).
+- Removido workflow [`azure-deploy.yml`](.github/workflows/azure-static-web-apps.yml).
+- Removido workflow [`azure-deploy.yml`](.github/workflows/azure-static-web-apps.yml).
 
 ## Resultado esperado
 - Menos ruído no GitHub Actions.

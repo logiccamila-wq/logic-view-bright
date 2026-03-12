@@ -141,7 +141,7 @@ Todos os 24 módulos incluem:
 
 1. **Integração Backend**
    - Substituir mock data por azureDbClient
-   - Conectar CFO/Economista ao Gemini API
+   - Conectar CFO/Economista ao Azure OpenAI
    - Implementar autenticação real
 
 2. **Qualidade**
