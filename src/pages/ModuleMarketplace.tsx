@@ -45,6 +45,7 @@ import { mergeUniqueModules, resolveModuleRoute } from '@/modules/moduleNavigati
 import { runtimeClient } from '@/integrations/azure/client';
 
 const INSTALL_ALL_MODULE_ID = 'all';
+const INSTALL_MODULE_ENDPOINT = `${(import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')}/install-module`;
 
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();
@@ -299,29 +300,33 @@ const ModuleMarketplace: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const installModuleEndpoint = `${(import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')}/install-module`;
-
   const openRouteFor = (id: string) => {
     navigate(resolveModuleRoute(id));
   };
 
-  const activateModule = async (
+  const installOrOpenModule = async (
     moduleId: string,
     successMessage: string,
-    errorMessage: string,
+    errorMessageKey: string,
+    errorFallbackMessage: string,
   ) => {
     if (moduleId === INSTALL_ALL_MODULE_ID) {
-      toast.info('A instalação em lote depende do backend publicado.');
+      toast.info(t('marketplace.messages.bulkInstallRequiresBackend', {
+        defaultValue: 'A instalação em lote depende do backend publicado.',
+      }));
       return;
     }
 
     try {
-      const response = await fetch(installModuleEndpoint, {
+      const response = await fetch(INSTALL_MODULE_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ moduleId, clientKey: 'ejg' }),
       });
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json().catch((parseError) => {
+        console.warn(`Invalid response while activating module ${moduleId}:`, parseError);
+        return { error: `HTTP ${response.status}` };
+      });
 
       if (!response.ok) {
         throw new Error(data?.error || `HTTP ${response.status}`);
@@ -330,24 +335,26 @@ const ModuleMarketplace: React.FC = () => {
       toast.success(successMessage);
       openRouteFor(moduleId);
     } catch (error: any) {
-      console.warn(`Falha ao ativar módulo ${moduleId}:`, error);
-      toast.info(errorMessage);
+      console.warn(`Failed to activate module ${moduleId}:`, error);
+      toast.info(t(errorMessageKey, { defaultValue: errorFallbackMessage }));
       openRouteFor(moduleId);
     }
   };
 
   const handleInstall = async (moduleId: string) => {
-    await activateModule(
+    await installOrOpenModule(
       moduleId,
       `Módulo instalado: ${moduleId}`,
+      'marketplace.messages.installBackendUnavailable',
       'Backend de instalação indisponível. Abrindo o módulo diretamente.',
     );
   };
 
   const handleTrial = async (moduleId: string) => {
-    await activateModule(
+    await installOrOpenModule(
       moduleId,
       `Teste iniciado: ${moduleId}`,
+      'marketplace.messages.trialBackendUnavailable',
       'Backend de trial indisponível. Abrindo o módulo diretamente.',
     );
   };

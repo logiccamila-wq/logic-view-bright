@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Truck,
   DollarSign,
@@ -17,6 +18,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { resolveModuleRoute } from "@/modules/moduleNavigation";
+
+const CRM_ROUTE = resolveModuleRoute("crm");
 
 interface Module {
   id: string;
@@ -58,9 +61,9 @@ const defaultCategories: TabCategory[] = [
     label: "Comercial",
     modules: [
       { id: "crm", name: "CRM", description: "Gestão de clientes", icon: <Users className="w-5 h-5" /> },
-      { id: "crm-proposals", name: "Propostas", description: "Orçamentos digitais", icon: <FileText className="w-5 h-5" />, route: "/crm" },
-      { id: "crm-commissions", name: "Comissões", description: "Cálculo automático", icon: <DollarSign className="w-5 h-5" />, route: "/crm" },
-      { id: "crm-pipeline", name: "Pipeline", description: "Funil de vendas", icon: <TrendingUp className="w-5 h-5" />, route: "/crm" },
+      { id: "crm-proposals", name: "Propostas", description: "Orçamentos digitais", icon: <FileText className="w-5 h-5" />, route: CRM_ROUTE },
+      { id: "crm-commissions", name: "Comissões", description: "Cálculo automático", icon: <DollarSign className="w-5 h-5" />, route: CRM_ROUTE },
+      { id: "crm-pipeline", name: "Pipeline", description: "Funil de vendas", icon: <TrendingUp className="w-5 h-5" />, route: CRM_ROUTE },
     ],
   },
   {
@@ -85,6 +88,7 @@ interface ModuleTabsProps {
  */
 export function ModuleTabs({ categories = defaultCategories }: ModuleTabsProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -135,7 +139,7 @@ export function ModuleTabs({ categories = defaultCategories }: ModuleTabsProps) 
                           {module.description}
                         </p>
                         <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-indigo-200">
-                          Abrir módulo
+                          {t("landing.moduleTabs.open", { defaultValue: "Abrir módulo" })}
                           <ArrowRight className="h-4 w-4" />
                         </span>
                       </div>
