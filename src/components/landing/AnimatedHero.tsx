@@ -36,12 +36,12 @@ interface AnimatedHeroProps {
     text: string;
   }>;
   palette?: HeroPalette;
-  featurePills?: string[];
-  quickStats?: HeroMetric[];
+  featurePills?: readonly string[];
+  quickStats?: readonly HeroMetric[];
   visualTitle?: string;
   visualCaption?: string;
-  visualHighlights?: HeroMetric[];
-  visualSteps?: string[];
+  visualHighlights?: readonly HeroMetric[];
+  visualSteps?: readonly string[];
   controls?: ReactNode;
 }
 
@@ -406,7 +406,7 @@ export function AnimatedHero({
               <div className="mt-2 text-sm text-white">Sugestões automáticas de rota e custo</div>
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
