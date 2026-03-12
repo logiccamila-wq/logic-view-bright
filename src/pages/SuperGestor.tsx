@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { runtimeClient } from "@/integrations/azure/client";
 import { predictNextMaintenance, optimizeFuelCosts, predictTireFailureRisk } from "@/utils/mlPredictive";
 import { useToast } from "@/hooks/use-toast";
@@ -41,34 +41,34 @@ const AI_CONFIDENCE_MAX = 97;
 const DEFAULT_AI_CONFIDENCE = 84;
 const QUERY_INSIGHT_CONFIDENCE = 82;
 const FALLBACK_INSIGHT_CONFIDENCE = 74;
+const SUPERGESTOR_MODELS: MLModel[] = [
+  {
+    name: "Previsão de Manutenção",
+    status: "ready",
+    accuracy: 94.5,
+    predictions: 1247,
+    lastTrained: new Date(Date.now() - MS_PER_DAY).toISOString(),
+  },
+  {
+    name: "Otimização de Rotas",
+    status: "ready",
+    accuracy: 89.2,
+    predictions: 3421,
+    lastTrained: new Date(Date.now() - (2 * MS_PER_DAY)).toISOString(),
+  },
+  {
+    name: "Análise de Custos",
+    status: "training",
+    accuracy: 91.8,
+    predictions: 892,
+    lastTrained: new Date(Date.now() - (3 * MS_PER_DAY)).toISOString(),
+  },
+];
 
 export default function Supergestor() {
   const { toast } = useToast();
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [aiInsights, setAiInsights] = useState<AIInsight[]>([]);
-  const [models] = useState<MLModel[]>([
-    {
-      name: "Previsão de Manutenção",
-      status: "ready",
-      accuracy: 94.5,
-      predictions: 1247,
-      lastTrained: new Date(Date.now() - MS_PER_DAY).toISOString(),
-    },
-    {
-      name: "Otimização de Rotas",
-      status: "ready",
-      accuracy: 89.2,
-      predictions: 3421,
-      lastTrained: new Date(Date.now() - (2 * MS_PER_DAY)).toISOString(),
-    },
-    {
-      name: "Análise de Custos",
-      status: "training",
-      accuracy: 91.8,
-      predictions: 892,
-      lastTrained: new Date(Date.now() - (3 * MS_PER_DAY)).toISOString(),
-    },
-  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -98,7 +98,11 @@ export default function Supergestor() {
     }
   };
 
-  const fetchInsights = async () => {
+  const showPlannedActionToast = (title: string, description: string) => {
+    toast({ title, description });
+  };
+
+  const fetchInsights = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -239,11 +243,11 @@ export default function Supergestor() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInsights();
-  }, []);
+  }, [fetchInsights]);
 
   useEffect(() => {
     if (!autoMode) return;
@@ -253,7 +257,7 @@ export default function Supergestor() {
     }, AUTO_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
-  }, [autoMode]);
+  }, [autoMode, fetchInsights]);
 
   const handleAIQuery = async () => {
     if (!query.trim()) return;
@@ -408,7 +412,13 @@ export default function Supergestor() {
                   <CardContent>
                     <div className="flex flex-col gap-3 rounded-lg bg-muted p-3 md:flex-row md:items-center md:justify-between">
                       <span className="text-sm font-medium">✓ {insight.action}</span>
-                      <Button size="sm" variant="outline">Executar plano</Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => showPlannedActionToast("Plano registrado", `A ação "${insight.action}" foi registrada para acompanhamento do gestor.`)}
+                      >
+                        Executar plano
+                      </Button>
                     </div>
                   </CardContent>
                 )}
@@ -418,7 +428,7 @@ export default function Supergestor() {
 
           <TabsContent value="models">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {models.map((model) => (
+              {SUPERGESTOR_MODELS.map((model) => (
                 <Card key={model.name}>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center justify-between gap-2">
@@ -441,7 +451,12 @@ export default function Supergestor() {
                       <span className="text-muted-foreground">Último treino</span>
                       <span>{new Date(model.lastTrained).toLocaleDateString("pt-BR")}</span>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => showPlannedActionToast("Re-treino planejado", `O modelo "${model.name}" será conectado ao fluxo de re-treino em uma próxima etapa.`)}
+                    >
                       <Database className="h-4 w-4 mr-2" />
                       Re-treinar modelo
                     </Button>
@@ -459,7 +474,13 @@ export default function Supergestor() {
                   <CardDescription>Acione agendas preventivas quando o risco subir.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" size="sm">Configurar automação</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => showPlannedActionToast("Automação em preparação", "A configuração desta automação será ligada ao motor de regras em uma próxima entrega.")}
+                  >
+                    Configurar automação
+                  </Button>
                 </CardContent>
               </Card>
               <Card>
@@ -468,7 +489,13 @@ export default function Supergestor() {
                   <CardDescription>Notifique gestores quando houver NC crítica ou backlog.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" size="sm">Definir gatilhos</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => showPlannedActionToast("Gatilhos em preparação", "Os gatilhos inteligentes serão conectados aos alertas operacionais em uma próxima entrega.")}
+                  >
+                    Definir gatilhos
+                  </Button>
                 </CardContent>
               </Card>
               <Card>
@@ -477,7 +504,13 @@ export default function Supergestor() {
                   <CardDescription>Transforme insights de custo/km em ações recorrentes.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" size="sm">Criar rotina</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => showPlannedActionToast("Rotina em preparação", "A rotina de otimização de margem será habilitada quando o fluxo automático estiver disponível.")}
+                  >
+                    Criar rotina
+                  </Button>
                 </CardContent>
               </Card>
             </div>
