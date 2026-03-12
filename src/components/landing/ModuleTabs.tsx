@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Truck,
   DollarSign,
@@ -13,12 +15,18 @@ import {
   FileText,
   Calendar,
   Shield,
+  ArrowRight,
 } from "lucide-react";
+import { resolveModuleRoute } from "@/modules/moduleNavigation";
+
+const CRM_ROUTE = resolveModuleRoute("crm");
 
 interface Module {
+  id: string;
   name: string;
   description: string;
   icon: React.ReactNode;
+  route?: string;
 }
 
 interface TabCategory {
@@ -32,40 +40,40 @@ const defaultCategories: TabCategory[] = [
     id: "logistics",
     label: "Logística",
     modules: [
-      { name: "TMS", description: "Gestão de transportes", icon: <Truck className="w-5 h-5" /> },
-      { name: "Rastreamento", description: "GPS em tempo real", icon: <Package className="w-5 h-5" /> },
-      { name: "CTe/MDFe", description: "Documentos fiscais", icon: <FileText className="w-5 h-5" /> },
-      { name: "Roteirização", description: "Otimização de rotas", icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "tms", name: "TMS", description: "Gestão de transportes", icon: <Truck className="w-5 h-5" /> },
+      { id: "live-tracking", name: "Rastreamento", description: "GPS em tempo real", icon: <Package className="w-5 h-5" /> },
+      { id: "documents", name: "CTe/MDFe", description: "Documentos fiscais", icon: <FileText className="w-5 h-5" /> },
+      { id: "routing", name: "Roteirização", description: "Otimização de rotas", icon: <TrendingUp className="w-5 h-5" /> },
     ],
   },
   {
     id: "financial",
     label: "Financeiro",
     modules: [
-      { name: "Contas a Pagar", description: "Gestão de despesas", icon: <CreditCard className="w-5 h-5" /> },
-      { name: "Conciliação", description: "Bancária automática", icon: <DollarSign className="w-5 h-5" /> },
-      { name: "Aprovações", description: "Workflow financeiro", icon: <Shield className="w-5 h-5" /> },
-      { name: "KPIs", description: "Indicadores financeiros", icon: <BarChart3 className="w-5 h-5" /> },
+      { id: "accounts-payable", name: "Contas a Pagar", description: "Gestão de despesas", icon: <CreditCard className="w-5 h-5" /> },
+      { id: "bank-reconciliation", name: "Conciliação", description: "Bancária automática", icon: <DollarSign className="w-5 h-5" /> },
+      { id: "approvals", name: "Aprovações", description: "Workflow financeiro", icon: <Shield className="w-5 h-5" /> },
+      { id: "logistics-kpi", name: "KPIs", description: "Indicadores financeiros", icon: <BarChart3 className="w-5 h-5" /> },
     ],
   },
   {
     id: "commercial",
     label: "Comercial",
     modules: [
-      { name: "CRM", description: "Gestão de clientes", icon: <Users className="w-5 h-5" /> },
-      { name: "Propostas", description: "Orçamentos digitais", icon: <FileText className="w-5 h-5" /> },
-      { name: "Comissões", description: "Cálculo automático", icon: <DollarSign className="w-5 h-5" /> },
-      { name: "Pipeline", description: "Funil de vendas", icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "crm", name: "CRM", description: "Gestão de clientes", icon: <Users className="w-5 h-5" /> },
+      { id: "crm-proposals", name: "Propostas", description: "Orçamentos digitais", icon: <FileText className="w-5 h-5" />, route: CRM_ROUTE },
+      { id: "crm-commissions", name: "Comissões", description: "Cálculo automático", icon: <DollarSign className="w-5 h-5" />, route: CRM_ROUTE },
+      { id: "crm-pipeline", name: "Pipeline", description: "Funil de vendas", icon: <TrendingUp className="w-5 h-5" />, route: CRM_ROUTE },
     ],
   },
   {
     id: "operational",
     label: "Operacional",
     modules: [
-      { name: "Manutenção", description: "Gestão de frota", icon: <Wrench className="w-5 h-5" /> },
-      { name: "Motoristas", description: "Controle de jornada", icon: <Users className="w-5 h-5" /> },
-      { name: "Agendamentos", description: "Calendário integrado", icon: <Calendar className="w-5 h-5" /> },
-      { name: "Configurações", description: "Personalização total", icon: <Settings className="w-5 h-5" /> },
+      { id: "mechanic", name: "Manutenção", description: "Gestão de frota", icon: <Wrench className="w-5 h-5" /> },
+      { id: "drivers-management", name: "Motoristas", description: "Controle de jornada", icon: <Users className="w-5 h-5" /> },
+      { id: "journey-management", name: "Agendamentos", description: "Calendário integrado", icon: <Calendar className="w-5 h-5" /> },
+      { id: "settings", name: "Configurações", description: "Personalização total", icon: <Settings className="w-5 h-5" /> },
     ],
   },
 ];
@@ -79,6 +87,9 @@ interface ModuleTabsProps {
  * Displays categorized modules with smooth transitions
  */
 export function ModuleTabs({ categories = defaultCategories }: ModuleTabsProps) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       <Tabs defaultValue={categories[0].id} className="w-full">
@@ -109,21 +120,31 @@ export function ModuleTabs({ categories = defaultCategories }: ModuleTabsProps) 
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white/10 dark:bg-black/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 hover:border-indigo-500/50 transition-all duration-300 group"
+                  className="group"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white group-hover:shadow-lg transition-shadow">
-                      {module.icon}
+                  <button
+                    type="button"
+                    onClick={() => navigate(module.route || resolveModuleRoute(module.id))}
+                    className="w-full rounded-xl border border-white/20 bg-white/10 p-6 text-left backdrop-blur-lg transition-all duration-300 hover:border-indigo-500/50 dark:bg-black/10"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white transition-shadow group-hover:shadow-lg">
+                        {module.icon}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="mb-1 font-semibold text-gray-900 dark:text-white">
+                          {module.name}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {module.description}
+                        </p>
+                        <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-indigo-200">
+                          {t("landing.moduleTabs.open", { defaultValue: "Abrir módulo" })}
+                          <ArrowRight className="h-4 w-4" />
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        {module.name}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {module.description}
-                      </p>
-                    </div>
-                  </div>
+                  </button>
                 </motion.div>
               ))}
             </motion.div>

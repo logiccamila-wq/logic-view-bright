@@ -141,5 +141,20 @@
   "settingsSaved": "Settings Saved Successfully",
   "settingsError": "Error Saving Settings",
   "changesApplied": "Changes Applied",
-  "changesDiscarded": "Changes Discarded"
+  "changesDiscarded": "Changes Discarded",
+  "marketplace": {
+    "actions": {
+      "open": "Open"
+    },
+    "messages": {
+      "bulkInstallRequiresBackend": "Bulk installation depends on the published backend.",
+      "installBackendUnavailable": "Install backend unavailable. Opening the module directly.",
+      "trialBackendUnavailable": "Trial backend unavailable. Opening the module directly."
+    }
+  },
+  "landing": {
+    "moduleTabs": {
+      "open": "Open module"
+    }
+  }
 }

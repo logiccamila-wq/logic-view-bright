@@ -175,10 +175,20 @@
       "comingSoon": "Em Breve",
       "open": "Abrir"
     },
+    "messages": {
+      "bulkInstallRequiresBackend": "A instalação em lote depende do backend publicado.",
+      "installBackendUnavailable": "Backend de instalação indisponível. Abrindo o módulo diretamente.",
+      "trialBackendUnavailable": "Backend de trial indisponível. Abrindo o módulo diretamente."
+    },
     "popular": "Popular",
     "empty": {
       "title": "Nenhum módulo encontrado",
       "description": "Tente ajustar sua busca ou filtros"
+    }
+  },
+  "landing": {
+    "moduleTabs": {
+      "open": "Abrir módulo"
     }
   },
   "modules": {

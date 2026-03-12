@@ -41,7 +41,11 @@ interface Module {
 }
 
 import { modules as registry } from '@/modules/registry';
+import { mergeUniqueModules, resolveModuleRoute } from '@/modules/moduleNavigation';
 import { runtimeClient } from '@/integrations/azure/client';
+
+const INSTALL_ALL_MODULE_ID = 'all';
+const INSTALL_MODULE_ENDPOINT = `${(import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')}/install-module`;
 
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();
@@ -72,7 +76,7 @@ const ModuleMarketplace: React.FC = () => {
     })();
   }, []);
 
-  const modules: Module[] = useMemo(() => [
+  const modules: Module[] = useMemo(() => mergeUniqueModules([
     {
       id: 'dashboard',
       name: t('modules.dashboard.name'),
@@ -272,7 +276,7 @@ const ModuleMarketplace: React.FC = () => {
       features: [],
     })),
     ...dbModules,
-  ], [t, dbModules]) as Module[];
+  ]), [t, dbModules]) as Module[];
 
   const registryCategories = Array.from(new Set(registry.map(r => r.category))).filter(Boolean);
   const categories = [
@@ -296,36 +300,63 @@ const ModuleMarketplace: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleInstall = async (moduleId: string) => {
+  const openRouteFor = (id: string) => {
+    navigate(resolveModuleRoute(id));
+  };
+
+  const installOrOpenModule = async (
+    moduleId: string,
+    successMessage: string,
+    errorMessageKey: string,
+    errorFallbackMessage: string,
+  ) => {
+    if (moduleId === INSTALL_ALL_MODULE_ID) {
+      toast.info(t('marketplace.messages.bulkInstallRequiresBackend', {
+        defaultValue: 'A instalação em lote depende do backend publicado.',
+      }));
+      return;
+    }
+
     try {
-      const r = await fetch('/api/install-module', {
+      const response = await fetch(INSTALL_MODULE_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduleId, clientKey: 'ejg' })
+        body: JSON.stringify({ moduleId, clientKey: 'ejg' }),
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error || 'Falha ao instalar');
-      toast.success(`Módulo instalado: ${moduleId}`);
+      const data = await response.json().catch((parseError) => {
+        console.warn(`Invalid response while activating module ${moduleId}:`, parseError);
+        return { error: `HTTP ${response.status}` };
+      });
+
+      if (!response.ok) {
+        throw new Error(data?.error || `HTTP ${response.status}`);
+      }
+
+      toast.success(successMessage);
       openRouteFor(moduleId);
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao instalar módulo');
+    } catch (error: any) {
+      console.warn(`Failed to activate module ${moduleId}:`, error);
+      toast.info(t(errorMessageKey, { defaultValue: errorFallbackMessage }));
+      openRouteFor(moduleId);
     }
   };
 
+  const handleInstall = async (moduleId: string) => {
+    await installOrOpenModule(
+      moduleId,
+      `Módulo instalado: ${moduleId}`,
+      'marketplace.messages.installBackendUnavailable',
+      'Backend de instalação indisponível. Abrindo o módulo diretamente.',
+    );
+  };
+
   const handleTrial = async (moduleId: string) => {
-    try {
-      const r = await fetch('/api/install-module', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moduleId, clientKey: 'ejg' })
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error || 'Falha ao iniciar teste');
-      toast.success(`Teste iniciado: ${moduleId}`);
-      openRouteFor(moduleId);
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao iniciar teste');
-    }
+    await installOrOpenModule(
+      moduleId,
+      `Teste iniciado: ${moduleId}`,
+      'marketplace.messages.trialBackendUnavailable',
+      'Backend de trial indisponível. Abrindo o módulo diretamente.',
+    );
   };
 
   const getStatusBadge = (status: Module['status']) => {
@@ -393,22 +424,6 @@ const ModuleMarketplace: React.FC = () => {
     );
   };
 
-  const openRouteFor = (id: string) => {
-    const map: Record<string, string> = {
-      dashboard: '/dashboard',
-      tms: '/tms',
-      wms: '/wms',
-      oms: '/oms',
-      crm: '/crm',
-      erp: '/erp',
-      'driver-app': '/driver',
-      'mechanic-hub': '/mechanic',
-    };
-    const reg = registry.find(r => r.slug === id);
-    const path = reg?.route || map[id] || `/module/${id}`;
-    navigate(path);
-  };
-
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
@@ -462,7 +477,7 @@ const ModuleMarketplace: React.FC = () => {
                   </button>
                 ))}
                 <button
-                  onClick={() => handleInstall('all')}
+                  onClick={() => handleInstall(INSTALL_ALL_MODULE_ID)}
                   className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors font-medium"
                 >
                   {t('marketplace.actions.installAll')}
