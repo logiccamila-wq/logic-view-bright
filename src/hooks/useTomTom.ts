@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 
 interface Coordinates {
   lat: number;
@@ -44,7 +44,7 @@ export function useTomTom() {
     try {
       // Use OpenRouteService via authenticated proxy
       const profile = vehicleType === 'truck' ? 'driving-hgv' : 'driving-car';
-      const { data, error: invokeError } = await supabase.functions.invoke('calculate-route', {
+      const { data, error: invokeError } = await runtimeClient.functions.invoke('calculate-route', {
         body: { 
           start: { lat: start.lat, lng: start.lng }, 
           end: { lat: end.lat, lng: end.lng }, 
@@ -74,7 +74,7 @@ export function useTomTom() {
     setError(null);
 
     try {
-      const { data, error: invokeError } = await supabase.functions.invoke('geocode-address', {
+      const { data, error: invokeError } = await runtimeClient.functions.invoke('geocode-address', {
         body: { address }
       });
 
@@ -105,7 +105,7 @@ export function useTomTom() {
     setError(null);
 
     try {
-      const { data, error: invokeError } = await supabase.functions.invoke('geocode-address', {
+      const { data, error: invokeError } = await runtimeClient.functions.invoke('geocode-address', {
         body: { lat, lng }
       });
 

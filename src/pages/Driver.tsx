@@ -26,7 +26,7 @@ import { DriverEarnings } from "@/components/driver/DriverEarnings";
 import { DriverVehicleStatus } from "@/components/driver/DriverVehicleStatus";
 import { DriverAlerts } from "@/components/driver/DriverAlerts";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { demoList, demoCreate } from "@/lib/demoStore";
@@ -67,7 +67,7 @@ const Driver = () => {
   const loadActiveTrip = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('trips')
       .select('*')
       .eq('driver_id', user.id)
@@ -90,7 +90,7 @@ const Driver = () => {
   const loadActiveCTE = async () => {
     if (!activeTrip) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('cte')
       .select('*')
       .eq('trip_id', activeTrip.id)
@@ -111,7 +111,7 @@ const Driver = () => {
   const loadMacroHistory = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('trip_macros')
       .select('*')
       .eq('driver_id', user.id)
@@ -145,7 +145,7 @@ const Driver = () => {
     setCurrentMacro(macro.label);
     
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('trip_macros')
         .insert({
           trip_id: activeTrip.id,
@@ -166,13 +166,13 @@ const Driver = () => {
 
       // Atualizar status da viagem se for início ou fim
       if (macro.id === 'INICIO') {
-        await supabase
+        await runtimeClient
           .from('trips')
           .update({ status: 'em_andamento' })
           .eq('id', activeTrip.id);
         setActiveTrip({ ...activeTrip, status: 'em_andamento' });
       } else if (macro.id === 'FIM_JORNADA') {
-        await supabase
+        await runtimeClient
           .from('trips')
           .update({ status: 'concluida' })
           .eq('id', activeTrip.id);
@@ -203,7 +203,7 @@ const Driver = () => {
     if (errorMessage) setErrorMessage('');
     
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('refuelings')
         .insert({
           trip_id: activeTrip?.id,

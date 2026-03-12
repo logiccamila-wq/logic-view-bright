@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { TrendingUp, TrendingDown, DollarSign, Filter } from "lucide-react";
 import { DREGraph } from "@/components/dre/DREGraph";
 import { DRETable } from "@/components/dre/DRETable";
@@ -30,7 +30,7 @@ const DRE = () => {
       const endDate = `${selectedYear}-12-31`;
 
       // Carregar entradas do DRE
-      const { data: dreData, error: dreError } = await supabase
+      const { data: dreData, error: dreError } = await runtimeClient
         .from("dre_entries")
         .select("*")
         .gte("data", startDate)
@@ -40,7 +40,7 @@ const DRE = () => {
       if (dreError) throw dreError;
 
       // Carregar lançamentos financeiros
-      let lancamentosQuery = supabase
+      let lancamentosQuery = runtimeClient
         .from("lancamentos_financeiros")
         .select("*")
         .gte("data", startDate)
@@ -54,7 +54,7 @@ const DRE = () => {
       if (lancError) throw lancError;
 
       // Carregar veículos
-      const { data: vehiclesData, error: vehiclesError } = await supabase
+      const { data: vehiclesData, error: vehiclesError } = await runtimeClient
         .from("vehicles")
         .select("*")
         .in("status", ["ativo", "Ativo"]);

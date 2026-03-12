@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, DollarSign, AlertCircle, CheckCircle, Edit, Trash2, Loader2 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,7 +41,7 @@ const AccountsPayable = () => {
   const loadContas = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("contas_pagar")
         .select("*")
         .order("data_vencimento", { ascending: true });
@@ -64,7 +64,7 @@ const AccountsPayable = () => {
   const handleMarkAsPaid = async (id: string) => {
     setActionLoading(id);
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from("contas_pagar")
         .update({
           status: "pago",
@@ -93,7 +93,7 @@ const AccountsPayable = () => {
     
     setActionLoading(contaToDelete);
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from("contas_pagar")
         .delete()
         .eq("id", contaToDelete);

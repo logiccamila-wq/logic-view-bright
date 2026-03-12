@@ -8,28 +8,28 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 
 const EHS = () => {
   const incidents = useQuery({
     queryKey: ["ehs_incidents"],
-    queryFn: async () => (await supabase.from("ehs_incidents" as any).select("*").order("occurred_at", { ascending: false })).data as any[] || [],
+    queryFn: async () => (await runtimeClient.from("ehs_incidents" as any).select("*").order("occurred_at", { ascending: false })).data as any[] || [],
   });
   const manifests = useQuery({
     queryKey: ["ehs_manifests"],
-    queryFn: async () => (await supabase.from("ehs_chemical_manifests" as any).select("*").order("created_at", { ascending: false })).data as any[] || [],
+    queryFn: async () => (await runtimeClient.from("ehs_chemical_manifests" as any).select("*").order("created_at", { ascending: false })).data as any[] || [],
   });
   const trainings = useQuery({
     queryKey: ["ehs_training_records"],
-    queryFn: async () => (await supabase.from("ehs_training_records" as any).select("*").order("issue_date", { ascending: false })).data as any[] || [],
+    queryFn: async () => (await runtimeClient.from("ehs_training_records" as any).select("*").order("issue_date", { ascending: false })).data as any[] || [],
   });
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<any>({ severity: 5 });
 
   const createIncident = async () => {
-    const { error } = await supabase.from("ehs_incidents" as any).insert({
+    const { error } = await runtimeClient.from("ehs_incidents" as any).insert({
       vehicle_plate: form.vehicle_plate,
       product: form.product,
       severity: Number(form.severity),
@@ -134,14 +134,14 @@ function CapaManager() {
   const [attachmentUrl, setAttachmentUrl] = useState<string>("");
 
   const load = async () => {
-    const { data } = await supabase.from("capa_records" as any).select("*").order("created_at", { ascending: false }).limit(100);
+    const { data } = await runtimeClient.from("capa_records" as any).select("*").order("created_at", { ascending: false }).limit(100);
     setList((data as any) || []);
   };
 
   useEffect(() => { load(); }, []);
 
   const create = async () => {
-    const { error } = await supabase.from("capa_records" as any).insert({
+    const { error } = await runtimeClient.from("capa_records" as any).insert({
       nc_id: form.nc_id,
       vehicle_plate: form.vehicle_plate,
       root_cause: form.root_cause,
@@ -154,7 +154,7 @@ function CapaManager() {
   };
 
   const close = async (id: string) => {
-    const { error } = await supabase.from("capa_records" as any).update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", id);
+    const { error } = await runtimeClient.from("capa_records" as any).update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", id);
     if (!error) load();
   };
 

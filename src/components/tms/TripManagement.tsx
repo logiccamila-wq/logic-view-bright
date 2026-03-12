@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Package, Truck, MapPin, Clock, CheckCircle, AlertCircle, Navigation } from "lucide-react";
 import { TripCreationDialog } from "./TripCreationDialog";
 import { toast } from "sonner";
@@ -61,7 +61,7 @@ export const TripManagement = () => {
   };
 
   const loadAvailableCTEs = async () => {
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('cte')
       .select('*')
       .is('trip_id', null)
@@ -77,7 +77,7 @@ export const TripManagement = () => {
   };
 
   const loadActiveTrips = async () => {
-    const { data: trips, error } = await supabase
+    const { data: trips, error } = await runtimeClient
       .from('trips')
       .select(`
         *,
@@ -94,7 +94,7 @@ export const TripManagement = () => {
     // Carregar CT-es de cada viagem
     const tripsWithCTEs = await Promise.all(
       (trips || []).map(async (trip) => {
-        const { data: ctes } = await supabase
+        const { data: ctes } = await runtimeClient
           .from('cte')
           .select('*')
           .eq('trip_id', trip.id);
@@ -382,7 +382,7 @@ export const TripManagement = () => {
                           className="flex-1 bg-green-600 hover:bg-green-700" 
                           size="sm"
                           onClick={async () => {
-                            await supabase
+                            await runtimeClient
                               .from('trips')
                               .update({ status: 'aprovada' })
                               .eq('id', trip.id);

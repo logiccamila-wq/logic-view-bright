@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VehicleSelect } from "@/components/VehicleSelect";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -70,10 +70,10 @@ export function OrdemColetaDialog({ open, onOpenChange, ordem, onSuccess }: Orde
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await runtimeClient.auth.getUser();
       
       if (ordem) {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('ordem_coleta')
           .update(formData)
           .eq('id', ordem.id);
@@ -81,7 +81,7 @@ export function OrdemColetaDialog({ open, onOpenChange, ordem, onSuccess }: Orde
         if (error) throw error;
         toast.success('Ordem de coleta atualizada!');
       } else {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('ordem_coleta')
           .insert({ ...formData, created_by: user?.id });
         

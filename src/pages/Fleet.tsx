@@ -10,7 +10,7 @@ import { Truck } from "lucide-react";
 import { useMaintenanceAlerts } from "@/hooks/useMaintenanceAlerts";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { MaintenanceCostAnalysis } from "@/components/mechanic/MaintenanceCostAnalysis";
 import { useNavigate } from "react-router-dom";
 import { TireControl } from "@/components/fleet/TireControl";
@@ -48,7 +48,7 @@ const Fleet = () => {
       if (!canViewAlerts) return;
 
       try {
-        const { data: serviceOrders } = await supabase
+        const { data: serviceOrders } = await runtimeClient
           .from('service_orders')
           .select('*')
           .order('created_at', { ascending: false });

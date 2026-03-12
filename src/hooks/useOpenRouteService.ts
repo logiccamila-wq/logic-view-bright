@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 
 interface RouteCoordinates {
   lat: number;
@@ -27,7 +27,7 @@ export function useOpenRouteService() {
     setError(null);
 
     try {
-      const { data, error: invokeError } = await supabase.functions.invoke('calculate-route', {
+      const { data, error: invokeError } = await runtimeClient.functions.invoke('calculate-route', {
         body: { start, end, profile }
       });
 

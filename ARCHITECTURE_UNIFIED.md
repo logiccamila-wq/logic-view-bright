@@ -3,24 +3,24 @@
 ## Stack oficial
 - Frontend: React + TypeScript + Vite
 - UI: TailwindCSS + shadcn/ui
-- Runtime API: Azure Functions (`api/runtime/index.js`)
+- Runtime API: Azure App Service (`server/index.js`) with shared runtime handlers in `api/runtime/index.js`
 - Banco: Azure Database for PostgreSQL
 - IA: Azure OpenAI
-- Deploy: Azure Static Web Apps + GitHub Actions
+- Deploy: Azure Static Web Apps + Azure App Service + GitHub Actions
 - Domínio: `www.xyzlogicflow.com.br` (ativo até 2027-02-23, renovação automática)
 - DNS: Azure DNS (`ns1-07.azure-dns.com`, `ns2-07.azure-dns.net`, `ns3-07.azure-dns.org`, `ns4-07.azure-dns.info`)
 
 ## Fluxo
 ```text
-Browser -> Azure Static Web Apps -> /api/runtime/* -> PostgreSQL
-                                    -> /api/runtime/invoke/* -> Azure Functions externas (opcional)
+Browser -> Azure Static Web Apps -> Azure App Service (`/api/*`) -> PostgreSQL
+                                                     -> Azure Application Insights
 ```
 
 ## Componentes-chave
-- `src/integrations/supabase/client.ts`: camada de compatibilidade Azure runtime (mantém nome por compatibilidade de imports).
+- `src/integrations/azure/client.ts`: cliente de runtime para o frontend.
 - `api/runtime/index.js`: endpoints auth/query/mutate/rpc/invoke.
 - `api/shared/db.js`: conexão segura com PostgreSQL.
-- `.github/workflows/azure-static-web-apps.yml`: pipeline de build/deploy.
+- `.github/workflows/azure-deploy.yml`: pipeline de build e deploy.
 
 ## Segurança
 - Secrets somente no backend Azure (nunca no frontend).

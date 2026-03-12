@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -45,13 +45,13 @@ export function TireControl() {
   const mounted = useMemo(() => pneus.filter(p => p.vehicle_plate === plate), [pneus, plate]);
 
   const fetchPneus = async () => {
-    const { data } = await supabase.from("pneus" as any).select("*");
+    const { data } = await runtimeClient.from("pneus" as any).select("*");
     setPneus((data as any) || []);
   };
 
   const fetchConfig = async () => {
     if (!plate) { setConfig(null); return; }
-    const { data } = await supabase.from("vehicle_axle_configs" as any).select("*").eq("vehicle_plate", plate).maybeSingle();
+    const { data } = await runtimeClient.from("vehicle_axle_configs" as any).select("*").eq("vehicle_plate", plate).maybeSingle();
     setConfig((data as any) || null);
   };
 
@@ -59,7 +59,7 @@ export function TireControl() {
   useEffect(() => { fetchConfig(); }, [plate]);
   useEffect(() => { (async () => {
     if (!plate) return;
-    const { data } = await supabase.from("tire_events" as any).select("position,tread_depth_mm,timestamp").eq("vehicle_plate", plate).order("timestamp", { ascending: false }).limit(200);
+    const { data } = await runtimeClient.from("tire_events" as any).select("position,tread_depth_mm,timestamp").eq("vehicle_plate", plate).order("timestamp", { ascending: false }).limit(200);
     const map: Record<string, number> = {};
     (data || []).forEach((e: any) => { if (e.tread_depth_mm != null && map[e.position] == null) map[e.position] = e.tread_depth_mm; });
     setLatestDepth(map);
@@ -69,7 +69,7 @@ export function TireControl() {
     if (!plate) { toast.error("Selecione a placa"); return; }
     const presetCfg = PRESETS.find(p => p.value === preset)!;
     const axles = presetCfg.axles.map((ax, idx) => ({ index: idx + 1, dual: ax.dual, traction: ax.traction, suspended: false }));
-    const { data, error } = await supabase.from("vehicle_axle_configs" as any).upsert({ vehicle_plate: plate, layout: preset, axles }, { onConflict: "vehicle_plate" }).select().maybeSingle();
+    const { data, error } = await runtimeClient.from("vehicle_axle_configs" as any).upsert({ vehicle_plate: plate, layout: preset, axles }, { onConflict: "vehicle_plate" }).select().maybeSingle();
     if (error) { toast.error("Falha ao salvar configuração"); return; }
     setConfig(data as any);
     toast.success("Configuração salva");
@@ -77,7 +77,7 @@ export function TireControl() {
 
   const saveAxleEdit = async () => {
     if (!plate) { toast.error("Selecione a placa"); return; }
-    const { data, error } = await supabase.from("vehicle_axle_configs" as any)
+    const { data, error } = await runtimeClient.from("vehicle_axle_configs" as any)
       .upsert({ vehicle_plate: plate, layout: preset, axles: editAxles }, { onConflict: "vehicle_plate" })
       .select()
       .maybeSingle();
@@ -96,11 +96,11 @@ export function TireControl() {
     if (!dragging || !plate) return;
     const positionKey = `${axIndex}_${pos}`;
     const isRodizio = dragging.vehicle_plate === plate && !!dragging.posicao;
-    const { error } = await supabase.from("pneus" as any)
+    const { error } = await runtimeClient.from("pneus" as any)
       .update({ status: "em_uso", vehicle_plate: plate, posicao: positionKey })
       .eq("id", dragging.id);
     if (!error) {
-      await supabase.from("tire_events" as any).insert({
+      await runtimeClient.from("tire_events" as any).insert({
         pneu_id: dragging.id,
         event_type: isRodizio ? "rodizio" : "instalacao",
         vehicle_plate: plate,
@@ -125,22 +125,22 @@ export function TireControl() {
   };
 
   const removeFromPosition = async (p: Pneu) => {
-    const { error } = await supabase.from("pneus" as any)
+    const { error } = await runtimeClient.from("pneus" as any)
       .update({ status: "estoque", vehicle_plate: null, posicao: null })
       .eq("id", p.id);
     if (!error) {
-      await supabase.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "remocao", vehicle_plate: plate, position: p.posicao });
+      await runtimeClient.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "remocao", vehicle_plate: plate, position: p.posicao });
       fetchPneus();
       toast.success("Pneu removido para estoque");
     }
   };
 
   const sendToScrap = async (p: Pneu, assinaturaBase64?: string) => {
-    const { error } = await supabase.from("pneus" as any)
+    const { error } = await runtimeClient.from("pneus" as any)
       .update({ status: "sucata", vehicle_plate: null, posicao: null })
       .eq("id", p.id);
     if (!error) {
-      await supabase.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "descarte", vehicle_plate: plate, position: p.posicao });
+      await runtimeClient.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "descarte", vehicle_plate: plate, position: p.posicao });
       fetchPneus();
       toast.success("Pneu enviado para sucata");
     }
@@ -150,11 +150,11 @@ export function TireControl() {
     const p = recapDialog.pneu!;
     const shop = recapDialog.shop || "";
     const valor = recapDialog.valor ? parseFloat(recapDialog.valor) : 0;
-    const { error } = await supabase.from("pneus" as any)
+    const { error } = await runtimeClient.from("pneus" as any)
       .update({ status: "renovadora", vehicle_plate: null, posicao: null, valor_recape: valor })
       .eq("id", p.id);
     if (!error) {
-      await supabase.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "recapagem", vehicle_plate: plate, position: p.posicao });
+      await runtimeClient.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "recapagem", vehicle_plate: plate, position: p.posicao });
       setRecapDialog({ open: false });
       fetchPneus();
       toast.success("Pneu enviado para recapagem");
@@ -174,11 +174,11 @@ export function TireControl() {
   };
 
   const sendToRepair = async (p: Pneu) => {
-    const { error } = await supabase.from("pneus" as any)
+    const { error } = await runtimeClient.from("pneus" as any)
       .update({ status: "conserto", vehicle_plate: null, posicao: null })
       .eq("id", p.id);
     if (!error) {
-      await supabase.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "conserto", vehicle_plate: plate, position: p.posicao });
+      await runtimeClient.from("tire_events" as any).insert({ pneu_id: p.id, event_type: "conserto", vehicle_plate: plate, position: p.posicao });
       fetchPneus();
       toast.success("Pneu enviado para conserto");
     }
@@ -186,7 +186,7 @@ export function TireControl() {
 
   const submitMeasure = async () => {
     if (!plate || !measure.position) { toast.error("Selecione placa e posição"); return; }
-    const { error } = await supabase.from("tire_events" as any).insert({
+    const { error } = await runtimeClient.from("tire_events" as any).insert({
       event_type: "afericao_manual",
       vehicle_plate: plate,
       position: measure.position,

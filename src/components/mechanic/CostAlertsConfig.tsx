@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,7 +60,7 @@ export function CostAlertsConfig() {
 
   const loadAlerts = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -81,7 +81,7 @@ export function CostAlertsConfig() {
 
   const loadVehicles = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('service_orders')
         .select('vehicle_plate');
 
@@ -132,7 +132,7 @@ export function CostAlertsConfig() {
         vehicle_plate: !formData.vehicle_plate || formData.vehicle_plate === 'todos' ? null : formData.vehicle_plate,
       };
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .insert([alertData]);
 
@@ -176,7 +176,7 @@ export function CostAlertsConfig() {
 
   const toggleAlert = async (alertId: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .update({ is_active: !currentStatus })
         .eq('id', alertId);
@@ -203,7 +203,7 @@ export function CostAlertsConfig() {
     if (!confirm('Tem certeza que deseja excluir este alerta?')) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .delete()
         .eq('id', alertId);

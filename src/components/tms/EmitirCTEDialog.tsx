@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Loader2 } from "lucide-react";
 
 interface EmitirCTEDialogProps {
@@ -64,7 +64,7 @@ export default function EmitirCTEDialog({ open, onOpenChange, onSuccess }: Emiti
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("emitir-cte", {
+      const { data, error } = await runtimeClient.functions.invoke("emitir-cte", {
         body: {
           ...formData,
           quantidade_volumes: parseInt(formData.quantidade_volumes),

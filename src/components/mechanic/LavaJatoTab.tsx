@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,7 +62,7 @@ export function LavaJatoTab() {
 
   const fetchLavagens = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('lavagens' as any)
         .select('*')
         .order('created_at', { ascending: false });
@@ -80,7 +80,7 @@ export function LavaJatoTab() {
   useEffect(() => {
     fetchLavagens();
 
-    const channel = supabase
+    const channel = runtimeClient
       .channel('lavagens_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lavagens' }, () => {
         fetchLavagens();
@@ -88,7 +88,7 @@ export function LavaJatoTab() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      runtimeClient.removeChannel(channel);
     };
   }, []);
 
@@ -96,7 +96,7 @@ export function LavaJatoTab() {
     e.preventDefault();
     
     try {
-      const { error } = await supabase.from('lavagens' as any).insert({
+      const { error } = await runtimeClient.from('lavagens' as any).insert({
         vehicle_plate: formData.vehicle_plate,
         type: formData.tipo_lavagem,
         km: formData.km ? parseInt(formData.km) : null,
@@ -137,7 +137,7 @@ export function LavaJatoTab() {
         updateData.data_conclusao = new Date().toISOString();
       }
 
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('lavagens' as any)
         .update(updateData as any)
         .eq('id', lavagemId);

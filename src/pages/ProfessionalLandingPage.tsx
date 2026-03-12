@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 export default function ProfessionalLandingPage() {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export default function ProfessionalLandingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.from('leads' as any).insert({
+      const { error } = await runtimeClient.from('leads' as any).insert({
         name: leadName,
         email: leadEmail,
         phone: leadPhone,

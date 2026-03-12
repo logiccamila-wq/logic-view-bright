@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -64,7 +64,7 @@ export function PayrollSection() {
   const loadPayrolls = async () => {
     setLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from("driver_payroll")
         .select(`
           *,
@@ -86,7 +86,7 @@ export function PayrollSection() {
   const calculatePayroll = async () => {
     setCalculating(true);
     try {
-      const { error } = await supabase.functions.invoke("calculate-driver-payroll", {
+      const { error } = await runtimeClient.functions.invoke("calculate-driver-payroll", {
         body: {
           mes: selectedMonth,
           ano: selectedYear,
@@ -107,7 +107,7 @@ export function PayrollSection() {
 
   const approvePayroll = async (payrollId: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("driver_payroll")
         .update({
           status: "aprovado",
@@ -128,7 +128,7 @@ export function PayrollSection() {
 
   const markAsPaid = async (payrollId: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("driver_payroll")
         .update({
           status: "pago",

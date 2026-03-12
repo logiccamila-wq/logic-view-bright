@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bell, AlertTriangle, Info, MessageSquare, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const DriverAlerts = () => {
@@ -16,7 +16,7 @@ export const DriverAlerts = () => {
   const loadAlerts = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)

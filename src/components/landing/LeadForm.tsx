@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2, Check } from "lucide-react";
 import { getPlanOptions } from "@/config/pricing";
@@ -65,10 +65,10 @@ export function LeadForm({ onSuccess, plans = defaultPlans }: LeadFormProps) {
 
     try {
       // NOTE: Type assertion needed because leads table exists in database
-      // but is not yet in generated Supabase types (src/integrations/supabase/types.ts).
-      // To fix: Run `npx supabase gen types typescript` to regenerate types
+      // but is not yet in generated Supabase types (src/integrations/runtimeClient/types.ts).
+      // To fix: Run `npx runtimeClient gen types typescript` to regenerate types
       // after deploying the leads table migration.
-      const { error } = await (supabase as any).from("leads").insert([
+      const { error } = await (runtimeClient as any).from("leads").insert([
         {
           name: formData.name,
           email: formData.email,

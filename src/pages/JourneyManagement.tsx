@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,7 +59,7 @@ export default function JourneyManagement() {
 
   const loadData = async () => {
     // Carregar violações
-    const { data: violationsData } = await (supabase as any)
+    const { data: violationsData } = await (runtimeClient as any)
       .from("driver_violations")
       .select(`
         *,
@@ -72,11 +72,11 @@ export default function JourneyManagement() {
     if (violationsData) setViolations(violationsData);
 
     // Carregar estatísticas gerais
-    const { data: sessionsData } = await (supabase as any)
+    const { data: sessionsData } = await (runtimeClient as any)
       .from("driver_work_sessions")
       .select("*");
 
-    const { data: violationsCount } = await (supabase as any)
+    const { data: violationsCount } = await (runtimeClient as any)
       .from("driver_violations")
       .select("id", { count: "exact" });
 
@@ -101,7 +101,7 @@ export default function JourneyManagement() {
 
   const loadAllowances = async () => {
     setLoadingAllowances(true);
-    const { data } = await (supabase as any)
+    const { data } = await (runtimeClient as any)
       .from("driver_work_sessions")
       .select("id,driver_id,vehicle_plate,data_inicio,data_fim,allowance_approved")
       .eq("status", "finalizada")
@@ -112,7 +112,7 @@ export default function JourneyManagement() {
   };
 
   const approveAllowance = async (sessionId: string) => {
-    const { error } = await (supabase as any)
+    const { error } = await (runtimeClient as any)
       .from("driver_work_sessions")
       .update({ allowance_approved: true })
       .eq("id", sessionId);
@@ -120,7 +120,7 @@ export default function JourneyManagement() {
   };
 
   const updateExtraMinutes = async (sessionId: string, minutes: number) => {
-    const { error } = await (supabase as any)
+    const { error } = await (runtimeClient as any)
       .from("driver_work_sessions")
       .update({ horas_extras_minutos: minutes })
       .eq("id", sessionId);
@@ -136,7 +136,7 @@ export default function JourneyManagement() {
   };
 
   const marcarComoResolvida = async (violationId: string) => {
-    const { error } = await (supabase as any)
+    const { error } = await (runtimeClient as any)
       .from("driver_violations")
       .update({ resolvida: true })
       .eq("id", violationId);

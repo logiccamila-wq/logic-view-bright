@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Receipt } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { VehicleSelect } from "@/components/VehicleSelect";
 
@@ -27,7 +27,7 @@ export function TripExpenseDialog() {
 
     try {
       // Criar despesa e notificação para aprovação
-      const { error } = await supabase.from('contas_pagar').insert({
+      const { error } = await runtimeClient.from('contas_pagar').insert({
         fornecedor: 'Motorista',
         descricao: `${formData.tipo}: ${formData.descricao} (Veículo: ${formData.plate})`,
         valor: parseFloat(formData.valor),
@@ -40,7 +40,7 @@ export function TripExpenseDialog() {
       if (error) throw error;
 
       // Notificar gestores
-      await supabase.from('notifications').insert({
+      await runtimeClient.from('notifications').insert({
         user_id: user?.id,
         title: 'Solicitação de Despesa',
         message: `Motorista solicitou aprovação de despesa: ${formData.tipo} - R$ ${formData.valor} - Veículo ${formData.plate}`,

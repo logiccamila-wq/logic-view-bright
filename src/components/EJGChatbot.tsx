@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -67,7 +67,7 @@ export function EJGChatbot() {
   useEffect(() => {
     if (selectedConversation) {
       loadMessages();
-      const subscription = supabase
+      const subscription = runtimeClient
         .channel(`messages:${selectedConversation}`)
         .on(
           "postgres_changes",
@@ -98,7 +98,7 @@ export function EJGChatbot() {
   };
 
   const loadConversations = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await (runtimeClient as any)
       .from("chat_conversations")
       .select("*")
       .eq("user_id", user!.id)
@@ -115,7 +115,7 @@ export function EJGChatbot() {
   const loadMessages = async () => {
     if (!selectedConversation) return;
 
-    const { data } = await (supabase as any)
+    const { data } = await (runtimeClient as any)
       .from("chat_messages")
       .select("*")
       .eq("conversation_id", selectedConversation)
@@ -124,7 +124,7 @@ export function EJGChatbot() {
     if (data) {
       // Buscar nomes dos remetentes
       const senderIds = [...new Set(data.map((m: Message) => m.sender_id))];
-      const { data: profiles } = await (supabase as any)
+      const { data: profiles } = await (runtimeClient as any)
         .from("profiles")
         .select("id, full_name")
         .in("id", senderIds);
@@ -147,7 +147,7 @@ export function EJGChatbot() {
     }
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from("chat_conversations")
         .insert({
           user_id: user!.id,
@@ -169,13 +169,13 @@ export function EJGChatbot() {
 
       // Enviar notificação se for ticket de suporte
       if (conversationType === "support" && data.ticket_number) {
-        const { data: profileData } = await (supabase as any)
+        const { data: profileData } = await (runtimeClient as any)
           .from("profiles")
           .select("full_name, email")
           .eq("id", user!.id)
           .single();
 
-        supabase.functions.invoke("notify-support-ticket", {
+        runtimeClient.functions.invoke("notify-support-ticket", {
           body: {
             ticket_number: data.ticket_number,
             subject: subject,
@@ -204,7 +204,7 @@ export function EJGChatbot() {
 
     setLoading(true);
     try {
-      const { error } = await (supabase as any).from("chat_messages").insert({
+      const { error } = await (runtimeClient as any).from("chat_messages").insert({
         conversation_id: selectedConversation,
         sender_id: user!.id,
         message: newMessage,

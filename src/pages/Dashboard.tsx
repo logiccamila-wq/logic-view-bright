@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useEffect } from "react";
 
 const Dashboard = () => {
@@ -31,7 +31,7 @@ const Dashboard = () => {
   const { data: vehicles = [] } = useQuery({
     queryKey: ['active-vehicles'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('vehicles')
         .select('*')
         .eq('status', 'Ativo')

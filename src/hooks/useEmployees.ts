@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 
 export interface Employee {
@@ -28,7 +28,7 @@ export function useEmployees(searchTerm = "", page = 1, pageSize = 10) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["employees", searchTerm, page, pageSize],
     queryFn: async () => {
-      let query = supabase
+      let query = runtimeClient
         .from("employees")
         .select("*", { count: "exact" })
         .order("created_at", { ascending: false });
@@ -57,7 +57,7 @@ export function useEmployees(searchTerm = "", page = 1, pageSize = 10) {
 
   const createEmployee = useMutation({
     mutationFn: async (employee: Omit<Employee, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("employees")
         .insert([employee])
         .select()
@@ -77,7 +77,7 @@ export function useEmployees(searchTerm = "", page = 1, pageSize = 10) {
 
   const updateEmployee = useMutation({
     mutationFn: async ({ id, ...employee }: Partial<Employee> & { id: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("employees")
         .update(employee)
         .eq("id", id)
@@ -98,7 +98,7 @@ export function useEmployees(searchTerm = "", page = 1, pageSize = 10) {
 
   const deleteEmployee = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("employees").delete().eq("id", id);
+      const { error } = await runtimeClient.from("employees").delete().eq("id", id);
 
       if (error) throw error;
     },

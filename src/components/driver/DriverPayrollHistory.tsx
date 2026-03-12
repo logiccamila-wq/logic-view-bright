@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { History, DollarSign, Calendar, TrendingUp, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -21,7 +21,7 @@ export const DriverPayrollHistory = () => {
   const loadHistory = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('driver_payroll')
       .select('*')
       .eq('driver_id', user.id)

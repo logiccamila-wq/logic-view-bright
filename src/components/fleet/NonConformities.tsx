@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ export function NonConformities() {
   const [editing, setEditing] = useState<Partial<NC>>({});
 
   const load = async () => {
-    const { data } = await supabase.from("non_conformities" as any).select("id,module,vehicle_plate,description,severity,occurrence,detection,rpn,status").order("created_at", { ascending: false }).limit(100);
+    const { data } = await runtimeClient.from("non_conformities" as any).select("id,module,vehicle_plate,description,severity,occurrence,detection,rpn,status").order("created_at", { ascending: false }).limit(100);
     setList((data as any) || []);
   };
 
@@ -23,17 +23,17 @@ export function NonConformities() {
 
   const create = async () => {
     const payload = { ...form, description: form.description || "NC", severity: Number(form.severity), occurrence: Number(form.occurrence), detection: Number(form.detection) } as any;
-    const { error } = await supabase.from("non_conformities" as any).insert(payload);
+    const { error } = await runtimeClient.from("non_conformities" as any).insert(payload);
     if (!error) { setForm({ module: "fleet", severity: 5, occurrence: 5, detection: 5 }); load(); }
   };
 
   const close = async (id: string) => {
-    const { error } = await supabase.from("non_conformities" as any).update({ status: "closed", resolved_at: new Date().toISOString() }).eq("id", id);
+    const { error } = await runtimeClient.from("non_conformities" as any).update({ status: "closed", resolved_at: new Date().toISOString() }).eq("id", id);
     if (!error) load();
   };
 
   const edit = async (nc: NC) => {
-    const { error } = await supabase.from("non_conformities" as any).update(nc).eq("id", nc.id);
+    const { error } = await runtimeClient.from("non_conformities" as any).update(nc).eq("id", nc.id);
     if (!error) load();
   };
 

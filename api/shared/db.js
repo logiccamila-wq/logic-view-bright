@@ -1,38 +1,50 @@
-const { Pool } = require("pg");
+const postgres = require("postgres");
 
-let pool;
+let sqlClient;
+let closePromise;
 
 function getConnectionString() {
-  const explicit = process.env.AZURE_POSTGRES_CONNECTION_STRING || process.env.DATABASE_URL;
-  if (explicit) return explicit;
-
-  const host = process.env.AZURE_POSTGRES_HOST;
-  const port = process.env.AZURE_POSTGRES_PORT || "5432";
-  const database = process.env.AZURE_POSTGRES_DB;
-  const user = process.env.AZURE_POSTGRES_USER;
-  const password = process.env.AZURE_POSTGRES_PASSWORD;
-
-  if (!host || !database || !user || !password) {
-    return "";
-  }
-
-  return `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
+  return process.env.DATABASE_URL || "";
 }
 
 function getPool() {
-  if (!pool) {
+  if (!sqlClient) {
     const connectionString = getConnectionString();
     if (!connectionString) {
-      throw new Error("Database connection is not configured. Set AZURE_POSTGRES_* or DATABASE_URL.");
+      throw new Error("Database connection is not configured. Set DATABASE_URL.");
     }
 
-    pool = new Pool({
-      connectionString,
-      ssl: { rejectUnauthorized: false },
+    const sql = postgres(connectionString, {
       max: 10,
+      ssl: "require",
+      prepare: false,
     });
+
+    sqlClient = {
+      async query(statement, params = []) {
+        const rows = await sql.unsafe(statement, params, { prepare: true });
+        return {
+          rows,
+          rowCount: typeof rows.count === "number" ? rows.count : rows.length,
+        };
+      },
+      async end() {
+        if (!closePromise) {
+          closePromise = sql.end({ timeout: 5 });
+        }
+        return closePromise;
+      },
+    };
   }
-  return pool;
+
+  return sqlClient;
+}
+
+async function closePool() {
+  if (!sqlClient) return;
+  await sqlClient.end();
+  sqlClient = undefined;
+  closePromise = undefined;
 }
 
 function isValidIdentifier(value) {
@@ -62,6 +74,7 @@ async function ensureAuthSchema() {
 
 module.exports = {
   getPool,
+  closePool,
   quoteIdentifier,
   isValidIdentifier,
   ensureAuthSchema,

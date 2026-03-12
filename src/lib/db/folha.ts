@@ -1,8 +1,8 @@
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import type { FolhaPagamento } from "@/types/financeiro";
 
 export async function listFolhaPagamento(competencia?: string) {
-  let query = supabase
+  let query = runtimeClient
     .from("folha_pagamento")
     .select("*, employees(*)")
     .order("competencia", { ascending: false });
@@ -18,7 +18,7 @@ export async function listFolhaPagamento(competencia?: string) {
 }
 
 export async function createFolhaPagamento(folha: Omit<FolhaPagamento, "id" | "created_at">) {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("folha_pagamento")
     .insert([folha])
     .select()
@@ -29,7 +29,7 @@ export async function createFolhaPagamento(folha: Omit<FolhaPagamento, "id" | "c
 }
 
 export async function updateFolhaPagamento(id: string, folha: Partial<FolhaPagamento>) {
-  const { data, error } = await supabase
+  const { data, error } = await runtimeClient
     .from("folha_pagamento")
     .update(folha)
     .eq("id", id)
@@ -41,7 +41,7 @@ export async function updateFolhaPagamento(id: string, folha: Partial<FolhaPagam
 }
 
 export async function deleteFolhaPagamento(id: string) {
-  const { error } = await supabase
+  const { error } = await runtimeClient
     .from("folha_pagamento")
     .delete()
     .eq("id", id);

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar, Key, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { toast } from 'sonner';
 
 interface ImportCTEDialogProps {
@@ -41,7 +41,7 @@ export function ImportCTEDialog({ open, onOpenChange, onSuccess }: ImportCTEDial
         body.chaveAcesso = chaveAcesso.replace(/\s/g, '');
       }
 
-      const { data, error } = await supabase.functions.invoke('import-cte-brasilnfe', {
+      const { data, error } = await runtimeClient.functions.invoke('import-cte-brasilnfe', {
         body
       });
 

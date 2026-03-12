@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2, Upload } from "lucide-react";
 
@@ -71,7 +71,7 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await runtimeClient.auth.getUser();
       
       const submitData: any = {
         vehicle_plate: formData.vehicle_plate,
@@ -135,7 +135,7 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
       }
       
       if (document) {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('vehicle_documents')
           .update(submitData)
           .eq('id', document.id);
@@ -143,7 +143,7 @@ export function DocumentDialog({ open, onOpenChange, document, documentType, onS
         if (error) throw error;
         toast.success('Documento atualizado!');
       } else {
-        const { error } = await supabase
+        const { error } = await runtimeClient
           .from('vehicle_documents')
           .insert(submitData);
         

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import JSZip from 'jszip';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { toast } from 'sonner';
 
 export interface VehicleData {
@@ -100,7 +100,7 @@ export const useImportVehicles = () => {
     setIsProcessing(true);
     try {
       // 1. Deletar todos os veículos existentes
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await runtimeClient
         .from('vehicles')
         .delete()
         .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
@@ -108,7 +108,7 @@ export const useImportVehicles = () => {
       if (deleteError) throw deleteError;
 
       // 2. Inserir novos veículos
-      const { error: insertError } = await supabase
+      const { error: insertError } = await runtimeClient
         .from('vehicles')
         .insert(extractedVehicles.map(v => ({
           placa: v.placa,

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 interface ImportDialogProps {
   open: boolean;
@@ -38,7 +38,7 @@ export function ImportDialog({ open, onOpenChange, accounts, onSuccess }: Import
       const fileText = await file.text();
 
       // Criar registro de importação
-      const { data: importRecord, error: importError } = await supabase
+      const { data: importRecord, error: importError } = await runtimeClient
         .from("bank_imports")
         .insert({
           bank_account_id: accountId,
@@ -52,7 +52,7 @@ export function ImportDialog({ open, onOpenChange, accounts, onSuccess }: Import
       if (importError) throw importError;
 
       // Chamar Edge Function para processar
-      const { data, error: functionError } = await supabase.functions.invoke('import-bank-statement', {
+      const { data, error: functionError } = await runtimeClient.functions.invoke('import-bank-statement', {
         body: {
           importId: importRecord.id,
           accountId,

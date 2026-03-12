@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 export function VehicleList() {
   const [vehicles, setVehicles] = useState([]);
@@ -9,7 +9,7 @@ export function VehicleList() {
     async function loadVehicles() {
       setLoading(true);
 
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("vehicles")
         .select("*") // ← FIX AQUI — removeu o filtro errado
         .order("placa", { ascending: true });

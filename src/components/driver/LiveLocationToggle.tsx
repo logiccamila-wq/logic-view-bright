@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LiveLocationToggle() {
@@ -18,7 +18,7 @@ export function LiveLocationToggle() {
     if (!user) return;
     watchId.current = navigator.geolocation.watchPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
-      await supabase.from("vehicle_tracking" as any).insert({ driver_id: user.id, vehicle_plate: null, latitude, longitude, speed_kmh: null, recorded_at: new Date().toISOString() } as any);
+      await runtimeClient.from("vehicle_tracking" as any).insert({ driver_id: user.id, vehicle_plate: null, latitude, longitude, speed_kmh: null, recorded_at: new Date().toISOString() } as any);
     }, () => {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
     setEnabled(true);
   };

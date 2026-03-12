@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import optilogLogo from "@/assets/optilog-logo.png";
 import ejgLogo from "@/assets/ejg-logo.png";
@@ -43,7 +43,7 @@ const ResetPassword = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await runtimeClient.auth.updateUser({
         password: password
       });
       

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Loader2, TrendingUp, TrendingDown, AlertTriangle, Target, DollarSign, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ export function ClientAnalysis({ clientCnpj, clientName }: ClientAnalysisProps) 
   const runAnalysis = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-client', {
+      const { data, error } = await runtimeClient.functions.invoke('analyze-client', {
         body: { clientCnpj }
       });
 

@@ -20,7 +20,7 @@ import {
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { PageTransition, FadeInUp, StaggerContainer, StaggerItem, HoverScale } from "@/components/animations";
 
 export default function ModernLandingPage() {
@@ -46,7 +46,7 @@ export default function ModernLandingPage() {
   const handleCompanyRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('company_registrations' as any).insert({
+      const { error } = await runtimeClient.from('company_registrations' as any).insert({
         company_name: companyName,
         cnpj: companyCNPJ,
         preferred_domain: companyDomain,
@@ -61,7 +61,7 @@ export default function ModernLandingPage() {
       if (error) {
         console.log("Salvando lead como fallback...");
         // Fallback: salvar como lead
-        await supabase.from('leads' as any).insert({
+        await runtimeClient.from('leads' as any).insert({
           name: contactName,
           email: contactEmail,
           phone: contactPhone,

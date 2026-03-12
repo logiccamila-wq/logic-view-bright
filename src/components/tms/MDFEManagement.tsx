@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, CheckCircle, XCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useToast } from "@/hooks/use-toast";
 import EmitirMDFEDialog from "./EmitirMDFEDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -35,7 +35,7 @@ export default function MDFEManagement() {
 
   const loadMdfes = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("mdfe").select("*").order("created_at", { ascending: false });
+    const { data, error } = await runtimeClient.from("mdfe").select("*").order("created_at", { ascending: false });
 
     if (error) {
       console.error("Erro ao carregar MDF-es:", error);
@@ -57,7 +57,7 @@ export default function MDFEManagement() {
     if (!municipio) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke("encerrar-mdfe", {
+      const { data, error } = await runtimeClient.functions.invoke("encerrar-mdfe", {
         body: {
           mdfe_id: mdfe.id,
           chave_acesso: mdfe.chave_acesso,

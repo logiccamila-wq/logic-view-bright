@@ -11,7 +11,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   LineChart,
@@ -75,7 +75,7 @@ export function RevenueForecast() {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase.functions.invoke('predict-revenue', {
+      const { data, error } = await runtimeClient.functions.invoke('predict-revenue', {
         body: { months_ahead: parseInt(monthsAhead) }
       });
 

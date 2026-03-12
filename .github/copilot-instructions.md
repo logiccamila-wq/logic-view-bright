@@ -25,14 +25,13 @@
 
 **Imports e Paths:**
 - Use alias `@/` para imports (tsconfig.json baseUrl: `./`, paths: `@/*` → `./src/*`)
-- Exemplos: `@/components/ui/button`, `@/integrations/supabase/client`, `@/hooks/useDrivers`
+- Exemplos: `@/components/ui/button`, `@/integrations/azure/client`, `@/hooks/useDrivers`
 
 **Runtime Client (camada de compatibilidade Azure):**
-- **SEMPRE** importe via `import { supabase } from "@/integrations/supabase/client"`
-- O arquivo `src/integrations/supabase/client.ts` é na verdade um **client Azure runtime**
+- **SEMPRE** importe via `import { runtimeClient } from "@/integrations/azure/client"`
+- O arquivo `src/integrations/azure/client.ts` é na verdade um **client Azure runtime**
 - Usa API Azure (`VITE_API_BASE_URL` + endpoints `/api/runtime/*`)
-- O nome "supabase" é mantido apenas para evitar refactor massivo nos 80+ arquivos importadores
-
+- 
 **Data Fetching:**
 - Use TanStack Query (React Query) para cache e sincronização
 - Padrão em custom hooks: `useDrivers`, `useEmployees`, `usePayroll`, `useFinancialData`
@@ -73,14 +72,14 @@ const isAllowed = roles.some(r => allowedRoles.includes(r));
 - Preflight handler para OPTIONS requests
 
 **Env Vars (Azure):**
-- `AZURE_POSTGRES_*` (ou `DATABASE_URL`) — conexão PostgreSQL
+- `DATABASE_URL` — conexão PostgreSQL
 - `AZURE_JWT_SECRET`, `AZURE_JWT_EXPIRES_IN` — autenticação JWT
 - `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT` — IA
 - `ALLOWED_ORIGINS` — CORS
 
 **Deploy:**
 ```bash
-# Frontend + API via workflow Azure Static Web Apps
+# Frontend + API via workflow GitHub Actions + Azure
 git push origin main
 ```
 
@@ -93,7 +92,7 @@ npm run build     # vite build → dist/
 ```
 
 **Seed de Dados:**
-- Scripts em [scripts/](../scripts/): `seed-demo.cjs`, `seed-roles.cjs`, `create-test-users.cjs`
+- Scripts em [scripts/](../scripts/): `seed-demo.cjs`, `seed-via-api.cjs`
 - Exemplo: `node scripts/seed-demo.cjs` (usa API `/api/db`)
 
 ## Integrações Externas
@@ -126,8 +125,8 @@ npm run build     # vite build → dist/
 - CORS restrito via ALLOWED_ORIGINS
 
 **Deployment:**
-- Frontend/API: Azure Static Web Apps via GitHub Actions
-- Env vars: Azure Static Web Apps Configuration / Azure Functions
+- Frontend/API: Azure Static Web Apps + Azure App Service via GitHub Actions
+- Env vars: Azure Static Web Apps Configuration / Azure App Service
 - Domínio: www.xyzlogicflow.com.br (ativo até 2027-02-23, renovação automática)
 - DNS: Azure DNS (ns1-07.azure-dns.com, ns2-07.azure-dns.net, ns3-07.azure-dns.org, ns4-07.azure-dns.info)
 
@@ -136,7 +135,7 @@ npm run build     # vite build → dist/
 **Referências Rápidas:**
 - Módulos: [src/modules/registry.ts](../src/modules/registry.ts)
 - Auth: [src/contexts/AuthContext.tsx](../src/contexts/AuthContext.tsx)
-- Runtime client: [src/integrations/supabase/client.ts](../src/integrations/supabase/client.ts)
+- Runtime client: [src/integrations/azure/client.ts](../src/integrations/azure/client.ts)
 - Azure Functions: [api/runtime/index.js](../api/runtime/index.js)
-- SQL migrations: [supabase/migrations/](../supabase/migrations/)
+- SQL migrations: [sql/migrations/](../sql/migrations/)
 - README: [README_FINAL.md](../README_FINAL.md)

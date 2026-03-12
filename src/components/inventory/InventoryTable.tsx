@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Edit, ArrowUpDown, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { BarcodePrinter } from "./BarcodePrinter";
 
@@ -39,7 +39,7 @@ export function InventoryTable({ inventory, onEdit, onAddMovement, onRefresh }: 
     if (!confirm(`Deseja realmente excluir "${name}"?`)) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('workshop_inventory')
         .delete()
         .eq('id', id);

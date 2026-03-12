@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ export function WorkshopTab() {
 
   const fetchInventory = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('workshop_inventory')
         .select('*')
         .order('part_name');

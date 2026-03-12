@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, Plus, Trash2, Bell, BellOff } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -51,7 +51,7 @@ export function RevenueAlertsConfig() {
 
   const loadAlerts = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from('revenue_alerts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -96,7 +96,7 @@ export function RevenueAlertsConfig() {
         alertData.threshold_percentage = parseFloat(formData.threshold_percentage);
       }
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('revenue_alerts')
         .insert([alertData]);
 
@@ -133,7 +133,7 @@ export function RevenueAlertsConfig() {
 
   const toggleAlert = async (alertId: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('revenue_alerts')
         .update({ is_active: !currentStatus })
         .eq('id', alertId);
@@ -159,7 +159,7 @@ export function RevenueAlertsConfig() {
     if (!confirm('Tem certeza que deseja excluir este alerta?')) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from('revenue_alerts')
         .delete()
         .eq('id', alertId);

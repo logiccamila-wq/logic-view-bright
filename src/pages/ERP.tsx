@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 
 const ERP = () => {
   const { data: financialData, isLoading } = useFinancialData();
@@ -31,7 +31,7 @@ const ERP = () => {
   const { data: usersData } = useQuery({
     queryKey: ['users-count'],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { count, error } = await runtimeClient
         .from('profiles')
         .select('*', { count: 'exact', head: true });
       

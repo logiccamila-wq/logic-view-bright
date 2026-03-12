@@ -11,7 +11,7 @@ import {
   Download
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   LineChart,
@@ -30,7 +30,7 @@ import { RevenueForecast } from "./RevenueForecast";
 import { PredictiveAlertsConfig } from "./PredictiveAlertsConfig";
 import { calculateROI } from "@/utils/mlPredictive";
 import { useCallback } from "react";
-import { Tables } from "@/integrations/supabase/types";
+import { Tables } from "@/integrations/azure/types";
 
 //
 
@@ -82,7 +82,7 @@ export function RevenueAnalysis() {
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - months);
 
-      const { data: revenues, error: revenueError } = await supabase
+      const { data: revenues, error: revenueError } = await runtimeClient
         .from('revenue_records')
         .select('*')
         .gte('data_emissao', startDate.toISOString())

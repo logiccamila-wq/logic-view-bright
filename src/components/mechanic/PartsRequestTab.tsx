@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,7 @@ export function PartsRequestTab() {
   const { data: requests = [], isLoading } = useQuery({
     queryKey: ["parts-requests"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("parts_requests")
         .select("*")
         .order("created_at", { ascending: false });
@@ -50,7 +50,7 @@ export function PartsRequestTab() {
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status, reason }: { id: string, status: string, reason?: string }) => {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from("parts_requests")
         .update({ 
           status, 
@@ -76,13 +76,13 @@ export function PartsRequestTab() {
       if (!user) throw new Error("Usuário não autenticado");
       if (parts.length === 0) throw new Error("Adicione pelo menos uma peça");
 
-      const { data: profile } = await supabase
+      const { data: profile } = await runtimeClient
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
         .single();
 
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from("parts_requests")
         .insert([{
           mechanic_id: user.id,
@@ -99,7 +99,7 @@ export function PartsRequestTab() {
       if (error) throw error;
 
       // Buscar gestores para notificar
-      const { data: managers } = await supabase
+      const { data: managers } = await runtimeClient
         .from("user_roles")
         .select("user_id")
         .in("role", ["admin", "logistics_manager", "maintenance_manager"]);
@@ -114,7 +114,7 @@ export function PartsRequestTab() {
           module: "maintenance",
         }));
 
-        await supabase.from("notifications").insert(notifications);
+        await runtimeClient.from("notifications").insert(notifications);
       }
 
       return data;

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase, type User, type Session } from "@/integrations/supabase/client";
+import { runtimeClient, type User, type Session } from "@/integrations/azure/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Buscar roles do usuário
   const fetchUserRoles = async (userId: string) => {
     try {
-      const { data, error } = await supabase.from("user_roles").select("*").eq("user_id", userId);
+      const { data, error } = await runtimeClient.from("user_roles").select("*").eq("user_id", userId);
 
       if (error) {
         // If table doesn't exist or other error, log but don't crash, fallback to empty roles
@@ -161,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Corrigido: retorno correto do onAuthStateChange
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = runtimeClient.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
 
       setSession(session);
@@ -183,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     // Verificar sessão existente
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    runtimeClient.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
 
       setSession(session);
@@ -206,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Login
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await runtimeClient.auth.signInWithPassword({
         email,
         password,
       });
@@ -214,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
-        const { data: userRoles } = await supabase.from("user_roles").select("*").eq("user_id", data.user.id);
+        const { data: userRoles } = await runtimeClient.from("user_roles").select("*").eq("user_id", data.user.id);
 
         const roles = normalizeRoles(
           (userRoles || []).map((r: any) => {
@@ -253,7 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Cadastro
   const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await runtimeClient.auth.signUp({
         email,
         password,
         options: {
@@ -265,12 +265,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
-        await (supabase as any).from("user_roles").insert({
+        await (runtimeClient as any).from("user_roles").insert({
           user_id: data.user.id,
           role: role as any,
         });
 
-        await supabase.from("profiles").insert({
+        await runtimeClient.from("profiles").insert({
           id: data.user.id,
           email,
           full_name: fullName,
@@ -288,7 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await runtimeClient.auth.signOut();
     } catch (error: any) {
       console.error("Logout error:", error);
       toast.error(error.message || "Erro ao fazer logout");

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle, XCircle, Clock, MapPin, User, Truck } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -55,7 +55,7 @@ const Approvals = () => {
   const loadPendingTrips = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('trips')
         .select('*')
         .eq('status', 'pendente')
@@ -74,7 +74,7 @@ const Approvals = () => {
 
   const loadSummaryCounts = async () => {
     try {
-      const { count: aprovadasCount, error: aproErr } = await supabase
+      const { count: aprovadasCount, error: aproErr } = await runtimeClient
         .from('trips')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'aprovada');
@@ -82,7 +82,7 @@ const Approvals = () => {
       if (aproErr) throw aproErr;
       setApprovedCount(aprovadasCount || 0);
 
-      const { count: rejeitadasCount, error: rejeErr } = await supabase
+      const { count: rejeitadasCount, error: rejeErr } = await runtimeClient
         .from('trips')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'cancelada');
@@ -98,7 +98,7 @@ const Approvals = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('trips')
         .update({
           status: 'aprovada',
@@ -122,7 +122,7 @@ const Approvals = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('trips')
         .update({
           status: 'cancelada',

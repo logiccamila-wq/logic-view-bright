@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export function TPMSTab() {
 
   const fetchReadings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('tpms_readings')
         .select('*')
         .order('created_at', { ascending: false })
@@ -79,7 +79,7 @@ export function TPMSTab() {
     const treadDepth = formData.tread_depth_mm ? parseFloat(formData.tread_depth_mm) : undefined;
     
     try {
-      const { error } = await supabase.from('tpms_readings').insert({
+      const { error } = await runtimeClient.from('tpms_readings').insert({
         vehicle_plate: formData.vehicle_plate,
         tire_position: formData.tire_position,
         pressure_psi: pressure,

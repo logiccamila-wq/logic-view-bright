@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { StatCard } from "@/components/StatCard";
 import { WorkSessionPanel } from "@/components/driver/WorkSessionPanel";
 import { DriverJourneyStatus } from "@/components/driver/DriverJourneyStatus";
@@ -46,7 +46,7 @@ export default function DriverApp() {
   const { data: activeSession, isLoading: loadingSession } = useQuery({
     queryKey: ['active-session', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('driver_work_sessions')
         .select('*')
         .eq('driver_id', user?.id)
@@ -63,7 +63,7 @@ export default function DriverApp() {
   const { data: dailyAllowances, isLoading: loadingAllowances, refetch: refetchAllowances } = useQuery({
     queryKey: ['daily-allowances', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('driver_work_sessions')
         .select('*')
         .eq('driver_id', user?.id)
@@ -82,7 +82,7 @@ export default function DriverApp() {
     queryKey: ['monthly-earnings', user?.id],
     queryFn: async () => {
       const now = new Date();
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('driver_payroll')
         .select('*')
         .eq('driver_id', user?.id)
@@ -110,7 +110,7 @@ export default function DriverApp() {
   const handleRequestAllowanceApproval = async (sessionId: string) => {
     try {
       // Aqui você pode criar uma notificação ou registro de solicitação
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('notifications')
         .insert({
           user_id: user?.id,

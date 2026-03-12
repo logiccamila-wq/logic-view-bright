@@ -41,7 +41,7 @@ interface Module {
 }
 
 import { modules as registry } from '@/modules/registry';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();
@@ -54,7 +54,7 @@ const ModuleMarketplace: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await (supabase as any).from('modules').select('key,name,description,category,enabled');
+        const { data } = await (runtimeClient as any).from('modules').select('key,name,description,category,enabled');
         const mapped = (data || []).map((m: any) => ({
           id: m.key,
           name: m.name || m.key,

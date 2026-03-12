@@ -17,7 +17,7 @@ import {
   SprayCan,
   Filter,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { InventoryItemDialog } from "@/components/inventory/InventoryItemDialog";
@@ -105,7 +105,7 @@ const Inventory = () => {
     setLoading(true);
     try {
       // Carregar inventário
-      const { data: invData, error: invError } = await supabase
+      const { data: invData, error: invError } = await runtimeClient
         .from('workshop_inventory' as any)
         .select('*')
         .order('part_name');
@@ -114,7 +114,7 @@ const Inventory = () => {
       setInventory((invData as any) || []);
 
       // Carregar movimentações
-      const { data: movData, error: movError } = await supabase
+      const { data: movData, error: movError } = await runtimeClient
         .from('inventory_movements' as any)
         .select(`
           *,
@@ -130,7 +130,7 @@ const Inventory = () => {
       setMovements((movData as any) || []);
 
       // Carregar solicitações
-      const { data: reqData, error: reqError } = await supabase
+      const { data: reqData, error: reqError } = await runtimeClient
         .from('inventory_requests' as any)
         .select(`
           *,
@@ -174,7 +174,7 @@ const Inventory = () => {
 
   const handleRequestApprove = async (id: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .rpc('approve_inventory_request' as any, {
           p_request_id: id,
           p_approver_id: user?.id
@@ -191,7 +191,7 @@ const Inventory = () => {
 
   const handleRequestReject = async (id: string, reason: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .rpc('reject_inventory_request' as any, {
           p_request_id: id,
           p_approver_id: user?.id,

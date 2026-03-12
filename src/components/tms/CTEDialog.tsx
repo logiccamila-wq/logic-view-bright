@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -120,7 +120,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
   };
 
   const loadApprovedTrips = async () => {
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from('trips')
       .select('*')
       .in('status', ['aprovada', 'em_andamento'])
@@ -171,7 +171,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
 
         toast.info(`Processando ${xmlFiles.length} CT-es...`);
 
-        const { data, error } = await supabase.functions.invoke('import-cte-batch', {
+        const { data, error } = await runtimeClient.functions.invoke('import-cte-batch', {
           body: { xml_files: xmlFiles }
         });
 
@@ -213,7 +213,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
         // Importação individual de XML
         const xmlContent = await file.text();
         
-        const { data, error } = await supabase.functions.invoke('import-cte-xml', {
+        const { data, error } = await runtimeClient.functions.invoke('import-cte-xml', {
           body: { xml_content: xmlContent }
         });
 
@@ -245,7 +245,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
 
     try {
       // Validar se a placa existe na tabela vehicles
-      const { data: vehicleExists } = await supabase
+      const { data: vehicleExists } = await runtimeClient
         .from('vehicles')
         .select('placa')
         .eq('placa', formData.placa_veiculo.toUpperCase())
@@ -257,7 +257,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
         return;
       }
 
-      const { data: cteData, error } = await supabase
+      const { data: cteData, error } = await runtimeClient
         .from('cte')
         .insert({
           ...formData,
@@ -285,7 +285,7 @@ export function CTEDialog({ open, onOpenChange, tripId, onSuccess }: CTEDialogPr
         const clienteNome = formData.tomador_nome || 
           (formData.tipo_frete === 'cif' ? formData.remetente_nome : formData.destinatario_nome);
 
-        const { error: financeError } = await supabase
+        const { error: financeError } = await runtimeClient
           .from('contas_receber')
           .insert({
             descricao: `CT-e ${formData.numero_cte} - ${formData.produto_predominante}`,

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Truck, User, Calendar, MapPin, AlertCircle, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -56,13 +56,13 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
 
   const loadDrivers = async () => {
     // Buscar motoristas
-    const { data: driversData } = await supabase
+    const { data: driversData } = await runtimeClient
       .from('profiles')
       .select('id, full_name, email')
       .order('full_name');
 
     // Buscar motoristas com role 'driver'
-    const { data: driverRoles } = await supabase
+    const { data: driverRoles } = await runtimeClient
       .from('user_roles')
       .select('user_id')
       .eq('role', 'driver');
@@ -100,7 +100,7 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
       const selectedDriverData = drivers.find(d => d.id === selectedDriver);
       
       // Criar viagem
-      const { data: trip, error: tripError } = await supabase
+      const { data: trip, error: tripError } = await runtimeClient
         .from('trips')
         .insert({
           origin: `${cte.remetente_cidade}/${cte.remetente_uf}`,
@@ -119,7 +119,7 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
       if (tripError) throw tripError;
 
       // Vincular CT-e à viagem
-      const { error: cteError } = await supabase
+      const { error: cteError } = await runtimeClient
         .from('cte')
         .update({ trip_id: trip.id })
         .eq('id', cte.id);
@@ -127,7 +127,7 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
       if (cteError) throw cteError;
 
       // Criar sessão de trabalho para o motorista
-      await supabase
+      await runtimeClient
         .from('driver_work_sessions')
         .insert({
           driver_id: selectedDriver,
@@ -139,7 +139,7 @@ export const TripCreationDialog = ({ open, onOpenChange, cte, onTripCreated }: T
         });
 
       // Criar notificação para o motorista
-      await supabase
+      await runtimeClient
         .from('notifications')
         .insert({
           user_id: selectedDriver,

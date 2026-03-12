@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -80,7 +80,7 @@ export function RequestItemDialog({ open, onOpenChange, onSuccess, preselectedIt
   }, [open, preselectedItem]);
 
   const loadItems = async () => {
-    const { data } = await supabase
+    const { data } = await runtimeClient
       .from('workshop_inventory' as any)
       .select('id, part_name, part_code, warehouse_type')
       .order('part_name');
@@ -91,7 +91,7 @@ export function RequestItemDialog({ open, onOpenChange, onSuccess, preselectedIt
     if (!user) return;
     setIsLoading(true);
     try {
-      const { error } = await supabase
+      const { error } = await runtimeClient
         .from('inventory_requests' as any)
         .insert({
           item_id: values.item_id,

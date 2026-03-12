@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { Truck, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +53,7 @@ export const VehicleChangeDialog = ({
 
     try {
       // Atualizar a sessão de trabalho com o novo veículo
-      const { error: sessionError } = await supabase
+      const { error: sessionError } = await runtimeClient
         .from('driver_work_sessions')
         .update({
           vehicle_plate: selectedVehicle,
@@ -64,11 +64,11 @@ export const VehicleChangeDialog = ({
       if (sessionError) throw sessionError;
 
       // Registrar o evento de troca
-      const { error: eventError } = await supabase
+      const { error: eventError } = await runtimeClient
         .from('driver_work_events')
         .insert({
           session_id: currentSessionId,
-          driver_id: (await supabase.auth.getUser()).data.user?.id,
+          driver_id: (await runtimeClient.auth.getUser()).data.user?.id,
           tipo_atividade: 'trabalho',
           data_hora_inicio: new Date().toISOString(),
           observacoes: `Troca de veículo: ${currentVehicle} → ${selectedVehicle}${selectedCarreta ? ` + Carreta ${selectedCarreta}` : ''}\nMotivo: ${motivo}`,

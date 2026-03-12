@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,7 +82,7 @@ export function MaintenanceChecklistTab() {
 
   const fetchChecklists = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('maintenance_checklists')
         .select('*')
         .order('created_at', { ascending: false });
@@ -114,7 +114,7 @@ export function MaintenanceChecklistTab() {
     const items = ensureItemsWithIds(baseItems);
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await runtimeClient
         .from('maintenance_checklists')
         .insert({
           vehicle_plate: vehiclePlate.toUpperCase(),
@@ -166,7 +166,7 @@ export function MaintenanceChecklistTab() {
       return;
     }
 
-    const { error } = await supabase
+    const { error } = await runtimeClient
       .from('maintenance_checklists')
       .update({ items: updatedItems as any })
       .eq('id', checklistId);
@@ -189,7 +189,7 @@ export function MaintenanceChecklistTab() {
       return;
     }
 
-    const { error } = await supabase
+    const { error } = await runtimeClient
       .from('maintenance_checklists')
       .update({
         status: 'concluida',

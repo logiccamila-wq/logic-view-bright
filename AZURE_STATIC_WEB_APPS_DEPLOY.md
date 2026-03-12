@@ -13,7 +13,7 @@ This document describes how to deploy this Vite + React + TypeScript project to 
 
 ## GitHub Actions Workflow
 
-A GitHub Actions workflow has been configured at `.github/workflows/azure-static-web-apps.yml` for automatic deployment to Azure Static Web Apps.
+A GitHub Actions workflow has been configured at `.github/workflows/azure-deploy.yml` for automatic deployment to Azure Static Web Apps.
 
 ### Prerequisites
 

@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { VehicleSelect } from "@/components/VehicleSelect";
 import { Label } from "@/components/ui/label";
@@ -49,7 +49,7 @@ export function DriverChecklist() {
         timestamp: new Date().toISOString()
       }));
 
-      const { error } = await supabase.from('maintenance_checklists').insert({
+      const { error } = await runtimeClient.from('maintenance_checklists').insert({
         vehicle_plate: vehiclePlate,
         checklist_type: 'pre_trip',
         mechanic_id: user?.id,

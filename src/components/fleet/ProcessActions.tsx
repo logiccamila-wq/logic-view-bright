@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ export function ProcessActions() {
   const overdue = useMemo(() => list.filter((a) => a.status !== "completed" && a.due_date && new Date(a.due_date) < new Date()), [list]);
 
   const load = async () => {
-    const { data } = await supabase.from("process_actions" as any).select("*").order("due_date", { ascending: true }).limit(100);
+    const { data } = await runtimeClient.from("process_actions" as any).select("*").order("due_date", { ascending: true }).limit(100);
     setList((data as any) || []);
   };
 
@@ -26,18 +26,18 @@ export function ProcessActions() {
 
   const create = async () => {
     const payload = { ...form, title: form.title || "Ação", created_by: user?.id } as any;
-    const { error } = await supabase.from("process_actions" as any).insert(payload);
+    const { error } = await runtimeClient.from("process_actions" as any).insert(payload);
     if (!error) { setForm({ module: "fleet", type: "maintenance", priority: "medium" }); load(); }
   };
 
   const authorize = async (id: string) => {
     if (!user) return;
-    const { error } = await supabase.from("process_actions" as any).update({ authorized_by: user.id }).eq("id", id);
+    const { error } = await runtimeClient.from("process_actions" as any).update({ authorized_by: user.id }).eq("id", id);
     if (!error) load();
   };
 
   const complete = async (id: string) => {
-    const { error } = await supabase.from("process_actions" as any).update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", id);
+    const { error } = await runtimeClient.from("process_actions" as any).update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", id);
     if (!error) load();
   };
 
@@ -45,7 +45,7 @@ export function ProcessActions() {
     const recs = prescriptiveActions({ failureRisk: 0.8, costTrend: 'increasing' });
     for (const r of recs) {
       const payload: any = { module: 'fleet', type: 'prescriptive', title: r, description: 'Gerado por análise preditiva', priority: 'high', due_date: new Date(Date.now() + 7*24*60*60*1000).toISOString(), vehicle_plate: form.vehicle_plate || null, created_by: user?.id };
-      await supabase.from('process_actions' as any).insert(payload);
+      await runtimeClient.from('process_actions' as any).insert(payload);
     }
     load();
   };
@@ -63,7 +63,7 @@ export function ProcessActions() {
       <div className="grid grid-cols-3 gap-2 mb-3">
         <Input placeholder="CPK (R$/km)" value={finance.cpk || ""} onChange={(e)=>setFinance({ ...finance, cpk: e.target.value })} />
         <Input placeholder="Finance Entry ID" value={finance.entry || ""} onChange={(e)=>setFinance({ ...finance, entry: e.target.value })} />
-        <Button variant="outline" onClick={async ()=>{ if (!list[0]) return; await supabase.from('process_actions' as any).update({ cpk: finance.cpk ? parseFloat(finance.cpk) : null, financial_entry_id: finance.entry || null }).eq('id', list[0].id); load(); }}>Vincular Financeiro</Button>
+        <Button variant="outline" onClick={async ()=>{ if (!list[0]) return; await runtimeClient.from('process_actions' as any).update({ cpk: finance.cpk ? parseFloat(finance.cpk) : null, financial_entry_id: finance.entry || null }).eq('id', list[0].id); load(); }}>Vincular Financeiro</Button>
       </div>
       <div className="grid gap-2">
         {list.map((a) => (

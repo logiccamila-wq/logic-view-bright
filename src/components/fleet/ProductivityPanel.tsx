@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
@@ -12,7 +12,7 @@ export function ProductivityPanel() {
   const [period, setPeriod] = useState<{ from?: string; to?: string }>({});
 
   const load = async () => {
-    let query = supabase.from("driver_work_sessions" as any).select("driver_id,vehicle_plate,start_time,end_time,km_start,km_end").order("start_time", { ascending: false }).limit(500);
+    let query = runtimeClient.from("driver_work_sessions" as any).select("driver_id,vehicle_plate,start_time,end_time,km_start,km_end").order("start_time", { ascending: false }).limit(500);
     if (period.from) query = query.gte("start_time", period.from);
     if (period.to) query = query.lte("end_time", period.to);
     const { data } = await query;
@@ -54,7 +54,7 @@ export function ProductivityPanel() {
     // Em caso de grande dispersão, adicionar recomendação específica
     if (dispersion > 5000) recs.push('Redistribuir rotas para equilibrar quilometragem');
     for (const r of recs) {
-      await supabase.from('process_actions' as any).insert({ module: 'operations', type: 'productivity', title: r, description: 'Gerado automaticamente', priority: 'high', due_date: new Date(Date.now() + 5*24*60*60*1000).toISOString() } as any);
+      await runtimeClient.from('process_actions' as any).insert({ module: 'operations', type: 'productivity', title: r, description: 'Gerado automaticamente', priority: 'high', due_date: new Date(Date.now() + 5*24*60*60*1000).toISOString() } as any);
     }
   };
 

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, AlertTriangle, Shield, Clock, Car, CreditCard, FileCheck, Plus, Search, Edit, Trash2, FileUp, CheckCircle, XCircle } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { toast } from "sonner";
 import { DocumentDialog } from "@/components/documents/DocumentDialog";
 import { DocumentPreviewDialog } from "@/components/documents/DocumentPreviewDialog";
@@ -30,13 +30,13 @@ const Documents = () => {
   }, []);
 
   const loadDocuments = async () => {
-    const { data } = await supabase.from('vehicle_documents').select('*').order('created_at', { ascending: false });
+    const { data } = await runtimeClient.from('vehicle_documents').select('*').order('created_at', { ascending: false });
     setDocuments(data || []);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Deseja excluir?')) return;
-    await supabase.from('vehicle_documents').delete().eq('id', id);
+    await runtimeClient.from('vehicle_documents').delete().eq('id', id);
     toast.success('Documento excluído!');
     loadDocuments();
   };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,7 +11,7 @@ export function TireApprovals() {
   const [pending, setPending] = useState<Event[]>([]);
 
   const load = async () => {
-    const { data } = await supabase.from("tire_events" as any).select("id,event_type,vehicle_plate,position,km_vehicle,tread_depth_mm,pressure_psi,temperature_celsius,timestamp,authorized_by").is("authorized_by", null).order("timestamp", { ascending: false }).limit(50);
+    const { data } = await runtimeClient.from("tire_events" as any).select("id,event_type,vehicle_plate,position,km_vehicle,tread_depth_mm,pressure_psi,temperature_celsius,timestamp,authorized_by").is("authorized_by", null).order("timestamp", { ascending: false }).limit(50);
     setPending(((data as any) || []).filter((e: any) => ["instalacao","remocao","rodizio","recapagem","descarte"].includes(e.event_type)));
   };
 
@@ -19,7 +19,7 @@ export function TireApprovals() {
 
   const approve = async (id: string) => {
     if (!user) return;
-    const { error } = await supabase.from("tire_events" as any).update({ authorized_by: user.id }).eq("id", id);
+    const { error } = await runtimeClient.from("tire_events" as any).update({ authorized_by: user.id }).eq("id", id);
     if (!error) load();
   };
 

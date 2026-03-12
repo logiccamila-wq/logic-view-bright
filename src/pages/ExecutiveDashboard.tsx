@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
+import { runtimeClient } from "@/integrations/azure/client";
+import { Tables } from "@/integrations/azure/types";
 //
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "recharts";
@@ -17,7 +17,7 @@ const ExecutiveDashboard = () => {
   const indicatorsQuery = useQuery({
     queryKey: ["financial_indicators"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await runtimeClient
         .from("financial_indicators")
         .select("periodo_mes,periodo_ano,receita_total,custo_total,margem_liquida,ticket_medio")
         .order("periodo_ano", { ascending: true })
@@ -29,7 +29,7 @@ const ExecutiveDashboard = () => {
   const revenueQuery = useQuery({
     queryKey: ["revenue_records_recent"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await runtimeClient
         .from("revenue_records")
         .select("data_emissao,valor_frete,peso_kg,cliente_nome,destino_uf")
         .limit(100)
@@ -43,7 +43,7 @@ const ExecutiveDashboard = () => {
   const tpmsQuery = useQuery({
     queryKey: ["tpms_readings_recent"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await runtimeClient
         .from("tpms_readings")
         .select("pressure_psi,temperature_celsius,tread_depth_mm,alert_level,created_at,vehicle_plate,tire_position")
         .limit(50)
@@ -55,7 +55,7 @@ const ExecutiveDashboard = () => {
   const refuelQuery = useQuery({
     queryKey: ["refuelings_recent"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await runtimeClient
         .from("refuelings")
         .select("km,liters,total_value,cost_per_km,timestamp,vehicle_plate")
         .limit(100)

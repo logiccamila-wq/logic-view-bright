@@ -1,42 +1,67 @@
-# Logic View Bright - Azure
+# Logic View Bright
 
-Sistema web de gestao logistica com frontend em React + TypeScript + Vite e trilha de deploy padronizada para Azure.
+Azure-native logistics and operations platform built with React, Vite, Node.js, PostgreSQL, and GitHub Actions.
 
-## Stack oficial
+## Project structure
 
-- Frontend: React 18, TypeScript, Vite, TailwindCSS, shadcn/ui
-- Hospedagem: Azure Static Web Apps
-- API/Backend: Azure Functions (HTTP)
-- Banco de dados: Azure Database (PostgreSQL ou SQL)
-- IA: Azure OpenAI
-- CI/CD: GitHub Actions com deploy Azure
+- `src/` - React frontend
+- `server/` - Node.js App Service entrypoint, API routes, and services
+- `api/` - shared runtime handlers reused by the Node server
+- `sql/migrations/` - SQL migrations for PostgreSQL
+- `public/` - static assets
+- `dist/` - production frontend build output
 
-## Desenvolvimento local
+## Environment variables
+
+Copy `.env.example` to your local environment file and set:
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `AZURE_APPINSIGHTS_CONNECTION_STRING` - Azure Application Insights connection string
+- `NODE_ENV` - use `production` for deployed environments
+
+## Run locally
 
 ```bash
-npm ci
-cp .env.example .env.local
+npm install
+npm run build
+npm start
+```
+
+For frontend development only:
+
+```bash
 npm run dev
 ```
 
-## Build
+## Azure deployment
+
+### Frontend
+- Build output is generated in `dist/`
+- Static Web Apps routing is configured in `staticwebapp.config.json`
+
+### Backend
+- `server/index.js` is the App Service startup entrypoint
+- `GET /api/health` provides a health check endpoint
+- Runtime API routes are served under `/api/runtime/*`
+
+### CI/CD
+- GitHub Actions workflow: `.github/workflows/azure-deploy.yml`
+- The workflow installs dependencies, type-checks, builds, and deploys to Azure App Service when Azure secrets are configured
+
+## Azure configuration
+
+`azure.yaml` defines the Azure App Service packaging flow with:
+
+- `npm install`
+- `npm run build`
+- `npm start`
+
+## Verification
+
+The repository is expected to work with:
 
 ```bash
-npm run build:azure
+npm install
+npm run build
+npm start
 ```
-
-O output de producao e gerado em `dist/`.
-
-## Deploy
-
-- Workflow principal: `.github/workflows/azure-static-web-apps.yml`
-- Guia rapido: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
-- Config de rotas/cabecalhos: `staticwebapp.config.json`
-
-## Variaveis de ambiente
-
-Use `.env.example` como referencia unica para ambiente local e Azure.
-
-## Observacao de migracao
-
-Este repositorio contem componentes legados que ainda referenciam servicos antigos em partes especificas do codigo. A trilha oficial e a arquitetura Azure-only, e novos modulos devem seguir exclusivamente esse padrao.

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,7 @@ export function MaintenancePlansConfig() {
   const loadPlans = async () => {
     try {
       setLoading(true);
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (runtimeClient as any)
         .from("maintenance_plans")
         .select("*")
         .order("vehicle_type", { ascending: true })
@@ -89,7 +89,7 @@ export function MaintenancePlansConfig() {
         return;
       }
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("maintenance_plans")
         .insert([payload]);
 
@@ -105,7 +105,7 @@ export function MaintenancePlansConfig() {
 
   const toggleActive = async (plan: MaintenancePlan) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("maintenance_plans")
         .update({ is_active: !plan.is_active })
         .eq("id", plan.id);
@@ -120,7 +120,7 @@ export function MaintenancePlansConfig() {
 
   const updateInterval = async (plan: MaintenancePlan, interval_km: number, tolerance_km: number) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("maintenance_plans")
         .update({ interval_km, tolerance_km })
         .eq("id", plan.id);
@@ -181,7 +181,7 @@ export function MaintenancePlansConfig() {
         { vehicle_type: "carreta", plan_item: "Conferência estrutural", interval_km: 30000, tolerance_km: 1500, notes: "Fibra" }
       ];
 
-      const { error } = await (supabase as any)
+      const { error } = await (runtimeClient as any)
         .from("maintenance_plans")
         .insert(defaults);
 
@@ -304,7 +304,7 @@ export function MaintenancePlansConfig() {
                   <p className="text-sm text-muted-foreground">Observações</p>
                   <Input defaultValue={p.notes || ""} onBlur={async (e) => {
                     try {
-                      const { error } = await (supabase as any)
+                      const { error } = await (runtimeClient as any)
                         .from("maintenance_plans")
                         .update({ notes: e.target.value })
                         .eq("id", p.id);

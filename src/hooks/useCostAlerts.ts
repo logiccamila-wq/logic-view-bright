@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,7 +35,7 @@ export function useCostAlerts() {
     if (!user || !canManageAlerts) return;
 
     try {
-      const { data: alertsRaw, error: alertsError } = await (supabase as any)
+      const { data: alertsRaw, error: alertsError } = await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .select('*')
         .eq('is_active', true);
@@ -49,7 +49,7 @@ export function useCostAlerts() {
 
       if (alerts.length === 0) return;
 
-      const { data: ordersRaw, error: ordersError } = await supabase
+      const { data: ordersRaw, error: ordersError } = await runtimeClient
         .from('service_orders')
         .select('*')
         .order('created_at', { ascending: false });
@@ -212,7 +212,7 @@ export function useCostAlerts() {
     // Send email alert
     if (alert.email_enabled && alert.email_recipients.length > 0) {
       promises.push(
-        supabase.functions.invoke('send-cost-alert', {
+        runtimeClient.functions.invoke('send-cost-alert', {
           body: {
             alertType: alert.alert_type,
             vehiclePlate: alert.vehicle_plate,
@@ -228,7 +228,7 @@ export function useCostAlerts() {
     // Send WhatsApp alert
     if (alert.whatsapp_enabled && alert.whatsapp_numbers.length > 0) {
       promises.push(
-        supabase.functions.invoke('send-whatsapp-alert', {
+        runtimeClient.functions.invoke('send-whatsapp-alert', {
           body: {
             alertType: alert.alert_type,
             vehiclePlate: alert.vehicle_plate,
@@ -244,7 +244,7 @@ export function useCostAlerts() {
     // Trigger n8n workflow
     if (alert.n8n_enabled && alert.n8n_webhook_url) {
       promises.push(
-        supabase.functions.invoke('trigger-n8n-workflow', {
+        runtimeClient.functions.invoke('trigger-n8n-workflow', {
           body: {
             webhookUrl: alert.n8n_webhook_url,
             alertData: {
@@ -266,7 +266,7 @@ export function useCostAlerts() {
       await Promise.all(promises);
 
       // Update last triggered time
-      await (supabase as any)
+      await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .update({
           last_triggered_at: new Date().toISOString(),
@@ -304,7 +304,7 @@ export function useCostAlerts() {
 
     if (alert.email_enabled && alert.email_recipients.length > 0) {
       promises.push(
-        supabase.functions.invoke('send-cost-alert', {
+        runtimeClient.functions.invoke('send-cost-alert', {
           body: {
             alertType: 'trend_increase',
             vehiclePlate: alert.vehicle_plate,
@@ -319,7 +319,7 @@ export function useCostAlerts() {
 
     if (alert.whatsapp_enabled && alert.whatsapp_numbers.length > 0) {
       promises.push(
-        supabase.functions.invoke('send-whatsapp-alert', {
+        runtimeClient.functions.invoke('send-whatsapp-alert', {
           body: {
             alertType: 'trend_increase',
             vehiclePlate: alert.vehicle_plate,
@@ -334,7 +334,7 @@ export function useCostAlerts() {
 
     if (alert.n8n_enabled && alert.n8n_webhook_url) {
       promises.push(
-        supabase.functions.invoke('trigger-n8n-workflow', {
+        runtimeClient.functions.invoke('trigger-n8n-workflow', {
           body: {
             webhookUrl: alert.n8n_webhook_url,
             alertData: {
@@ -354,7 +354,7 @@ export function useCostAlerts() {
     try {
       await Promise.all(promises);
 
-      await (supabase as any)
+      await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .update({
           last_triggered_at: new Date().toISOString(),
@@ -382,7 +382,7 @@ export function useCostAlerts() {
 
     if (alert.email_enabled && alert.email_recipients.length > 0) {
       promises.push(
-        supabase.functions.invoke('send-cost-alert', {
+        runtimeClient.functions.invoke('send-cost-alert', {
           body: {
             alertType: 'vehicle_specific',
             vehiclePlate: alert.vehicle_plate,
@@ -396,7 +396,7 @@ export function useCostAlerts() {
 
     if (alert.whatsapp_enabled && alert.whatsapp_numbers.length > 0) {
       promises.push(
-        supabase.functions.invoke('send-whatsapp-alert', {
+        runtimeClient.functions.invoke('send-whatsapp-alert', {
           body: {
             alertType: 'vehicle_specific',
             vehiclePlate: alert.vehicle_plate,
@@ -410,7 +410,7 @@ export function useCostAlerts() {
 
     if (alert.n8n_enabled && alert.n8n_webhook_url) {
       promises.push(
-        supabase.functions.invoke('trigger-n8n-workflow', {
+        runtimeClient.functions.invoke('trigger-n8n-workflow', {
           body: {
             webhookUrl: alert.n8n_webhook_url,
             alertData: {
@@ -429,7 +429,7 @@ export function useCostAlerts() {
     try {
       await Promise.all(promises);
 
-      await (supabase as any)
+      await (runtimeClient as any)
         .from('maintenance_cost_alerts')
         .update({
           last_triggered_at: new Date().toISOString(),

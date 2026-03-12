@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { runtimeClient } from '@/integrations/azure/client';
 import { demoList } from '@/lib/demoStore';
 
 export type VehicleItem = {
@@ -27,7 +27,7 @@ export function useVehicles() {
   const load = async () => {
     setLoading(true); setError('');
     try {
-      const { data, error } = await supabase.from('vehicles').select('*');
+      const { data, error } = await runtimeClient.from('vehicles').select('*');
       if (error) throw error;
       let mapped = (data || [])
         .map(mapVehicle)
@@ -74,11 +74,11 @@ export function useVehicles() {
 
   useEffect(() => {
     load();
-    const channel = supabase
+    const channel = runtimeClient
       .channel('vehicles_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, () => load())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => { runtimeClient.removeChannel(channel); };
   }, []);
 
   const getByPlate = (plate: string) => vehicles.find(v => v.plate === plate);

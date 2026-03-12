@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { Loader2 } from "lucide-react";
 
 interface EmitirMDFEDialogProps {
@@ -49,7 +49,7 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
   }, [open]);
 
   const loadCTes = async () => {
-    const { data, error } = await supabase
+    const { data, error } = await runtimeClient
       .from("cte")
       .select("id, numero_cte, chave_acesso, remetente_cidade, destinatario_cidade, valor_total, peso_bruto")
       .eq("status", "autorizado")
@@ -83,7 +83,7 @@ export default function EmitirMDFEDialog({ open, onOpenChange, onSuccess }: Emit
       const pesoTotal = selectedCtesData.reduce((sum, cte) => sum + cte.peso_bruto, 0);
       const valorTotal = selectedCtesData.reduce((sum, cte) => sum + cte.valor_total, 0);
 
-      const { data, error } = await supabase.functions.invoke("emitir-mdfe", {
+      const { data, error } = await runtimeClient.functions.invoke("emitir-mdfe", {
         body: {
           ...formData,
           quantidade_ctes: selectedCtes.length,

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Star, TrendingUp, Target, Award, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { runtimeClient } from "@/integrations/azure/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const DriverPerformance = () => {
@@ -24,21 +24,21 @@ export const DriverPerformance = () => {
     if (!user) return;
 
     // Buscar viagens completadas
-    const { data: sessions } = await supabase
+    const { data: sessions } = await runtimeClient
       .from('driver_work_sessions')
       .select('*')
       .eq('driver_id', user.id)
       .eq('status', 'finalizada');
 
     // Buscar violações
-    const { data: violations } = await supabase
+    const { data: violations } = await runtimeClient
       .from('driver_violations')
       .select('*')
       .eq('driver_id', user.id)
       .eq('resolvida', false);
 
     // Buscar abastecimentos para calcular KM
-    const { data: refuelings } = await supabase
+    const { data: refuelings } = await runtimeClient
       .from('refuelings')
       .select('km')
       .eq('driver_id', user.id)
