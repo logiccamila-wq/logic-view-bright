@@ -175,6 +175,7 @@ const LIVE_QUERY_LIMIT = 500;
 const CRITICAL_SEVERITY_THRESHOLD = 7;
 const AUTO_MODE_REFRESH_INTERVAL_MS = 60_000;
 const NORMAL_MODE_REFRESH_INTERVAL_MS = 180_000;
+const REVENUE_LOOKBACK_DAYS = 30;
 const ACTIVE_VEHICLE_STATUS_KEYWORDS = ["ATIV", "ACTIVE"];
 const PENDING_ORDER_STATUS_PATTERN = /abert|pend/;
 const RUNNING_TRIP_STATUS_PATTERN = /andamento|ativa|em andamento/;
@@ -198,138 +199,6 @@ export default function SuperGestorAI() {
   const [autoMode, setAutoMode] = useState(false);
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveError, setLiveError] = useState("");
-
-  const loadInitialData = useCallback(async () => {
-    setModels([
-      {
-        name: "Previsão de Manutenção",
-        status: "ready",
-        accuracy: 94.5,
-        lastTrained: new Date(Date.now() - 86400000).toISOString(),
-        predictions: 1247
-      },
-      {
-        name: "Otimização de Rotas",
-        status: "ready",
-        accuracy: 89.2,
-        lastTrained: new Date(Date.now() - 172800000).toISOString(),
-        predictions: 3421
-      },
-      {
-        name: "Análise de Custos",
-        status: "training",
-        accuracy: 91.8,
-        lastTrained: new Date(Date.now() - 259200000).toISOString(),
-        predictions: 892
-      },
-      {
-        name: "Detecção de Anomalias",
-        status: "ready",
-        accuracy: 96.1,
-        lastTrained: new Date(Date.now() - 43200000).toISOString(),
-        predictions: 2103
-      },
-      {
-        name: "Demanda de Cargas",
-        status: "ready",
-        accuracy: 87.3,
-        lastTrained: new Date(Date.now() - 86400000).toISOString(),
-        predictions: 756
-      }
-    ]);
-
-    // Gerar insights iniciais
-    generateInsights();
-  }, []);
-
-  const fetchLiveMetrics = useCallback(async () => {
-    setLiveLoading(true);
-    setLiveError("");
-
-    const [revenueResult, vehiclesResult, ordersResult, tripsResult, nonConformitiesResult, refuelingsResult] =
-      await Promise.allSettled([
-        supabase
-          .from("revenue_records")
-          .select("valor_frete, data_emissao")
-          .order("data_emissao", { ascending: false })
-          .limit(LIVE_QUERY_LIMIT),
-        supabase.from("vehicles").select("id, status"),
-        supabase.from("service_orders").select("status"),
-        (supabase as any).from("trips").select("status").limit(LIVE_QUERY_LIMIT),
-        (supabase as any).from("non_conformities").select("severity, status").limit(LIVE_QUERY_LIMIT),
-        supabase
-          .from("refuelings")
-          .select("cost_per_km, timestamp")
-          .order("timestamp", { ascending: false })
-          .limit(LIVE_QUERY_LIMIT),
-      ]);
-
-    const revenueRows =
-      revenueResult.status === "fulfilled" && !revenueResult.value.error ? revenueResult.value.data || [] : [];
-    const vehicleRows =
-      vehiclesResult.status === "fulfilled" && !vehiclesResult.value.error ? vehiclesResult.value.data || [] : [];
-    const orderRows =
-      ordersResult.status === "fulfilled" && !ordersResult.value.error ? ordersResult.value.data || [] : [];
-    const tripRows =
-      tripsResult.status === "fulfilled" && !tripsResult.value.error ? tripsResult.value.data || [] : [];
-    const ncRows =
-      nonConformitiesResult.status === "fulfilled" && !nonConformitiesResult.value.error
-        ? nonConformitiesResult.value.data || []
-        : [];
-    const refuelingRows =
-      refuelingsResult.status === "fulfilled" && !refuelingsResult.value.error ? refuelingsResult.value.data || [] : [];
-
-    const since = new Date();
-    since.setDate(since.getDate() - 30);
-    const sinceTimestamp = since.getTime();
-
-    const revenue30d = revenueRows
-      .filter((row: any) => new Date(row.data_emissao).getTime() >= sinceTimestamp)
-      .reduce((sum: number, row: any) => sum + (row.valor_frete || 0), 0);
-
-    const vehiclesActive = vehicleRows.length
-      ? vehicleRows.filter((vehicle: any) => matchesAnyKeyword(String(vehicle.status || ""), ACTIVE_VEHICLE_STATUS_KEYWORDS)).length
-      : 0;
-    const ordersPending = orderRows.filter((order: any) => PENDING_ORDER_STATUS_PATTERN.test((order.status || "").toLowerCase())).length;
-    const tripsRunning = tripRows.filter((trip: any) => RUNNING_TRIP_STATUS_PATTERN.test((trip.status || "").toLowerCase())).length;
-    const criticalNC = ncRows.filter((nc: any) => isCriticalNonConformity(String(nc.status || ""), Number(nc.severity || 0))).length;
-    const averageCostKm =
-      refuelingRows.length > 0
-        ? refuelingRows.reduce((sum: number, row: any) => sum + Number(row.cost_per_km || 0), 0) / refuelingRows.length
-        : null;
-
-    const fulfilledCount = [
-      revenueResult,
-      vehiclesResult,
-      ordersResult,
-      tripsResult,
-      nonConformitiesResult,
-      refuelingsResult,
-    ].filter((result) => result.status === "fulfilled").length;
-
-    if (fulfilledCount === 0) {
-      setLiveError("Runtime indisponível no momento. Exibindo a estrutura premium pronta para operar.");
-      setLiveMetrics((current) => ({
-        ...current,
-        lastUpdated: new Date().toISOString(),
-        source: "fallback",
-      }));
-      setLiveLoading(false);
-      return;
-    }
-
-    setLiveMetrics({
-      revenue30d,
-      vehiclesActive,
-      tripsRunning,
-      ordersPending,
-      criticalNC,
-      avgCostKm: averageCostKm,
-      lastUpdated: new Date().toISOString(),
-      source: fulfilledCount === 6 ? "live" : "fallback",
-    });
-    setLiveLoading(false);
-  }, []);
 
   const generateInsights = useCallback(() => {
     const mockInsights: AIInsight[] = [
@@ -388,6 +257,150 @@ export default function SuperGestorAI() {
     setInsights(mockInsights);
   }, []);
 
+  const loadInitialData = useCallback(() => {
+    setModels([
+      {
+        name: "Previsão de Manutenção",
+        status: "ready",
+        accuracy: 94.5,
+        lastTrained: new Date(Date.now() - 86400000).toISOString(),
+        predictions: 1247
+      },
+      {
+        name: "Otimização de Rotas",
+        status: "ready",
+        accuracy: 89.2,
+        lastTrained: new Date(Date.now() - 172800000).toISOString(),
+        predictions: 3421
+      },
+      {
+        name: "Análise de Custos",
+        status: "training",
+        accuracy: 91.8,
+        lastTrained: new Date(Date.now() - 259200000).toISOString(),
+        predictions: 892
+      },
+      {
+        name: "Detecção de Anomalias",
+        status: "ready",
+        accuracy: 96.1,
+        lastTrained: new Date(Date.now() - 43200000).toISOString(),
+        predictions: 2103
+      },
+      {
+        name: "Demanda de Cargas",
+        status: "ready",
+        accuracy: 87.3,
+        lastTrained: new Date(Date.now() - 86400000).toISOString(),
+        predictions: 756
+      }
+    ]);
+
+    generateInsights();
+  }, [generateInsights]);
+
+  const fetchLiveMetrics = useCallback(async () => {
+    setLiveLoading(true);
+    setLiveError("");
+
+    try {
+      const since = new Date();
+      since.setDate(since.getDate() - REVENUE_LOOKBACK_DAYS);
+      const sinceIso = since.toISOString();
+
+      const results = await Promise.allSettled([
+        supabase
+          .from("revenue_records")
+          .select("valor_frete, data_emissao")
+          .gte("data_emissao", sinceIso)
+          .order("data_emissao", { ascending: false })
+          .limit(LIVE_QUERY_LIMIT),
+        supabase.from("vehicles").select("id, status").limit(LIVE_QUERY_LIMIT),
+        supabase.from("service_orders").select("status").limit(LIVE_QUERY_LIMIT),
+        (supabase as any).from("trips").select("status").limit(LIVE_QUERY_LIMIT),
+        (supabase as any).from("non_conformities").select("severity, status").limit(LIVE_QUERY_LIMIT),
+        supabase
+          .from("refuelings")
+          .select("cost_per_km, timestamp")
+          .order("timestamp", { ascending: false })
+          .limit(LIVE_QUERY_LIMIT),
+      ]);
+
+      const [revenueResult, vehiclesResult, ordersResult, tripsResult, nonConformitiesResult, refuelingsResult] = results;
+      const successfulCount = results.filter(
+        (result) => result.status === "fulfilled" && !result.value?.error
+      ).length;
+
+      const revenueRows =
+        revenueResult.status === "fulfilled" && !revenueResult.value.error ? revenueResult.value.data || [] : [];
+      const vehicleRows =
+        vehiclesResult.status === "fulfilled" && !vehiclesResult.value.error ? vehiclesResult.value.data || [] : [];
+      const orderRows =
+        ordersResult.status === "fulfilled" && !ordersResult.value.error ? ordersResult.value.data || [] : [];
+      const tripRows =
+        tripsResult.status === "fulfilled" && !tripsResult.value.error ? tripsResult.value.data || [] : [];
+      const ncRows =
+        nonConformitiesResult.status === "fulfilled" && !nonConformitiesResult.value.error
+          ? nonConformitiesResult.value.data || []
+          : [];
+      const refuelingRows =
+        refuelingsResult.status === "fulfilled" && !refuelingsResult.value.error ? refuelingsResult.value.data || [] : [];
+
+      const revenue30d = revenueRows.reduce((sum: number, row: any) => sum + Number(row.valor_frete || 0), 0);
+      const vehiclesActive = vehicleRows.filter((vehicle: any) =>
+        matchesAnyKeyword(String(vehicle.status || ""), ACTIVE_VEHICLE_STATUS_KEYWORDS)
+      ).length;
+      const ordersPending = orderRows.filter((order: any) =>
+        PENDING_ORDER_STATUS_PATTERN.test((order.status || "").toLowerCase())
+      ).length;
+      const tripsRunning = tripRows.filter((trip: any) =>
+        RUNNING_TRIP_STATUS_PATTERN.test((trip.status || "").toLowerCase())
+      ).length;
+      const criticalNC = ncRows.filter((nc: any) =>
+        isCriticalNonConformity(String(nc.status || ""), Number(nc.severity || 0))
+      ).length;
+      const averageCostKm =
+        refuelingRows.length > 0
+          ? refuelingRows.reduce((sum: number, row: any) => sum + Number(row.cost_per_km || 0), 0) / refuelingRows.length
+          : null;
+
+      if (successfulCount === 0) {
+        setLiveError("Não foi possível consultar o runtime agora. Exibindo a estrutura premium pronta para operar.");
+        setLiveMetrics((current) => ({
+          ...current,
+          lastUpdated: new Date().toISOString(),
+          source: "fallback",
+        }));
+        return;
+      }
+
+      if (successfulCount < results.length) {
+        setLiveError("Alguns KPIs não responderam no runtime. Exibindo leitura parcial com fallback elegante.");
+      }
+
+      setLiveMetrics({
+        revenue30d,
+        vehiclesActive,
+        tripsRunning,
+        ordersPending,
+        criticalNC,
+        avgCostKm: averageCostKm,
+        lastUpdated: new Date().toISOString(),
+        source: successfulCount === results.length ? "live" : "fallback",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao atualizar KPIs em tempo real.";
+      setLiveError(`${message} Exibindo a estrutura premium pronta para operar.`);
+      setLiveMetrics((current) => ({
+        ...current,
+        lastUpdated: new Date().toISOString(),
+        source: "fallback",
+      }));
+    } finally {
+      setLiveLoading(false);
+    }
+  }, []);
+
   const runAutomatedAnalysis = useCallback(async () => {
     toast({
       title: "Análise Automática",
@@ -412,11 +425,11 @@ export default function SuperGestorAI() {
 
   useEffect(() => {
     const interval = setInterval(
-      fetchLiveMetrics,
+      autoMode ? runAutomatedAnalysis : fetchLiveMetrics,
       autoMode ? AUTO_MODE_REFRESH_INTERVAL_MS : NORMAL_MODE_REFRESH_INTERVAL_MS
     );
     return () => clearInterval(interval);
-  }, [autoMode, fetchLiveMetrics]);
+  }, [autoMode, fetchLiveMetrics, runAutomatedAnalysis]);
 
   const handleAIQuery = async () => {
     if (!query.trim()) return;
@@ -570,7 +583,7 @@ export default function SuperGestorAI() {
               onClick={() => setAutoMode(!autoMode)}
             >
               <Activity className="h-4 w-4 mr-2" />
-              {autoMode ? "Modo Auto Ativo" : "Ativar Modo Auto"}
+              {autoMode ? "Análise Automática Ativa" : "Ativar Análise Automática"}
             </Button>
             <Button onClick={runAutomatedAnalysis}>
               <Sparkles className="h-4 w-4 mr-2" />
@@ -672,7 +685,7 @@ export default function SuperGestorAI() {
                       className="w-full justify-between"
                     >
                       {link.external ? (
-                        <a href={link.href} target="_blank" rel="noreferrer">
+                        <a href={link.href} target="_blank" rel="noopener noreferrer">
                           {link.label}
                           <ArrowUpRight className="h-4 w-4" />
                         </a>
