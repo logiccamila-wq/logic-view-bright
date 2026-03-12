@@ -8,7 +8,7 @@ import Layout from "@/components/layout/Layout";
 import { Suspense, lazy } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
-import LoadingSpinner from "@/components/animations/LoadingSpinner";
+import ImmersiveLoadingScreen from "@/components/animations/ImmersiveLoadingScreen";
 import { SkeletonDashboard, SkeletonPage } from "@/components/skeletons";
 import { AccessibilityAnnouncer } from "@/components/accessibility";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -107,9 +107,7 @@ function App() {
                   <AccessibilityAnnouncer />
                 <div className="min-h-screen bg-background text-foreground">
                   <Suspense fallback={
-                    <div className="flex items-center justify-center h-screen">
-                      <LoadingSpinner size="lg" text="Carregando..." />
-                    </div>
+                    <ImmersiveLoadingScreen />
                   }>
                     <Routes>
                       <Route path="/" element={<LandingPage />} />

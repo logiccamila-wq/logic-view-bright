@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   Building2,
   Users,
@@ -26,6 +27,8 @@ import {
   MessageSquare,
   FileText,
   Database,
+  Globe2,
+  Palette,
 } from "lucide-react";
 import ParticleBackground from "@/components/animations/ParticleBackground";
 import { AnimatedHero } from "@/components/landing/AnimatedHero";
@@ -40,12 +43,27 @@ import { IntegrationGrid } from "@/components/landing/IntegrationGrid";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PRICING } from "@/config/pricing";
+import { supportedLanguages } from "@/lib/i18n/i18n-config";
+import {
+  landingPalettes,
+  landingTranslations,
+  resolveLandingLanguage,
+  resolveLandingPalette,
+} from "@/pages/unifiedLandingContent";
+
+const getLanguageShortName = (languageName: string) => {
+  const normalizedName = languageName.trim();
+  return normalizedName.length > 0 ? normalizedName.split(/\s+/)[0] : "Lang";
+};
 
 export default function UnifiedLandingPage() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAnnual, setIsAnnual] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(() => resolveLandingLanguage(i18n.language));
+  const [selectedPalette, setSelectedPalette] = useState("pilot-blue");
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 100], [0, 0.95]);
 
@@ -62,6 +80,10 @@ export default function UnifiedLandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    setSelectedLanguage(resolveLandingLanguage(i18n.language));
+  }, [i18n.language]);
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -70,12 +92,21 @@ export default function UnifiedLandingPage() {
     }
   };
 
+  const activePalette = resolveLandingPalette(selectedPalette);
+  const copy = landingTranslations[selectedLanguage];
+
   const navigationLinks = [
-    { label: "Soluções", id: "features" },
-    { label: "Planos", id: "pricing" },
-    { label: "Recursos", id: "modules" },
-    { label: "Contato", id: "contact" },
+    { label: copy.navigation.solutions, id: "features" },
+    { label: copy.navigation.plans, id: "pricing" },
+    { label: copy.navigation.resources, id: "modules" },
+    { label: copy.navigation.contact, id: "contact" },
   ];
+
+  const handleLanguageChange = (languageCode: string) => {
+    const nextLanguage = resolveLandingLanguage(languageCode);
+    setSelectedLanguage(nextLanguage);
+    i18n.changeLanguage(nextLanguage);
+  };
 
   const features = [
     {
@@ -373,19 +404,19 @@ export default function UnifiedLandingPage() {
   return (
     <>
       <Helmet>
-        <title>XYZLogicFlow - Plataforma #1 de Gestão Logística com IA | TMS, WMS, ERP</title>
+        <title>{copy.seoTitle}</title>
         <meta
           name="description"
-          content="Transforme sua logística em lucro com IA. Plataforma completa de gestão logística com TMS, WMS, ERP e IA. Otimize rotas, reduza custos em 30% e aumente eficiência."
+          content={copy.seoDescription}
         />
         <meta
           name="keywords"
           content="TMS, WMS, ERP, gestão logística, inteligência artificial, otimização de rotas, blockchain, IoT"
         />
-        <meta property="og:title" content="XYZLogicFlow - Gestão Logística Inteligente" />
+        <meta property="og:title" content={copy.seoTitle} />
         <meta
           property="og:description"
-          content="Plataforma completa de gestão logística com IA. Reduza custos em 30% e aumente produtividade em 40%."
+          content={copy.seoDescription}
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`https://${customDomain}`} />
@@ -393,7 +424,16 @@ export default function UnifiedLandingPage() {
         <link rel="canonical" href={`https://${customDomain}`} />
       </Helmet>
 
-      <div className="relative min-h-screen bg-gray-950 text-white overflow-hidden">
+      <div
+        className="relative min-h-screen overflow-hidden text-white"
+        style={{
+          background: `
+            radial-gradient(circle at top left, ${activePalette.glow} 0%, transparent 24%),
+            radial-gradient(circle at 85% 18%, ${activePalette.secondary}22 0%, transparent 18%),
+            linear-gradient(160deg, ${activePalette.background} 0%, #020617 58%, #0f172a 100%)
+          `,
+        }}
+      >
         {/* Particle Background */}
         <ParticleBackground />
 
@@ -401,8 +441,9 @@ export default function UnifiedLandingPage() {
         <motion.header
           className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
           style={{
-            backgroundColor: scrolled ? "rgba(0, 0, 0, 0.95)" : "transparent",
-            backdropFilter: scrolled ? "blur(10px)" : "none",
+            backgroundColor: scrolled ? "rgba(2, 6, 23, 0.8)" : "transparent",
+            backdropFilter: scrolled ? "blur(18px)" : "none",
+            boxShadow: scrolled ? `0 16px 40px -32px ${activePalette.glow}` : "none",
           }}
         >
           <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -414,11 +455,22 @@ export default function UnifiedLandingPage() {
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative bg-gray-900 p-2 rounded-lg">
-                    <Truck className="h-6 w-6 text-blue-400" />
+                  <div
+                    className="relative rounded-lg p-2"
+                    style={{
+                      backgroundColor: "rgba(15, 23, 42, 0.82)",
+                      border: `1px solid ${activePalette.border}`,
+                    }}
+                  >
+                    <Truck className="h-6 w-6" style={{ color: activePalette.secondary }} />
                   </div>
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <span
+                  className="bg-clip-text text-xl font-bold text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${activePalette.secondary} 0%, #ffffff 44%, ${activePalette.accent} 100%)`,
+                  }}
+                >
                   XYZLogicFlow
                 </span>
               </button>
@@ -432,32 +484,65 @@ export default function UnifiedLandingPage() {
                     className="text-gray-300 hover:text-white transition-colors relative group"
                   >
                     {link.label}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover:w-full transition-all duration-300" />
+                    <span
+                      className="absolute -bottom-1 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-300"
+                      style={{
+                        backgroundImage: `linear-gradient(135deg, ${activePalette.primary} 0%, ${activePalette.accent} 100%)`,
+                      }}
+                    />
                   </button>
                 ))}
               </div>
 
               {/* CTA Buttons */}
               <div className="hidden lg:flex items-center space-x-4">
+                <div
+                  className="flex items-center gap-2 rounded-full border px-2 py-1 backdrop-blur-xl"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.06)",
+                    borderColor: activePalette.border,
+                  }}
+                >
+                  {supportedLanguages.map((language) => (
+                    <button
+                      key={language.code}
+                      type="button"
+                      onClick={() => handleLanguageChange(language.code)}
+                      className="rounded-full px-2.5 py-1 text-xs font-semibold transition-all"
+                      style={{
+                        backgroundColor:
+                          selectedLanguage === language.code ? `${activePalette.secondary}33` : "transparent",
+                        color: selectedLanguage === language.code ? "#fff" : "#cbd5e1",
+                      }}
+                    >
+                      {language.flag}
+                    </button>
+                  ))}
+                </div>
                 <Button
                   variant="ghost"
                   onClick={() => navigate("/login")}
                   className="text-gray-300 hover:text-white"
                 >
-                  Login
+                  {copy.navigation.login}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => navigate("/marketplace")}
                   className="border-gray-600 text-gray-100 hover:bg-gray-800"
+                  style={{ borderColor: activePalette.border }}
                 >
-                  Marketplace
+                  {copy.navigation.marketplace}
                 </Button>
                 <Button
                   onClick={() => scrollToSection("contact")}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                  className="text-white"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${activePalette.primary} 0%, ${activePalette.accent} 100%)`,
+                    boxShadow: `0 18px 40px -26px ${activePalette.glow}`,
+                  }}
                 >
-                  Começar Grátis
+                  {copy.navigation.start}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -465,7 +550,11 @@ export default function UnifiedLandingPage() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors"
+                className="lg:hidden rounded-lg p-2 transition-colors hover:bg-gray-800"
+                style={{
+                  border: `1px solid ${activePalette.border}`,
+                  backgroundColor: "rgba(15, 23, 42, 0.5)",
+                }}
               >
                 {mobileMenuOpen ? (
                   <X className="h-6 w-6" />
@@ -481,9 +570,27 @@ export default function UnifiedLandingPage() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="lg:hidden py-4 border-t border-gray-800"
+                className="lg:hidden border-t py-4"
+                style={{ borderColor: activePalette.border }}
               >
                 <div className="flex flex-col space-y-4">
+                  <div className="flex flex-wrap gap-2 px-4">
+                    {supportedLanguages.map((language) => (
+                      <button
+                        key={language.code}
+                        type="button"
+                        onClick={() => handleLanguageChange(language.code)}
+                        className="rounded-full px-3 py-1.5 text-sm font-medium"
+                        style={{
+                          backgroundColor:
+                            selectedLanguage === language.code ? `${activePalette.secondary}33` : "rgba(255,255,255,0.06)",
+                          border: `1px solid ${activePalette.border}`,
+                        }}
+                      >
+                        {language.flag} {language.code.split("-")[0].toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
                   {navigationLinks.map((link) => (
                     <button
                       key={link.id}
@@ -499,20 +606,23 @@ export default function UnifiedLandingPage() {
                     onClick={() => navigate("/login")}
                     className="w-full justify-start text-gray-300"
                   >
-                    Login
+                    {copy.navigation.login}
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => navigate("/marketplace")}
                     className="w-full justify-start text-gray-300"
                   >
-                    Marketplace
+                    {copy.navigation.marketplace}
                   </Button>
                   <Button
                     onClick={() => scrollToSection("contact")}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500"
+                    className="w-full text-white"
+                    style={{
+                      backgroundImage: `linear-gradient(135deg, ${activePalette.primary} 0%, ${activePalette.accent} 100%)`,
+                    }}
                   >
-                    Começar Grátis
+                    {copy.navigation.start}
                   </Button>
                 </div>
               </motion.div>
@@ -524,28 +634,99 @@ export default function UnifiedLandingPage() {
         <section id="hero" className="relative pt-32 pb-20 lg:pt-40 lg:pb-32">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedHero
-              badge="🚀 Plataforma #1 de Gestão Logística no Brasil"
-              headline="Transforme sua Logística em Lucro com IA"
-              subheadline="Plataforma completa de gestão logística com TMS, WMS, ERP e IA. Otimize rotas, reduza custos e aumente a eficiência da sua operação."
+              badge={copy.hero.badge}
+              headline={copy.hero.headline}
+              subheadline={copy.hero.subheadline}
               primaryCTA={{
-                text: "Teste Grátis 14 Dias",
+                text: copy.hero.primaryCta,
                 onClick: () => scrollToSection("contact"),
               }}
               secondaryCTA={{
-                text: "Entrar no Marketplace",
+                text: copy.hero.secondaryCta,
                 onClick: () => navigate("/marketplace"),
               }}
               trustBadges={[
-                { icon: <Shield className="w-4 h-4" />, text: "LGPD Compliant" },
-                { icon: <Check className="w-4 h-4" />, text: "ISO 27001" },
-                { icon: <TrendingUp className="w-4 h-4" />, text: "99.9% Uptime" },
+                { icon: <Shield className="w-4 h-4" />, text: copy.hero.trustBadges[0] },
+                { icon: <Check className="w-4 h-4" />, text: copy.hero.trustBadges[1] },
+                { icon: <TrendingUp className="w-4 h-4" />, text: copy.hero.trustBadges[2] },
               ]}
+              palette={activePalette}
+              featurePills={copy.hero.featurePills}
+              quickStats={copy.hero.quickStats}
+              visualTitle={copy.hero.visualTitle}
+              visualCaption={copy.hero.visualCaption}
+              visualHighlights={copy.hero.visualHighlights}
+              visualSteps={copy.hero.visualSteps}
+              controls={
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div
+                    className="rounded-[1.75rem] border p-4 backdrop-blur-2xl"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                      borderColor: activePalette.border,
+                    }}
+                  >
+                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-200">
+                      <Globe2 className="h-4 w-4" style={{ color: activePalette.secondary }} />
+                      {copy.controls.language}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {supportedLanguages.map((language) => (
+                        <button
+                          key={language.code}
+                          type="button"
+                          onClick={() => handleLanguageChange(language.code)}
+                          className="rounded-full border px-3 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+                          style={{
+                            borderColor: activePalette.border,
+                            backgroundColor:
+                              selectedLanguage === language.code ? `${activePalette.secondary}33` : "rgba(255,255,255,0.04)",
+                          }}
+                        >
+                          {language.flag} {getLanguageShortName(language.name)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div
+                    className="rounded-[1.75rem] border p-4 backdrop-blur-2xl"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                      borderColor: activePalette.border,
+                    }}
+                  >
+                    <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-200">
+                      <Palette className="h-4 w-4" style={{ color: activePalette.secondary }} />
+                      {copy.controls.palette}
+                    </div>
+                    <p className="mb-3 text-sm text-slate-400">{copy.controls.paletteHint}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {landingPalettes.map((palette) => (
+                        <button
+                          key={palette.id}
+                          type="button"
+                          onClick={() => setSelectedPalette(palette.id)}
+                          className="rounded-full border px-3 py-2 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+                          style={{
+                            borderColor: palette.id === selectedPalette ? `${activePalette.secondary}` : activePalette.border,
+                            backgroundColor:
+                              palette.id === selectedPalette ? `${palette.secondary}26` : "rgba(255,255,255,0.04)",
+                          }}
+                        >
+                          {palette.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              }
             />
           </div>
         </section>
 
         {/* Social Proof Bar */}
-        <section className="relative py-12 bg-gray-900/50 backdrop-blur-sm">
+        <section className="relative py-12 backdrop-blur-sm" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {socialProofStats.map((stat, index) => (
@@ -571,16 +752,16 @@ export default function UnifiedLandingPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-blue-500/10 text-blue-400 border-blue-500/20">
-                Recursos Completos
-              </Badge>
-              <h2 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                Tudo que você precisa em uma plataforma
-              </h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Soluções integradas para transformar sua operação logística
-              </p>
-            </motion.div>
+                <Badge className="mb-4 border" style={{ backgroundColor: `${activePalette.primary}18`, color: "#bfdbfe", borderColor: activePalette.border }}>
+                  {copy.sections.featuresBadge}
+                </Badge>
+               <h2 className="mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-4xl font-bold text-transparent lg:text-5xl">
+                  {copy.sections.featuresTitle}
+                </h2>
+               <p className="mx-auto max-w-3xl text-xl text-gray-400">
+                  {copy.sections.featuresSubtitle}
+                </p>
+              </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, index) => (
@@ -598,7 +779,7 @@ export default function UnifiedLandingPage() {
         </section>
 
         {/* Modules Showcase */}
-        <section id="modules" className="relative py-20 lg:py-32 bg-gray-900/30">
+        <section id="modules" className="relative py-20 lg:py-32" style={{ backgroundColor: "rgba(15, 23, 42, 0.28)" }}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -607,16 +788,16 @@ export default function UnifiedLandingPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-purple-500/10 text-purple-400 border-purple-500/20">
-                Módulos Integrados
-              </Badge>
-              <h2 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                Explore nossos módulos especializados
-              </h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Cada módulo foi desenvolvido para maximizar a eficiência da sua operação
-              </p>
-            </motion.div>
+                <Badge className="mb-4 border" style={{ backgroundColor: `${activePalette.accent}16`, color: "#e9d5ff", borderColor: activePalette.border }}>
+                  {copy.sections.modulesBadge}
+                </Badge>
+               <h2 className="mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-4xl font-bold text-transparent lg:text-5xl">
+                  {copy.sections.modulesTitle}
+                </h2>
+               <p className="mx-auto max-w-3xl text-xl text-gray-400">
+                  {copy.sections.modulesSubtitle}
+                </p>
+              </motion.div>
 
             <ModuleTabs />
           </div>
