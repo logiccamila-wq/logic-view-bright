@@ -50,6 +50,20 @@ For Azure SWA, add the following variables in the portal under **Configuration â
 
 > **Never commit real secrets.** The `.env` and `.env.*` files (except `.env.example`) are gitignored.
 
+## Custom domain validation
+
+If you want Azure Static Web Apps to serve the `devoptlog.xyzlogicflow.com.br` subdomain immediately, use the **CNAME** validation path shown in the Azure portal.
+
+| DNS field | Value |
+|---|---|
+| Record type | `CNAME` |
+| Host / Name | `devoptlog` |
+| Target / Value | `ambitious-ground-0c8824f0f.1.azurestaticapps.net` |
+
+- This is the simplest option when the subdomain can point directly to Azure Static Web Apps.
+- Azure may also offer a **TXT** ownership record if you want to validate the domain before switching traffic later, but the CNAME approach is the most direct method when the subdomain can immediately point to Azure Static Web Apps.
+- After adding the CNAME with your DNS provider, allow up to 48 hours for propagation before retrying validation in Azure.
+
 ## Node.js version
 
 The project pins Node.js via `.nvmrc` (currently `20.19.5`). Azure SWA honors this file automatically.  
