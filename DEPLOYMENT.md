@@ -11,8 +11,9 @@ This is the main checked-in pipeline for the repository. It shows:
 - when automation runs (`push` and `pull_request` on the `main` branch)
 - the build job with `npm ci`, `npm run check`, and `npm run build`
 - the deploy job for Azure App Service
+- an explicit validation step for `AZURE_CREDENTIALS` and `AZURE_WEBAPP_NAME`
 
-Automatic deployment only runs on `push` to `main` when these GitHub settings exist:
+Automatic deployment runs on `push` to `main` and requires these GitHub settings:
 
 - secret `AZURE_CREDENTIALS`
 - variable `AZURE_WEBAPP_NAME`

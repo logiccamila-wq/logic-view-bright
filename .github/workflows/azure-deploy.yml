@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.AZURE_CREDENTIALS != '' && vars.AZURE_WEBAPP_NAME != ''
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,6 +52,14 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Validate Azure deploy configuration
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+        run: |
+          test -n "$AZURE_CREDENTIALS" || { echo "Missing required GitHub secret: AZURE_CREDENTIALS"; exit 1; }
+          test -n "$AZURE_WEBAPP_NAME" || { echo "Missing required GitHub variable: AZURE_WEBAPP_NAME"; exit 1; }
 
       - name: Azure login
         uses: azure/login@v2
