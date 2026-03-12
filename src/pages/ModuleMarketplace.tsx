@@ -44,6 +44,8 @@ import { modules as registry } from '@/modules/registry';
 import { mergeUniqueModules, resolveModuleRoute } from '@/modules/moduleNavigation';
 import { runtimeClient } from '@/integrations/azure/client';
 
+const INSTALL_ALL_MODULE_ID = 'all';
+
 const ModuleMarketplace: React.FC = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -308,7 +310,7 @@ const ModuleMarketplace: React.FC = () => {
     successMessage: string,
     errorMessage: string,
   ) => {
-    if (moduleId === 'all') {
+    if (moduleId === INSTALL_ALL_MODULE_ID) {
       toast.info('A instalação em lote depende do backend publicado.');
       return;
     }
@@ -468,7 +470,7 @@ const ModuleMarketplace: React.FC = () => {
                   </button>
                 ))}
                 <button
-                  onClick={() => handleInstall('all')}
+                  onClick={() => handleInstall(INSTALL_ALL_MODULE_ID)}
                   className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors font-medium"
                 >
                   {t('marketplace.actions.installAll')}

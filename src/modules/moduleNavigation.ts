@@ -1,4 +1,4 @@
-import { modules as registry } from "@/modules/registry";
+import { modules as registry } from "./registry";
 
 const moduleRouteAliases: Record<string, string> = {
   dashboard: "/dashboard",

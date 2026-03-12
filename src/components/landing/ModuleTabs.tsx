@@ -23,6 +23,7 @@ interface Module {
   name: string;
   description: string;
   icon: React.ReactNode;
+  route?: string;
 }
 
 interface TabCategory {
@@ -57,9 +58,9 @@ const defaultCategories: TabCategory[] = [
     label: "Comercial",
     modules: [
       { id: "crm", name: "CRM", description: "Gestão de clientes", icon: <Users className="w-5 h-5" /> },
-      { id: "crm", name: "Propostas", description: "Orçamentos digitais", icon: <FileText className="w-5 h-5" /> },
-      { id: "crm", name: "Comissões", description: "Cálculo automático", icon: <DollarSign className="w-5 h-5" /> },
-      { id: "crm", name: "Pipeline", description: "Funil de vendas", icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "crm-proposals", name: "Propostas", description: "Orçamentos digitais", icon: <FileText className="w-5 h-5" />, route: "/crm" },
+      { id: "crm-commissions", name: "Comissões", description: "Cálculo automático", icon: <DollarSign className="w-5 h-5" />, route: "/crm" },
+      { id: "crm-pipeline", name: "Pipeline", description: "Funil de vendas", icon: <TrendingUp className="w-5 h-5" />, route: "/crm" },
     ],
   },
   {
@@ -119,7 +120,7 @@ export function ModuleTabs({ categories = defaultCategories }: ModuleTabsProps) 
                 >
                   <button
                     type="button"
-                    onClick={() => navigate(resolveModuleRoute(module.id))}
+                    onClick={() => navigate(module.route || resolveModuleRoute(module.id))}
                     className="w-full rounded-xl border border-white/20 bg-white/10 p-6 text-left backdrop-blur-lg transition-all duration-300 hover:border-indigo-500/50 dark:bg-black/10"
                   >
                     <div className="flex items-start gap-4">
