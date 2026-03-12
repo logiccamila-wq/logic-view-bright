@@ -41,6 +41,10 @@ const AI_CONFIDENCE_MAX = 97;
 const DEFAULT_AI_CONFIDENCE = 84;
 const QUERY_INSIGHT_CONFIDENCE = 82;
 const FALLBACK_INSIGHT_CONFIDENCE = 74;
+const CRITICAL_OPERATIONS_CONFIDENCE = 93;
+const NORMAL_OPERATIONS_CONFIDENCE = 79;
+const FUEL_DATA_AVAILABLE_CONFIDENCE = 88;
+const FUEL_DATA_INSUFFICIENT_CONFIDENCE = 70;
 const SUPERGESTOR_MODELS: MLModel[] = [
   {
     name: "Previsão de Manutenção",
@@ -102,6 +106,10 @@ export default function Supergestor() {
 
   const showPlannedActionToast = (title: string, description: string) => {
     toast({ title, description });
+  };
+
+  const addInsight = (insight: AIInsight) => {
+    setAiInsights((prev) => [insight, ...prev].slice(0, MAX_AI_INSIGHTS));
   };
 
   const fetchInsights = useCallback(async () => {
@@ -187,6 +195,8 @@ export default function Supergestor() {
       const tire = (tpms && tpms.length > 0) ? predictTireFailureRisk(tpms) : null;
 
       const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+      const hasFuelCostData = Number.isFinite(fuel.avgCostPerKm);
+
       const list: Metric[] = [
         { title: "Receita Total (12m)", value: fmt.format(receitaTotal || 0) },
         { title: "ICMS Total (12m)", value: fmt.format(icmsTotal || 0) },
@@ -194,7 +204,7 @@ export default function Supergestor() {
         { title: "Ordens Pendentes", value: ordersPending || 0 },
         { title: "NCs Críticas", value: criticalNC || 0 },
         { title: "Rotas em Andamento", value: tripsRunning || 0 },
-        { title: "Custo/KM Médio", value: fuel.avgCostPerKm > 0 ? fmt.format(fuel.avgCostPerKm) : "--" },
+        { title: "Custo/KM Médio", value: hasFuelCostData ? fmt.format(fuel.avgCostPerKm) : "--" },
         { title: "Previsões Manutenção (30d)", value: predictedMaint || 0, detail: tire ? `Risco pneus: ${tire.riskScore}%` : undefined },
       ];
       setMetrics(list);
@@ -219,7 +229,7 @@ export default function Supergestor() {
             criticalNC > 0
               ? `${criticalNC} NC(s) crítica(s) e ${ordersPending} ordem(ns) pendente(s) exigem atenção imediata.`
               : `${tripsRunning} rota(s) em andamento com operação sem NCs críticas abertas.`,
-          confidence: criticalNC > 0 ? 93 : 79,
+          confidence: criticalNC > 0 ? CRITICAL_OPERATIONS_CONFIDENCE : NORMAL_OPERATIONS_CONFIDENCE,
           impact: criticalNC > 0 ? "high" : ordersPending > 5 ? "medium" : "low",
           action: criticalNC > 0 ? "Acionar responsáveis e revisar desvios operacionais" : "Acompanhar ordens pendentes pelo cockpit",
         },
@@ -228,10 +238,10 @@ export default function Supergestor() {
           type: "optimization",
           title: "Eficiência de custos",
           description:
-            fuel.avgCostPerKm > 0
+            hasFuelCostData
               ? `Custo médio por KM em ${fmt.format(fuel.avgCostPerKm)}. Combine esse dado com receita de ${fmt.format(receitaTotal || 0)} para recalibrar margens.`
               : "Dados de abastecimento insuficientes para calcular custo por KM com precisão.",
-          confidence: fuel.avgCostPerKm > 0 ? 88 : 70,
+          confidence: hasFuelCostData ? FUEL_DATA_AVAILABLE_CONFIDENCE : FUEL_DATA_INSUFFICIENT_CONFIDENCE,
           impact: receitaTotal > icmsTotal ? "medium" : "high",
           action: "Revisar contratos e rotas com maior custo operacional",
         },
@@ -273,7 +283,7 @@ export default function Supergestor() {
         action: "Revisar recomendação e aplicar no módulo correspondente",
       };
 
-      setAiInsights((prev) => [generatedInsight, ...prev].slice(0, MAX_AI_INSIGHTS));
+      addInsight(generatedInsight);
 
       toast({
         title: "Consulta concluída",
@@ -290,7 +300,7 @@ export default function Supergestor() {
         action: "Executar análise detalhada com os dados operacionais disponíveis",
       };
 
-      setAiInsights((prev) => [fallbackInsight, ...prev].slice(0, MAX_AI_INSIGHTS));
+      addInsight(fallbackInsight);
 
       toast({
         title: "Modo local ativado",
