@@ -171,6 +171,23 @@ const premiumModuleKits = modules
             : "kit comando premium",
   }));
 
+const LIVE_QUERY_LIMIT = 500;
+const CRITICAL_SEVERITY_THRESHOLD = 7;
+const AUTO_MODE_REFRESH_INTERVAL_MS = 60_000;
+const NORMAL_MODE_REFRESH_INTERVAL_MS = 180_000;
+const ACTIVE_VEHICLE_STATUS_KEYWORDS = ["ATIV", "ACTIVE"];
+const PENDING_ORDER_STATUS_PATTERN = /abert|pend/;
+const RUNNING_TRIP_STATUS_PATTERN = /andamento|ativa|em andamento/;
+
+function matchesAnyKeyword(value: string, keywords: readonly string[]) {
+  const normalizedValue = value.toUpperCase();
+  return keywords.some((keyword) => normalizedValue.includes(keyword));
+}
+
+function isCriticalNonConformity(status: string, severity: number) {
+  return status.toLowerCase().includes("open") || severity >= CRITICAL_SEVERITY_THRESHOLD;
+}
+
 export default function SuperGestorAI() {
   const { toast } = useToast();
   const [query, setQuery] = useState("");
@@ -235,16 +252,16 @@ export default function SuperGestorAI() {
           .from("revenue_records")
           .select("valor_frete, data_emissao")
           .order("data_emissao", { ascending: false })
-          .limit(500),
+          .limit(LIVE_QUERY_LIMIT),
         supabase.from("vehicles").select("id, status"),
         supabase.from("service_orders").select("status"),
-        (supabase as any).from("trips").select("status").limit(500),
-        (supabase as any).from("non_conformities").select("severity, status").limit(500),
+        (supabase as any).from("trips").select("status").limit(LIVE_QUERY_LIMIT),
+        (supabase as any).from("non_conformities").select("severity, status").limit(LIVE_QUERY_LIMIT),
         supabase
           .from("refuelings")
           .select("cost_per_km, timestamp")
           .order("timestamp", { ascending: false })
-          .limit(500),
+          .limit(LIVE_QUERY_LIMIT),
       ]);
 
     const revenueRows =
@@ -264,23 +281,18 @@ export default function SuperGestorAI() {
 
     const since = new Date();
     since.setDate(since.getDate() - 30);
+    const sinceTimestamp = since.getTime();
 
     const revenue30d = revenueRows
-      .filter((row: any) => new Date(row.data_emissao).getTime() >= since.getTime())
+      .filter((row: any) => new Date(row.data_emissao).getTime() >= sinceTimestamp)
       .reduce((sum: number, row: any) => sum + (row.valor_frete || 0), 0);
 
-    const vehiclesActive =
-      vehicleRows.filter((vehicle: any) => String(vehicle.status || "").toUpperCase().includes("ATIV")).length ||
-      vehicleRows.length;
-    const ordersPending = orderRows.filter((order: any) =>
-      (order.status || "").toLowerCase().match(/abert|pend/)
-    ).length;
-    const tripsRunning = tripRows.filter((trip: any) =>
-      (trip.status || "").toLowerCase().match(/andamento|ativa|em andamento/)
-    ).length;
-    const criticalNC = ncRows.filter((nc: any) =>
-      (nc.status || "").toLowerCase().includes("open") || (nc.severity || 0) >= 7
-    ).length;
+    const vehiclesActive = vehicleRows.length
+      ? vehicleRows.filter((vehicle: any) => matchesAnyKeyword(String(vehicle.status || ""), ACTIVE_VEHICLE_STATUS_KEYWORDS)).length
+      : 0;
+    const ordersPending = orderRows.filter((order: any) => PENDING_ORDER_STATUS_PATTERN.test((order.status || "").toLowerCase())).length;
+    const tripsRunning = tripRows.filter((trip: any) => RUNNING_TRIP_STATUS_PATTERN.test((trip.status || "").toLowerCase())).length;
+    const criticalNC = ncRows.filter((nc: any) => isCriticalNonConformity(String(nc.status || ""), Number(nc.severity || 0))).length;
     const averageCostKm =
       refuelingRows.length > 0
         ? refuelingRows.reduce((sum: number, row: any) => sum + Number(row.cost_per_km || 0), 0) / refuelingRows.length
@@ -319,34 +331,7 @@ export default function SuperGestorAI() {
     setLiveLoading(false);
   }, []);
 
-  const runAutomatedAnalysis = useCallback(async () => {
-    toast({
-      title: "Análise Automática",
-      description: "IA executando varredura completa do sistema..."
-    });
-
-    // Simular análise com IA
-    setTimeout(() => {
-      generateInsights();
-      fetchLiveMetrics();
-      toast({
-        title: "Análise Concluída",
-        description: "Novos insights e recomendações disponíveis"
-      });
-    }, 2000);
-  }, [fetchLiveMetrics, toast]);
-
-  useEffect(() => {
-    loadInitialData();
-    fetchLiveMetrics();
-  }, [fetchLiveMetrics, loadInitialData]);
-
-  useEffect(() => {
-    const interval = setInterval(fetchLiveMetrics, autoMode ? 60000 : 180000);
-    return () => clearInterval(interval);
-  }, [autoMode, fetchLiveMetrics]);
-
-  const generateInsights = async () => {
+  const generateInsights = useCallback(() => {
     const mockInsights: AIInsight[] = [
       {
         id: "1",
@@ -401,7 +386,37 @@ export default function SuperGestorAI() {
     ];
 
     setInsights(mockInsights);
-  };
+  }, []);
+
+  const runAutomatedAnalysis = useCallback(async () => {
+    toast({
+      title: "Análise Automática",
+      description: "IA executando varredura completa do sistema..."
+    });
+
+    // Simular análise com IA
+    setTimeout(() => {
+      generateInsights();
+      fetchLiveMetrics();
+      toast({
+        title: "Análise Concluída",
+        description: "Novos insights e recomendações disponíveis"
+      });
+    }, 2000);
+  }, [fetchLiveMetrics, generateInsights, toast]);
+
+  useEffect(() => {
+    loadInitialData();
+    fetchLiveMetrics();
+  }, [fetchLiveMetrics, loadInitialData]);
+
+  useEffect(() => {
+    const interval = setInterval(
+      fetchLiveMetrics,
+      autoMode ? AUTO_MODE_REFRESH_INTERVAL_MS : NORMAL_MODE_REFRESH_INTERVAL_MS
+    );
+    return () => clearInterval(interval);
+  }, [autoMode, fetchLiveMetrics]);
 
   const handleAIQuery = async () => {
     if (!query.trim()) return;
@@ -464,6 +479,13 @@ export default function SuperGestorAI() {
     maximumFractionDigits: 0,
   });
 
+  const preciseCurrencyFormatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   const liveKpiCards = [
     {
       title: "Receita 30d",
@@ -512,7 +534,7 @@ export default function SuperGestorAI() {
     },
     {
       title: "Custo/KM Médio",
-      value: liveMetrics.avgCostKm !== null ? `R$ ${liveMetrics.avgCostKm.toFixed(2)}` : "--",
+      value: liveMetrics.avgCostKm !== null ? preciseCurrencyFormatter.format(liveMetrics.avgCostKm) : "--",
       icon: TrendingUp,
       trend: {
         value: "referência financeira integrada",

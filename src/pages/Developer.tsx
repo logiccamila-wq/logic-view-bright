@@ -307,8 +307,11 @@ const Developer = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="functions" className="w-full">
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-2">
+        <Tabs defaultValue="organization" className="w-full">
+          <TabsList
+            className="flex h-auto w-full flex-wrap justify-start gap-2"
+            aria-label="Navegação do painel do desenvolvedor"
+          >
             <TabsTrigger value="organization">Organização</TabsTrigger>
             <TabsTrigger value="functions">Edge Functions</TabsTrigger>
             <TabsTrigger value="database">Database</TabsTrigger>
