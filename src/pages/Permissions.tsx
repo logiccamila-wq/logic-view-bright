@@ -58,6 +58,106 @@ const ROLE_INFO: Record<AppRole, { name: string; color: string; description: str
   maintenance_manager: { name: 'Gerente de Manutenção', color: 'bg-pink-500', description: 'Gestão de manutenção' },
 };
 
+const GITHUB_COPILOT_AGENT_PERMISSIONS = [
+  {
+    category: 'Em geral',
+    permissions: [
+      'Alterar configurações de rastreamento',
+      'Criar novos projetos',
+      'Excluir projeto de equipe',
+      'Editar informações de nível de instância',
+      'Exibir informações em nível de instância',
+    ],
+  },
+  {
+    category: 'Conta de serviço',
+    permissions: [
+      'Fazer pedidos em nome de outras pessoas.',
+      'Eventos de gatilho',
+      'Visualizar informações de sincronização do sistema',
+    ],
+  },
+  {
+    category: 'Tábuas',
+    permissions: [
+      'Administrar permissões de processo',
+      'Criar processo',
+      'Excluir campo da organização',
+      'Excluir processo',
+      'Processo de edição',
+    ],
+  },
+  {
+    category: 'Descansar',
+    permissions: [
+      'Administrar alterações arquivadas',
+      'Administrar espaços de trabalho',
+      'Crie um espaço de trabalho',
+    ],
+  },
+  {
+    category: 'Oleodutos',
+    permissions: [
+      'Administrar permissões de recursos de compilação',
+      'Gerenciar recursos de construção',
+      'Gerenciar políticas de dutos',
+      'Use os recursos de construção',
+      'Veja os recursos de construção',
+    ],
+  },
+  {
+    category: 'Planos de teste',
+    permissions: ['Gerenciar controladores de teste'],
+  },
+  {
+    category: 'Auditoria',
+    permissions: [
+      'Excluir fluxos de auditoria',
+      'Gerenciar fluxos de auditoria',
+      'Visualizar registro de auditoria',
+    ],
+  },
+  {
+    category: 'Políticas',
+    permissions: ['Gerenciar políticas empresariais'],
+  },
+] as const;
+
+const GITHUB_COPILOT_AGENT_USERS = [
+  {
+    name: 'Camila Lareste Gomes da Silva',
+    identifier: 'camila.lareste@ufrpe.br',
+    accessLevel: 'Básico',
+    microsoftEntraType: 'Usuário',
+    addedAt: '06/03/2026',
+    lastAccess: '12/03/2026',
+  },
+  {
+    name: 'API GitHub Actions - Desenvolvedor',
+    identifier: 'b9a50111-7110-459d-bc13-534691bd5b7b',
+    accessLevel: 'Básico',
+    microsoftEntraType: 'Aplicativo',
+    addedAt: '12/03/2026',
+    lastAccess: 'Nunca',
+  },
+  {
+    name: 'camilalareste-2498-projetos de recursos camilalareste-2498',
+    identifier: 'e20bee31-2dc9-40a8-b01b-9437713af7ca',
+    accessLevel: 'Parte interessada',
+    microsoftEntraType: 'Grupo',
+    addedAt: '06/03/2026',
+    lastAccess: 'Nunca',
+  },
+  {
+    name: 'camilalareste-2498-recurso-camilalareste-2498-AgentIdentityBlueprint',
+    identifier: 'c1f50454-242a-486f-8d88-bdb93d77225d',
+    accessLevel: 'Parte interessada',
+    microsoftEntraType: 'Grupo',
+    addedAt: '06/03/2026',
+    lastAccess: 'Nunca',
+  },
+] as const;
+
 function safeJson(r: Response) {
   const ct = r.headers.get("content-type") || "";
   if (!ct.includes("application/json")) throw new Error("Resposta não JSON");
@@ -120,6 +220,103 @@ const Permissions = () => {
                   {ROLE_INFO[role].name}
                 </Badge>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Agente de codificação do GitHub Copilot
+            </CardTitle>
+            <CardDescription>
+              Todas as permissões abaixo estão configuradas como permitidas para o agente.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {GITHUB_COPILOT_AGENT_PERMISSIONS.map(({ category, permissions }) => (
+              <div key={category} className="space-y-3">
+                <div className="flex items-center justify-between gap-3 border-b pb-2">
+                  <h3 className="font-semibold">{category}</h3>
+                  <Badge className="bg-green-600 text-white">Permitido</Badge>
+                </div>
+                <div className="grid gap-2">
+                  {permissions.map((permission) => (
+                    <div
+                      key={permission}
+                      className="flex items-center justify-between gap-3 rounded-md border px-3 py-2"
+                    >
+                      <span className="text-sm">{permission}</span>
+                      <Badge variant="outline" className="border-green-600 text-green-700">
+                        <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                        Permitir
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Usuários do grupo GitHub Copilot
+            </CardTitle>
+            <CardDescription>
+              Todos os usuários, regras do grupo e resumo de acesso associados ao agente.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="mt-1 text-2xl font-semibold">{GITHUB_COPILOT_AGENT_USERS.length}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Filtro</p>
+                <p className="mt-1 font-medium">Todos os usuários</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Regras do grupo</p>
+                <p className="mt-1 font-medium">Usuários de exportação</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Nível de acesso</p>
+                <p className="mt-1 font-medium">Básico / Parte interessada</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="p-3 text-left font-semibold">Usuário</th>
+                    <th className="p-3 text-left font-semibold">Identificador</th>
+                    <th className="p-3 text-left font-semibold">Nível de acesso</th>
+                    <th className="p-3 text-left font-semibold">Tipo de usuário Microsoft Entra</th>
+                    <th className="p-3 text-left font-semibold">Adicionado em</th>
+                    <th className="p-3 text-left font-semibold">Último acesso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {GITHUB_COPILOT_AGENT_USERS.map((user) => (
+                    <tr key={user.identifier} className="border-b align-top">
+                      <td className="p-3 font-medium">{user.name}</td>
+                      <td className="p-3 text-sm text-muted-foreground">{user.identifier}</td>
+                      <td className="p-3">
+                        <Badge variant="outline">{user.accessLevel}</Badge>
+                      </td>
+                      <td className="p-3 text-sm">{user.microsoftEntraType}</td>
+                      <td className="p-3 text-sm">{user.addedAt}</td>
+                      <td className="p-3 text-sm">{user.lastAccess}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
