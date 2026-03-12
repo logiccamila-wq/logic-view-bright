@@ -436,7 +436,10 @@ export default function SuperGestorAI() {
         </Card>
 
         <Tabs defaultValue="insights" className="space-y-4">
-          <TabsList className="flex h-auto flex-wrap gap-2">
+          <TabsList
+            className="flex h-auto flex-wrap gap-2"
+            aria-label="Navegação das áreas operacionais e analíticas do SuperGestor AI"
+          >
             <TabsTrigger value="insights">Insights IA</TabsTrigger>
             <TabsTrigger value="models">Modelos ML</TabsTrigger>
             <TabsTrigger value="automation">Automação</TabsTrigger>
