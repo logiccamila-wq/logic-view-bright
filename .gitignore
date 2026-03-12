@@ -34,6 +34,7 @@ optilog.app/
 
 # Logs
 *.log
+*.pid
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -48,6 +49,15 @@ _ci_build_artifacts/
 *.xlsx
 *.xls
 *.csv
+
+# Editor/runtime temporary files
+*.swp
+*.swo
+.*.swp
+.*.swo
+*~
+.dev_pid
+/.dev_pid
 
 # Legacy cloud/tooling folders not used in primary production flow
 .netlify/
