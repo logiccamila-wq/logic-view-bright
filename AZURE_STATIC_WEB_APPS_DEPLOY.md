@@ -57,11 +57,11 @@ If you want Azure Static Web Apps to serve the `devoptlog.xyzlogicflow.com.br` s
 | DNS field | Value |
 |---|---|
 | Record type | `CNAME` |
-| Host / Name | `devoptlog` (`devoptlog.xyzlogicflow.com.br`) |
+| Host / Name | `devoptlog` |
 | Target / Value | `ambitious-ground-0c8824f0f.1.azurestaticapps.net` |
 
-- This is the simplest option when the subdomain can point directly to Azure Static Web Apps now.
-- Azure may also offer a **TXT** ownership record if you want to validate the domain before switching traffic later, but that is not the immediate path requested here.
+- This is the simplest option when the subdomain can point directly to Azure Static Web Apps.
+- Azure may also offer a **TXT** ownership record if you want to validate the domain before switching traffic later, but the CNAME approach is the most direct method when the subdomain can immediately point to Azure Static Web Apps.
 - After adding the CNAME with your DNS provider, allow up to 48 hours for propagation before retrying validation in Azure.
 
 ## Node.js version
