@@ -57,7 +57,7 @@ If you want Azure Static Web Apps to serve the `devoptlog.xyzlogicflow.com.br` s
 | DNS field | Value |
 |---|---|
 | Record type | `CNAME` |
-| Host / Name | `Devoptlog` (`devoptlog.xyzlogicflow.com.br`) |
+| Host / Name | `devoptlog` (`devoptlog.xyzlogicflow.com.br`) |
 | Target / Value | `ambitious-ground-0c8824f0f.1.azurestaticapps.net` |
 
 - This is the simplest option when the subdomain can point directly to Azure Static Web Apps now.
