@@ -59,8 +59,7 @@ _ci_build_artifacts/
 .dev_pid
 /.dev_pid
 
-# Legacy cloud/tooling folders not used in primary production flow
-.netlify/
+# Legacy tooling folders not used in the Azure production flow
 .wrangler/
 .trae/
 *.tsbuildinfo

@@ -35,6 +35,8 @@ npm run dev
 
 ## Azure deployment
 
+Production deployment is 100% Azure. The active delivery path uses Azure Static Web Apps, Azure Functions/runtime APIs, Azure Database for PostgreSQL, and GitHub Actions only. Legacy alternatives such as Vercel and Netlify are not part of the supported deployment flow for this repository.
+
 ### Frontend
 - Build output is generated in `dist/`
 - Static Web Apps routing is configured in `staticwebapp.config.json`
