@@ -17,24 +17,32 @@ O deploy automático só acontece no `push` para `main` quando estas configuraç
 - secret `AZURE_CREDENTIALS`
 - variable `AZURE_WEBAPP_NAME`
 
-## 2. Configuração Azure
+## 2. Configuração Azure para empacotamento e runtime
 
 Arquivo: `azure.yaml`
 
-Esse arquivo mostra como a aplicação é empacotada e iniciada no Azure App Service:
+Esse arquivo mostra o fluxo de empacotamento e inicialização configurado no repositório:
 
 - `npm install`
 - `npm run build`
 - `npm start`
 
-## 3. Entry point da aplicação publicada
+## 3. Arquivos de runtime para conferir
 
-Arquivo: `server/index.js`
+- `server/index.js` - entry point Node.js usado quando o app roda como servidor publicado
+- `api/runtime/index.js` - handlers compartilhados do runtime/API usados na camada Azure
 
-Esse é o processo Node.js iniciado em produção para servir o frontend e as rotas `/api/runtime/*`.
+## 4. Azure Static Web Apps
 
-## 4. Observação importante
+Arquivo: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
 
-O fluxo padrão deste repositório é **Azure App Service + GitHub Actions**.
+Esse documento mostra o caminho alternativo/dirigido a Azure Static Web Apps para frontend e explica quais ajustes seriam necessários nesse modelo.
 
-O arquivo `AZURE_STATIC_WEB_APPS_DEPLOY.md` é apenas uma referência opcional para hospedar **somente o frontend** no Azure Static Web Apps. Ele **não** é o deploy principal usado hoje.
+## 5. Como responder rápido
+
+Se você quer descobrir **onde olhar**:
+
+- pipeline do GitHub: `.github/workflows/azure-deploy.yml`
+- configuração Azure do app: `azure.yaml`
+- runtime/backend: `api/runtime/index.js` e `server/index.js`
+- documentação específica de Static Web Apps: `AZURE_STATIC_WEB_APPS_DEPLOY.md`
