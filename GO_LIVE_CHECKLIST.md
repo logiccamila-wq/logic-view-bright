@@ -43,6 +43,10 @@
   - `ns3-07.azure-dns.org`
   - `ns4-07.azure-dns.info`
 - [ ] Certificado TLS ativo e renovação automática habilitada
+- [ ] Subdomínio `devoptlog.xyzlogicflow.com.br` validado no Azure Static Web Apps via CNAME:
+  - Host / Name: `Devoptlog`
+  - Target / Value: `ambitious-ground-0c8824f0f.1.azurestaticapps.net`
+  - Aguardar propagação DNS (até 48 horas) antes de repetir a validação
 - [ ] Variáveis em SWA configuradas:
 - [ ] `VITE_APP_URL=https://www.xyzlogicflow.com.br`
 - [ ] `VITE_API_BASE_URL=/api`
