@@ -96,12 +96,15 @@ const ERPSystemShaderStyle = lazy(() => import("@/pages/ERPSystemShaderStyle"));
 const Sitemap = lazy(() => import("@/pages/Sitemap"));
 
 function App() {
+  // React Router expects a basename without a trailing slash (except for root).
+  const routerBase = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
   return (
     <ErrorBoundary>
       <HelmetProvider>
         <I18nextProvider i18n={i18n}>
           <AppThemeProvider>
-            <Router>
+            <Router basename={routerBase}>
               <AuthProvider>
                 <NotificationsProvider>
                   <AccessibilityAnnouncer />
