@@ -22,12 +22,36 @@ const staticFileRateLimit = rateLimit({
   legacyHeaders: false,
 });
 
+const resolveBasePath = (appUrl) => {
+  if (!appUrl) {
+    return '/';
+  }
+
+  let basePath = appUrl;
+  try {
+    basePath = new URL(appUrl).pathname;
+  } catch {
+    basePath = appUrl;
+  }
+
+  if (!basePath.startsWith('/')) {
+    basePath = `/${basePath}`;
+  }
+
+  if (basePath.length > 1 && basePath.endsWith('/')) {
+    basePath = basePath.slice(0, -1);
+  }
+
+  return basePath || '/';
+};
+
 function createApp() {
   setupApplicationInsights();
 
   const app = express();
   const distPath = path.resolve(__dirname, '..', 'dist');
   const indexPath = path.join(distPath, 'index.html');
+  const basePath = resolveBasePath(process.env.VITE_APP_URL);
 
   app.disable('x-powered-by');
   app.set('trust proxy', true);
@@ -39,7 +63,7 @@ function createApp() {
   app.use('/api/runtime', runtimeRoutes);
   app.use('/api', apiRoutes);
 
-  app.use(express.static(distPath, {
+  const staticAssets = express.static(distPath, {
     setHeaders(res, filePath) {
       if (filePath.endsWith('.css')) {
         res.setHeader('Content-Type', 'text/css; charset=utf-8');
@@ -47,7 +71,12 @@ function createApp() {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
       }
     },
-  }));
+  });
+
+  app.use(staticAssets);
+  if (basePath !== '/') {
+    app.use(basePath, staticAssets);
+  }
   app.get(NON_API_ROUTE_PATTERN, staticFileRateLimit, (_req, res) => {
     res.sendFile(indexPath, (error) => {
       if (error) {
