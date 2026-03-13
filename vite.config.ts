@@ -23,6 +23,7 @@ const resolveBasePath = (appUrl?: string) => {
     return basePath;
   }
 
+  // Vite expects non-root bases to end with a trailing slash for correct asset URLs.
   return basePath.endsWith('/') ? basePath : `${basePath}/`;
 };
 

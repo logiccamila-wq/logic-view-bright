@@ -38,6 +38,7 @@ const resolveBasePath = (appUrl) => {
     basePath = `/${basePath}`;
   }
 
+  // Express routing should not include a trailing slash for non-root base paths.
   if (basePath.length > 1 && basePath.endsWith('/')) {
     basePath = basePath.slice(0, -1);
   }
